@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
+             xmlns:u="https://irihi.tech/ursa"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="workingCopy:WorkingCopyViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.WorkingCopyView">
+
+
+    <Grid RowDefinitions="Auto, Auto, *">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="3">
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Border HorizontalAlignment="Left"
+                        Theme="{StaticResource RadioButtonGroupBorder}">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton
+                            FontSize="12"
+                            GroupName="LocalOrRemote"
+                            Padding="6 2"
+                            IsChecked="{Binding IsRemoteView}"
+                            Theme="{DynamicResource ButtonRadioButton}">
+                            <LucideIcon Kind="HardDrive" Size="20"></LucideIcon>
+                        </RadioButton>
+                        <RadioButton
+                            GroupName="LocalOrRemote"
+                            FontSize="12"
+                            Padding="6 2"
+                            IsChecked="{Binding IsLocalView}"
+                            Theme="{DynamicResource ButtonRadioButton}">
+                            <LucideIcon Kind="Server" Size="20"></LucideIcon>
+                        </RadioButton>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <Border Grid.Column="1"></Border>
+            <StackPanel Grid.Column="2" FlowDirection="RightToLeft" Orientation="Horizontal" IsVisible="{Binding IsLocalView}">
+                <Border HorizontalAlignment="Left"
+                        Theme="{StaticResource RadioButtonGroupBorder}">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton
+                            FontSize="12"
+                            GroupName="ListOrTree"
+                            Padding="6 2"
+                            IsChecked="{Binding LocalViewModel.IsListView}"
+                            Theme="{DynamicResource ButtonRadioButton}">
+                            <LucideIcon Kind="List" Size="20"></LucideIcon>
+                        </RadioButton>
+                        <RadioButton
+                            GroupName="ListOrTree"
+                            FontSize="12"
+                            Padding="6 2"
+                            IsChecked="{Binding LocalViewModel.IsTreeView}"
+                            Theme="{DynamicResource ButtonRadioButton}">
+                            <LucideIcon Kind="FolderTree" Size="20"></LucideIcon>
+                        </RadioButton>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+        <u:Divider Margin="0"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Stretch"
+                   Grid.Row="1"
+                   Grid.Column="0"
+                   Orientation="Horizontal" />
+        <ContentControl Grid.Row="2" IsVisible="{Binding IsLocalView}" Content="{Binding LocalViewModel}"></ContentControl>
+        <ContentControl Grid.Row="2" IsVisible="{Binding IsRemoteView}" Content="{Binding RemoteViewModel}"></ContentControl>
+    </Grid>
+</UserControl>

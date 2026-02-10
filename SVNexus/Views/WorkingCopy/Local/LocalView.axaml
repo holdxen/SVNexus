@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             x:DataType="workingCopyView1:LocalViewModel"
+             xmlns:ursa="https://irihi.tech/ursa"
+             x:CompileBindings="True"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:lucideAvalonia="clr-namespace:Lucide.Avalonia;assembly=Lucide.Avalonia"
+             xmlns:workingCopyView1="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
+             x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
+    <UserControl.Resources>
+        <!-- <ResourceDictionary> -->
+        <!--     <StaticResource x:Key="TreeViewItemPressedBackground" ResourceKey="TreeViewItemPointeroverBackground"></StaticResource> -->
+        <!--     <converter:KeyToResourceConverter x:Key="KeyToResourceConverter"></converter:KeyToResourceConverter> -->
+        <!--     ~1~ <SolidColorBrush x:Key="TreeViewItemPressedBackground" Color="Red"></SolidColorBrush> @1@ -->
+        <!-- </ResourceDictionary> -->
+    </UserControl.Resources>
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <Grid>
+            <Grid ColumnDefinitions="*, Auto, 4*">
+                <Border Grid.Column="0">
+                    <Grid Margin="3">
+                        <ContentControl IsVisible="{Binding IsTreeView}"
+                                        Content="{Binding LocalTreeViewModel}">
+                        </ContentControl>
+                        <ContentControl IsVisible="{Binding IsListView}"
+                                        Content="{Binding LocalListViewModel}">
+                        </ContentControl>
+                    </Grid>
+                </Border>
+                <GridSplitter
+                    Padding="0"
+                    Grid.Column="1">
+                </GridSplitter>
+                <Grid Grid.Column="2"
+                      MinWidth="2"
+                      RowDefinitions="*, Auto">
+                    <Border CornerRadius="5"
+                            BorderThickness="1"
+                            Grid.Row="0"
+                            Margin="2"
+                            Background="{DynamicResource SemiColorTertiaryLight}">
+                        <avaloniaEdit:TextEditor
+                            FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
+                            FontSize="14"
+                            FontWeight="Light"
+                            IsReadOnly="True"
+                            ShowLineNumbers="True">
+                        </avaloniaEdit:TextEditor>
+                    </Border>
+                    <!-- <Control></Control> -->
+                    <Grid
+                        Grid.Row="1"
+                        Margin="3"
+                        RowDefinitions="*, Auto">
+                        <TextBox VerticalContentAlignment="Top"
+                                 HorizontalContentAlignment="Left"
+                                 MinHeight="100"
+                                 Grid.Row="0"
+                                 Text="{Binding CommitMessage}"
+                                 AcceptsReturn="True">
+                        </TextBox>
+                        <Grid Grid.Row="1"
+                              Margin="0, 10"
+                              ColumnDefinitions="*, Auto">
+                            <Control></Control>
+                            <Button Grid.Column="1"
+                                    Command="{Binding CommitCommand}"
+                                    Content="提交">
+                            </Button>
+
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        <u:OverlayDialogHost x:Name="LocalWorkspaceViewDialogHost">
+        </u:OverlayDialogHost>
+    </Grid>
+</UserControl>

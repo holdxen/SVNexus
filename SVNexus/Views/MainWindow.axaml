@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SVNexus.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SVNexus.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        xmlns:tab="clr-namespace:Tabalonia.Controls;assembly=Tabalonia"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="SVNexus"
+        Background="{DynamicResource TabControlWindowActiveBackgroundBrush}"
+        >
+    <Window.Resources>
+    </Window.Resources>
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+        
+    </Design.DataContext>
+    
+    
+    <tab:TabsControl ItemsSource="{Binding Tabs}"
+                          NewItemFactory="{Binding NewItemFactory}"
+                          SelectedIndex="{Binding SelectedIndex}"
+                          ShowDefaultAddButton="True"
+                          ShowDefaultCloseButton="True"
+                          LeftThumbWidth="0"
+                          Margin="0 8 0 0">
+        <TabControl.ContentTemplate>
+            <DataTemplate DataType="vm:MainWindowViewModel+TabItemViewViewModel">
+                <Grid Background="{DynamicResource SelectedTabItemBackgroundBrush}" RowDefinitions="*" ColumnDefinitions="*">
+                    <ContentControl Content="{Binding Content}"></ContentControl>
+                    <!-- <ContentPresenter Content="{Binding Content}"></ContentPresenter> -->
+                </Grid>
+
+            </DataTemplate>
+        </TabControl.ContentTemplate>
+
+        <TabControl.ItemTemplate>
+            <DataTemplate DataType="vm:MainWindowViewModel+TabItemViewViewModel">
+                <TextBlock Padding="4 0" Text="{Binding Text}" />
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+        
+
+    </tab:TabsControl>
+
+
+
+</Window>

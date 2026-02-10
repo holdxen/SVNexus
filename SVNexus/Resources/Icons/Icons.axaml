@@ -1,0 +1,263 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <system:String x:Key="Icons.TestUnversioned"><![CDATA[
+        <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="7" fill="#22c55e" stroke="#16a34a" stroke-width="1"/>
+            <path d="M5 8l2 2 4-4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    ]]></system:String>
+    
+    
+    <system:String x:Key="Icons.Directory-Open">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFA000">
+            <path d="M19 20H4c-1.11 0-2-.9-2-2V6c0-1.11.89-2 2-2h6l2 2h7c1.11 0 2 .89 2 2H4v10l2.14-8h17.07l-2.28 8.5c-.23.87-1.01 1.5-1.93 1.5z"></path>
+        </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Directory-Close">
+        <![CDATA[
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFA000">
+                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"></path>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.File-Normal">
+        <![CDATA[
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#42A5F5">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"></path>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.File-Symbol">
+        <![CDATA[
+        <svg viewBox="0 0 24 24" fill="#9C27B0">
+            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/><path d="M10.5 13c.28 0 .5.22.5.5s-.22.5-.5.5-.5-.22-.5-.5.22-.5.5-.5m0-2c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5h2c.28 0 .5.22.5.5s-.22.5-.5.5h-2c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5h2c.28 0 .5.22.5.5s-.22.5-.5.5h-2m3 2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5m0 2c1.38 0 2.5-1.12 2.5-2.5s-1.12-2.5-2.5-2.5h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2c1.93 0 3.5 1.57 3.5 3.5s-1.57 3.5-3.5 3.5h-2c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h2" fill="white"/>
+        </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.FileUnknown">
+        <![CDATA[
+            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="#000000"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="#000000" d="M13.586 2A2 2 0 0 1 15 2.586L19.414 7A2 2 0 0 1 20 8.414V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7.586ZM12 4H6v16h12V10h-4.5A1.5 1.5 0 0 1 12 8.5V4Zm0 13a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-6a2.5 2.5 0 0 1 1.546 4.464a12.11 12.11 0 0 0-.292.241c-.407.343-.852.717-1.254.717c-.625 0-.86-.49-.86-.844s.211-.734.385-.948c.254-.313.565-.564.784-.737a.5.5 0 1 0-.809-.393a1 1 0 1 1-2 0A2.5 2.5 0 0 1 12 11Zm2-6.586V8h3.586L14 4.414Z"/></g></svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Unversioned">
+        <![CDATA[
+            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="#000000"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="#000000" d="M13.586 2A2 2 0 0 1 15 2.586L19.414 7A2 2 0 0 1 20 8.414V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7.586ZM12 4H6v16h12V10h-4.5A1.5 1.5 0 0 1 12 8.5V4Zm0 13a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-6a2.5 2.5 0 0 1 1.546 4.464a12.11 12.11 0 0 0-.292.241c-.407.343-.852.717-1.254.717c-.625 0-.86-.49-.86-.844s.211-.734.385-.948c.254-.313.565-.564.784-.737a.5.5 0 1 0-.809-.393a1 1 0 1 1-2 0A2.5 2.5 0 0 1 12 11Zm2-6.586V8h3.586L14 4.414Z"/></g></svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Normal">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#22c55e" stroke="#16a34a" stroke-width="1"/>
+                <path d="M5 8l2 2 4-4" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Added">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#3b82f6" stroke="#2563eb" stroke-width="1"/>
+                <path d="M8 4v8M4 8h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Missing">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="8" r="7" fill="#f87171" stroke="#ef4444" stroke-width="1"/>
+              <text x="8" y="12" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="white">!</text>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Deleted">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#dc2626" stroke="#b91c1c" stroke-width="1"/>
+                <path d="M4 8h8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Replaced">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#8b5cf6" stroke="#7c3aed" stroke-width="1"/>
+                <path d="M6 4c-1.5 1.5-1.5 4.5 0 6M10 12c1.5-1.5 1.5-4.5 0-6" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M4 6l2-2 2 2M12 10l-2 2-2-2" stroke="white" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Modified">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                <text x="8" y="11" text-anchor="middle" font-family="Arial" font-size="9" font-weight="bold" fill="white">M</text>
+            </svg>
+        ]]>
+    </system:String>
+    <!-- <system:String x:Key="Icons.Status-Modified"> -->
+    <!--     <![CDATA[ -->
+    <!--         <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"> -->
+    <!--             <circle cx="8" cy="8" r="7" fill="#f59e0b" stroke="#d97706" stroke-width="1"/> -->
+    <!--             <text x="8" y="12" text-anchor="middle"  fill="white">M</text> -->
+    <!--         </svg> -->
+    <!--     ]]> -->
+    <!-- </system:String> -->
+    
+    <system:String x:Key="Icons.Status-Merged">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#8b5cf6" stroke="#7c3aed" stroke-width="1"/>
+                <path d="M8 3v10M8 8l-4-3M8 8l4-3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Conflicted">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 2l6 12H2z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/>
+                <rect x="7.5" y="6" width="1" height="4" fill="#dc2626" rx="0.5"/>
+                <circle cx="8" cy="12" r="0.5" fill="#dc2626"/>
+            </svg>
+
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Ignored">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="8" cy="8" r="7" fill="#94a3b8" stroke="#64748b" stroke-width="1"/>
+                  <circle cx="5.5" cy="6.5" rx="1" ry="1" fill="white"/>
+                  <circle cx="10.5" cy="6.5" rx="1" ry="1" fill="white"/>
+                  <path d="M5 10c1 1 2 1.5 3 1.5s2-0.5 3-1.5" stroke="white" stroke-width="1" fill="none" stroke-linecap="round"/>
+                  <rect x="2" y="7.5" width="12" height="1" fill="white" opacity="0.8"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-Obstructed">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#dc2626" stroke="#b91c1c" stroke-width="1"/>
+                <circle cx="8" cy="8" r="5" fill="none" stroke="white" stroke-width="1"/>
+                <path d="M4.5 4.5l7 7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Status-External">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#10b981" stroke="#059669" stroke-width="1"/>
+                <path d="M3 8h7M7 5l3 3-3 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="11" y="6" width="2" height="4" fill="white" rx="1"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    
+    <system:String x:Key="Icons.Status-Incomplete">
+        <![CDATA[
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="7" fill="#10b981" stroke="#059669" stroke-width="1"/>
+                <path d="M3 8h7M7 5l3 3-3 3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="11" y="6" width="2" height="4" fill="white" rx="1"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Operation-Checkout">
+        <![CDATA[
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="4" width="16" height="16" rx="2" stroke="#4CAF50" stroke-width="2"/>
+                <path d="M15 10L11 14L9 12" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Operation-Revert">
+        <![CDATA[
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20" stroke="#FF9800" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 12L7 9M4 12L7 15" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Operation-Delete">
+        <![CDATA[
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="8" stroke="#F44336" stroke-width="2"/>
+                <path d="M8 12H16" stroke="#F44336" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.Close">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12L7 7m5 5l5 5m-5-5l5-5m-5 5l-5 5"/></svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.ButtonAdd">
+        <![CDATA[
+        <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#000000" d="M256 64c0-17.7-14.3-32-32-32s-32 14.3-32 32v160H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h160v160c0 17.7 14.3 32 32 32s32-14.3 32-32V288h160c17.7 0 32-14.3 32-32s-14.3-32-32-32H256z"/></svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.SvnCheckout">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <title>SVN Checkout Icon - Option 2</title>
+
+  <!-- 本地文件夹 (Folder Shape) -->
+  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+  
+  <!-- 检出箭头 (Arrow pointing into the folder) -->
+  <path d="M12 10V16"></path>
+  <path d="M9 13L12 16L15 13"></path>
+</svg>
+        ]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.SvnOpenFolder">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+    <path
+        d="M541.9 139.5C546.4 127.7 543.6 114.3 534.7 105.4C525.8 96.5 512.4 93.6 500.6 98.2L84.6 258.2C71.9 263 63.7 275.2 64 288.7C64.3 302.2 73.1 314.1 85.9 318.3L262.7 377.2L321.6 554C325.9 566.8 337.7 575.6 351.2 575.9C364.7 576.2 376.9 568 381.8 555.4L541.8 139.4z" />
+</svg>
+        ]]>
+    </system:String>
+    
+    
+    <system:String x:Key="Icons.FolderPlus">
+        <![CDATA[
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-plus-icon lucide-folder-plus"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+        ]]>
+    </system:String>
+    
+    
+    <!-- <system:String></system:String> -->
+    <!-- <StreamGeometry> -->
+    <!--     <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"> -->
+    <!--         <circle cx="8" cy="8" r="7" fill="#9ca3af" stroke="#6b7280" stroke-width="1"/> -->
+    <!--         <text x="8" y="12" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="white">?</text> -->
+    <!--     </svg> -->
+    <!-- </StreamGeometry> -->
+</ResourceDictionary>

@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Svg.Controls.Skia.Avalonia"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Name="Root"
+             x:Class="SVNexus.Components.SvgButton">
+    <!-- <Button Classes="Tertiary" Theme="{StaticResource BorderlessButton}" Padding="0" > -->
+    <!--     <components:SvgRender Width="24" Height="24" Source="{Binding ElementName=Root, Path=Source}" ></components:SvgRender> -->
+    <!-- </Button> -->
+    <components:SvgRender Classes="Clickable"  Source="{Binding ElementName=Root, Path=Source}">
+        <components:SvgRender.Styles>
+            <Style Selector="components|SvgRender.Clickable:pointerover">
+                <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>
+            </Style>
+            <Style Selector="components|SvgRender.Clickable:pressed">
+                <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter>
+            </Style>
+            <Style Selector="components|SvgRender.Clickable">
+                <Setter Property="CornerRadius" Value="{DynamicResource ButtonCornerRadius}"></Setter>
+                <Setter Property="ClipToBounds" Value="True"></Setter>
+            </Style>
+        </components:SvgRender.Styles>
+    </components:SvgRender>
+    <UserControl.Styles>
+        <Style Selector="components|SvgButton.Default">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+        </Style>
+
+        <Style Selector="components|SvgButton.Default > components|SvgRender">
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

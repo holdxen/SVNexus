@@ -1,0 +1,111 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
+             x:DataType="local:LocalTreeViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SVNexus.Views.WorkingCopy.Local.LocalTreeView">
+    <TreeView Grid.Row="2" Margin="2"
+              SelectionMode="Multiple"
+              AutoScrollToSelectedItem="False"
+              SelectedItem="{Binding SelectedItem}"
+              ItemsSource="{Binding Items}">
+        <TreeView.Styles>
+            <Style Selector="TreeViewItem"
+                   x:DataType="local:LocalTreeViewModel+TreeItemViewModel">
+                <Setter
+                    Property="IsExpanded"
+                    Value="{Binding IsExpanded, Mode=TwoWay}" />
+            </Style>
+        </TreeView.Styles>
+        <TreeView.DataTemplates>
+            <TreeDataTemplate x:DataType="local:LocalTreeViewModel+TreeItemViewModel" ItemsSource="{Binding Children}">
+                <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto, Auto"
+                      IsHitTestVisible="True"
+                      Background="Transparent">
+                    <!-- <Grid.Styles> -->
+                    <!--     <Style Selector="MenuItem" x:DataType="m:ContextMenuItemModel"> -->
+                    <!--         <Setter Property="Header" Value="{Binding Header}"></Setter> -->
+                    <!--         <Setter Property="Command" Value="{Binding Command}"></Setter> -->
+                    <!--         <Setter Property="ItemsSource" Value="{Binding Children}"></Setter> -->
+                    <!--         <Setter Property="IsEnabled" Value="{Binding IsEnable}"></Setter> -->
+                    <!--     </Style> -->
+                    <!-- </Grid.Styles> -->
+                    <Grid.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}">
+
+                        </ContextMenu>
+                        <!-- <ContextMenu> -->
+                        <!--     <MenuItem Header="Test" Command="{Binding TestMenuClickCommand}"></MenuItem> -->
+                        <!-- </ContextMenu> -->
+                    </Grid.ContextMenu>
+
+                    <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
+                              IsChecked="{Binding IsSelected}"
+                              IsEnabled="{Binding IsReal}" Grid.Column="0">
+                    </CheckBox>
+                    <!-- <PathIcon Margin="8, 0" Grid.Column="1" Classes="Normal" -->
+                    <!--           Data="{Binding PathIcon, Mode=OneWay}"> -->
+                    <!-- </PathIcon> -->
+                    <!-- <svg:Svg Grid.Column="1" -->
+                    <!--          Width="{Binding #TreeItemText.Bounds.Height}" -->
+                    <!--          Height="{Binding #TreeItemText.Bounds.Height}" -->
+                    <!--          Margin="8 0" -->
+                    <!--          Source="{Binding PathSvgIcon, Mode=OneWay}"></svg:Svg> -->
+                    <components:SvgRender Grid.Column="1"
+                                          Width="{Binding #TreeItemText.Bounds.Height}"
+                                          Height="{Binding #TreeItemText.Bounds.Height}"
+                                          Source="{Binding PathSvgIcon, Mode=OneWay}">
+                    </components:SvgRender>
+                    <TextBlock Grid.Column="2"
+                               x:Name="TreeItemText"
+                               Classes.Delete="{Binding IsDelete}"
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               Text="{Binding Text}">
+                    </TextBlock>
+                    <ItemsControl
+                        Opacity="{Binding $parent[Grid].IsPointerOver}"
+                        IsEnabled="{Binding $parent[Grid].IsPointerOver}"
+                        Grid.Column="3" ItemsSource="{Binding Buttons}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- 横向排列 -->
+                                <StackPanel Orientation="Horizontal" Spacing="1" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.DataTemplates>
+                            <!-- <DataTemplate x:DataType="vm:FsTreeItemModelButtonsModel"> -->
+                            <!--     <Button -->
+                            <!--         Padding="3, 0" -->
+                            <!--         DoubleTapped="InputElement_OnTapped" -->
+                            <!--         Classes="Small" -->
+                            <!--         CornerRadius="5" -->
+                            <!--         VerticalAlignment="Center" -->
+                            <!--         HorizontalAlignment="Center" -->
+                            <!--         ToolTip.Tip="{Binding ToolTip}" -->
+                            <!--         Command="{Binding Command}" -->
+                            <!--         Theme="{DynamicResource BorderlessButton}"> -->
+                            <!--         <Path -->
+                            <!--             Stretch="UniformToFill" -->
+                            <!--             HorizontalAlignment="Center" -->
+                            <!--             VerticalAlignment="Center" -->
+                            <!--             Data="{Binding Icon}"> -->
+                            <!--         </Path> -->
+                            <!--     </Button> -->
+                            <!-- </DataTemplate> -->
+                        </ItemsControl.DataTemplates>
+                    </ItemsControl>
+                    <components:SvgRender Grid.Column="5"
+                                          ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}"
+                                          Width="{Binding #TreeItemText.Bounds.Height}"
+                                          Height="{Binding #TreeItemText.Bounds.Height}"
+                                          Source="{Binding StatusSvgIcon, Mode=OneWay}">
+                    </components:SvgRender>
+                </Grid>
+            </TreeDataTemplate>
+        </TreeView.DataTemplates>
+    </TreeView>
+</UserControl>
