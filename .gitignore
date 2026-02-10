@@ -8,4 +8,6 @@ riderModule.iml
 csr/target
 SVNexus/rust/target
 
+SVNexus/rust/svnexus_macro/target
+
 *.sln.DotSettings.user
