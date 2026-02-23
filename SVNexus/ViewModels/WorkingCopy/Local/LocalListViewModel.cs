@@ -27,7 +27,7 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
     public class OnLocalListItemSelected
     {
         public required bool IsSelected { get; init; }
-        public required ListItemViewModel ItemView { get; init; }
+        public required ListItemViewModel ItemModel { get; init; }
     }
 
     public partial class ListItemViewModel : ViewModelLite
@@ -40,7 +40,7 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
             Messenger.Send(new OnLocalListItemSelected
             {
                 IsSelected = value,
-                ItemView = this
+                ItemModel = this
             });
         }
 
@@ -74,8 +74,9 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
 
 
     }
-    
-    
+
+    public override bool KeepAlive { get; set; } = true;
+
     [ObservableProperty]
     private ListItemViewModel?  _selectedItem;
 
@@ -88,11 +89,11 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
     {
         if (message.IsSelected)
         {
-            SelectedItems.Add(message.ItemView.WorkingCopyPath);
+            SelectedItems.Add(message.ItemModel.StatusEntry.Path);
         }
         else
         {
-            SelectedItems.RemoveAll(model => Equals(message.ItemView.WorkingCopyPath, model));
+            SelectedItems.RemoveAll(model => message.ItemModel.StatusEntry.Path == model);
         }
     }
 

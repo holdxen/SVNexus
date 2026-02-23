@@ -1,8 +1,11 @@
-
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
-use syn::{parse::{Parse, ParseStream}, parse_macro_input, punctuated::Punctuated, Data, DeriveInput, Expr, Fields, Ident, Token};
-
+use quote::{ToTokens, quote};
+use syn::{
+    Data, DeriveInput, Expr, Fields, Ident, Token, Type,
+    parse::{Parse, ParseStream},
+    parse_macro_input,
+    punctuated::Punctuated,
+};
 
 // 定义参数结构
 #[derive(Debug)]
@@ -35,16 +38,6 @@ impl Parse for MacroArgs {
 }
 
 #[proc_macro_attribute]
-pub fn test_enum_converter(attr: TokenStream, item: TokenStream) -> TokenStream {
-    // let mut input = parse_macro_input!(item as DeriveInput);
-
-    // attr
-
-    // attr
-    item
-}
-
-#[proc_macro_attribute]
 pub fn return_as_is(_attr: TokenStream, item: TokenStream) -> TokenStream {
     item
 }
@@ -58,14 +51,13 @@ pub fn enum_converter(attr: TokenStream, item: TokenStream) -> TokenStream {
         panic!("enum_converter 属性宏仅支持枚举类型");
     };
 
-
     // 从宏属性中提取repr_type（例如 #[enum_converter(repr_type = ffi::svn_depth_t)]）
     // 这里假设attr是 `repr_type = Type`，使用syn解析
 
     // let repr_name;
     let repr_type = if attr.is_empty() {
         // repr_name = quote! { u32 };
-        quote!(u32)  // 默认i32
+        quote!(u32) // 默认i32
     } else {
         // panic!("attr expr: {:#?}", attr);
         let attr_parser = parse_macro_input!(attr as MacroArgs);
@@ -74,7 +66,12 @@ pub fn enum_converter(attr: TokenStream, item: TokenStream) -> TokenStream {
         // };
         //
 
-        let item = attr_parser.args.iter().find(|v| v.key == "repr_type").map(|v| v.value.to_token_stream()).unwrap_or(quote! {u32});
+        let item = attr_parser
+            .args
+            .iter()
+            .find(|v| v.key == "repr_type")
+            .map(|v| v.value.to_token_stream())
+            .unwrap_or(quote! {u32});
         // if let Some(item) = item {
         //     let syn::Expr::Path(path) = item.clone() else {
         //         panic!("Unsuppored expr: {:?}", item)
@@ -89,8 +86,6 @@ pub fn enum_converter(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         item
     };
-
-
 
     // 提取枚举名
     let enum_name = &input.ident;
@@ -109,7 +104,10 @@ pub fn enum_converter(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         // 获取discriminant表达式（如果没有，panic，因为需求是转换有disc的）
-        let disc = variant.discriminant.as_ref().expect("变体必须有discriminant表达式");
+        let disc = variant
+            .discriminant
+            .as_ref()
+            .expect("变体必须有discriminant表达式");
 
         // disc.1 是Expr，我们转换为TokenStream以复制原表达式（如 ffi::const）
         let disc_expr = &disc.1;
@@ -128,14 +126,12 @@ pub fn enum_converter(attr: TokenStream, item: TokenStream) -> TokenStream {
         try_from_matches.push(quote! {
             #disc_expr => Ok(#enum_name::#variant_name),
         });
-
     }
 
     // 清空原discriminants以“替换”：修改data_enum的variants，移除disc
     for variant in data_enum.variants.iter_mut() {
         variant.discriminant = None;
     }
-
 
     // 生成额外代码：转换impl
     let extra_code = quote! {
@@ -183,13 +179,17 @@ pub fn enum_converter_derive(input: TokenStream) -> TokenStream {
     };
 
     // 从属性中提取repr_type（用户需指定，如 #[repr_type(i32)] 或 #[repr_type(ffi::svn_depth_t)]）
-    let repr_type = input.attrs.iter().find_map(|attr| {
-        if attr.path().is_ident("repr_type") {
-            attr.parse_args::<Ident>().ok().map(|id| quote!(#id))
-        } else {
-            None
-        }
-    }).unwrap_or_else(|| quote!(i32));  // 默认i32
+    let repr_type = input
+        .attrs
+        .iter()
+        .find_map(|attr| {
+            if attr.path().is_ident("repr_type") {
+                attr.parse_args::<Ident>().ok().map(|id| quote!(#id))
+            } else {
+                None
+            }
+        })
+        .unwrap_or_else(|| quote!(i32)); // 默认i32
 
     // 提取枚举名
     let enum_name = &input.ident;
@@ -202,7 +202,6 @@ pub fn enum_converter_derive(input: TokenStream) -> TokenStream {
     let mut from_matches = Vec::new();
     let mut try_from_matches = Vec::new();
 
-
     for variant in &data_enum.variants {
         let variant_name = &variant.ident;
 
@@ -212,7 +211,10 @@ pub fn enum_converter_derive(input: TokenStream) -> TokenStream {
         }
 
         // 获取discriminant表达式（如果没有，panic，因为需求是转换有disc的）
-        let disc = variant.discriminant.as_ref().expect("变体必须有discriminant表达式");
+        let disc = variant
+            .discriminant
+            .as_ref()
+            .expect("变体必须有discriminant表达式");
 
         // disc.1 是Expr，我们转换为TokenStream以复制原表达式（如 ffi::const）
         let disc_expr = &disc.1;
@@ -231,7 +233,6 @@ pub fn enum_converter_derive(input: TokenStream) -> TokenStream {
         try_from_matches.push(quote! {
             #disc_expr => Ok(#clean_enum_name::#variant_name),
         });
-
     }
 
     // 生成代码
@@ -266,3 +267,82 @@ pub fn enum_converter_derive(input: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+#[proc_macro_derive(IsMethods)]
+pub fn derive_is_methods(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let name = &input.ident;
+    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
+    // 只支持 struct
+    let fields = match &input.data {
+        Data::Struct(s) => &s.fields,
+        _ => {
+            return quote! {
+                compile_error!("IsMethods can only be derived for structs.");
+            }
+            .into();
+        }
+    };
+
+    // 只支持具名字段 struct
+    let named = match fields {
+        Fields::Named(named) => &named.named,
+        _ => {
+            return quote! {
+                compile_error!("IsMethods requires a struct with named fields (e.g. struct S { a: i32 }).");
+            }
+            .into();
+        }
+    };
+
+    // 生成方法，并且校验每个字段类型必须是 i32
+    let mut methods = Vec::new();
+
+    for f in named {
+        let Some(field_ident) = &f.ident else {
+            continue;
+        };
+
+        // if !is_i32_type(&f.ty) {
+        //     let msg = format!(
+        //         "IsMethods requires all fields to be i32. Field `{}` is not i32.",
+        //         field_ident
+        //     );
+        //     return quote! { compile_error!(#msg); }.into();
+        // }
+
+        let method_ident = quote::format_ident!("is_{}", field_ident);
+        let ty = &f.ty;
+
+        methods.push(quote! {
+            #[inline]
+            pub fn #method_ident(&self, value: #ty) -> bool {
+                self.#field_ident == value
+            }
+        });
+    }
+    let hash = quote!(#);
+
+    quote! {
+        #hash[uniffi::export]
+        impl #impl_generics #name #ty_generics #where_clause {
+            #(#methods)*
+        }
+    }
+    .into()
+}
+
+// fn is_i32_type(ty: &Type) -> bool {
+//     match ty {
+//         Type::Path(p) => p
+//             .path
+//             .segments
+//             .last()
+//             .map(|seg| seg.ident == "i32")
+//             .unwrap_or(false),
+//         _ => false,
+//     }
+// }

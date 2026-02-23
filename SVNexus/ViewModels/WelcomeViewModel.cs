@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -10,22 +11,24 @@ using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
 using SVNexus.ViewModels.WorkingCopy.Local;
+using SVNexus.Views;
 using SVNexus.Views.WorkingCopy;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
-public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
+public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IRecipient<CheckoutOrExportProcessDialogModel.OnCancel>
 {
     public override bool KeepAlive { get; set; } = true;
     
     
-    private readonly WeakReferenceMessenger _messenger = new();
+    private WeakReferenceMessenger Messenger { get; } = new();
 
 
     public WelcomeViewModel()
     {
-        _messenger.Register(this);
+        Messenger.Register<OnCheckout>(this);
+        Messenger.Register<CheckoutOrExportProcessDialogModel.OnCancel>(this);
     }
     
     
@@ -45,7 +48,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
         Console.WriteLine($"Show dialog {DialogHostId}");
         await OverlayDialog.ShowModal<Views.CheckoutOrExportDialog, CheckoutOrExportDialogModel>(new CheckoutOrExportDialogModel()
         {
-            Messenger = _messenger
+            Messenger = Messenger
         }, DialogHostId, options: options);
         Console.WriteLine("Close dialog");
     }
@@ -64,18 +67,6 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
         var result = await WeakReferenceMessenger.Default.Send(new OnFolderPickerOpen(options));
         if (result.Count == 1)
         {
-            // var localModel = new LocalViewModel
-            // {
-            //     WorkingCopyPath = result[0].Path.AbsolutePath
-            // };
-            // localModel.Initialize();
-
-            // var workingCopyView = new WorkingCopyViewModel()
-            // {
-            //     WorkingCopyPath = result[0].Path.AbsolutePath
-            // };
-            //
-            // workingCopyView.Initialize();
 
             var workingCopyView = WorkingCopyViewModel.Create(result[0].Path.AbsolutePath);
 
@@ -83,7 +74,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
             {
                 Closable = true,
                 Content = workingCopyView,
-                Text = result[0].Name
+                Text = result[0].Name,
             }));
         }
     }
@@ -91,16 +82,19 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
     public void Receive(OnCheckout message)
     {
         Console.WriteLine($"OnCheckout {message}");
+        var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {
             Url = message.Value.Url,
-            Path = message.Value.Path
+            Path = message.Value.Path,
+            Messenger = messenger
         };
+        
 
 
         var contextNotifier = new ContextNotifierDelegate()
         {
-            WorkingCopyNotifyAction = (notify) =>
+            WorkingCopyNotifyAction = notify =>
             {
                 Dispatcher.UIThread.Invoke(() =>
                 {
@@ -121,6 +115,31 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
                     model.Total = total;
                     model.Downloaded = downloaded;
                 });
+            },
+            SslServerTrustPromptFunc = (string realm, uint failures, SslServerCertInfo info, bool maySave) =>
+            {
+                return Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    var options = new OverlayDialogOptions()
+                    {
+                        IsCloseButtonVisible = false,
+                        Title = "Info",
+                        Buttons = DialogButton.None
+                    };
+                    var trustServerDialogModel = new TrustServerDialogModel()
+                    {
+                        Realm = realm,
+                        Issuer = info.Issuer,
+                        AsciiCert = info.AsciiCert,
+                        Hostname = info.Hostname,
+                        ValidFrom = info.ValidFrom,
+                        ValidUntil = info.ValidUntil,
+                        Fingerprint = info.Fingerprint,
+                        Savable = maySave,
+                    };
+                    await OverlayDialog.ShowModal<TrustServerDialog, TrustServerDialogModel>(trustServerDialogModel, options: options, hostId: DialogHostId);
+                    return new TrustServer(failures, trustServerDialogModel.Save);
+                }).Result;
             }
         };
         
@@ -128,8 +147,13 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
         var createContextOptions = Engine.Engine.Instance.MakeCreateContextOptions(contextNotifier);
 
         var context = AsyncContext.Create(createContextOptions);
+        
+        messenger.Register<CheckoutOrExportProcessDialogModel.OnCancel>(contextNotifier, (recipient, cancel) =>
+        {
+            (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
+        });
 
-        Dispatcher.UIThread.InvokeAsync((Func<Task>)(async () =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var options = new OverlayDialogOptions
             {
@@ -138,8 +162,8 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<Views.CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: DialogHostId, options: options);
-        }));
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: DialogHostId, options: options);
+        });
         
         Task.Run(async () =>
         {
@@ -153,8 +177,23 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
             }
             catch (System.Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                model.Error = e.Message;
+                if (e is Generated.Exception.SvnException svnException)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+                    };
+                    var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, options)!;
+                    var errorNumber = new SvnErrnoConstants();
+                    if (errorNumber.IsWcNotDirectory(error.Code))
+                    {
+                        Console.WriteLine($"WcNotDirectory: {error.Code}");
+                    }
+                }
+
+                Console.WriteLine("Got exception: {0}", e);
             }
             finally
             {
@@ -168,4 +207,9 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>
 
     }
 
+    public void Receive(CheckoutOrExportProcessDialogModel.OnCancel message)
+    {
+        var model = message.Model;
+        model.Shutdown();
+    }
 }

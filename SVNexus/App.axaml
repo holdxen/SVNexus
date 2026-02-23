@@ -16,6 +16,7 @@
                          <ResourceInclude Source="Resources/Icons/Icons.axaml"></ResourceInclude>
                      </ResourceDictionary.MergedDictionaries>
                  </ResourceDictionary>
+                 <FontFamily x:Key="JetBrainsMono">avares://SVNexus/Assets/Fonts#JetBrains Mono</FontFamily>
              </Application.Resources>
     <Application.DataTemplates>
         <local:ViewLocator/>
@@ -33,5 +34,8 @@
          <semi:AvaloniaEditSemiTheme />
          <u-Semi:SemiTheme Locale="zh-CN"/>
          <custom:CustomTheme></custom:CustomTheme>
+         <Style Selector=":is(TopLevel)">
+             <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
+         </Style>
      </Application.Styles>
 </Application>

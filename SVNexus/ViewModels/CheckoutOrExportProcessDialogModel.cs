@@ -29,6 +29,12 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
         [ObservableProperty]
         private string _mimeType = string.Empty;
     }
+    
+    
+    public class OnCancel
+    {
+        public required CheckoutOrExportProcessDialogModel Model { get; init; }
+    }
 
 
     [ObservableProperty]
@@ -65,10 +71,29 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
     private bool _isCompleted;
 
     public bool Closable => IsCompleted;
+    
+    
+    public required WeakReferenceMessenger Messenger { get; init; }
 
 
     [RelayCommand]
     public void Close()
+    {
+        if (IsCompleted || Error is not null)
+        {
+            RequestClose?.Invoke(this, null);
+        }
+        else
+        {
+            Messenger.Send(new OnCancel()
+            {
+                Model = this
+            });
+        }
+    }
+
+    [RelayCommand]
+    public void Shutdown()
     {
         RequestClose?.Invoke(this, null);
     }

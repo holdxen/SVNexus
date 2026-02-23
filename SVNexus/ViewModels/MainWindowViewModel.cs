@@ -6,14 +6,18 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Messages;
+using SVNexus.ViewModels.WorkingCopy;
 
 namespace SVNexus.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>
+public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>, IRecipient<OnRemoveTabByLocalViewModel>
 {
     
     public partial class TabItemViewViewModel: ViewModelLite
     {
+
+        public string TabId { get; set; } = string.Empty;
+        
         [ObservableProperty]
         private bool _closable = true;
     
@@ -39,6 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
         WeakReferenceMessenger.Default.Register<OnRemoveTab>(this);
         WeakReferenceMessenger.Default.Register<OnOpenRepository>(this);
         WeakReferenceMessenger.Default.Register<OnAddTab>(this);
+        WeakReferenceMessenger.Default.Register<OnRemoveTabByLocalViewModel>(this);
         Tabs.Add(NewTab());
     }
     
@@ -157,6 +162,22 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     {
         Tabs.Add(message.Value);
         SelectedIndex = Tabs.Count - 1;
+    }
+
+    public void Receive(OnRemoveTabByLocalViewModel message)
+    {
+        foreach (var tab in Tabs)
+        {
+            if (tab.Content is not WorkingCopyViewModel workingCopyViewModel ||
+                workingCopyViewModel.LocalViewModel != message.Value) continue;
+            var index = Tabs.IndexOf(tab);
+            if (index == SelectedIndex)
+            {
+                SelectedIndex = SelectedIndex == 1 ? 1 : SelectedIndex - 1;
+            }
+            Tabs.Remove(tab);
+            break;
+        }
     }
 
     ~MainWindowViewModel()

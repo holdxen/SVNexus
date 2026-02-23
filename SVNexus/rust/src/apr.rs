@@ -2,6 +2,7 @@ use crate::subversion;
 
 use super::error::builder;
 use num_enum::TryFromPrimitive;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     ffi::{CStr, CString, c_char, c_int},
@@ -17,6 +18,7 @@ use super::error;
 #[allow(non_camel_case_types)]
 #[allow(dead_code)]
 #[allow(clippy::upper_case_acronyms)]
+#[allow(unnecessary_transmutes)]
 pub mod ffi {
     include!(concat!(env!("OUT_DIR"), "/apr.rs"));
 }
@@ -151,7 +153,7 @@ impl<T> Array<T> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Error {
     pub code: ErrorCode,
     pub msg: String,
@@ -187,7 +189,7 @@ impl Error {
 }
 
 #[repr(i32)]
-#[derive(Clone, Debug, Copy, TryFromPrimitive)]
+#[derive(Clone, Debug, Copy, TryFromPrimitive, Serialize, Deserialize)]
 pub enum ErrorCode {
     ENOSTAT = ffi::APR_ENOSTAT as _,
     ENOPOOL = ffi::APR_ENOPOOL as _,

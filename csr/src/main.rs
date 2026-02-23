@@ -6,7 +6,6 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 #[serde(rename = "Project")]
 struct Project {
-
     // <PropertyGroup>...</PropertyGroup>
     #[serde(rename = "PropertyGroup")]
     property_group: PropertyGroup,
@@ -68,18 +67,12 @@ impl Project {
         })?;
 
         for framework in frameworks {
-            let output_dir = project_root
-                .join("bin")
-                .join("Debug")
-                .join(&framework);
+            let output_dir = project_root.join("bin").join("Debug").join(&framework);
             std::fs::create_dir_all(&output_dir)?;
 
             std::fs::copy(library_path, output_dir.join(file_name))?;
 
-            let output_dir = project_root
-                .join("bin")
-                .join("Release")
-                .join(&framework);
+            let output_dir = project_root.join("bin").join("Release").join(&framework);
             std::fs::create_dir_all(&output_dir)?;
 
             std::fs::copy(library_path, output_dir.join(file_name))?;
@@ -171,13 +164,21 @@ fn main() -> anyhow::Result<()> {
 
     cargo_toml.print_info();
 
-    let library = build_rust_library(true, rust.path(), &cargo_toml.package.name)?.canonicalize()?;
+    let library =
+        build_rust_library(true, rust.path(), &cargo_toml.package.name)?.canonicalize()?;
 
     project.copy_library(&current_dir, &library)?;
 
     let library = Utf8PathBuf::from_path_buf(library).expect("Invalid library path");
 
-    let config = config.map(|e| Utf8PathBuf::from_path_buf(e.into_path().canonicalize().expect("Failed to canonicalize")).expect(""));
+    let config = config.map(|e| {
+        Utf8PathBuf::from_path_buf(
+            e.into_path()
+                .canonicalize()
+                .expect("Failed to canonicalize"),
+        )
+        .expect("")
+    });
 
     let config = config.as_ref().map(|e| e.as_path());
 
@@ -188,7 +189,8 @@ fn main() -> anyhow::Result<()> {
     // let rust = Utf8PathBuf::from_path_buf(rust.path().to_path_buf())
     //     .expect("Invalid rust directory path");
 
-    let out_dir = Utf8PathBuf::from_path_buf(out_dir.canonicalize()?).expect("Invalid output directory path");
+    let out_dir =
+        Utf8PathBuf::from_path_buf(out_dir.canonicalize()?).expect("Invalid output directory path");
 
     std::env::set_current_dir(rust.path())?;
 
@@ -238,6 +240,7 @@ fn build_rust_library(
         cmd.arg("--release");
     }
 
+    let v: Vec<Vec<u8>> = vec![Vec::new(); 10];
 
     let status = cmd.current_dir(project_root).status()?;
 

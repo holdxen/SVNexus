@@ -1,6 +1,11 @@
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 using Avalonia.Rendering;
 using Serilog;
 using Avalonia.Controls.Mixins;
+using Avalonia.Svg.Skia;
+using Svg.Skia;
 
 namespace SVNexus.Components;
 
@@ -37,9 +42,18 @@ public class SvgRender : UserControl
         PressedMixin.Attach<SvgRender>();
     }
     
+    public static readonly StyledProperty<bool> LoadBuiltinFontsProperty = AvaloniaProperty.Register<SvgRender, bool>(
+        nameof(LoadBuiltinFonts), defaultValue: true);
+
+    public bool LoadBuiltinFonts
+    {
+        get => GetValue(LoadBuiltinFontsProperty);
+        set => SetValue(LoadBuiltinFontsProperty, value);
+    }
     
     public static readonly StyledProperty<string?> SourceProperty =
         AvaloniaProperty.Register<SvgRender, string?>(nameof(Source));
+
 
     public string? Source
     {
@@ -87,6 +101,7 @@ public class SvgRender : UserControl
     private int _pxW, _pxH;
     private DispatcherTimer? _debounceTimer;
     private bool _pending;
+
 
     public SvgRender()
     {
@@ -158,11 +173,9 @@ public class SvgRender : UserControl
 
     private void Regenerate(bool force = false)
     {
-        Log.Information("Generate: {force}\n{Source}", force, Source);
-        Log.Information("Bounds={Bounds}", Bounds);
-        Console.WriteLine($"Bounds={Bounds} Source={Source}");
         if (Source is null || Bounds.Width <= 0 || Bounds.Height <= 0)
             return;
+
 
         // 把 DIP 转成像素尺寸（考虑缩放）
         var scale = VisualRoot?.RenderScaling ?? 1.0;
@@ -171,24 +184,26 @@ public class SvgRender : UserControl
 
         if (!force && w == _pxW && h == _pxH) return;
         _pxW = w; _pxH = h;
+        
 
         // 生成 RGBA/BGRA 数据
-        // var bytes = DataFactory(w, h);
-        Console.WriteLine("Render now");
-        var bytes = EngineMethods.RenderSvgToRgba(Source, (uint)w, (uint)h);
-        Console.WriteLine($"Get bytes: {bytes.Length}");
-        if (bytes.Length < w * h * 4) return;
+        var options = new SvgRenderOptions(
+            Svg: Source, Width: Convert.ToUInt32(w), Height: Convert.ToUInt32(h));
+        var bytes = options.Render();
+        
 
+        if (bytes.Length < w * h * 4) return;
+        
         var size = new PixelSize(w, h);
         var alpha = Premultiplied ? AlphaFormat.Premul : AlphaFormat.Unpremul;
         var fmt = SourceIsBgra ? PixelFormat.Bgra8888 : PixelFormat.Rgba8888;
-
+        
         if (_wb == null || _wb.PixelSize != size || _wb.Format != fmt || _wb.AlphaFormat != alpha)
         {
             _wb?.Dispose();
             _wb = new WriteableBitmap(size, new Vector(96, 96), fmt, alpha);
         }
-
+        
         using (var fb = _wb.Lock())
         {
             var srcStride = w * 4;
@@ -199,7 +214,7 @@ public class SvgRender : UserControl
                 Marshal.Copy(bytes, srcOff, dest, srcStride);
             }
         }
-
+        
         _image.Source = _wb;
     }
 }

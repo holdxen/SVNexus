@@ -7,8 +7,9 @@
              x:DataType="local:LocalTreeViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalTreeView">
-    <TreeView Grid.Row="2" Margin="2"
-              SelectionMode="Multiple"
+    <TreeView SelectionMode="Multiple"
+              Margin="0"
+              Padding="0"
               AutoScrollToSelectedItem="False"
               SelectedItem="{Binding SelectedItem}"
               ItemsSource="{Binding Items}">
@@ -55,6 +56,8 @@
                     <!--          Margin="8 0" -->
                     <!--          Source="{Binding PathSvgIcon, Mode=OneWay}"></svg:Svg> -->
                     <components:SvgRender Grid.Column="1"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
                                           Width="{Binding #TreeItemText.Bounds.Height}"
                                           Height="{Binding #TreeItemText.Bounds.Height}"
                                           Source="{Binding PathSvgIcon, Mode=OneWay}">
@@ -76,27 +79,6 @@
                                 <StackPanel Orientation="Horizontal" Spacing="1" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        <ItemsControl.DataTemplates>
-                            <!-- <DataTemplate x:DataType="vm:FsTreeItemModelButtonsModel"> -->
-                            <!--     <Button -->
-                            <!--         Padding="3, 0" -->
-                            <!--         DoubleTapped="InputElement_OnTapped" -->
-                            <!--         Classes="Small" -->
-                            <!--         CornerRadius="5" -->
-                            <!--         VerticalAlignment="Center" -->
-                            <!--         HorizontalAlignment="Center" -->
-                            <!--         ToolTip.Tip="{Binding ToolTip}" -->
-                            <!--         Command="{Binding Command}" -->
-                            <!--         Theme="{DynamicResource BorderlessButton}"> -->
-                            <!--         <Path -->
-                            <!--             Stretch="UniformToFill" -->
-                            <!--             HorizontalAlignment="Center" -->
-                            <!--             VerticalAlignment="Center" -->
-                            <!--             Data="{Binding Icon}"> -->
-                            <!--         </Path> -->
-                            <!--     </Button> -->
-                            <!-- </DataTemplate> -->
-                        </ItemsControl.DataTemplates>
                     </ItemsControl>
                     <components:SvgRender Grid.Column="5"
                                           ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}"

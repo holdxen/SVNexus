@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:TrustServerDialogModel"
+             x:Class="SVNexus.Views.TrustServerDialog">
+    <Grid RowDefinitions="*, Auto">
+        <Grid RowDefinitions="Auto, Auto">
+            <u:Descriptions HorizontalAlignment="Left">
+                <u:DescriptionsItem Label="Realm" Content="{Binding Realm}" />
+                <u:DescriptionsItem Label="Hostname" Content="{Binding Hostname}" />
+                <u:DescriptionsItem Label="Fingerprint" Content="{Binding Fingerprint}"></u:DescriptionsItem>
+                <u:DescriptionsItem Label="ValidForm" Content="{Binding ValidFrom}" />
+                <u:DescriptionsItem Label="ValidUntil" Content="{Binding ValidUntil}"></u:DescriptionsItem>
+                <u:DescriptionsItem Label="Issuer" Content="{Binding Issuer}" />
+                <u:DescriptionsItem Label="AsciiCert">
+                    <Expander Width="300" Header="Detail">
+                        <ScrollViewer MaxHeight="200" HorizontalScrollBarVisibility="Disabled">
+                            <TextBlock TextWrapping="Wrap" Text="{Binding AsciiCert}"></TextBlock>
+                        </ScrollViewer>
+                    </Expander>
+                </u:DescriptionsItem>
+            </u:Descriptions>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <CheckBox Content="Save" IsVisible="{Binding Savable}" IsChecked="{Binding Save}"></CheckBox>
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" FlowDirection="RightToLeft" Spacing="4">
+            <Button Classes="Primary" Theme="{StaticResource SolidButton}" Content="Accept" Command="{Binding ConfirmCommand}"></Button>
+            <Button Content="Reject" Command="{Binding CloseCommand}"></Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

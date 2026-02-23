@@ -50,6 +50,12 @@ fn svn_path() -> String {
         return "./deps/macos-aarch64/svn".to_string();
     }
 
+    #[cfg(target_os = "linux")]
+    {
+        #[cfg(target_arch = "x86_64")]
+        return "./deps/linux-x64/svn".to_string();
+    }
+
     panic!("Unsupported os")
 }
 
@@ -260,6 +266,13 @@ fn main() {
         println!("cargo:rustc-link-arg=-Wl,-rpath,@loader_path");
     }
 
+    #[cfg(all(unix, not(target_os = "macos")))]
+    {
+        // rpath = directory containing this cdylib
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-rpath,$ORIGIN");
+        // 如果依赖在子目录，比如 lib/：
+        // println!("cargo:rustc-link-arg-cdylib=-Wl,-rpath,$ORIGIN/lib");
+    }
 
     // generate_apr(&path);
 

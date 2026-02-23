@@ -1,0 +1,11 @@
+prefix=/usr/local/svn
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+APR_MAJOR_VERSION=2
+includedir=${prefix}/include/apr-${APR_MAJOR_VERSION}
+
+Name: APR
+Description: The Apache Portable Runtime library
+Version: 2.0.0
+Libs: -L${libdir} -lapr-${APR_MAJOR_VERSION} -lcrypt -lrt -lcrypt  -lpthread -ldl -lexpat
+Cflags: -DLINUX -D_REENTRANT -D_GNU_SOURCE -g -O2 -pthread -I${includedir}

@@ -40,8 +40,10 @@ public class ViewLocator : IDataTemplate
 
         if (_cache.TryGetValue(param, out var control))
         {
+            Console.WriteLine("hit cache for view");
             return control;
         }
+        Console.WriteLine("create for view");
 
 
         var keepAlive = false;

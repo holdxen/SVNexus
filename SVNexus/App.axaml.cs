@@ -35,9 +35,9 @@ public partial class App : Application
 
     public override void Initialize()
     {
-        Console.WriteLine(Marshal.SizeOf<RustBuffer>());
-
+        // Engine.Engine.Instance.Proxies = new Proxies(new Proxy("127.0.0.1", 7890, null, null), null, null);
         AvaloniaXamlLoader.Load(this);
+        EngineMethods.SetupSvg(Program.BuiltinFonts());
     }
 
     public override void OnFrameworkInitializationCompleted()

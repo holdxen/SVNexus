@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             x:DataType="viewModels:ImportDialogModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             MinWidth="500"
+             x:Class="SVNexus.Views.ImportDialog">
+    <Grid RowDefinitions="*, Auto">
+        <u:Form HorizontalAlignment="Stretch" LabelPosition="Top">
+            <!-- <u:Form.ItemsPanel> -->
+            <!--     <ItemsPanelTemplate> -->
+            <!--         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *" /> -->
+            <!--     </ItemsPanelTemplate> -->
+            <!-- </u:Form.ItemsPanel> -->
+            <u:FormItem Label="Url:">
+                <TextBox Text="{Binding Url}"></TextBox>
+            </u:FormItem>
+            <u:FormItem Label="Settings">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <CheckBox VerticalAlignment="Center" Content="Backup" IsChecked="{Binding Backup}"></CheckBox>
+                </StackPanel>
+            </u:FormItem>
+        </u:Form>
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">
+            <Border Grid.Column="0"></Border>
+            <Button Grid.Column="1" Content="取消" 
+                    Command="{Binding CloseCommand}"
+                    ></Button>
+            <Border Grid.Column="2" Width="4"></Border>
+            <Button Grid.Column="3" Classes="Primary" Theme="{StaticResource SolidButton}" Content="确定"
+                    Command="{Binding ConfirmCommand}"
+                    >
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

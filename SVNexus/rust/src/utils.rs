@@ -2,10 +2,11 @@ use std::{
     cell::RefCell,
     collections::{HashMap, hash_map::Entry},
     ffi::{CStr, c_char, c_void},
+    sync::OnceLock,
 };
 
 use crate::{
-    error::{self, builder},
+    error::{self, Error, builder},
     subversion,
 };
 
@@ -134,11 +135,85 @@ thread_local! {
     static SVG: RefCell<HashMap<String, DecodedSvg>> = Default::default();
 }
 
+static SVG_OPTIONS: OnceLock<resvg::usvg::Options<'static>> = OnceLock::new();
+
 #[derive(new)]
 pub struct DecodedSvg {
     width: u32,
     height: u32,
     rgba: Vec<u8>,
+}
+
+#[derive(new, uniffi::Record)]
+pub struct SvgRenderOptions {
+    svg: String,
+    width: u32,
+    height: u32,
+}
+
+#[uniffi::export]
+fn setup_svg(fonts: Vec<Vec<u8>>) {
+    SVG_OPTIONS.get_or_init(|| {
+        let mut options = resvg::usvg::Options::default();
+        let fontdb = options.fontdb_mut();
+        for font in fonts {
+            fontdb.load_font_data(font);
+        }
+        options
+    });
+}
+
+#[uniffi::export]
+impl SvgRenderOptions {
+    fn render(self) -> error::Result<Vec<u8>> {
+        use resvg::*;
+        use usvg::*;
+
+        let data = SVG.with_borrow_mut(|svg| {
+            let entry = svg.entry(self.svg.clone());
+
+            match entry {
+                Entry::Occupied(occupied_entry) => {
+                    if occupied_entry.get().width == self.width
+                        && occupied_entry.get().height == self.height
+                    {
+                        return Some(occupied_entry.get().rgba.clone());
+                    }
+                }
+                Entry::Vacant(_) => {}
+            }
+            None
+        });
+        if let Some(data) = data {
+            println!("Cache hit for SVG rendering.");
+            return Ok(data);
+        }
+
+        let tree = Tree::from_str(&self.svg, &SVG_OPTIONS.get().unwrap()).context(builder::Svg)?;
+
+        let mut pixmap = Pixmap::new(self.width, self.height).unwrap();
+
+        let transform = rescale(
+            tree.size().width(),
+            tree.size().height(),
+            self.width as f32,
+            self.height as f32,
+        );
+        render(&tree, transform, &mut pixmap.as_mut());
+
+        // pixmap.save_png("./test.png").unwrap()
+
+        let data = pixmap.take();
+
+        SVG.with_borrow_mut(|svg| {
+            svg.insert(
+                self.svg.clone(),
+                DecodedSvg::new(self.width, self.height, data.clone()),
+            );
+        });
+
+        Ok(data)
+    }
 }
 
 #[uniffi::export]

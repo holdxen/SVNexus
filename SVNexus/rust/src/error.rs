@@ -17,12 +17,12 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 #[strum_discriminants(derive(strum::Display))]
 #[uniffi(flat_error)]
 pub enum Error {
-    #[snafu(display("Apr runtime error: {source}"))]
+    #[snafu(display("{}", serde_json::to_string(source).unwrap_or_default()))]
     AprError {
         source: apr::Error,
         backtrace: Backtrace,
     },
-    #[snafu(display("Svn runtime error: {source}"))]
+    #[snafu(display("{}", serde_json::to_string(source).unwrap_or_default()))]
     SvnError {
         source: subversion::SVNError,
         backtrace: Backtrace,
@@ -79,4 +79,3 @@ impl From<uuid::Error> for Error {
         builder::InvalidID {}.into_error(source)
     }
 }
-
