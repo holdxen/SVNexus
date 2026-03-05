@@ -116,7 +116,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
 
         if (string.IsNullOrEmpty(url))
         {
-            WeakReferenceMessenger.Default.Send(new OnNotification(new Notification()
+            Manager.MainWindow.Send(new OnNotification(new Notification()
             {
                 Title = "错误",
                 Content = "Url must be specified.",
@@ -130,7 +130,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         
         if (string.IsNullOrEmpty(path))
         {
-            WeakReferenceMessenger.Default.Send(new OnNotification(new Notification()
+            Manager.MainWindow.Send(new OnNotification(new Notification()
             {
                 Title = "错误",
                 Content = "Url must be specified.",
@@ -171,7 +171,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         };
         
         
-        var result = await WeakReferenceMessenger.Default.Send(new OnFolderPickerOpen(options));
+        var result = await Manager.MainWindow.Send(new OnFolderPickerOpen(options));
         if (result.Count > 0)
         {
             Path = result[0].Path.AbsolutePath;

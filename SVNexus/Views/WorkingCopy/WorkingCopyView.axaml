@@ -10,37 +10,119 @@
              DialogHostId="{Binding DialogHostId, Mode=OneWayToSource}"
              IsEnabled="{Binding IsEnabled}"
              x:Class="SVNexus.Views.WorkingCopy.WorkingCopyView">
+    <UserControl.Resources>
+        <ControlTheme x:Key="CategoryTabItem" TargetType="TabItem">
+            <Setter Property="IsEnabled" Value="False" />
+            <Setter Property="Template">
+                <ControlTemplate TargetType="TabItem">
+                    <TextBlock
+                        FontWeight="Bold"
+                        FontSize="12"
+                        Margin="4"
+                        Text="{TemplateBinding Header}" />
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:disabled /template/ TextBlock">
+                <Setter Property="Foreground" Value="{DynamicResource SemiColorText1}" />
+            </Style>
+        </ControlTheme>
+    </UserControl.Resources>
     <Grid>
         <Grid RowDefinitions="Auto, Auto, *">
-            <StackPanel Orientation="Horizontal" Spacing="5">
-                <components:SvgButton Classes="Default" Source="{StaticResource Icons.Refresh}" Command="{Binding LocalViewModel.StatusCommand}" />
-            </StackPanel>
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *" Margin="0 2">
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <components:SvgButton Classes="Default" 
+                                          Source="{StaticResource Icons.Update}" 
+                                          Command="{Binding UpdateCommand}" />
+
+                </StackPanel>
+                <u:Divider Grid.Column="1" Orientation="Vertical"></u:Divider>
+                <Grid Grid.Column="2">
+                    <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsLocalView}">
+                        <StackPanel 
+                            Orientation="Horizontal" 
+                            Spacing="5">
+                            <components:SvgButton Classes="Default" 
+                                                  Source="{StaticResource Icons.Refresh}" 
+                                                  Command="{Binding LocalViewModel.StatusCommand}" />
+                        </StackPanel>
+                        <Border Grid.Column="1"></Border>
+                        <StackPanel 
+                            Grid.Column="2"
+                            Orientation="Horizontal" 
+                            Spacing="5">
+                            <components:SvgButton Classes="Default" 
+                                                  Source="{StaticResource Icons.Terminal}" 
+                            />
+                        </StackPanel>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsRemoteView}">
+                        <StackPanel 
+                            Orientation="Horizontal" 
+                            Spacing="5">
+                            <components:SvgButton Classes="Default" 
+                                                  Source="{StaticResource Icons.LoadMoreList}" 
+                                                  Command="{Binding RemoteViewModel.LoadedCommand}" />
+                        </StackPanel>
+                        <Border Grid.Column="1"></Border>
+                        <StackPanel 
+                            Grid.Column="2"
+                            Orientation="Horizontal" 
+                            Spacing="5">
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
             <u:Divider Margin="0"
                        VerticalAlignment="Bottom"
                        HorizontalAlignment="Stretch"
                        Grid.Row="1"
                        Grid.Column="0"
                        Orientation="Horizontal" />
+            <!-- <TabControl Grid.Row="2" Padding="30 0" Theme="{DynamicResource ScrollLineTabControl}" TabStripPlacement="Left"> -->
+            <!--     <TabControl.ItemsPanel> -->
+            <!--         <ItemsPanelTemplate> -->
+            <!--             <StackPanel /> -->
+            <!--         </ItemsPanelTemplate> -->
+            <!--     </TabControl.ItemsPanel> -->
+            <!--     <TabControl.Styles> -->
+            <!--         <Style Selector=".Dismiss /template/ ScrollViewer#PART_ScrollViewer"> -->
+            <!--             <Setter Property="IsVisible" Value="False" /> -->
+            <!--         </Style> -->
+            <!--         <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter"> -->
+            <!--             <Setter Property="MinWidth" Value="200"></Setter> -->
+            <!--         </Style> -->
+            <!--     </TabControl.Styles> -->
+            <!--     <TabItem Theme="{DynamicResource CategoryTabItem}" Header="Workspace"></TabItem> -->
+            <!--     <TabItem Header="Repo"> -->
+            <!--         <ContentControl Grid.Column="2" Content="{Binding RemoteViewModel}"></ContentControl> -->
+            <!--     </TabItem> -->
+            <!--     <TabItem Header="Local"> -->
+            <!--         <ContentControl Grid.Column="2" Content="{Binding LocalViewModel}"></ContentControl> -->
+            <!--     </TabItem> -->
+            <!-- </TabControl> -->
             <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto, *">
                 <StackPanel Grid.Column="0" Margin="5" Spacing="5">
                     <Border HorizontalAlignment="Left"
                             Theme="{StaticResource RadioButtonGroupBorder}">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical">
                             <RadioButton
-                                FontSize="12"
+                                FontSize="14"
                                 GroupName="LocalOrRemote"
-                                Padding="6 2"
+                                Width="150"
                                 IsChecked="{Binding IsRemoteView}"
-                                Theme="{DynamicResource ButtonRadioButton}">
-                                <LucideIcon Kind="HardDrive" Size="20"></LucideIcon>
+                                Theme="{DynamicResource CardRadioButton}">
+                                <!-- <LucideIcon Kind="HardDrive" Size="20"></LucideIcon> -->
+                                Remote
                             </RadioButton>
                             <RadioButton
                                 GroupName="LocalOrRemote"
-                                FontSize="12"
-                                Padding="6 2"
+                                FontSize="14"
+                                Width="150"
                                 IsChecked="{Binding IsLocalView}"
-                                Theme="{DynamicResource ButtonRadioButton}">
-                                <LucideIcon Kind="Server" Size="20"></LucideIcon>
+                                Theme="{DynamicResource CardRadioButton}">
+                                <!-- <LucideIcon Kind="Server" Size="20"></LucideIcon> -->
+                                Local
                             </RadioButton>
                         </StackPanel>
                     </Border>
@@ -66,13 +148,15 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
-                <!-- <u:Divider Grid.Column="1" -->
-                <!--            VerticalAlignment="Stretch" -->
-                <!--            HorizontalAlignment="Stretch" -->
-                <!--            Orientation="Vertical" /> -->
-                <Rectangle Grid.Column="1" Fill="{DynamicResource DividerBorderBrush}" Width="2"></Rectangle>
-                <ContentControl Grid.Column="2" IsVisible="{Binding IsLocalView}" Content="{Binding LocalViewModel}"></ContentControl>
-                <ContentControl Grid.Column="2" IsVisible="{Binding IsRemoteView}" Content="{Binding RemoteViewModel}"></ContentControl>
+                <Rectangle Grid.Column="1" 
+                           Fill="{DynamicResource DividerBorderBrush}" 
+                           Width="2"></Rectangle>
+                <ContentControl Grid.Column="2" 
+                                IsVisible="{Binding IsLocalView}" 
+                                Content="{Binding LocalViewModel}" />
+                <ContentControl Grid.Column="2" 
+                                IsVisible="{Binding IsRemoteView}" 
+                                Content="{Binding RemoteViewModel}" />
             </Grid>
         </Grid>
         <u:OverlayDialogHost x:Name="WorkingCopyViewDialogHost"></u:OverlayDialogHost>

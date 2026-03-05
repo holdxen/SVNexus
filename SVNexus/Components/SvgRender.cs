@@ -173,48 +173,61 @@ public class SvgRender : UserControl
 
     private void Regenerate(bool force = false)
     {
-        if (Source is null || Bounds.Width <= 0 || Bounds.Height <= 0)
-            return;
-
-
-        // 把 DIP 转成像素尺寸（考虑缩放）
-        var scale = VisualRoot?.RenderScaling ?? 1.0;
-        var w = Math.Max(1, (int)Math.Round(Bounds.Width * scale));
-        var h = Math.Max(1, (int)Math.Round(Bounds.Height * scale));
-
-        if (!force && w == _pxW && h == _pxH) return;
-        _pxW = w; _pxH = h;
-        
-
-        // 生成 RGBA/BGRA 数据
-        var options = new SvgRenderOptions(
-            Svg: Source, Width: Convert.ToUInt32(w), Height: Convert.ToUInt32(h));
-        var bytes = options.Render();
-        
-
-        if (bytes.Length < w * h * 4) return;
-        
-        var size = new PixelSize(w, h);
-        var alpha = Premultiplied ? AlphaFormat.Premul : AlphaFormat.Unpremul;
-        var fmt = SourceIsBgra ? PixelFormat.Bgra8888 : PixelFormat.Rgba8888;
-        
-        if (_wb == null || _wb.PixelSize != size || _wb.Format != fmt || _wb.AlphaFormat != alpha)
+        try
         {
-            _wb?.Dispose();
-            _wb = new WriteableBitmap(size, new Vector(96, 96), fmt, alpha);
-        }
-        
-        using (var fb = _wb.Lock())
-        {
-            var srcStride = w * 4;
-            for (var y = 0; y < h; y++)
+
+            if (string.IsNullOrWhiteSpace(Source) || Bounds.Width <= 0 || Bounds.Height <= 0)
             {
-                var dest = fb.Address + y * fb.RowBytes;
-                var srcOff = y * srcStride;
-                Marshal.Copy(bytes, srcOff, dest, srcStride);
+                _image.Source = null;
+                return;
             }
-        }
+
+
+            // 把 DIP 转成像素尺寸（考虑缩放）
+            var scale = VisualRoot?.RenderScaling ?? 1.0;
+            var w = Math.Max(1, (int)Math.Round(Bounds.Width * scale));
+            var h = Math.Max(1, (int)Math.Round(Bounds.Height * scale));
+
+            if (!force && w == _pxW && h == _pxH) return;
+            _pxW = w; _pxH = h;
         
-        _image.Source = _wb;
+
+            // 生成 RGBA/BGRA 数据
+            var options = new SvgRenderOptions(
+                Svg: Source, Width: Convert.ToUInt32(w), Height: Convert.ToUInt32(h));
+            var bytes = options.Render();
+        
+
+            if (bytes.Length < w * h * 4) return;
+        
+            var size = new PixelSize(w, h);
+            var alpha = Premultiplied ? AlphaFormat.Premul : AlphaFormat.Unpremul;
+            var fmt = SourceIsBgra ? PixelFormat.Bgra8888 : PixelFormat.Rgba8888;
+        
+            if (_wb == null || _wb.PixelSize != size || _wb.Format != fmt || _wb.AlphaFormat != alpha)
+            {
+                _wb?.Dispose();
+                _wb = new WriteableBitmap(size, new Vector(96, 96), fmt, alpha);
+            }
+        
+            using (var fb = _wb.Lock())
+            {
+                var srcStride = w * 4;
+                for (var y = 0; y < h; y++)
+                {
+                    var dest = fb.Address + y * fb.RowBytes;
+                    var srcOff = y * srcStride;
+                    Marshal.Copy(bytes, srcOff, dest, srcStride);
+                }
+            }
+        
+            _image.Source = _wb;
+        }
+        catch (System.Exception e)
+        {
+            Console.WriteLine(e);
+            Console.WriteLine("Source:\n{0}", Source?.Trim());
+            throw;
+        }
     }
 }

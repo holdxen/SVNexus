@@ -14,8 +14,7 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
     {
         InitializeComponent();
         
-        WeakReferenceMessenger.Default.Register<OnFolderPickerOpen>(this);
-        WeakReferenceMessenger.Default.Register<OnNotification>(this);
+        this.RegisterAllMessages(Manager.MainWindow);
         
         _notificationManager = new WindowNotificationManager(this);
     }

@@ -10,7 +10,7 @@
     <!-- <Button Classes="Tertiary" Theme="{StaticResource BorderlessButton}" Padding="0" > -->
     <!--     <components:SvgRender Width="24" Height="24" Source="{Binding ElementName=Root, Path=Source}" ></components:SvgRender> -->
     <!-- </Button> -->
-    <components:SvgRender Classes="Clickable"  Source="{Binding ElementName=Root, Path=Source}">
+    <components:SvgRender Classes="Clickable" Source="{Binding ElementName=Root, Path=Source}">
         <components:SvgRender.Styles>
             <Style Selector="components|SvgRender.Clickable:pointerover">
                 <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>

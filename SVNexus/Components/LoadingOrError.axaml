@@ -1,0 +1,73 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:u="https://irihi.tech/ursa"
+        xmlns:controls="using:SVNexus.Components">
+    <Design.PreviewWith>
+        <controls:LoadingOrError />
+    </Design.PreviewWith>
+    <Style Selector="controls|LoadingOrError /template/ ContentPresenter#PART_MainContent">
+        <Setter Property="Effect" Value="{x:Null}" />
+    </Style>
+
+    <!-- Loading 时模糊内容 -->
+    <Style Selector="controls|LoadingOrError[IsLoading=true] /template/ ContentPresenter#PART_MainContent">
+        <Setter Property="Effect" Value="blur(8)" />
+    </Style>
+
+    <!-- Error 时也模糊内容（可选） -->
+    <Style Selector="controls|LoadingOrError[IsError=true] /template/ ContentPresenter#PART_MainContent">
+        <Setter Property="Effect" Value="blur(8)" />
+    </Style>
+    <Style Selector="controls|LoadingOrError">
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border CornerRadius="{TemplateBinding CornerRadius}" 
+                        ClipToBounds="True">
+                    <Panel>
+                        <ContentPresenter
+                            Name="PART_MainContent"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}" />
+                        <u:Loading
+                            Background="{DynamicResource LoadingMaskBackground}"
+                            Content="{TemplateBinding LoadingMessage}"
+                            ContentTemplate="{TemplateBinding LoadingMessageTemplate}"
+                            Foreground="{DynamicResource TextBlockDefaultForeground}"
+                            IsVisible="{TemplateBinding IsLoading}"
+                            IsLoading="{TemplateBinding IsLoading}">
+                            <u:Loading.Indicator>
+                                <u:LoadingIcon
+                                    IsLoading="{Binding $parent[controls:LoadingOrError].IsLoading, Mode=TwoWay}" />
+                            </u:Loading.Indicator>
+                        </u:Loading>
+                        <u:Loading
+                            Background="{DynamicResource LoadingMaskBackground}"
+                            Foreground="{DynamicResource TextBlockDefaultForeground}"
+                            IsVisible="{TemplateBinding IsError}"
+                            IsLoading="{TemplateBinding IsError}">
+                            <u:Loading.Indicator>
+                                <PathIcon Width="24" Height="24" Data="{StaticResource SemiIconAlertCircle}"
+                                          Foreground="{StaticResource SemiColorDanger}">
+                                </PathIcon>
+                            </u:Loading.Indicator>
+                            <StackPanel Margin="0 3" Spacing="5">
+                                <ContentPresenter
+                                    Foreground="{DynamicResource SemiColorDanger}"
+                                    Content="{TemplateBinding ErrorMessage}">
+                                </ContentPresenter>
+                                <Button Content="Retry"
+                                        Classes="Danger"
+                                        Command="{TemplateBinding RetryCommand}"
+                                        CommandParameter="{TemplateBinding RetryCommandParameter}">
+                                </Button>
+                            </StackPanel>
+                        </u:Loading>
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

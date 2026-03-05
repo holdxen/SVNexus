@@ -12,6 +12,23 @@ public static class Extension
         return self.StartsWith(s) ? self[s.Length..] : self;
     }
 
+    public static string LogChangedPathActionIcon(this LogChangedPathAction action)
+    {
+        var icon = action switch
+        {
+            LogChangedPathAction.Add => "Icons.Status-Added",
+            LogChangedPathAction.Delete => "Icons.Status-Deleted",
+            LogChangedPathAction.Replace => "Icons.Status-Replaced",
+            LogChangedPathAction.Modify => "Icons.Status-Modified",
+            _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
+        };
+
+        var pathIcon = (Application.Current!.FindResource(icon) as string)!;
+            
+
+        return pathIcon;
+    }
+
     public static string NodeStatusIcon(this NodeStatus status)
     {
         var icon = status switch
@@ -30,7 +47,7 @@ public static class Extension
             NodeStatus.Obstructed => "Icons.Status-Obstructed",
             NodeStatus.External => "Icons.Status-External",
             NodeStatus.Incomplete => "Icons.Status-Incomplete",
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 
         var pathIcon = (Application.Current!.FindResource(icon) as string)!;

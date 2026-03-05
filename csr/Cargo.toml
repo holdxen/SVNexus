@@ -9,6 +9,6 @@ camino = "1.2.2"
 quick-xml = { version = "0.39.0", features = ["serialize"] }
 serde = { version = "1.0.228", features = ["derive"] }
 toml = "0.9.11"
-# uniffi-bindgen-cs = { git = "https://github.com/holdxen/uniffi-bindgen-cs.git" }
-uniffi-bindgen-cs = { path = "/home/zhouguiqing/Documents/Code/Rust/uniffi-bindgen-cs/bindgen" }
+uniffi-bindgen-cs = { git = "https://github.com/holdxen/uniffi-bindgen-cs.git" }
+#uniffi-bindgen-cs = { path = "/home/zhouguiqing/Documents/Code/Rust/uniffi-bindgen-cs/bindgen" }
 walkdir = "2.5.0"

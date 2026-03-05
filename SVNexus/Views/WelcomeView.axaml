@@ -15,14 +15,20 @@
     <Grid>
         <Border Padding="4">
             <Grid RowDefinitions="Auto, *">
-                <Grid Grid.Row="0" RowDefinitions="*" ColumnDefinitions="Auto, *">
+                <Grid Grid.Row="0" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
                         <components:SvgButton Classes="Default" Source="{StaticResource Icons.SvnCheckout}" 
                                               Command="{Binding ShowCheckoutDialogCommand}"/>
                         <components:SvgButton Classes="Default" Source="{StaticResource Icons.SvnOpenFolder}" 
                                               Command="{Binding OpenLocalRepositoryCommand}"/>
+                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.Export}" 
+                                              Command="{Binding ShowExportDialogCommand}"/>
                     </StackPanel>
-                    <Rectangle Grid.Column="1"></Rectangle>
+                    <Border Grid.Column="1"></Border>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.Terminal}" 
+                                              />
+                    </StackPanel>
                 </Grid>
             </Grid>
             

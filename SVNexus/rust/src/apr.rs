@@ -1,7 +1,6 @@
-use crate::subversion;
+use crate::{apr::ffi::apr_array_header_t, subversion};
 
 use super::error::builder;
-use num_enum::TryFromPrimitive;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -42,7 +41,7 @@ pub unsafe fn char_array_to_string(ptr: *const c_char) -> Option<String> {
     if ptr.is_null() {
         None
     } else {
-        Some(unsafe { CStr::from_ptr(ptr) }.to_str().unwrap().to_string())
+        Some(unsafe { CStr::from_ptr(ptr) }.to_str().ok()?.to_string())
     }
 }
 
@@ -153,21 +152,21 @@ impl<T> Array<T> {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Error {
+#[derive(Clone, Debug, Deserialize, Serialize, uniffi::Record)]
+pub struct AprError {
     pub code: ErrorCode,
     pub msg: String,
 }
 
-impl std::error::Error for Error {}
+impl std::error::Error for AprError {}
 
-impl std::fmt::Display for Error {
+impl std::fmt::Display for AprError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.msg)
     }
 }
 
-impl Error {
+impl AprError {
     fn check_error(code: c_int) -> Result<(), Self> {
         if code == 0 {
             return Ok(());
@@ -188,82 +187,82 @@ impl Error {
     }
 }
 
-#[repr(i32)]
-#[derive(Clone, Debug, Copy, TryFromPrimitive, Serialize, Deserialize)]
+#[svnexus_macro::enum_converter(repr_type=u32)]
+#[derive(Clone, Debug, Copy, Serialize, Deserialize, uniffi::Enum)]
 pub enum ErrorCode {
-    ENOSTAT = ffi::APR_ENOSTAT as _,
-    ENOPOOL = ffi::APR_ENOPOOL as _,
-    EBADDATE = ffi::APR_EBADDATE as _,
-    EINVALSOCK = ffi::APR_EINVALSOCK as _,
-    ENOPROC = ffi::APR_ENOPROC as _,
-    ENOTIME = ffi::APR_ENOTIME as _,
-    ENOLOCK = ffi::APR_ENOLOCK as _,
-    ENOPOLL = ffi::APR_ENOPOLL as _,
-    ENOSOCKET = ffi::APR_ENOSOCKET as _,
-    ENOTHREAD = ffi::APR_ENOTHREAD as _,
-    ENOTHDKEY = ffi::APR_ENOTHDKEY as _,
-    EGENERAL = ffi::APR_EGENERAL as _,
-    ENOSHMAVAIL = ffi::APR_ENOSHMAVAIL as _,
-    EBADIP = ffi::APR_EBADIP as _,
-    EBADMASK = ffi::APR_EBADMASK as _,
-    EDSOOPEN = ffi::APR_EDSOOPEN as _,
-    EABSOLUTE = ffi::APR_EABSOLUTE as _,
-    ERELATIVE = ffi::APR_ERELATIVE as _,
-    EINCOMPLETE = ffi::APR_EINCOMPLETE as _,
-    EABOVEROOT = ffi::APR_EABOVEROOT as _,
-    EBADPATH = ffi::APR_EBADPATH as _,
-    EPATHWILD = ffi::APR_EPATHWILD as _,
-    ESYMNOTFOUND = ffi::APR_ESYMNOTFOUND as _,
-    EPROCUnknown = ffi::APR_EPROC_UNKNOWN as _,
-    ENOTENOUGHENTROPY = ffi::APR_ENOTENOUGHENTROPY as _,
-    INCHILD = ffi::APR_INCHILD as _,
-    INPARENT = ffi::APR_INPARENT as _,
-    DETACH = ffi::APR_DETACH as _,
-    NOTDETACH = ffi::APR_NOTDETACH as _,
-    ChildDone = ffi::APR_CHILD_DONE as _,
-    ChildNotDone = ffi::APR_CHILD_NOTDONE as _,
-    TIMEUP = ffi::APR_TIMEUP as _,
-    INCOMPLETE = ffi::APR_INCOMPLETE as _,
-    BADCH = ffi::APR_BADCH as _,
-    BADARG = ffi::APR_BADARG as _,
-    EOF = ffi::APR_EOF as _,
-    NOTFOUND = ffi::APR_NOTFOUND as _,
-    ANONYMOUS = ffi::APR_ANONYMOUS as _,
-    FILEBASED = ffi::APR_FILEBASED as _,
-    KEYBASED = ffi::APR_KEYBASED as _,
-    EINIT = ffi::APR_EINIT as _,
-    ENOTIMPL = ffi::APR_ENOTIMPL as _,
-    EMISMATCH = ffi::APR_EMISMATCH as _,
-    EBUSY = ffi::APR_EBUSY as _,
-    EACCES = ffi::APR_EACCES as _,
-    EEXIST = ffi::APR_EEXIST as _,
-    ENAMETOOLONG = ffi::APR_ENAMETOOLONG as _,
-    ENOENT = ffi::APR_ENOENT as _,
-    ENOTDIR = ffi::APR_ENOTDIR as _,
-    ENOSPC = ffi::APR_ENOSPC as _,
-    ENOMEM = ffi::APR_ENOMEM as _,
-    EMFILE = ffi::APR_EMFILE as _,
-    ENFILE = ffi::APR_ENFILE as _,
-    EBADF = ffi::APR_EBADF as _,
-    EINVAL = ffi::APR_EINVAL as _,
-    ESPIPE = ffi::APR_ESPIPE as _,
-    EAGAIN = ffi::APR_EAGAIN as _,
-    EINTR = ffi::APR_EINTR as _,
-    ENOTSOCK = ffi::APR_ENOTSOCK as _,
-    ECONNREFUSED = ffi::APR_ECONNREFUSED as _,
-    EINPROGRESS = ffi::APR_EINPROGRESS as _,
-    ECONNABORTED = ffi::APR_ECONNABORTED as _,
-    ECONNRESET = ffi::APR_ECONNRESET as _,
-    ETIMEDOUT = ffi::APR_ETIMEDOUT as _,
-    EHOSTUNREACH = ffi::APR_EHOSTUNREACH as _,
-    ENETUNREACH = ffi::APR_ENETUNREACH as _,
-    EFTYPE = ffi::APR_EFTYPE as _,
-    EPIPE = ffi::APR_EPIPE as _,
-    EXDEV = ffi::APR_EXDEV as _,
-    ENOTEMPTY = ffi::APR_ENOTEMPTY as _,
-    EAFNOSUPPORT = ffi::APR_EAFNOSUPPORT as _,
-    EOPNOTSUPP = ffi::APR_EOPNOTSUPP as _,
-    ERANGE = ffi::APR_ERANGE as _,
+    ENOSTAT = ffi::APR_ENOSTAT,
+    ENOPOOL = ffi::APR_ENOPOOL,
+    EBADDATE = ffi::APR_EBADDATE,
+    EINVALSOCK = ffi::APR_EINVALSOCK,
+    ENOPROC = ffi::APR_ENOPROC,
+    ENOTIME = ffi::APR_ENOTIME,
+    ENOLOCK = ffi::APR_ENOLOCK,
+    ENOPOLL = ffi::APR_ENOPOLL,
+    ENOSOCKET = ffi::APR_ENOSOCKET,
+    ENOTHREAD = ffi::APR_ENOTHREAD,
+    ENOTHDKEY = ffi::APR_ENOTHDKEY,
+    EGENERAL = ffi::APR_EGENERAL,
+    ENOSHMAVAIL = ffi::APR_ENOSHMAVAIL,
+    EBADIP = ffi::APR_EBADIP,
+    EBADMASK = ffi::APR_EBADMASK,
+    EDSOOPEN = ffi::APR_EDSOOPEN,
+    EABSOLUTE = ffi::APR_EABSOLUTE,
+    ERELATIVE = ffi::APR_ERELATIVE,
+    EINCOMPLETE = ffi::APR_EINCOMPLETE,
+    EABOVEROOT = ffi::APR_EABOVEROOT,
+    EBADPATH = ffi::APR_EBADPATH,
+    EPATHWILD = ffi::APR_EPATHWILD,
+    ESYMNOTFOUND = ffi::APR_ESYMNOTFOUND,
+    EPROCUnknown = ffi::APR_EPROC_UNKNOWN,
+    ENOTENOUGHENTROPY = ffi::APR_ENOTENOUGHENTROPY,
+    INCHILD = ffi::APR_INCHILD,
+    INPARENT = ffi::APR_INPARENT,
+    DETACH = ffi::APR_DETACH,
+    NOTDETACH = ffi::APR_NOTDETACH,
+    ChildDone = ffi::APR_CHILD_DONE,
+    ChildNotDone = ffi::APR_CHILD_NOTDONE,
+    TIMEUP = ffi::APR_TIMEUP,
+    INCOMPLETE = ffi::APR_INCOMPLETE,
+    BADCH = ffi::APR_BADCH,
+    BADARG = ffi::APR_BADARG,
+    EOF = ffi::APR_EOF,
+    NOTFOUND = ffi::APR_NOTFOUND,
+    ANONYMOUS = ffi::APR_ANONYMOUS,
+    FILEBASED = ffi::APR_FILEBASED,
+    KEYBASED = ffi::APR_KEYBASED,
+    EINIT = ffi::APR_EINIT,
+    ENOTIMPL = ffi::APR_ENOTIMPL,
+    EMISMATCH = ffi::APR_EMISMATCH,
+    EBUSY = ffi::APR_EBUSY,
+    EACCES = ffi::APR_EACCES,
+    EEXIST = ffi::APR_EEXIST,
+    ENAMETOOLONG = ffi::APR_ENAMETOOLONG,
+    ENOENT = ffi::APR_ENOENT,
+    ENOTDIR = ffi::APR_ENOTDIR ,
+    ENOSPC = ffi::APR_ENOSPC ,
+    ENOMEM = ffi::APR_ENOMEM,
+    EMFILE = ffi::APR_EMFILE,
+    ENFILE = ffi::APR_ENFILE,
+    EBADF = ffi::APR_EBADF,
+    EINVAL = ffi::APR_EINVAL,
+    ESPIPE = ffi::APR_ESPIPE,
+    EAGAIN = ffi::APR_EAGAIN,
+    EINTR = ffi::APR_EINTR,
+    ENOTSOCK = ffi::APR_ENOTSOCK,
+    ECONNREFUSED = ffi::APR_ECONNREFUSED,
+    EINPROGRESS = ffi::APR_EINPROGRESS,
+    ECONNABORTED = ffi::APR_ECONNABORTED,
+    ECONNRESET = ffi::APR_ECONNRESET,
+    ETIMEDOUT = ffi::APR_ETIMEDOUT,
+    EHOSTUNREACH = ffi::APR_EHOSTUNREACH,
+    ENETUNREACH = ffi::APR_ENETUNREACH,
+    EFTYPE = ffi::APR_EFTYPE,
+    EPIPE = ffi::APR_EPIPE,
+    EXDEV = ffi::APR_EXDEV,
+    ENOTEMPTY = ffi::APR_ENOTEMPTY,
+    EAFNOSUPPORT = ffi::APR_EAFNOSUPPORT,
+    EOPNOTSUPP = ffi::APR_EOPNOTSUPP ,
+    ERANGE = ffi::APR_ERANGE,
 }
 
 pub struct PoolFactory;
@@ -298,7 +297,7 @@ impl PoolFactory {
                 std::ptr::null_mut(),
             );
 
-            Error::check_error(status).expect("Failed to alloc memory");
+            AprError::check_error(status).expect("Failed to alloc memory");
             ptr
         };
         Pool::from_raw(ptr)
@@ -370,10 +369,10 @@ impl Pool {
 
                 let value = std::slice::from_raw_parts(
                     value.data as *const u8,
-                    value.len.try_into().unwrap(),
+                    value.len.try_into().expect("Invalid length"),
                 );
 
-                let value = String::from_utf8(value.to_vec()).unwrap();
+                let value = String::from_utf8(value.to_vec()).expect("Invalid UTF-8");
 
                 map.insert(key, value);
 
@@ -397,7 +396,7 @@ impl Pool {
                 std::ptr::null_mut(),
             );
 
-            Error::check_error(status).expect("Failed to alloc memory");
+            AprError::check_error(status).expect("Failed to alloc memory");
             ptr
         };
 
@@ -504,5 +503,28 @@ impl Pool {
 
             Ok(array)
         }
+    }
+}
+
+
+
+#[easy_ext::ext(AprArray)]
+pub impl *const ffi::apr_array_header_t {
+    fn len(self) -> usize {
+        unsafe {
+            self.as_ref().unwrap().nelts.try_into().unwrap()
+        }
+    }
+    fn to_vec<T: Sized>(self, read: impl Fn(*const c_char) -> T) -> Vec<T> {
+        let mut vec = Vec::with_capacity(self.len());
+        unsafe {
+            let this = self.as_ref().unwrap();
+            for i in 0..this.nelts {
+                let ptr = this.elts.offset(i as isize);
+                let value = read(ptr);
+                vec.push(value);
+            }
+        }
+        vec
     }
 }

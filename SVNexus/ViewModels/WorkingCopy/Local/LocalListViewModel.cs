@@ -9,45 +9,59 @@ using SVNexus.Generated;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListViewModel.OnLocalListItemSelected>
+public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListViewModel.OnLocalListItemSelected>
 {
-    private WeakReferenceMessenger Messenger { get; } = new();
+    // private WeakReferenceMessenger Messenger { get; } = new();
+
+    public required string WorkingCopyPath { get; init; }
+
+
+    public event Action<object?, StatusEntry?>? SelectedItemChanged;
+    
+    
     
 
-    public required string WorkingCopyPath { get; set; } 
-
-    public LocalListViewModel()
-    {
-        Messenger.Register(this);
-    }
+    // public LocalListViewModel()
+    // {
+    //     Messenger.Register(this);
+    // }
+    //
     
     
     
-    
-    public class OnLocalListItemSelected
-    {
-        public required bool IsSelected { get; init; }
-        public required ListItemViewModel ItemModel { get; init; }
-    }
+    // public class OnLocalListItemSelected
+    // {
+    //     public required bool IsSelected { get; init; }
+    //     public required ListItemViewModel ItemModel { get; init; }
+    // }
 
     public partial class ListItemViewModel : ViewModelLite
     {
+        
+        // public event Action<ListItemViewModel, bool>? ItemCheckStateChanged;
+        
+        public required LocalListViewModel Parent { get; init; }
+        
         [ObservableProperty]
-        public partial bool IsSelected { get; set; }
+        public partial bool IsChecked { get; set; }
 
-        partial void OnIsSelectedChanged(bool value)
+        partial void OnIsCheckedChanged(bool value)
         {
-            Messenger.Send(new OnLocalListItemSelected
-            {
-                IsSelected = value,
-                ItemModel = this
-            });
+            
+            // Messenger.Send(new OnLocalListItemSelected
+            // {
+            //     IsSelected = value,
+            //     ItemModel = this
+            // });
+            
+            // ItemCheckStateChanged?.Invoke(this, value);
+            Parent.OnItemCheckStateChanged(this, value);
         }
 
         public string Text => StatusEntry.Path.TrimStart(WorkingCopyPath.ToCharArray());
     
 
-        private string AbsolutePath => StatusEntry.Path;
+        public string AbsolutePath => StatusEntry.Path;
 
 
 
@@ -69,7 +83,7 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
         public required string WorkingCopyPath { get; init; }
     
     
-        public required WeakReferenceMessenger Messenger { get; init; }
+        // public required WeakReferenceMessenger Messenger { get; init; }
 
 
 
@@ -78,24 +92,31 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
     public override bool KeepAlive { get; set; } = true;
 
     [ObservableProperty]
-    private ListItemViewModel?  _selectedItem;
-
+    public partial ListItemViewModel? SelectedItem { get; set; }
+    
+    
     public ObservableCollection<ListItemViewModel> Items { get; } = [];
     
     
     public List<string> SelectedItems { get; set; } = [];
 
-    public void Receive(OnLocalListItemSelected message)
+
+    partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
-        if (message.IsSelected)
-        {
-            SelectedItems.Add(message.ItemModel.StatusEntry.Path);
-        }
-        else
-        {
-            SelectedItems.RemoveAll(model => message.ItemModel.StatusEntry.Path == model);
-        }
+        SelectedItemChanged?.Invoke(this, value?.StatusEntry);
     }
+
+    // public void Receive(OnLocalListItemSelected message)
+    // {
+    //     if (message.IsSelected)
+    //     {
+    //         SelectedItems.Add(message.ItemModel.StatusEntry.Path);
+    //     }
+    //     else
+    //     {
+    //         SelectedItems.RemoveAll(model => message.ItemModel.StatusEntry.Path == model);
+    //     }
+    // }
 
     public void Update(StatusEntry[] entries)
     {
@@ -107,10 +128,12 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
             var item = new ListItemViewModel
             {
                 WorkingCopyPath = WorkingCopyPath,
-                Messenger =  Messenger,
+                // Messenger =  Messenger,
                 StatusEntry = entry,
-                IsSelected = SelectedItems.Contains(entry.Path)
+                IsChecked = SelectedItems.Contains(entry.Path),
+                Parent = this
             };
+            // item.ItemCheckStateChanged += OnItemCheckStateChanged;
             if (SelectedItem?.WorkingCopyPath == entry.Path)
             {
                 selectedItem = item;
@@ -122,6 +145,18 @@ public partial class LocalListViewModel: ViewModelBase, IRecipient<LocalListView
         SelectedItem = selectedItem;
         
         Console.WriteLine("Items: {0}", Items.Count);
-        SelectedItems = Items.Where(item => item.IsSelected).Select(item => item.WorkingCopyPath).ToList();
+        SelectedItems = Items.Where(item => item.IsChecked).Select(item => item.WorkingCopyPath).ToList();
+    }
+
+    private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)
+    {
+        if (check)
+        {
+            SelectedItems.Add(itemModel.StatusEntry.Path);
+        }
+        else
+        {
+            SelectedItems.RemoveAll(model => itemModel.StatusEntry.Path == model);
+        }    
     }
 }

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
              x:DataType="local:LocalTreeViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:CompileBindings="True"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalTreeView">
     <TreeView SelectionMode="Multiple"
               Margin="0"
@@ -44,7 +45,7 @@
                     </Grid.ContextMenu>
 
                     <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
-                              IsChecked="{Binding IsSelected}"
+                              IsChecked="{Binding IsChecked}"
                               IsEnabled="{Binding IsReal}" Grid.Column="0">
                     </CheckBox>
                     <!-- <PathIcon Margin="8, 0" Grid.Column="1" Classes="Normal" -->

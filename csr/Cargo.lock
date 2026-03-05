@@ -806,6 +806,7 @@ checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 [[package]]
 name = "uniffi-bindgen-cs"
 version = "0.10.0+v0.30.0"
+source = "git+https://github.com/holdxen/uniffi-bindgen-cs.git#5a516b141c4100584cca3c41b224fe6c8a4204b6"
 dependencies = [
  "anyhow",
  "askama 0.13.1",

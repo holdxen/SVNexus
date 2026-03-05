@@ -729,6 +729,10 @@ static class _UniFFILib {
     public delegate void UniffiCallbackInterfaceInitializeRepositoryNotifierMethod5(
         ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceLogReceiverMethod0(
+        ulong @uniffiHandle,RustBuffer @logEntry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceContextNotifier
     {
@@ -753,6 +757,31 @@ static class _UniFFILib {
         public IntPtr @onCheckout;
         public IntPtr @onFinished;
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct UniffiVTableCallbackInterfaceLogReceiver
+    {
+        public IntPtr @uniffiFree;
+        public IntPtr @uniffiClone;
+        public IntPtr @onLogEntry;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -1588,135 +1617,8 @@ static class _UniFFILib {
         
         UniffiCallbackInterfaceContextNotifier.Register();
         UniffiCallbackInterfaceInitializeRepositoryNotifier.Register();
+        UniffiCallbackInterfaceLogReceiver.Register();
         }
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_clone_asynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_free_asynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_constructor_asynccontext_create(RustBuffer @opts,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_add(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_cat(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_checkout(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_commit(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_delete(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uniffi_engine_fn_method_asynccontext_for_test(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_import(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_initialize_repository(ulong @ptr,RustBuffer @opts,ulong @notifier
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_log(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_revert(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_method_asynccontext_status(ulong @ptr,RustBuffer @opts
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_clone_contextnotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_free_contextnotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_init_callback_vtable_contextnotifier(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceContextNotifier*/ @vtable
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern sbyte uniffi_engine_fn_method_contextnotifier_may_save_password_as_plain_text(ulong @ptr,RustBuffer @realmString,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_contextnotifier_working_copy_notify(ulong @ptr,RustBuffer @notify,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_engine_fn_method_contextnotifier_ssl_server_trust_prompt(ulong @ptr,RustBuffer @realm,uint @failures,RustBuffer @info,sbyte @maySave,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_engine_fn_method_contextnotifier_cancel(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_contextnotifier_progress_notify(ulong @ptr,long @pos,long @total,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_engine_fn_method_contextnotifier_authenticate(ulong @ptr,RustBuffer @realm,RustBuffer @username,sbyte @maySave,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uniffi_engine_fn_clone_initializerepositorynotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_free_initializerepositorynotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_init_callback_vtable_initializerepositorynotifier(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceInitializeRepositoryNotifier*/ @vtable
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_checkout_directly(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_import(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_backup(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_backup_finished(ulong @ptr,RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_checkout(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_finished(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
-    );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong uniffi_engine_fn_clone_svnerrnoconstants(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
@@ -3139,15 +3041,179 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_clone_asynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_free_asynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_constructor_asynccontext_create(RustBuffer @opts,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_add(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_cat(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_checkout(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_commit(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_delete(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_export(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_import(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_info(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_initialize_repository(ulong @ptr,RustBuffer @opts,ulong @notifier
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_list(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_log(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_log_next(ulong @ptr,RustBuffer @opts,ulong @receiver
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_revert(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_status(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_update(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_url_from_path(ulong @ptr,RustBuffer @path
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_clone_contextnotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_free_contextnotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_init_callback_vtable_contextnotifier(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceContextNotifier*/ @vtable
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern sbyte uniffi_engine_fn_method_contextnotifier_may_save_password_as_plain_text(ulong @ptr,RustBuffer @realmString,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_contextnotifier_working_copy_notify(ulong @ptr,RustBuffer @notify,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_engine_fn_method_contextnotifier_ssl_server_trust_prompt(ulong @ptr,RustBuffer @realm,uint @failures,RustBuffer @info,sbyte @maySave,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_engine_fn_method_contextnotifier_cancel(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_contextnotifier_progress_notify(ulong @ptr,long @pos,long @total,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_engine_fn_method_contextnotifier_authenticate(ulong @ptr,RustBuffer @realm,RustBuffer @username,sbyte @maySave,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_clone_initializerepositorynotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_free_initializerepositorynotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_init_callback_vtable_initializerepositorynotifier(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceInitializeRepositoryNotifier*/ @vtable
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_checkout_directly(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_import(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_backup(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_backup_finished(ulong @ptr,RustBuffer @path,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_checkout(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_initializerepositorynotifier_on_finished(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_clone_logreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_free_logreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_init_callback_vtable_logreceiver(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceLogReceiver*/ @vtable
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_method_logreceiver_on_log_entry(ulong @ptr,RustBuffer @logEntry,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_engine_fn_method_differenceoptions_exec(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern RustBuffer uniffi_engine_fn_method_svgrenderoptions_render(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_engine_fn_func_render_svg_to_rgba(RustBuffer @svgData,uint @width,uint @height,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uniffi_engine_fn_func_setup_svg(RustBuffer @fonts,ref UniffiRustCallStatus _uniffi_out_err
+    public static extern void uniffi_engine_fn_func_engine_initialize(ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -3160,6 +3226,14 @@ static class _UniFFILib {
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern uint uniffi_engine_fn_func_svn_err_reposra_into_u32(RustBuffer @err,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_engine_fn_func_render_svg_to_rgba(RustBuffer @svgData,uint @width,uint @height,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_func_setup_svg(RustBuffer @fonts,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -3371,11 +3445,7 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_func_render_svg_to_rgba(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_func_setup_svg(
+    public static extern ushort uniffi_engine_checksum_func_engine_initialize(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -3391,95 +3461,11 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_add(
+    public static extern ushort uniffi_engine_checksum_func_render_svg_to_rgba(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_cat(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_checkout(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_commit(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_delete(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_for_test(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_import(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_initialize_repository(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_log(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_revert(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_asynccontext_status(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_contextnotifier_working_copy_notify(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_contextnotifier_cancel(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_contextnotifier_progress_notify(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_contextnotifier_authenticate(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout_directly(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_import(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_backup(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_backup_finished(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_finished(
+    public static extern ushort uniffi_engine_checksum_func_setup_svg(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -4891,11 +4877,127 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_constructor_asynccontext_create(
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_add(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_cat(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_checkout(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_commit(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_delete(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_export(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_import(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_info(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_initialize_repository(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_list(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_log(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_log_next(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_revert(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_status(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_update(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_url_from_path(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_contextnotifier_working_copy_notify(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_contextnotifier_cancel(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_contextnotifier_progress_notify(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_contextnotifier_authenticate(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout_directly(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_import(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_backup(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_backup_finished(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_initializerepositorynotifier_on_finished(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_logreceiver_on_log_entry(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern ushort uniffi_engine_checksum_constructor_svnerrnoconstants_new(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_constructor_asynccontext_create(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -4913,2295 +5015,2337 @@ static class _UniFFILib {
 
     static void uniffiCheckApiChecksums() {
         {
-            var checksum = _UniFFILib.uniffi_engine_checksum_func_render_svg_to_rgba();
-            if (checksum != 38564) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_render_svg_to_rgba` checksum `38564`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_func_setup_svg();
-            if (checksum != 12596) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_setup_svg` checksum `12596`, library returned `{checksum}`");
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_engine_initialize();
+            if (checksum != 40660) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_engine_initialize` checksum `40660`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_svn_err_fs_reposra_into_u32();
-            if (checksum != 56956) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_fs_reposra_into_u32` checksum `56956`, library returned `{checksum}`");
+            if (checksum != 24074) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_fs_reposra_into_u32` checksum `24074`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_svn_err_general_into_u32();
-            if (checksum != 34688) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_general_into_u32` checksum `34688`, library returned `{checksum}`");
+            if (checksum != 3016) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_general_into_u32` checksum `3016`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_svn_err_reposra_into_u32();
-            if (checksum != 64010) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_reposra_into_u32` checksum `64010`, library returned `{checksum}`");
+            if (checksum != 42444) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_reposra_into_u32` checksum `42444`, library returned `{checksum}`");
             }
         }
         {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_add();
-            if (checksum != 23966) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_add` checksum `23966`, library returned `{checksum}`");
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_render_svg_to_rgba();
+            if (checksum != 46950) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_render_svg_to_rgba` checksum `46950`, library returned `{checksum}`");
             }
         }
         {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_cat();
-            if (checksum != 15863) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_cat` checksum `15863`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_checkout();
-            if (checksum != 1828) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_checkout` checksum `1828`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_commit();
-            if (checksum != 28472) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_commit` checksum `28472`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_delete();
-            if (checksum != 18466) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_delete` checksum `18466`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_for_test();
-            if (checksum != 45923) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_for_test` checksum `45923`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_import();
-            if (checksum != 33656) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `33656`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_initialize_repository();
-            if (checksum != 5315) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_initialize_repository` checksum `5315`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log();
-            if (checksum != 57994) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log` checksum `57994`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_revert();
-            if (checksum != 34535) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_revert` checksum `34535`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_status();
-            if (checksum != 7927) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status` checksum `7927`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text();
-            if (checksum != 5837) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text` checksum `5837`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_working_copy_notify();
-            if (checksum != 53744) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_working_copy_notify` checksum `53744`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt();
-            if (checksum != 16869) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt` checksum `16869`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_cancel();
-            if (checksum != 42362) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_cancel` checksum `42362`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_progress_notify();
-            if (checksum != 38969) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_progress_notify` checksum `38969`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_authenticate();
-            if (checksum != 52997) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_authenticate` checksum `52997`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout_directly();
-            if (checksum != 35641) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout_directly` checksum `35641`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_import();
-            if (checksum != 22885) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_import` checksum `22885`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_backup();
-            if (checksum != 16519) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_backup` checksum `16519`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_backup_finished();
-            if (checksum != 15891) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_backup_finished` checksum `15891`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout();
-            if (checksum != 1740) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout` checksum `1740`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_finished();
-            if (checksum != 14735) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_finished` checksum `14735`, library returned `{checksum}`");
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_setup_svg();
+            if (checksum != 11189) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_setup_svg` checksum `11189`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_activity_not_found();
-            if (checksum != 49661) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_activity_not_found` checksum `49661`, library returned `{checksum}`");
+            if (checksum != 33301) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_activity_not_found` checksum `33301`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_bad_baseline();
-            if (checksum != 57175) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_bad_baseline` checksum `57175`, library returned `{checksum}`");
+            if (checksum != 27346) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_bad_baseline` checksum `27346`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_connection_aborted();
-            if (checksum != 23052) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_connection_aborted` checksum `23052`, library returned `{checksum}`");
+            if (checksum != 44054) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_connection_aborted` checksum `44054`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_malformed_uri();
-            if (checksum != 26405) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_malformed_uri` checksum `26405`, library returned `{checksum}`");
+            if (checksum != 42216) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_malformed_uri` checksum `42216`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_missing_path_to_fs();
-            if (checksum != 5851) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_missing_path_to_fs` checksum `5851`, library returned `{checksum}`");
+            if (checksum != 60584) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_apmod_missing_path_to_fs` checksum `60584`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_invalid_data();
-            if (checksum != 59444) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_invalid_data` checksum `59444`, library returned `{checksum}`");
+            if (checksum != 10071) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_invalid_data` checksum `10071`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_invalid_length();
-            if (checksum != 20635) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_invalid_length` checksum `20635`, library returned `{checksum}`");
+            if (checksum != 39891) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_invalid_length` checksum `39891`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_length_mismatch();
-            if (checksum != 24673) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_length_mismatch` checksum `24673`, library returned `{checksum}`");
+            if (checksum != 54032) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_length_mismatch` checksum `54032`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_out_of_data();
-            if (checksum != 47935) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_out_of_data` checksum `47935`, library returned `{checksum}`");
+            if (checksum != 14530) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_out_of_data` checksum `14530`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_unexpected_tag();
-            if (checksum != 26761) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_unexpected_tag` checksum `26761`, library returned `{checksum}`");
+            if (checksum != 3157) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_asn1_unexpected_tag` checksum `3157`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_assertion_fail();
-            if (checksum != 22721) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_assertion_fail` checksum `22721`, library returned `{checksum}`");
+            if (checksum != 36784) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_assertion_fail` checksum `36784`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_assertion_only_tracing_links();
-            if (checksum != 47805) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_assertion_only_tracing_links` checksum `47805`, library returned `{checksum}`");
+            if (checksum != 39565) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_assertion_only_tracing_links` checksum `39565`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_atomic_init_failure();
-            if (checksum != 10036) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_atomic_init_failure` checksum `10036`, library returned `{checksum}`");
+            if (checksum != 50183) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_atomic_init_failure` checksum `50183`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authn_creds_not_saved();
-            if (checksum != 6646) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_creds_not_saved` checksum `6646`, library returned `{checksum}`");
+            if (checksum != 24197) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_creds_not_saved` checksum `24197`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authn_creds_unavailable();
-            if (checksum != 37073) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_creds_unavailable` checksum `37073`, library returned `{checksum}`");
+            if (checksum != 63014) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_creds_unavailable` checksum `63014`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authn_failed();
-            if (checksum != 51920) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_failed` checksum `51920`, library returned `{checksum}`");
+            if (checksum != 33815) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_failed` checksum `33815`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authn_no_provider();
-            if (checksum != 65260) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_no_provider` checksum `65260`, library returned `{checksum}`");
+            if (checksum != 47206) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_no_provider` checksum `47206`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authn_providers_exhausted();
-            if (checksum != 20674) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_providers_exhausted` checksum `20674`, library returned `{checksum}`");
+            if (checksum != 60789) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authn_providers_exhausted` checksum `60789`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authz_invalid_config();
-            if (checksum != 26937) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_invalid_config` checksum `26937`, library returned `{checksum}`");
+            if (checksum != 58603) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_invalid_config` checksum `58603`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authz_partially_readable();
-            if (checksum != 6183) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_partially_readable` checksum `6183`, library returned `{checksum}`");
+            if (checksum != 51655) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_partially_readable` checksum `51655`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authz_root_unreadable();
-            if (checksum != 24839) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_root_unreadable` checksum `24839`, library returned `{checksum}`");
+            if (checksum != 50516) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_root_unreadable` checksum `50516`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authz_unreadable();
-            if (checksum != 4724) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_unreadable` checksum `4724`, library returned `{checksum}`");
+            if (checksum != 42310) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_unreadable` checksum `42310`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_authz_unwritable();
-            if (checksum != 43067) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_unwritable` checksum `43067`, library returned `{checksum}`");
+            if (checksum != 5379) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_authz_unwritable` checksum `5379`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_atomic();
-            if (checksum != 15615) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_atomic` checksum `15615`, library returned `{checksum}`");
+            if (checksum != 7854) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_atomic` checksum `7854`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_changelist_name();
-            if (checksum != 46986) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_changelist_name` checksum `46986`, library returned `{checksum}`");
+            if (checksum != 18443) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_changelist_name` checksum `18443`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_checksum_kind();
-            if (checksum != 23425) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_checksum_kind` checksum `23425`, library returned `{checksum}`");
+            if (checksum != 3417) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_checksum_kind` checksum `3417`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_checksum_parse();
-            if (checksum != 26349) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_checksum_parse` checksum `26349`, library returned `{checksum}`");
+            if (checksum != 51762) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_checksum_parse` checksum `51762`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_compression_method();
-            if (checksum != 22905) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_compression_method` checksum `22905`, library returned `{checksum}`");
+            if (checksum != 56924) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_compression_method` checksum `56924`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_config_value();
-            if (checksum != 3281) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_config_value` checksum `3281`, library returned `{checksum}`");
+            if (checksum != 29968) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_config_value` checksum `29968`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_containing_pool();
-            if (checksum != 56843) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_containing_pool` checksum `56843`, library returned `{checksum}`");
+            if (checksum != 35308) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_containing_pool` checksum `35308`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_date();
-            if (checksum != 4951) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_date` checksum `4951`, library returned `{checksum}`");
+            if (checksum != 51186) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_date` checksum `51186`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_filename();
-            if (checksum != 54250) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_filename` checksum `54250`, library returned `{checksum}`");
+            if (checksum != 44876) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_filename` checksum `44876`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_mime_type();
-            if (checksum != 59661) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_mime_type` checksum `59661`, library returned `{checksum}`");
+            if (checksum != 34803) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_mime_type` checksum `34803`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_prop_kind();
-            if (checksum != 60653) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_prop_kind` checksum `60653`, library returned `{checksum}`");
+            if (checksum != 32082) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_prop_kind` checksum `32082`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_property_value();
-            if (checksum != 44739) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_property_value` checksum `44739`, library returned `{checksum}`");
+            if (checksum != 45506) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_property_value` checksum `45506`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_property_value_eol();
-            if (checksum != 33543) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_property_value_eol` checksum `33543`, library returned `{checksum}`");
+            if (checksum != 32038) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_property_value_eol` checksum `32038`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_relative_path();
-            if (checksum != 11687) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_relative_path` checksum `11687`, library returned `{checksum}`");
+            if (checksum != 61348) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_relative_path` checksum `61348`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_server_specification();
-            if (checksum != 9184) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_server_specification` checksum `9184`, library returned `{checksum}`");
+            if (checksum != 14927) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_server_specification` checksum `14927`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_token();
-            if (checksum != 12665) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_token` checksum `12665`, library returned `{checksum}`");
+            if (checksum != 29128) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_token` checksum `29128`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_url();
-            if (checksum != 1299) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_url` checksum `1299`, library returned `{checksum}`");
+            if (checksum != 26044) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_url` checksum `26044`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_uuid();
-            if (checksum != 29632) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_uuid` checksum `29632`, library returned `{checksum}`");
+            if (checksum != 45064) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_uuid` checksum `45064`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_bad_version_file_format();
-            if (checksum != 60025) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_version_file_format` checksum `60025`, library returned `{checksum}`");
+            if (checksum != 16816) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_bad_version_file_format` checksum `16816`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_base();
-            if (checksum != 25960) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_base` checksum `25960`, library returned `{checksum}`");
+            if (checksum != 14895) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_base` checksum `14895`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cancelled();
-            if (checksum != 3218) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cancelled` checksum `3218`, library returned `{checksum}`");
+            if (checksum != 29925) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cancelled` checksum `29925`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_canonicalization_failed();
-            if (checksum != 62110) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_canonicalization_failed` checksum `62110`, library returned `{checksum}`");
+            if (checksum != 30764) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_canonicalization_failed` checksum `30764`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cease_invocation();
-            if (checksum != 44819) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cease_invocation` checksum `44819`, library returned `{checksum}`");
+            if (checksum != 14688) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cease_invocation` checksum `14688`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_checksum_mismatch();
-            if (checksum != 41701) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_checksum_mismatch` checksum `41701`, library returned `{checksum}`");
+            if (checksum != 9580) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_checksum_mismatch` checksum `9580`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_adm_dir_reserved();
-            if (checksum != 40519) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_adm_dir_reserved` checksum `40519`, library returned `{checksum}`");
+            if (checksum != 25425) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_adm_dir_reserved` checksum `25425`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_arg_parsing_error();
-            if (checksum != 26332) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_arg_parsing_error` checksum `26332`, library returned `{checksum}`");
+            if (checksum != 26564) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_arg_parsing_error` checksum `26564`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_bad_log_message();
-            if (checksum != 40544) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_bad_log_message` checksum `40544`, library returned `{checksum}`");
+            if (checksum != 57365) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_bad_log_message` checksum `57365`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_commit_in_added_dir();
-            if (checksum != 7380) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_commit_in_added_dir` checksum `7380`, library returned `{checksum}`");
+            if (checksum != 23693) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_commit_in_added_dir` checksum `23693`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_error_processing_externals();
-            if (checksum != 57107) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_error_processing_externals` checksum `57107`, library returned `{checksum}`");
+            if (checksum != 3004) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_error_processing_externals` checksum `3004`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_insufficient_args();
-            if (checksum != 30593) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_insufficient_args` checksum `30593`, library returned `{checksum}`");
+            if (checksum != 5932) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_insufficient_args` checksum `5932`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_log_message_is_pathname();
-            if (checksum != 4393) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_log_message_is_pathname` checksum `4393`, library returned `{checksum}`");
+            if (checksum != 47534) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_log_message_is_pathname` checksum `47534`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_log_message_is_versioned_file();
-            if (checksum != 31821) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_log_message_is_versioned_file` checksum `31821`, library returned `{checksum}`");
+            if (checksum != 8453) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_log_message_is_versioned_file` checksum `8453`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_mutually_exclusive_args();
-            if (checksum != 46190) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_mutually_exclusive_args` checksum `46190`, library returned `{checksum}`");
+            if (checksum != 30529) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_mutually_exclusive_args` checksum `30529`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_no_external_editor();
-            if (checksum != 4877) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_no_external_editor` checksum `4877`, library returned `{checksum}`");
+            if (checksum != 6546) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_no_external_editor` checksum `6546`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_no_external_merge_tool();
-            if (checksum != 52853) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_no_external_merge_tool` checksum `52853`, library returned `{checksum}`");
+            if (checksum != 14709) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_no_external_merge_tool` checksum `14709`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_repos_verify_failed();
-            if (checksum != 15575) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_repos_verify_failed` checksum `15575`, library returned `{checksum}`");
+            if (checksum != 55959) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_repos_verify_failed` checksum `55959`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_cl_unnecessary_log_message();
-            if (checksum != 12169) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_unnecessary_log_message` checksum `12169`, library returned `{checksum}`");
+            if (checksum != 52072) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_cl_unnecessary_log_message` checksum `52072`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_bad_revision();
-            if (checksum != 56917) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_bad_revision` checksum `56917`, library returned `{checksum}`");
+            if (checksum != 63814) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_bad_revision` checksum `63814`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_conflict_option_not_applicable();
-            if (checksum != 27431) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_conflict_option_not_applicable` checksum `27431`, library returned `{checksum}`");
+            if (checksum != 12080) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_conflict_option_not_applicable` checksum `12080`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_cycle_detected();
-            if (checksum != 38976) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_cycle_detected` checksum `38976`, library returned `{checksum}`");
+            if (checksum != 60516) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_cycle_detected` checksum `60516`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_duplicate_commit_url();
-            if (checksum != 37219) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_duplicate_commit_url` checksum `37219`, library returned `{checksum}`");
+            if (checksum != 26645) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_duplicate_commit_url` checksum `26645`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_file_external_overwrite_versioned();
-            if (checksum != 3860) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_file_external_overwrite_versioned` checksum `3860`, library returned `{checksum}`");
+            if (checksum != 32656) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_file_external_overwrite_versioned` checksum `32656`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_forbidden_by_server();
-            if (checksum != 16496) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_forbidden_by_server` checksum `16496`, library returned `{checksum}`");
+            if (checksum != 52267) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_forbidden_by_server` checksum `52267`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_externals_description();
-            if (checksum != 36590) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_externals_description` checksum `36590`, library returned `{checksum}`");
+            if (checksum != 6314) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_externals_description` checksum `6314`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_mergeinfo_no_mergetracking();
-            if (checksum != 62513) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_mergeinfo_no_mergetracking` checksum `62513`, library returned `{checksum}`");
+            if (checksum != 23909) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_mergeinfo_no_mergetracking` checksum `23909`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_relocation();
-            if (checksum != 21970) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_relocation` checksum `21970`, library returned `{checksum}`");
+            if (checksum != 52664) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_invalid_relocation` checksum `52664`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_is_binary_file();
-            if (checksum != 51537) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_is_binary_file` checksum `51537`, library returned `{checksum}`");
+            if (checksum != 46144) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_is_binary_file` checksum `46144`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_is_directory();
-            if (checksum != 46090) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_is_directory` checksum `46090`, library returned `{checksum}`");
+            if (checksum != 7527) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_is_directory` checksum `7527`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_merge_update_required();
-            if (checksum != 55078) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_merge_update_required` checksum `55078`, library returned `{checksum}`");
+            if (checksum != 47041) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_merge_update_required` checksum `47041`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_missing_lock_token();
-            if (checksum != 63427) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_missing_lock_token` checksum `63427`, library returned `{checksum}`");
+            if (checksum != 61351) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_missing_lock_token` checksum `61351`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_modified();
-            if (checksum != 49849) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_modified` checksum `49849`, library returned `{checksum}`");
+            if (checksum != 4696) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_modified` checksum `4696`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_multiple_sources_disallowed();
-            if (checksum != 42165) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_multiple_sources_disallowed` checksum `42165`, library returned `{checksum}`");
+            if (checksum != 5720) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_multiple_sources_disallowed` checksum `5720`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_no_lock_token();
-            if (checksum != 54218) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_no_lock_token` checksum `54218`, library returned `{checksum}`");
+            if (checksum != 45858) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_no_lock_token` checksum `45858`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_no_versioned_parent();
-            if (checksum != 20596) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_no_versioned_parent` checksum `20596`, library returned `{checksum}`");
+            if (checksum != 44887) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_no_versioned_parent` checksum `44887`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_not_ready_to_merge();
-            if (checksum != 6554) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_not_ready_to_merge` checksum `6554`, library returned `{checksum}`");
+            if (checksum != 6876) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_not_ready_to_merge` checksum `6876`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_patch_bad_strip_count();
-            if (checksum != 38066) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_patch_bad_strip_count` checksum `38066`, library returned `{checksum}`");
+            if (checksum != 27544) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_patch_bad_strip_count` checksum `27544`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_property_name();
-            if (checksum != 36737) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_property_name` checksum `36737`, library returned `{checksum}`");
+            if (checksum != 18479) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_property_name` checksum `18479`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_ra_access_required();
-            if (checksum != 10426) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_ra_access_required` checksum `10426`, library returned `{checksum}`");
+            if (checksum != 54133) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_ra_access_required` checksum `54133`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_revision_author_contains_newline();
-            if (checksum != 10548) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_revision_author_contains_newline` checksum `10548`, library returned `{checksum}`");
+            if (checksum != 58547) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_revision_author_contains_newline` checksum `58547`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_revision_range();
-            if (checksum != 43501) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_revision_range` checksum `43501`, library returned `{checksum}`");
+            if (checksum != 63253) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_revision_range` checksum `63253`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_unrelated_resources();
-            if (checksum != 48618) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_unrelated_resources` checksum `48618`, library returned `{checksum}`");
+            if (checksum != 23438) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_unrelated_resources` checksum `23438`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_client_versioned_path_required();
-            if (checksum != 23805) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_versioned_path_required` checksum `23805`, library returned `{checksum}`");
+            if (checksum != 58031) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_client_versioned_path_required` checksum `58031`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_composed_error();
-            if (checksum != 20991) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_composed_error` checksum `20991`, library returned `{checksum}`");
+            if (checksum != 53878) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_composed_error` checksum `53878`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_corrupt_packed_data();
-            if (checksum != 63284) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_corrupt_packed_data` checksum `63284`, library returned `{checksum}`");
+            if (checksum != 63165) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_corrupt_packed_data` checksum `63165`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_corrupted_atomic_storage();
-            if (checksum != 58516) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_corrupted_atomic_storage` checksum `58516`, library returned `{checksum}`");
+            if (checksum != 25483) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_corrupted_atomic_storage` checksum `25483`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_delta_md5_checksum_absent();
-            if (checksum != 53711) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_delta_md5_checksum_absent` checksum `53711`, library returned `{checksum}`");
+            if (checksum != 51190) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_delta_md5_checksum_absent` checksum `51190`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_diff_datasource_modified();
-            if (checksum != 60714) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_diff_datasource_modified` checksum `60714`, library returned `{checksum}`");
+            if (checksum != 59) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_diff_datasource_modified` checksum `59`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_diff_unexpected_data();
-            if (checksum != 43484) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_diff_unexpected_data` checksum `43484`, library returned `{checksum}`");
+            if (checksum != 61147) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_diff_unexpected_data` checksum `61147`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_dir_not_empty();
-            if (checksum != 14583) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_dir_not_empty` checksum `14583`, library returned `{checksum}`");
+            if (checksum != 46277) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_dir_not_empty` checksum `46277`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_entry_attribute_invalid();
-            if (checksum != 42851) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_attribute_invalid` checksum `42851`, library returned `{checksum}`");
+            if (checksum != 56234) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_attribute_invalid` checksum `56234`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_entry_exists();
-            if (checksum != 16655) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_exists` checksum `16655`, library returned `{checksum}`");
+            if (checksum != 20533) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_exists` checksum `20533`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_entry_forbidden();
-            if (checksum != 58291) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_forbidden` checksum `58291`, library returned `{checksum}`");
+            if (checksum != 32808) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_forbidden` checksum `32808`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_entry_missing_revision();
-            if (checksum != 18100) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_missing_revision` checksum `18100`, library returned `{checksum}`");
+            if (checksum != 35222) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_missing_revision` checksum `35222`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_entry_missing_url();
-            if (checksum != 53689) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_missing_url` checksum `53689`, library returned `{checksum}`");
+            if (checksum != 14141) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_missing_url` checksum `14141`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_entry_not_found();
-            if (checksum != 2415) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_not_found` checksum `2415`, library returned `{checksum}`");
+            if (checksum != 28410) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_entry_not_found` checksum `28410`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_external_program();
-            if (checksum != 49551) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_external_program` checksum `49551`, library returned `{checksum}`");
+            if (checksum != 4839) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_external_program` checksum `4839`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_already_exists();
-            if (checksum != 56695) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_already_exists` checksum `56695`, library returned `{checksum}`");
+            if (checksum != 58262) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_already_exists` checksum `58262`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_already_open();
-            if (checksum != 3644) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_already_open` checksum `3644`, library returned `{checksum}`");
+            if (checksum != 22875) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_already_open` checksum `22875`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_ambiguous_checksum_rep();
-            if (checksum != 43079) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_ambiguous_checksum_rep` checksum `43079`, library returned `{checksum}`");
+            if (checksum != 18090) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_ambiguous_checksum_rep` checksum `18090`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_bad_lock_token();
-            if (checksum != 49721) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_bad_lock_token` checksum `49721`, library returned `{checksum}`");
+            if (checksum != 28088) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_bad_lock_token` checksum `28088`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_berkeley_db();
-            if (checksum != 59588) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_berkeley_db` checksum `59588`, library returned `{checksum}`");
+            if (checksum != 39442) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_berkeley_db` checksum `39442`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_berkeley_db_deadlock();
-            if (checksum != 5108) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_berkeley_db_deadlock` checksum `5108`, library returned `{checksum}`");
+            if (checksum != 47423) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_berkeley_db_deadlock` checksum `47423`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_cleanup();
-            if (checksum != 65191) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_cleanup` checksum `65191`, library returned `{checksum}`");
+            if (checksum != 63264) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_cleanup` checksum `63264`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_conflict();
-            if (checksum != 50467) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_conflict` checksum `50467`, library returned `{checksum}`");
+            if (checksum != 33332) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_conflict` checksum `33332`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_container_index();
-            if (checksum != 17543) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_container_index` checksum `17543`, library returned `{checksum}`");
+            if (checksum != 25537) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_container_index` checksum `25537`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_container_size();
-            if (checksum != 47080) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_container_size` checksum `47080`, library returned `{checksum}`");
+            if (checksum != 14656) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_container_size` checksum `14656`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt();
-            if (checksum != 40890) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt` checksum `40890`, library returned `{checksum}`");
+            if (checksum != 45004) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt` checksum `45004`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt_proplist();
-            if (checksum != 54153) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt_proplist` checksum `54153`, library returned `{checksum}`");
+            if (checksum != 56097) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt_proplist` checksum `56097`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt_revprop_manifest();
-            if (checksum != 4974) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt_revprop_manifest` checksum `4974`, library returned `{checksum}`");
+            if (checksum != 21046) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_corrupt_revprop_manifest` checksum `21046`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_general();
-            if (checksum != 58581) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_general` checksum `58581`, library returned `{checksum}`");
+            if (checksum != 19235) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_general` checksum `19235`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_id_not_found();
-            if (checksum != 1712) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_id_not_found` checksum `1712`, library returned `{checksum}`");
+            if (checksum != 28298) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_id_not_found` checksum `28298`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_incorrect_editor_completion();
-            if (checksum != 43618) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_incorrect_editor_completion` checksum `43618`, library returned `{checksum}`");
+            if (checksum != 43852) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_incorrect_editor_completion` checksum `43852`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_corruption();
-            if (checksum != 39901) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_corruption` checksum `39901`, library returned `{checksum}`");
+            if (checksum != 2140) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_corruption` checksum `2140`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_inconsistent();
-            if (checksum != 59225) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_inconsistent` checksum `59225`, library returned `{checksum}`");
+            if (checksum != 21590) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_inconsistent` checksum `21590`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_overflow();
-            if (checksum != 55222) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_overflow` checksum `55222`, library returned `{checksum}`");
+            if (checksum != 10281) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_overflow` checksum `10281`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_revision();
-            if (checksum != 23127) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_revision` checksum `23127`, library returned `{checksum}`");
+            if (checksum != 29663) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_index_revision` checksum `29663`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_invalid_generation();
-            if (checksum != 34957) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_invalid_generation` checksum `34957`, library returned `{checksum}`");
+            if (checksum != 56805) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_invalid_generation` checksum `56805`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_expired();
-            if (checksum != 60998) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_expired` checksum `60998`, library returned `{checksum}`");
+            if (checksum != 36893) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_expired` checksum `36893`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_operation_failed();
-            if (checksum != 54186) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_operation_failed` checksum `54186`, library returned `{checksum}`");
+            if (checksum != 4265) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_operation_failed` checksum `4265`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_owner_mismatch();
-            if (checksum != 64127) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_owner_mismatch` checksum `64127`, library returned `{checksum}`");
+            if (checksum != 57655) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_lock_owner_mismatch` checksum `57655`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_noderev_id();
-            if (checksum != 37337) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_noderev_id` checksum `37337`, library returned `{checksum}`");
+            if (checksum != 29629) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_noderev_id` checksum `29629`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_skel();
-            if (checksum != 11849) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_skel` checksum `11849`, library returned `{checksum}`");
+            if (checksum != 14381) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_skel` checksum `14381`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_txn_id();
-            if (checksum != 55526) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_txn_id` checksum `55526`, library returned `{checksum}`");
+            if (checksum != 8586) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_malformed_txn_id` checksum `8586`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_lock_token();
-            if (checksum != 11493) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_lock_token` checksum `11493`, library returned `{checksum}`");
+            if (checksum != 51288) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_lock_token` checksum `51288`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_checksum_rep();
-            if (checksum != 41907) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_checksum_rep` checksum `41907`, library returned `{checksum}`");
+            if (checksum != 13333) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_checksum_rep` checksum `13333`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_copy();
-            if (checksum != 31813) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_copy` checksum `31813`, library returned `{checksum}`");
+            if (checksum != 38967) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_copy` checksum `38967`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_entry();
-            if (checksum != 32592) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_entry` checksum `32592`, library returned `{checksum}`");
+            if (checksum != 51811) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_entry` checksum `51811`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_lock();
-            if (checksum != 1964) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_lock` checksum `1964`, library returned `{checksum}`");
+            if (checksum != 25507) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_lock` checksum `25507`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_node_origin();
-            if (checksum != 40554) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_node_origin` checksum `40554`, library returned `{checksum}`");
+            if (checksum != 31878) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_node_origin` checksum `31878`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_representation();
-            if (checksum != 21070) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_representation` checksum `21070`, library returned `{checksum}`");
+            if (checksum != 3795) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_representation` checksum `3795`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_revision();
-            if (checksum != 24160) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_revision` checksum `24160`, library returned `{checksum}`");
+            if (checksum != 53889) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_revision` checksum `53889`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_string();
-            if (checksum != 65293) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_string` checksum `65293`, library returned `{checksum}`");
+            if (checksum != 22064) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_string` checksum `22064`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_transaction();
-            if (checksum != 53782) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_transaction` checksum `53782`, library returned `{checksum}`");
+            if (checksum != 9781) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_such_transaction` checksum `9781`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_user();
-            if (checksum != 10159) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_user` checksum `10159`, library returned `{checksum}`");
+            if (checksum != 63367) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_no_user` checksum `63367`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_directory();
-            if (checksum != 53689) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_directory` checksum `53689`, library returned `{checksum}`");
+            if (checksum != 3912) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_directory` checksum `3912`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_file();
-            if (checksum != 21144) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_file` checksum `21144`, library returned `{checksum}`");
+            if (checksum != 38901) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_file` checksum `38901`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_found();
-            if (checksum != 56487) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_found` checksum `56487`, library returned `{checksum}`");
+            if (checksum != 21571) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_found` checksum `21571`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_id();
-            if (checksum != 52374) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_id` checksum `52374`, library returned `{checksum}`");
+            if (checksum != 44015) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_id` checksum `44015`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_mutable();
-            if (checksum != 57690) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_mutable` checksum `57690`, library returned `{checksum}`");
+            if (checksum != 59552) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_mutable` checksum `59552`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_open();
-            if (checksum != 62529) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_open` checksum `62529`, library returned `{checksum}`");
+            if (checksum != 25504) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_open` checksum `25504`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_revision_root();
-            if (checksum != 52136) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_revision_root` checksum `52136`, library returned `{checksum}`");
+            if (checksum != 39682) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_revision_root` checksum `39682`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_single_path_component();
-            if (checksum != 47996) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_single_path_component` checksum `47996`, library returned `{checksum}`");
+            if (checksum != 60624) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_single_path_component` checksum `60624`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_txn_root();
-            if (checksum != 7134) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_txn_root` checksum `7134`, library returned `{checksum}`");
+            if (checksum != 51835) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_not_txn_root` checksum `51835`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_out_of_date();
-            if (checksum != 64314) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_out_of_date` checksum `64314`, library returned `{checksum}`");
+            if (checksum != 62867) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_out_of_date` checksum `62867`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_packed_revprop_read_failure();
-            if (checksum != 11433) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_packed_revprop_read_failure` checksum `11433`, library returned `{checksum}`");
+            if (checksum != 9244) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_packed_revprop_read_failure` checksum `9244`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_already_locked();
-            if (checksum != 20935) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_already_locked` checksum `20935`, library returned `{checksum}`");
+            if (checksum != 11354) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_already_locked` checksum `11354`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_not_locked();
-            if (checksum != 42227) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_not_locked` checksum `42227`, library returned `{checksum}`");
+            if (checksum != 48219) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_not_locked` checksum `48219`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_syntax();
-            if (checksum != 15301) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_syntax` checksum `15301`, library returned `{checksum}`");
+            if (checksum != 25740) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_path_syntax` checksum `25740`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_prop_basevalue_mismatch();
-            if (checksum != 38655) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_prop_basevalue_mismatch` checksum `38655`, library returned `{checksum}`");
+            if (checksum != 14234) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_prop_basevalue_mismatch` checksum `14234`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_being_written();
-            if (checksum != 10997) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_being_written` checksum `10997`, library returned `{checksum}`");
+            if (checksum != 13678) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_being_written` checksum `13678`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_changed();
-            if (checksum != 64636) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_changed` checksum `64636`, library returned `{checksum}`");
+            if (checksum != 6836) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_changed` checksum `6836`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_not_mutable();
-            if (checksum != 40813) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_not_mutable` checksum `40813`, library returned `{checksum}`");
+            if (checksum != 27008) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_not_mutable` checksum `27008`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_sharing_not_allowed();
-            if (checksum != 60697) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_sharing_not_allowed` checksum `60697`, library returned `{checksum}`");
+            if (checksum != 42506) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_sharing_not_allowed` checksum `42506`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_sharing_not_supported();
-            if (checksum != 47440) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_sharing_not_supported` checksum `47440`, library returned `{checksum}`");
+            if (checksum != 37561) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_rep_sharing_not_supported` checksum `37561`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_revprop_cache_init_failure();
-            if (checksum != 31283) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_revprop_cache_init_failure` checksum `31283`, library returned `{checksum}`");
+            if (checksum != 3271) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_revprop_cache_init_failure` checksum `3271`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_root_dir();
-            if (checksum != 61894) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_root_dir` checksum `61894`, library returned `{checksum}`");
+            if (checksum != 45419) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_root_dir` checksum `45419`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_dead();
-            if (checksum != 55940) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_dead` checksum `55940`, library returned `{checksum}`");
+            if (checksum != 33419) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_dead` checksum `33419`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_not_dead();
-            if (checksum != 31705) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_not_dead` checksum `31705`, library returned `{checksum}`");
+            if (checksum != 57574) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_not_dead` checksum `57574`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_not_mutable();
-            if (checksum != 31921) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_not_mutable` checksum `31921`, library returned `{checksum}`");
+            if (checksum != 42240) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_transaction_not_mutable` checksum `42240`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_txn_name_too_long();
-            if (checksum != 38392) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_txn_name_too_long` checksum `38392`, library returned `{checksum}`");
+            if (checksum != 18760) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_txn_name_too_long` checksum `18760`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_txn_out_of_date();
-            if (checksum != 50465) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_txn_out_of_date` checksum `50465`, library returned `{checksum}`");
+            if (checksum != 36871) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_txn_out_of_date` checksum `36871`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unknown_fs_type();
-            if (checksum != 36210) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unknown_fs_type` checksum `36210`, library returned `{checksum}`");
+            if (checksum != 7598) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unknown_fs_type` checksum `7598`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unrecognized_ioctl_code();
-            if (checksum != 45714) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unrecognized_ioctl_code` checksum `45714`, library returned `{checksum}`");
+            if (checksum != 12102) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unrecognized_ioctl_code` checksum `12102`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_format();
-            if (checksum != 52174) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_format` checksum `52174`, library returned `{checksum}`");
+            if (checksum != 3827) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_format` checksum `3827`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_type();
-            if (checksum != 30492) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_type` checksum `30492`, library returned `{checksum}`");
+            if (checksum != 11550) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_type` checksum `11550`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_upgrade();
-            if (checksum != 47140) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_upgrade` checksum `47140`, library returned `{checksum}`");
+            if (checksum != 4172) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_fs_unsupported_upgrade` checksum `4172`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_illegal_target();
-            if (checksum != 26385) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_illegal_target` checksum `26385`, library returned `{checksum}`");
+            if (checksum != 20426) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_illegal_target` checksum `20426`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_incomplete_data();
-            if (checksum != 47339) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_incomplete_data` checksum `47339`, library returned `{checksum}`");
+            if (checksum != 64467) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_incomplete_data` checksum `64467`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_incorrect_params();
-            if (checksum != 7071) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_incorrect_params` checksum `7071`, library returned `{checksum}`");
+            if (checksum != 41645) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_incorrect_params` checksum `41645`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_invalid_diff_option();
-            if (checksum != 65352) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_invalid_diff_option` checksum `65352`, library returned `{checksum}`");
+            if (checksum != 17161) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_invalid_diff_option` checksum `17161`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_invalid_input();
-            if (checksum != 7656) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_invalid_input` checksum `7656`, library returned `{checksum}`");
+            if (checksum != 63372) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_invalid_input` checksum `63372`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_corrupt_eol();
-            if (checksum != 15624) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_corrupt_eol` checksum `15624`, library returned `{checksum}`");
+            if (checksum != 36735) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_corrupt_eol` checksum `36735`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_inconsistent_eol();
-            if (checksum != 55839) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_inconsistent_eol` checksum `55839`, library returned `{checksum}`");
+            if (checksum != 17713) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_inconsistent_eol` checksum `17713`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_frame_error();
-            if (checksum != 1017) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_frame_error` checksum `1017`, library returned `{checksum}`");
+            if (checksum != 62845) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_frame_error` checksum `62845`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_read_error();
-            if (checksum != 3977) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_read_error` checksum `3977`, library returned `{checksum}`");
+            if (checksum != 18843) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_read_error` checksum `18843`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_write_error();
-            if (checksum != 52746) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_write_error` checksum `52746`, library returned `{checksum}`");
+            if (checksum != 28880) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_pipe_write_error` checksum `28880`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_unique_names_exhausted();
-            if (checksum != 28548) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_unique_names_exhausted` checksum `28548`, library returned `{checksum}`");
+            if (checksum != 45175) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_unique_names_exhausted` checksum `45175`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_unknown_eol();
-            if (checksum != 2674) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_unknown_eol` checksum `2674`, library returned `{checksum}`");
+            if (checksum != 3832) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_unknown_eol` checksum `3832`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_io_write_error();
-            if (checksum != 60147) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_write_error` checksum `60147`, library returned `{checksum}`");
+            if (checksum != 37410) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_io_write_error` checksum `37410`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_iter_break();
-            if (checksum != 42741) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_iter_break` checksum `42741`, library returned `{checksum}`");
+            if (checksum != 57510) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_iter_break` checksum `57510`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_lz4_compression_failed();
-            if (checksum != 3302) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_lz4_compression_failed` checksum `3302`, library returned `{checksum}`");
+            if (checksum != 5552) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_lz4_compression_failed` checksum `5552`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_lz4_decompression_failed();
-            if (checksum != 42397) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_lz4_decompression_failed` checksum `42397`, library returned `{checksum}`");
+            if (checksum != 64452) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_lz4_decompression_failed` checksum `64452`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_malformed_file();
-            if (checksum != 20553) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_malformed_file` checksum `20553`, library returned `{checksum}`");
+            if (checksum != 16249) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_malformed_file` checksum `16249`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_malformed_version_string();
-            if (checksum != 57962) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_malformed_version_string` checksum `57962`, library returned `{checksum}`");
+            if (checksum != 47039) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_malformed_version_string` checksum `47039`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_mergeinfo_parse_error();
-            if (checksum != 12770) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_mergeinfo_parse_error` checksum `12770`, library returned `{checksum}`");
+            if (checksum != 65297) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_mergeinfo_parse_error` checksum `65297`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_no_apr_memcache();
-            if (checksum != 34197) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_no_apr_memcache` checksum `34197`, library returned `{checksum}`");
+            if (checksum != 55288) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_no_apr_memcache` checksum `55288`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_no_auth_file_path();
-            if (checksum != 50070) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_no_auth_file_path` checksum `50070`, library returned `{checksum}`");
+            if (checksum != 10154) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_no_auth_file_path` checksum `10154`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_node_unexpected_kind();
-            if (checksum != 23538) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_node_unexpected_kind` checksum `23538`, library returned `{checksum}`");
+            if (checksum != 55022) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_node_unexpected_kind` checksum `55022`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_node_unknown_kind();
-            if (checksum != 45564) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_node_unknown_kind` checksum `45564`, library returned `{checksum}`");
+            if (checksum != 39235) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_node_unknown_kind` checksum `39235`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_plugin_load_failure();
-            if (checksum != 43314) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_plugin_load_failure` checksum `43314`, library returned `{checksum}`");
+            if (checksum != 25491) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_plugin_load_failure` checksum `25491`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_property_not_found();
-            if (checksum != 15118) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_property_not_found` checksum `15118`, library returned `{checksum}`");
+            if (checksum != 37195) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_property_not_found` checksum `37195`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_cannot_create_session();
-            if (checksum != 8843) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_cannot_create_session` checksum `8843`, library returned `{checksum}`");
+            if (checksum != 45296) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_cannot_create_session` checksum `45296`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_cannot_create_tunnel();
-            if (checksum != 49578) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_cannot_create_tunnel` checksum `49578`, library returned `{checksum}`");
+            if (checksum != 58696) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_cannot_create_tunnel` checksum `58696`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_already_exists();
-            if (checksum != 43051) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_already_exists` checksum `43051`, library returned `{checksum}`");
+            if (checksum != 64236) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_already_exists` checksum `64236`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_conn_timeout();
-            if (checksum != 37810) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_conn_timeout` checksum `37810`, library returned `{checksum}`");
+            if (checksum != 22674) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_conn_timeout` checksum `22674`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_creating_request();
-            if (checksum != 55338) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_creating_request` checksum `55338`, library returned `{checksum}`");
+            if (checksum != 49450) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_creating_request` checksum `49450`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_forbidden();
-            if (checksum != 44720) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_forbidden` checksum `44720`, library returned `{checksum}`");
+            if (checksum != 46772) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_forbidden` checksum `46772`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_invalid_config_value();
-            if (checksum != 13665) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_invalid_config_value` checksum `13665`, library returned `{checksum}`");
+            if (checksum != 858) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_invalid_config_value` checksum `858`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_malformed_data();
-            if (checksum != 40545) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_malformed_data` checksum `40545`, library returned `{checksum}`");
+            if (checksum != 5620) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_malformed_data` checksum `5620`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_method_not_allowed();
-            if (checksum != 64799) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_method_not_allowed` checksum `64799`, library returned `{checksum}`");
+            if (checksum != 30427) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_method_not_allowed` checksum `30427`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_options_req_failed();
-            if (checksum != 23565) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_options_req_failed` checksum `23565`, library returned `{checksum}`");
+            if (checksum != 28602) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_options_req_failed` checksum `28602`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_path_not_found();
-            if (checksum != 40182) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_path_not_found` checksum `40182`, library returned `{checksum}`");
+            if (checksum != 42324) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_path_not_found` checksum `42324`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_precondition_failed();
-            if (checksum != 28617) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_precondition_failed` checksum `28617`, library returned `{checksum}`");
+            if (checksum != 1357) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_precondition_failed` checksum `1357`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_proppatch_failed();
-            if (checksum != 41262) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_proppatch_failed` checksum `41262`, library returned `{checksum}`");
+            if (checksum != 3275) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_proppatch_failed` checksum `3275`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_props_not_found();
-            if (checksum != 34842) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_props_not_found` checksum `34842`, library returned `{checksum}`");
+            if (checksum != 24053) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_props_not_found` checksum `24053`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_relocated();
-            if (checksum != 57315) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_relocated` checksum `57315`, library returned `{checksum}`");
+            if (checksum != 33227) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_relocated` checksum `33227`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_request_failed();
-            if (checksum != 297) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_request_failed` checksum `297`, library returned `{checksum}`");
+            if (checksum != 3700) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_request_failed` checksum `3700`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_response_header_badness();
-            if (checksum != 29814) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_response_header_badness` checksum `29814`, library returned `{checksum}`");
+            if (checksum != 44651) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_response_header_badness` checksum `44651`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_sock_init();
-            if (checksum != 28513) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_sock_init` checksum `28513`, library returned `{checksum}`");
+            if (checksum != 4953) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_dav_sock_init` checksum `4953`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_illegal_url();
-            if (checksum != 40548) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_illegal_url` checksum `40548`, library returned `{checksum}`");
+            if (checksum != 46462) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_illegal_url` checksum `46462`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_local_repos_not_found();
-            if (checksum != 54291) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_local_repos_not_found` checksum `54291`, library returned `{checksum}`");
+            if (checksum != 11083) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_local_repos_not_found` checksum `11083`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_local_repos_open_failed();
-            if (checksum != 57564) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_local_repos_open_failed` checksum `57564`, library returned `{checksum}`");
+            if (checksum != 44575) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_local_repos_open_failed` checksum `44575`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_no_repos_uuid();
-            if (checksum != 52803) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_no_repos_uuid` checksum `52803`, library returned `{checksum}`");
+            if (checksum != 42419) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_no_repos_uuid` checksum `42419`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_authorized();
-            if (checksum != 52059) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_authorized` checksum `52059`, library returned `{checksum}`");
+            if (checksum != 24478) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_authorized` checksum `24478`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_implemented();
-            if (checksum != 18532) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_implemented` checksum `18532`, library returned `{checksum}`");
+            if (checksum != 10851) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_implemented` checksum `10851`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_locked();
-            if (checksum != 16609) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_locked` checksum `16609`, library returned `{checksum}`");
+            if (checksum != 16633) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_not_locked` checksum `16633`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_out_of_date();
-            if (checksum != 9537) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_out_of_date` checksum `9537`, library returned `{checksum}`");
+            if (checksum != 39690) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_out_of_date` checksum `39690`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_partial_replay_not_supported();
-            if (checksum != 42933) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_partial_replay_not_supported` checksum `42933`, library returned `{checksum}`");
+            if (checksum != 5851) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_partial_replay_not_supported` checksum `5851`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_repos_root_url_mismatch();
-            if (checksum != 42567) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_repos_root_url_mismatch` checksum `42567`, library returned `{checksum}`");
+            if (checksum != 9150) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_repos_root_url_mismatch` checksum `9150`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_gssapi_initialisation_failed();
-            if (checksum != 3955) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_gssapi_initialisation_failed` checksum `3955`, library returned `{checksum}`");
+            if (checksum != 11331) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_gssapi_initialisation_failed` checksum `11331`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_ssl_cert_untrusted();
-            if (checksum != 30386) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_ssl_cert_untrusted` checksum `30386`, library returned `{checksum}`");
+            if (checksum != 25325) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_ssl_cert_untrusted` checksum `25325`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_sspi_initialisation_failed();
-            if (checksum != 12768) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_sspi_initialisation_failed` checksum `12768`, library returned `{checksum}`");
+            if (checksum != 58780) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_sspi_initialisation_failed` checksum `58780`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_stream_bucket_read_error();
-            if (checksum != 45586) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_stream_bucket_read_error` checksum `45586`, library returned `{checksum}`");
+            if (checksum != 31997) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_stream_bucket_read_error` checksum `31997`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_wrapped_error();
-            if (checksum != 21614) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_wrapped_error` checksum `21614`, library returned `{checksum}`");
+            if (checksum != 42764) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_serf_wrapped_error` checksum `42764`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_session_url_mismatch();
-            if (checksum != 47672) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_session_url_mismatch` checksum `47672`, library returned `{checksum}`");
+            if (checksum != 26527) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_session_url_mismatch` checksum `26527`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_bad_version();
-            if (checksum != 17173) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_bad_version` checksum `17173`, library returned `{checksum}`");
+            if (checksum != 3946) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_bad_version` checksum `3946`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_cmd_err();
-            if (checksum != 50142) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_cmd_err` checksum `50142`, library returned `{checksum}`");
+            if (checksum != 18333) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_cmd_err` checksum `18333`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_connection_closed();
-            if (checksum != 12361) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_connection_closed` checksum `12361`, library returned `{checksum}`");
+            if (checksum != 11351) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_connection_closed` checksum `11351`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_edit_aborted();
-            if (checksum != 36153) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_edit_aborted` checksum `36153`, library returned `{checksum}`");
+            if (checksum != 53207) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_edit_aborted` checksum `53207`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_io_error();
-            if (checksum != 58312) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_io_error` checksum `58312`, library returned `{checksum}`");
+            if (checksum != 57023) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_io_error` checksum `57023`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_malformed_data();
-            if (checksum != 17497) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_malformed_data` checksum `17497`, library returned `{checksum}`");
+            if (checksum != 36968) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_malformed_data` checksum `36968`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_no_mechanisms();
-            if (checksum != 21664) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_no_mechanisms` checksum `21664`, library returned `{checksum}`");
+            if (checksum != 41307) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_no_mechanisms` checksum `41307`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_repos_not_found();
-            if (checksum != 10195) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_repos_not_found` checksum `10195`, library returned `{checksum}`");
+            if (checksum != 64798) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_repos_not_found` checksum `64798`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_request_size();
-            if (checksum != 40048) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_request_size` checksum `40048`, library returned `{checksum}`");
+            if (checksum != 64659) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_request_size` checksum `64659`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_response_size();
-            if (checksum != 8496) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_response_size` checksum `8496`, library returned `{checksum}`");
+            if (checksum != 38361) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_response_size` checksum `38361`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_unknown_cmd();
-            if (checksum != 65050) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_unknown_cmd` checksum `65050`, library returned `{checksum}`");
+            if (checksum != 37067) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_svn_unknown_cmd` checksum `37067`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_unknown_auth();
-            if (checksum != 41936) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_unknown_auth` checksum `41936`, library returned `{checksum}`");
+            if (checksum != 12004) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_unknown_auth` checksum `12004`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_unsupported_abi_version();
-            if (checksum != 25985) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_unsupported_abi_version` checksum `25985`, library returned `{checksum}`");
+            if (checksum != 28620) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_unsupported_abi_version` checksum `28620`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_ra_uuid_mismatch();
-            if (checksum != 64461) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_uuid_mismatch` checksum `64461`, library returned `{checksum}`");
+            if (checksum != 20754) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_ra_uuid_mismatch` checksum `20754`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_bad_args();
-            if (checksum != 16065) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_bad_args` checksum `16065`, library returned `{checksum}`");
+            if (checksum != 26164) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_bad_args` checksum `26164`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_bad_revision_report();
-            if (checksum != 28638) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_bad_revision_report` checksum `28638`, library returned `{checksum}`");
+            if (checksum != 10093) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_bad_revision_report` checksum `10093`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_disabled_feature();
-            if (checksum != 31568) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_disabled_feature` checksum `31568`, library returned `{checksum}`");
+            if (checksum != 17823) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_disabled_feature` checksum `17823`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_hook_failure();
-            if (checksum != 35630) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_hook_failure` checksum `35630`, library returned `{checksum}`");
+            if (checksum != 32560) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_hook_failure` checksum `32560`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_locked();
-            if (checksum != 10446) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_locked` checksum `10446`, library returned `{checksum}`");
+            if (checksum != 25660) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_locked` checksum `25660`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_no_data_for_report();
-            if (checksum != 36530) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_no_data_for_report` checksum `36530`, library returned `{checksum}`");
+            if (checksum != 5282) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_no_data_for_report` checksum `5282`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_commit_hook_failed();
-            if (checksum != 57949) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_commit_hook_failed` checksum `57949`, library returned `{checksum}`");
+            if (checksum != 40835) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_commit_hook_failed` checksum `40835`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_lock_hook_failed();
-            if (checksum != 54) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_lock_hook_failed` checksum `54`, library returned `{checksum}`");
+            if (checksum != 11247) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_lock_hook_failed` checksum `11247`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_unlock_hook_failed();
-            if (checksum != 65309) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_unlock_hook_failed` checksum `65309`, library returned `{checksum}`");
+            if (checksum != 63516) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_post_unlock_hook_failed` checksum `63516`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_unsupported_upgrade();
-            if (checksum != 57006) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_unsupported_upgrade` checksum `57006`, library returned `{checksum}`");
+            if (checksum != 22814) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_unsupported_upgrade` checksum `22814`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_repos_unsupported_version();
-            if (checksum != 53718) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_unsupported_version` checksum `53718`, library returned `{checksum}`");
+            if (checksum != 22640) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_repos_unsupported_version` checksum `22640`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_reserved_filename_specified();
-            if (checksum != 2834) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_reserved_filename_specified` checksum `2834`, library returned `{checksum}`");
+            if (checksum != 52246) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_reserved_filename_specified` checksum `52246`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_revnum_parse_failure();
-            if (checksum != 56049) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_revnum_parse_failure` checksum `56049`, library returned `{checksum}`");
+            if (checksum != 55079) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_revnum_parse_failure` checksum `55079`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_busy();
-            if (checksum != 35224) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_busy` checksum `35224`, library returned `{checksum}`");
+            if (checksum != 46519) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_busy` checksum `46519`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_constraint();
-            if (checksum != 55057) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_constraint` checksum `55057`, library returned `{checksum}`");
+            if (checksum != 43762) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_constraint` checksum `43762`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_error();
-            if (checksum != 41635) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_error` checksum `41635`, library returned `{checksum}`");
+            if (checksum != 32414) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_error` checksum `32414`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_readonly();
-            if (checksum != 27081) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_readonly` checksum `27081`, library returned `{checksum}`");
+            if (checksum != 34519) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_readonly` checksum `34519`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_resetting_for_rollback();
-            if (checksum != 6300) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_resetting_for_rollback` checksum `6300`, library returned `{checksum}`");
+            if (checksum != 45282) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_resetting_for_rollback` checksum `45282`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_rollback_failed();
-            if (checksum != 3775) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_rollback_failed` checksum `3775`, library returned `{checksum}`");
+            if (checksum != 62631) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_rollback_failed` checksum `62631`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_unsupported_schema();
-            if (checksum != 8344) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_unsupported_schema` checksum `8344`, library returned `{checksum}`");
+            if (checksum != 917) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_sqlite_unsupported_schema` checksum `917`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_stream_malformed_data();
-            if (checksum != 51446) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_malformed_data` checksum `51446`, library returned `{checksum}`");
+            if (checksum != 49914) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_malformed_data` checksum `49914`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_stream_not_supported();
-            if (checksum != 42491) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_not_supported` checksum `42491`, library returned `{checksum}`");
+            if (checksum != 24524) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_not_supported` checksum `24524`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_stream_seek_not_supported();
-            if (checksum != 24406) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_seek_not_supported` checksum `24406`, library returned `{checksum}`");
+            if (checksum != 65252) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_seek_not_supported` checksum `65252`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_stream_unexpected_eof();
-            if (checksum != 32332) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_unexpected_eof` checksum `32332`, library returned `{checksum}`");
+            if (checksum != 61466) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_unexpected_eof` checksum `61466`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_stream_unrecognized_data();
-            if (checksum != 49655) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_unrecognized_data` checksum `49655`, library returned `{checksum}`");
+            if (checksum != 25362) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_stream_unrecognized_data` checksum `25362`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_backward_view();
-            if (checksum != 45291) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_backward_view` checksum `45291`, library returned `{checksum}`");
+            if (checksum != 46395) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_backward_view` checksum `46395`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_corrupt_window();
-            if (checksum != 61064) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_corrupt_window` checksum `61064`, library returned `{checksum}`");
+            if (checksum != 61553) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_corrupt_window` checksum `61553`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_compressed_data();
-            if (checksum != 48258) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_compressed_data` checksum `48258`, library returned `{checksum}`");
+            if (checksum != 37961) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_compressed_data` checksum `37961`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_header();
-            if (checksum != 46599) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_header` checksum `46599`, library returned `{checksum}`");
+            if (checksum != 15170) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_header` checksum `15170`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_ops();
-            if (checksum != 10677) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_ops` checksum `10677`, library returned `{checksum}`");
+            if (checksum != 63090) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_invalid_ops` checksum `63090`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_unexpected_end();
-            if (checksum != 62261) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_unexpected_end` checksum `62261`, library returned `{checksum}`");
+            if (checksum != 52119) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_svndiff_unexpected_end` checksum `52119`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_swig_py_exception_set();
-            if (checksum != 43493) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_swig_py_exception_set` checksum `43493`, library returned `{checksum}`");
+            if (checksum != 17885) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_swig_py_exception_set` checksum `17885`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_test_failed();
-            if (checksum != 35438) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_test_failed` checksum `35438`, library returned `{checksum}`");
+            if (checksum != 2790) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_test_failed` checksum `2790`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_test_skipped();
-            if (checksum != 38959) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_test_skipped` checksum `38959`, library returned `{checksum}`");
+            if (checksum != 32178) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_test_skipped` checksum `32178`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_too_many_memcached_servers();
-            if (checksum != 28648) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_too_many_memcached_servers` checksum `28648`, library returned `{checksum}`");
+            if (checksum != 64024) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_too_many_memcached_servers` checksum `64024`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_unknown_capability();
-            if (checksum != 4401) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unknown_capability` checksum `4401`, library returned `{checksum}`");
+            if (checksum != 49412) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unknown_capability` checksum `49412`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_unknown_changelist();
-            if (checksum != 39982) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unknown_changelist` checksum `39982`, library returned `{checksum}`");
+            if (checksum != 1893) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unknown_changelist` checksum `1893`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_unsupported_feature();
-            if (checksum != 16891) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unsupported_feature` checksum `16891`, library returned `{checksum}`");
+            if (checksum != 51172) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unsupported_feature` checksum `51172`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_unversioned_resource();
-            if (checksum != 22574) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unversioned_resource` checksum `22574`, library returned `{checksum}`");
+            if (checksum != 53930) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_unversioned_resource` checksum `53930`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_utf8_glob();
-            if (checksum != 61485) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_utf8_glob` checksum `61485`, library returned `{checksum}`");
+            if (checksum != 36570) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_utf8_glob` checksum `36570`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_utf8proc_error();
-            if (checksum != 28156) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_utf8proc_error` checksum `28156`, library returned `{checksum}`");
+            if (checksum != 8165) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_utf8proc_error` checksum `8165`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_version_mismatch();
-            if (checksum != 56255) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_version_mismatch` checksum `56255`, library returned `{checksum}`");
+            if (checksum != 37097) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_version_mismatch` checksum `37097`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_warning();
-            if (checksum != 30075) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_warning` checksum `30075`, library returned `{checksum}`");
+            if (checksum != 27811) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_warning` checksum `27811`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_adm_log();
-            if (checksum != 50745) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_adm_log` checksum `50745`, library returned `{checksum}`");
+            if (checksum != 38044) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_adm_log` checksum `38044`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_adm_log_start();
-            if (checksum != 38931) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_adm_log_start` checksum `38931`, library returned `{checksum}`");
+            if (checksum != 2432) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_adm_log_start` checksum `2432`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_path();
-            if (checksum != 18061) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_path` checksum `18061`, library returned `{checksum}`");
+            if (checksum != 49542) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_bad_path` checksum `49542`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cannot_delete_file_external();
-            if (checksum != 47329) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cannot_delete_file_external` checksum `47329`, library returned `{checksum}`");
+            if (checksum != 34157) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cannot_delete_file_external` checksum `34157`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cannot_move_file_external();
-            if (checksum != 28483) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cannot_move_file_external` checksum `28483`, library returned `{checksum}`");
+            if (checksum != 11724) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cannot_move_file_external` checksum `11724`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_changelist_move();
-            if (checksum != 32148) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_changelist_move` checksum `32148`, library returned `{checksum}`");
+            if (checksum != 24021) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_changelist_move` checksum `24021`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cleanup_required();
-            if (checksum != 30526) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cleanup_required` checksum `30526`, library returned `{checksum}`");
+            if (checksum != 29807) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_cleanup_required` checksum `29807`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_conflict_resolver_failure();
-            if (checksum != 36455) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_conflict_resolver_failure` checksum `36455`, library returned `{checksum}`");
+            if (checksum != 16628) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_conflict_resolver_failure` checksum `16628`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_copyfrom_path_not_found();
-            if (checksum != 64746) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_copyfrom_path_not_found` checksum `64746`, library returned `{checksum}`");
+            if (checksum != 61747) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_copyfrom_path_not_found` checksum `61747`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_corrupt();
-            if (checksum != 48855) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_corrupt` checksum `48855`, library returned `{checksum}`");
+            if (checksum != 31920) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_corrupt` checksum `31920`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_corrupt_text_base();
-            if (checksum != 17197) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_corrupt_text_base` checksum `17197`, library returned `{checksum}`");
+            if (checksum != 14602) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_corrupt_text_base` checksum `14602`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_db_error();
-            if (checksum != 32593) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_db_error` checksum `32593`, library returned `{checksum}`");
+            if (checksum != 31653) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_db_error` checksum `31653`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_deprecated_api_store_pristine();
-            if (checksum != 41906) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_deprecated_api_store_pristine` checksum `41906`, library returned `{checksum}`");
+            if (checksum != 27428) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_deprecated_api_store_pristine` checksum `27428`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_duplicate_externals_target();
-            if (checksum != 61435) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_duplicate_externals_target` checksum `61435`, library returned `{checksum}`");
+            if (checksum != 21375) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_duplicate_externals_target` checksum `21375`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_found_conflict();
-            if (checksum != 50086) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_found_conflict` checksum `50086`, library returned `{checksum}`");
+            if (checksum != 38129) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_found_conflict` checksum `38129`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_incompatible_settings();
-            if (checksum != 41169) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_incompatible_settings` checksum `41169`, library returned `{checksum}`");
+            if (checksum != 21262) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_incompatible_settings` checksum `21262`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_lock();
-            if (checksum != 31103) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_lock` checksum `31103`, library returned `{checksum}`");
+            if (checksum != 18379) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_lock` checksum `18379`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_op_on_cwd();
-            if (checksum != 64371) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_op_on_cwd` checksum `64371`, library returned `{checksum}`");
+            if (checksum != 15444) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_op_on_cwd` checksum `15444`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_operation_depth();
-            if (checksum != 49482) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_operation_depth` checksum `49482`, library returned `{checksum}`");
+            if (checksum != 8713) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_operation_depth` checksum `8713`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_relocation();
-            if (checksum != 12779) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_relocation` checksum `12779`, library returned `{checksum}`");
+            if (checksum != 35931) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_relocation` checksum `35931`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_schedule();
-            if (checksum != 15885) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_schedule` checksum `15885`, library returned `{checksum}`");
+            if (checksum != 28245) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_schedule` checksum `28245`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_switch();
-            if (checksum != 2777) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_switch` checksum `2777`, library returned `{checksum}`");
+            if (checksum != 59175) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_invalid_switch` checksum `59175`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_left_local_mod();
-            if (checksum != 610) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_left_local_mod` checksum `610`, library returned `{checksum}`");
+            if (checksum != 23534) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_left_local_mod` checksum `23534`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_locked();
-            if (checksum != 11549) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_locked` checksum `11549`, library returned `{checksum}`");
+            if (checksum != 63351) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_locked` checksum `63351`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_mismatched_changelist();
-            if (checksum != 33341) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_mismatched_changelist` checksum `33341`, library returned `{checksum}`");
+            if (checksum != 25806) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_mismatched_changelist` checksum `25806`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_missing();
-            if (checksum != 7902) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_missing` checksum `7902`, library returned `{checksum}`");
+            if (checksum != 61934) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_missing` checksum `61934`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_mixed_revisions();
-            if (checksum != 62128) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_mixed_revisions` checksum `62128`, library returned `{checksum}`");
+            if (checksum != 18165) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_mixed_revisions` checksum `18165`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_node_kind_change();
-            if (checksum != 326) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_node_kind_change` checksum `326`, library returned `{checksum}`");
+            if (checksum != 36206) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_node_kind_change` checksum `36206`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_directory();
-            if (checksum != 54191) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_directory` checksum `54191`, library returned `{checksum}`");
+            if (checksum != 5816) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_directory` checksum `5816`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_file();
-            if (checksum != 46484) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_file` checksum `46484`, library returned `{checksum}`");
+            if (checksum != 42552) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_file` checksum `42552`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_locked();
-            if (checksum != 4153) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_locked` checksum `4153`, library returned `{checksum}`");
+            if (checksum != 33281) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_locked` checksum `33281`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_symlink();
-            if (checksum != 5757) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_symlink` checksum `5757`, library returned `{checksum}`");
+            if (checksum != 60139) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_symlink` checksum `60139`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_up_to_date();
-            if (checksum != 58741) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_up_to_date` checksum `58741`, library returned `{checksum}`");
+            if (checksum != 38839) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_up_to_date` checksum `38839`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_working_copy();
-            if (checksum != 61709) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_working_copy` checksum `61709`, library returned `{checksum}`");
+            if (checksum != 43643) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_not_working_copy` checksum `43643`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_obstructed_update();
-            if (checksum != 59671) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_obstructed_update` checksum `59671`, library returned `{checksum}`");
+            if (checksum != 57963) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_obstructed_update` checksum `57963`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_access_denied();
-            if (checksum != 32844) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_access_denied` checksum `32844`, library returned `{checksum}`");
+            if (checksum != 64568) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_access_denied` checksum `64568`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_found();
-            if (checksum != 2202) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_found` checksum `2202`, library returned `{checksum}`");
+            if (checksum != 52568) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_found` checksum `52568`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_not_found();
-            if (checksum != 14196) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_not_found` checksum `14196`, library returned `{checksum}`");
+            if (checksum != 37562) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_not_found` checksum `37562`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_unexpected_status();
-            if (checksum != 40603) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_unexpected_status` checksum `40603`, library returned `{checksum}`");
+            if (checksum != 58785) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_path_unexpected_status` checksum `58785`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_pristine_dehydrated();
-            if (checksum != 44500) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_pristine_dehydrated` checksum `44500`, library returned `{checksum}`");
+            if (checksum != 32380) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_pristine_dehydrated` checksum `32380`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_schedule_conflict();
-            if (checksum != 42726) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_schedule_conflict` checksum `42726`, library returned `{checksum}`");
+            if (checksum != 15020) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_schedule_conflict` checksum `15020`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unsupported_format();
-            if (checksum != 10355) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unsupported_format` checksum `10355`, library returned `{checksum}`");
+            if (checksum != 5178) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unsupported_format` checksum `5178`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_empty();
-            if (checksum != 50965) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_empty` checksum `50965`, library returned `{checksum}`");
+            if (checksum != 16876) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_empty` checksum `16876`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_mismatch();
-            if (checksum != 33864) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_mismatch` checksum `33864`, library returned `{checksum}`");
+            if (checksum != 32261) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_mismatch` checksum `32261`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_not_empty();
-            if (checksum != 46141) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_not_empty` checksum `46141`, library returned `{checksum}`");
+            if (checksum != 32859) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_unwind_not_empty` checksum `32859`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_wc_upgrade_required();
-            if (checksum != 38014) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_upgrade_required` checksum `38014`, library returned `{checksum}`");
+            if (checksum != 2152) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_wc_upgrade_required` checksum `2152`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_alg();
-            if (checksum != 36695) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_alg` checksum `36695`, library returned `{checksum}`");
+            if (checksum != 25905) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_alg` checksum `25905`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_date();
-            if (checksum != 51766) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_date` checksum `51766`, library returned `{checksum}`");
+            if (checksum != 61962) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_date` checksum `61962`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_extensions();
-            if (checksum != 24581) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_extensions` checksum `24581`, library returned `{checksum}`");
+            if (checksum != 32176) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_extensions` checksum `32176`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_format();
-            if (checksum != 57018) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_format` checksum `57018`, library returned `{checksum}`");
+            if (checksum != 44367) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_format` checksum `44367`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_name();
-            if (checksum != 8287) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_name` checksum `8287`, library returned `{checksum}`");
+            if (checksum != 47346) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_name` checksum `47346`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_pem();
-            if (checksum != 31708) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_pem` checksum `31708`, library returned `{checksum}`");
+            if (checksum != 34385) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_pem` checksum `34385`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_pubkey();
-            if (checksum != 56158) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_pubkey` checksum `56158`, library returned `{checksum}`");
+            if (checksum != 60045) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_pubkey` checksum `60045`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_serial();
-            if (checksum != 25201) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_serial` checksum `25201`, library returned `{checksum}`");
+            if (checksum != 22200) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_serial` checksum `22200`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_signature();
-            if (checksum != 48953) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_signature` checksum `48953`, library returned `{checksum}`");
+            if (checksum != 10657) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_signature` checksum `10657`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_version();
-            if (checksum != 41539) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_version` checksum `41539`, library returned `{checksum}`");
+            if (checksum != 34710) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_invalid_version` checksum `34710`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_sig_mismatch();
-            if (checksum != 15222) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_sig_mismatch` checksum `15222`, library returned `{checksum}`");
+            if (checksum != 52784) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_sig_mismatch` checksum `52784`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_unknown_pk_alg();
-            if (checksum != 58750) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_unknown_pk_alg` checksum `58750`, library returned `{checksum}`");
+            if (checksum != 5062) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_unknown_pk_alg` checksum `5062`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_unknown_version();
-            if (checksum != 2234) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_unknown_version` checksum `2234`, library returned `{checksum}`");
+            if (checksum != 33983) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_unknown_version` checksum `33983`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_verify_failed();
-            if (checksum != 42328) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_verify_failed` checksum `42328`, library returned `{checksum}`");
+            if (checksum != 41028) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_cert_verify_failed` checksum `41028`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_x509_feature_unavailable();
-            if (checksum != 12305) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_feature_unavailable` checksum `12305`, library returned `{checksum}`");
+            if (checksum != 46943) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_x509_feature_unavailable` checksum `46943`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_xml_attrib_not_found();
-            if (checksum != 25078) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_attrib_not_found` checksum `25078`, library returned `{checksum}`");
+            if (checksum != 2779) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_attrib_not_found` checksum `2779`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_xml_malformed();
-            if (checksum != 26022) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_malformed` checksum `26022`, library returned `{checksum}`");
+            if (checksum != 38932) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_malformed` checksum `38932`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_xml_missing_ancestry();
-            if (checksum != 23343) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_missing_ancestry` checksum `23343`, library returned `{checksum}`");
+            if (checksum != 26269) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_missing_ancestry` checksum `26269`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unescapable_data();
-            if (checksum != 48979) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unescapable_data` checksum `48979`, library returned `{checksum}`");
+            if (checksum != 46023) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unescapable_data` checksum `46023`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unexpected_element();
-            if (checksum != 6256) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unexpected_element` checksum `6256`, library returned `{checksum}`");
+            if (checksum != 35332) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unexpected_element` checksum `35332`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unknown_encoding();
-            if (checksum != 43731) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unknown_encoding` checksum `43731`, library returned `{checksum}`");
+            if (checksum != 29015) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_is_xml_unknown_encoding` checksum `29015`, library returned `{checksum}`");
             }
         }
         {
-            var checksum = _UniFFILib.uniffi_engine_checksum_constructor_asynccontext_create();
-            if (checksum != 15473) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_constructor_asynccontext_create` checksum `15473`, library returned `{checksum}`");
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_add();
+            if (checksum != 29343) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_add` checksum `29343`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_cat();
+            if (checksum != 57879) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_cat` checksum `57879`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_checkout();
+            if (checksum != 29684) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_checkout` checksum `29684`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_commit();
+            if (checksum != 29410) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_commit` checksum `29410`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_delete();
+            if (checksum != 13617) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_delete` checksum `13617`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_export();
+            if (checksum != 61627) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_export` checksum `61627`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_import();
+            if (checksum != 50283) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `50283`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_info();
+            if (checksum != 6240) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_info` checksum `6240`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_initialize_repository();
+            if (checksum != 6341) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_initialize_repository` checksum `6341`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_list();
+            if (checksum != 6735) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_list` checksum `6735`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log();
+            if (checksum != 21539) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log` checksum `21539`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log_next();
+            if (checksum != 6530) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log_next` checksum `6530`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_revert();
+            if (checksum != 41522) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_revert` checksum `41522`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_status();
+            if (checksum != 53407) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status` checksum `53407`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_update();
+            if (checksum != 53741) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_update` checksum `53741`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_url_from_path();
+            if (checksum != 9266) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_url_from_path` checksum `9266`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text();
+            if (checksum != 54111) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text` checksum `54111`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_working_copy_notify();
+            if (checksum != 36563) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_working_copy_notify` checksum `36563`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt();
+            if (checksum != 2526) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt` checksum `2526`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_cancel();
+            if (checksum != 14508) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_cancel` checksum `14508`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_progress_notify();
+            if (checksum != 53640) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_progress_notify` checksum `53640`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_authenticate();
+            if (checksum != 15182) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_authenticate` checksum `15182`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout_directly();
+            if (checksum != 33582) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout_directly` checksum `33582`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_import();
+            if (checksum != 57419) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_import` checksum `57419`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_backup();
+            if (checksum != 40020) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_backup` checksum `40020`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_backup_finished();
+            if (checksum != 30650) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_backup_finished` checksum `30650`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout();
+            if (checksum != 40702) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_checkout` checksum `40702`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_initializerepositorynotifier_on_finished();
+            if (checksum != 23222) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_initializerepositorynotifier_on_finished` checksum `23222`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_logreceiver_on_log_entry();
+            if (checksum != 24734) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_logreceiver_on_log_entry` checksum `24734`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_constructor_svnerrnoconstants_new();
-            if (checksum != 6381) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_constructor_svnerrnoconstants_new` checksum `6381`, library returned `{checksum}`");
+            if (checksum != 17040) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_constructor_svnerrnoconstants_new` checksum `17040`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_constructor_asynccontext_create();
+            if (checksum != 25610) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_constructor_asynccontext_create` checksum `25610`, library returned `{checksum}`");
             }
         }
     }
@@ -7476,17 +7620,27 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<DeleteResult> Delete(DeleteOptions @opts);
     /// <exception cref="Exception"></exception>
-    int ForTest();
+    Task<uint> Export(ExportOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<ImportResult> Import(ImportOptions @opts);
     /// <exception cref="Exception"></exception>
+    Task<InfoResult> Info(InfoOptions @opts);
+    /// <exception cref="Exception"></exception>
     Task InitializeRepository(InitializeRepositoryOptions @opts, InitializeRepositoryNotifier @notifier);
     /// <exception cref="Exception"></exception>
+    Task<ListResult> List(ListOptions @opts);
+    /// <exception cref="Exception"></exception>
     Task<LogResult> Log(LogOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task LogNext(LogOptions @opts, LogReceiver @receiver);
     /// <exception cref="Exception"></exception>
     Task Revert(RevertOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<StatusResult> Status(StatusOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task<uint[]> Update(UpdateOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task<string> UrlFromPath(string @path);
 }
 public class AsyncContext : IAsyncContext, IDisposable {
     protected ulong pointer;
@@ -7684,13 +7838,26 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
-    public int ForTest() {
-        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
-    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_engine_fn_method_asynccontext_for_test(thisPtr,  ref _status)
-)));
+    public async Task<uint> Export(ExportOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_export(thisPtr, FfiConverterTypeExportOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_u32(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_u32(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u32(future),
+        // Lift
+        (result) => FfiConverterUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
     }
-    
     
     /// <exception cref="Exception"></exception>
     public async Task<ImportResult> Import(ImportOptions @opts) {
@@ -7715,6 +7882,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
+    public async Task<InfoResult> Info(InfoOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_info(thisPtr, FfiConverterTypeInfoOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeInfoResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
     public async Task InitializeRepository(InitializeRepositoryOptions @opts, InitializeRepositoryNotifier @notifier) {await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
@@ -7727,6 +7916,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
         },
         // Free
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<ListResult> List(ListOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_list(thisPtr, FfiConverterTypeListOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeListResult.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -7749,6 +7960,24 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeLogResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task LogNext(LogOptions @opts, LogReceiver @receiver) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_log_next(thisPtr, FfiConverterTypeLogOptions.INSTANCE.Lower(@opts), FfiConverterTypeLogReceiver.INSTANCE.Lower(@receiver));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -7789,6 +8018,50 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeStatusResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<uint[]> Update(UpdateOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_update(thisPtr, FfiConverterTypeUpdateOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterSequenceUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<string> UrlFromPath(string @path) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_url_from_path(thisPtr, FfiConverterString.INSTANCE.Lower(@path));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterString.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -8530,6 +8803,187 @@ class FfiConverterTypeInitializeRepositoryNotifier: FfiConverter<InitializeRepos
     }
 
     public override void Write(InitializeRepositoryNotifier value, BigEndianStream stream) {
+        stream.WriteULong(Lower(value));
+    }
+}
+
+
+
+public interface LogReceiver {
+    /// <exception cref="Exception"></exception>
+    void OnLogEntry(LogEntry @logEntry);
+}
+public class LogReceiverImpl : LogReceiver, IDisposable {
+    protected ulong pointer;
+    private int _wasDestroyed = 0;
+    private long _callCounter = 1;
+
+    public LogReceiverImpl(ulong pointer) {
+        this.pointer = pointer;
+    }
+
+    ~LogReceiverImpl() {
+        Destroy();
+    }
+
+    protected void FreeRustArcPtr() {
+        _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            _UniFFILib.uniffi_engine_fn_free_logreceiver(this.pointer, ref status);
+        });
+    }
+
+    protected ulong CloneRustArcPtr() {
+        return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            return _UniFFILib.uniffi_engine_fn_clone_logreceiver(this.pointer, ref status);
+        });
+    }
+
+    public void Destroy()
+    {
+        // Only allow a single call to this method.
+        if (Interlocked.CompareExchange(ref _wasDestroyed, 1, 0) == 0)
+        {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (Interlocked.Decrement(ref _callCounter) == 0)
+            {
+                FreeRustArcPtr();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        Destroy();
+        GC.SuppressFinalize(this); // Suppress finalization to avoid unnecessary GC overhead.
+    }
+
+    private void IncrementCallCounter() 
+    {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        long count;
+        do
+        {
+            count = Interlocked.Read(ref _callCounter);
+            if (count == 0L) throw new System.ObjectDisposedException(String.Format("'{0}' object has already been destroyed", this.GetType().Name));
+            if (count == long.MaxValue) throw new System.OverflowException(String.Format("'{0}' call counter would overflow", this.GetType().Name));
+
+        } while (Interlocked.CompareExchange(ref _callCounter, count + 1, count) != count);
+    }
+
+    private void DecrementCallCounter() 
+    {
+        // This decrement always matches the increment we performed above.
+        if (Interlocked.Decrement(ref _callCounter) == 0) {
+            FreeRustArcPtr();
+        }
+    }
+
+    internal void CallWithPointer(Action<ulong> action)
+    {
+        IncrementCallCounter();
+        try {
+            action(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    internal T CallWithPointer<T>(Func<ulong, T> func)
+    {   
+        IncrementCallCounter();
+        try {
+            return func(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    
+    /// <exception cref="Exception"></exception>
+    public void OnLogEntry(LogEntry @logEntry) {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_logreceiver_on_log_entry(thisPtr, FfiConverterTypeLogEntry.INSTANCE.Lower(@logEntry), ref _status)
+));
+    }
+    
+    
+    
+
+    
+}
+class UniffiCallbackInterfaceLogReceiver {
+    static void OnLogEntry(ulong @uniffiHandle,RustBuffer @logEntry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        if (FfiConverterTypeLogReceiver.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+            try {
+            uniffiObject.OnLogEntry(
+                FfiConverterTypeLogEntry.INSTANCE.Lift(@logEntry));
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+            }
+            catch (Exception e) {
+                _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+                _uniffi_out_err.error_buf = FfiConverterTypeError.INSTANCE.Lower(e);
+            }
+            catch (System.Exception e){
+                _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+                try {
+                    _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+                }
+                catch {
+                }
+            }
+        } else {
+            throw new InternalException($"No callback in handlemap '{handle}'");
+        }
+    }
+
+    static void UniffiFree(ulong @handle) {
+        FfiConverterTypeLogReceiver.INSTANCE.handleMap.Remove(@handle);
+    }
+    static _UniFFILib.UniffiCallbackInterfaceLogReceiverMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceLogReceiverMethod0(OnLogEntry);
+    static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
+
+    public static void Register() {
+        _UniFFILib.UniffiVTableCallbackInterfaceLogReceiver _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceLogReceiver {
+            @onLogEntry = Marshal.GetFunctionPointerForDelegate(_m0),
+            @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free)
+        };
+
+        // Pin vtable to ensure GC does not move the vtable across the heap
+        _UniFFILib.uniffi_engine_fn_init_callback_vtable_logreceiver(GCHandle.Alloc(_vtable, GCHandleType.Pinned).AddrOfPinnedObject());
+    }
+}
+
+
+
+
+class FfiConverterTypeLogReceiver: FfiConverter<LogReceiver, ulong> {
+    public ConcurrentHandleMap<LogReceiver> handleMap = new ConcurrentHandleMap<LogReceiver>();
+    
+    public static FfiConverterTypeLogReceiver INSTANCE = new FfiConverterTypeLogReceiver();
+
+
+    public override ulong Lower(LogReceiver value) {
+        return handleMap.Insert(value);
+    }
+
+    public override LogReceiver Lift(ulong value) {
+        return new LogReceiverImpl(value);
+    }
+
+    public override LogReceiver Read(BigEndianStream stream) {
+        return Lift(stream.ReadULong());
+    }
+
+    public override int AllocationSize(LogReceiver value) {
+        return 8;
+    }
+
+    public override void Write(LogReceiver value, BigEndianStream stream) {
         stream.WriteULong(Lower(value));
     }
 }
@@ -11887,6 +12341,43 @@ class FfiConverterTypeAddOptions: FfiConverterRustBuffer<AddOptions> {
 
 
 
+public record AprError (
+    ErrorCode Code, 
+    string Msg
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeAprError: FfiConverterRustBuffer<AprError> {
+    public static FfiConverterTypeAprError INSTANCE = new FfiConverterTypeAprError();
+
+    public override AprError Read(BigEndianStream stream) {
+        return new AprError(
+            Code: FfiConverterTypeErrorCode.INSTANCE.Read(stream),
+            Msg: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(AprError value) {
+        return 0
+            + FfiConverterTypeErrorCode.INSTANCE.AllocationSize(value.Code)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Msg);
+    }
+
+    public override void Write(AprError value, BigEndianStream stream) {
+            FfiConverterTypeErrorCode.INSTANCE.Write(value.Code, stream);
+            FfiConverterString.INSTANCE.Write(value.Msg, stream);
+    }
+}
+
+
+
 public record Authentication (
     string Username, 
     string Password, 
@@ -12124,7 +12615,7 @@ public record CommitItem (
     string Path, 
     NodeKind Kind, 
     string Url, 
-    uint Revision, 
+    uint? Revision, 
     string? CopyFromUrl, 
     uint? CopyFromRevision, 
     byte State, 
@@ -12150,7 +12641,7 @@ class FfiConverterTypeCommitItem: FfiConverterRustBuffer<CommitItem> {
             Path: FfiConverterString.INSTANCE.Read(stream),
             Kind: FfiConverterTypeNodeKind.INSTANCE.Read(stream),
             Url: FfiConverterString.INSTANCE.Read(stream),
-            Revision: FfiConverterUInt32.INSTANCE.Read(stream),
+            Revision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             CopyFromUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
             CopyFromRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             State: FfiConverterUInt8.INSTANCE.Read(stream),
@@ -12166,7 +12657,7 @@ class FfiConverterTypeCommitItem: FfiConverterRustBuffer<CommitItem> {
             + FfiConverterString.INSTANCE.AllocationSize(value.Path)
             + FfiConverterTypeNodeKind.INSTANCE.AllocationSize(value.Kind)
             + FfiConverterString.INSTANCE.AllocationSize(value.Url)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CopyFromUrl)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.CopyFromRevision)
             + FfiConverterUInt8.INSTANCE.AllocationSize(value.State)
@@ -12180,7 +12671,7 @@ class FfiConverterTypeCommitItem: FfiConverterRustBuffer<CommitItem> {
             FfiConverterString.INSTANCE.Write(value.Path, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.Kind, stream);
             FfiConverterString.INSTANCE.Write(value.Url, stream);
-            FfiConverterUInt32.INSTANCE.Write(value.Revision, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.Revision, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.CopyFromUrl, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.CopyFromRevision, stream);
             FfiConverterUInt8.INSTANCE.Write(value.State, stream);
@@ -12467,6 +12958,135 @@ class FfiConverterTypeDeleteResult: FfiConverterRustBuffer<DeleteResult> {
 
 
 
+public record DifferenceFileOptions (
+    DiffFileIgnoreSpace IgnoreSpace, 
+    bool IgnoreEolStyle, 
+    bool ShowCFunction, 
+    int ContextSize
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeDifferenceFileOptions: FfiConverterRustBuffer<DifferenceFileOptions> {
+    public static FfiConverterTypeDifferenceFileOptions INSTANCE = new FfiConverterTypeDifferenceFileOptions();
+
+    public override DifferenceFileOptions Read(BigEndianStream stream) {
+        return new DifferenceFileOptions(
+            IgnoreSpace: FfiConverterTypeDiffFileIgnoreSpace.INSTANCE.Read(stream),
+            IgnoreEolStyle: FfiConverterBoolean.INSTANCE.Read(stream),
+            ShowCFunction: FfiConverterBoolean.INSTANCE.Read(stream),
+            ContextSize: FfiConverterInt32.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DifferenceFileOptions value) {
+        return 0
+            + FfiConverterTypeDiffFileIgnoreSpace.INSTANCE.AllocationSize(value.IgnoreSpace)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreEolStyle)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ShowCFunction)
+            + FfiConverterInt32.INSTANCE.AllocationSize(value.ContextSize);
+    }
+
+    public override void Write(DifferenceFileOptions value, BigEndianStream stream) {
+            FfiConverterTypeDiffFileIgnoreSpace.INSTANCE.Write(value.IgnoreSpace, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreEolStyle, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ShowCFunction, stream);
+            FfiConverterInt32.INSTANCE.Write(value.ContextSize, stream);
+    }
+}
+
+
+
+public record DifferenceOptions (
+    byte[] Original, 
+    byte[] Modified, 
+    DifferenceFileOptions Options
+) {
+
+
+
+    
+    /// <exception cref="Exception"></exception>
+        public DifferenceResult Exec() {
+            return FfiConverterTypeDifferenceResult.INSTANCE.Lift(
+        _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+        _UniFFILib.uniffi_engine_fn_method_differenceoptions_exec(FfiConverterTypeDifferenceOptions.INSTANCE.Lower(this), ref _status)
+));
+        }
+    
+    
+    
+
+
+
+}
+
+class FfiConverterTypeDifferenceOptions: FfiConverterRustBuffer<DifferenceOptions> {
+    public static FfiConverterTypeDifferenceOptions INSTANCE = new FfiConverterTypeDifferenceOptions();
+
+    public override DifferenceOptions Read(BigEndianStream stream) {
+        return new DifferenceOptions(
+            Original: FfiConverterByteArray.INSTANCE.Read(stream),
+            Modified: FfiConverterByteArray.INSTANCE.Read(stream),
+            Options: FfiConverterTypeDifferenceFileOptions.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DifferenceOptions value) {
+        return 0
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Original)
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Modified)
+            + FfiConverterTypeDifferenceFileOptions.INSTANCE.AllocationSize(value.Options);
+    }
+
+    public override void Write(DifferenceOptions value, BigEndianStream stream) {
+            FfiConverterByteArray.INSTANCE.Write(value.Original, stream);
+            FfiConverterByteArray.INSTANCE.Write(value.Modified, stream);
+            FfiConverterTypeDifferenceFileOptions.INSTANCE.Write(value.Options, stream);
+    }
+}
+
+
+
+public record DifferenceResult (
+    TextChange[] Modified
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeDifferenceResult: FfiConverterRustBuffer<DifferenceResult> {
+    public static FfiConverterTypeDifferenceResult INSTANCE = new FfiConverterTypeDifferenceResult();
+
+    public override DifferenceResult Read(BigEndianStream stream) {
+        return new DifferenceResult(
+            Modified: FfiConverterSequenceTypeTextChange.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(DifferenceResult value) {
+        return 0
+            + FfiConverterSequenceTypeTextChange.INSTANCE.AllocationSize(value.Modified);
+    }
+
+    public override void Write(DifferenceResult value, BigEndianStream stream) {
+            FfiConverterSequenceTypeTextChange.INSTANCE.Write(value.Modified, stream);
+    }
+}
+
+
+
 public record ErrorInfo (
     int Code, 
     string Msg, 
@@ -12507,6 +13127,71 @@ class FfiConverterTypeErrorInfo: FfiConverterRustBuffer<ErrorInfo> {
             FfiConverterString.INSTANCE.Write(value.Msg, stream);
             FfiConverterString.INSTANCE.Write(value.File, stream);
             FfiConverterInt32.INSTANCE.Write(value.Line, stream);
+    }
+}
+
+
+
+public record ExportOptions (
+    string FromPathOrUrl, 
+    string ToPath, 
+    Revision PegRevision, 
+    Revision Revision, 
+    bool Override, 
+    bool IgnoreExternals, 
+    bool IgnoreKeywords, 
+    Depth Depth, 
+    NativeEol NativeEol
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeExportOptions: FfiConverterRustBuffer<ExportOptions> {
+    public static FfiConverterTypeExportOptions INSTANCE = new FfiConverterTypeExportOptions();
+
+    public override ExportOptions Read(BigEndianStream stream) {
+        return new ExportOptions(
+            FromPathOrUrl: FfiConverterString.INSTANCE.Read(stream),
+            ToPath: FfiConverterString.INSTANCE.Read(stream),
+            PegRevision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Override: FfiConverterBoolean.INSTANCE.Read(stream),
+            IgnoreExternals: FfiConverterBoolean.INSTANCE.Read(stream),
+            IgnoreKeywords: FfiConverterBoolean.INSTANCE.Read(stream),
+            Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
+            NativeEol: FfiConverterTypeNativeEOL.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ExportOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.FromPathOrUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.ToPath)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.PegRevision)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Override)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreExternals)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreKeywords)
+            + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
+            + FfiConverterTypeNativeEOL.INSTANCE.AllocationSize(value.NativeEol);
+    }
+
+    public override void Write(ExportOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.FromPathOrUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.ToPath, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.PegRevision, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Override, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreKeywords, stream);
+            FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
+            FfiConverterTypeNativeEOL.INSTANCE.Write(value.NativeEol, stream);
     }
 }
 
@@ -12620,7 +13305,7 @@ public record InfoEntry (
     uint LastChangedRevision, 
     long LastChangedDate, 
     string LastChangedAuthor, 
-    Lock Lock, 
+    Lock? Lock, 
     WorkingCopyInfo? WorkingCopyInfo
 ) {
 
@@ -12646,7 +13331,7 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
             LastChangedRevision: FfiConverterUInt32.INSTANCE.Read(stream),
             LastChangedDate: FfiConverterInt64.INSTANCE.Read(stream),
             LastChangedAuthor: FfiConverterString.INSTANCE.Read(stream),
-            Lock: FfiConverterTypeLock.INSTANCE.Read(stream),
+            Lock: FfiConverterOptionalTypeLock.INSTANCE.Read(stream),
             WorkingCopyInfo: FfiConverterOptionalTypeWorkingCopyInfo.INSTANCE.Read(stream)
         );
     }
@@ -12662,7 +13347,7 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.LastChangedRevision)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.LastChangedDate)
             + FfiConverterString.INSTANCE.AllocationSize(value.LastChangedAuthor)
-            + FfiConverterTypeLock.INSTANCE.AllocationSize(value.Lock)
+            + FfiConverterOptionalTypeLock.INSTANCE.AllocationSize(value.Lock)
             + FfiConverterOptionalTypeWorkingCopyInfo.INSTANCE.AllocationSize(value.WorkingCopyInfo);
     }
 
@@ -12676,7 +13361,7 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
             FfiConverterUInt32.INSTANCE.Write(value.LastChangedRevision, stream);
             FfiConverterInt64.INSTANCE.Write(value.LastChangedDate, stream);
             FfiConverterString.INSTANCE.Write(value.LastChangedAuthor, stream);
-            FfiConverterTypeLock.INSTANCE.Write(value.Lock, stream);
+            FfiConverterOptionalTypeLock.INSTANCE.Write(value.Lock, stream);
             FfiConverterOptionalTypeWorkingCopyInfo.INSTANCE.Write(value.WorkingCopyInfo, stream);
     }
 }
@@ -12818,6 +13503,193 @@ class FfiConverterTypeInitializeRepositoryOptions: FfiConverterRustBuffer<Initia
 
 
 
+public record ListEntry (
+    string Path, 
+    NodeKind? Kind, 
+    ulong? Size, 
+    bool? HasProperties, 
+    uint? CreatedRevision, 
+    long? Time, 
+    string? LastAuthor, 
+    Lock? Lock, 
+    string AbsolutePath, 
+    string? ExternalParentUrl, 
+    string? ExternalTarget
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeListEntry: FfiConverterRustBuffer<ListEntry> {
+    public static FfiConverterTypeListEntry INSTANCE = new FfiConverterTypeListEntry();
+
+    public override ListEntry Read(BigEndianStream stream) {
+        return new ListEntry(
+            Path: FfiConverterString.INSTANCE.Read(stream),
+            Kind: FfiConverterOptionalTypeNodeKind.INSTANCE.Read(stream),
+            Size: FfiConverterOptionalUInt64.INSTANCE.Read(stream),
+            HasProperties: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
+            CreatedRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
+            Time: FfiConverterOptionalInt64.INSTANCE.Read(stream),
+            LastAuthor: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Lock: FfiConverterOptionalTypeLock.INSTANCE.Read(stream),
+            AbsolutePath: FfiConverterString.INSTANCE.Read(stream),
+            ExternalParentUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
+            ExternalTarget: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ListEntry value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Path)
+            + FfiConverterOptionalTypeNodeKind.INSTANCE.AllocationSize(value.Kind)
+            + FfiConverterOptionalUInt64.INSTANCE.AllocationSize(value.Size)
+            + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.HasProperties)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.CreatedRevision)
+            + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.Time)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LastAuthor)
+            + FfiConverterOptionalTypeLock.INSTANCE.AllocationSize(value.Lock)
+            + FfiConverterString.INSTANCE.AllocationSize(value.AbsolutePath)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ExternalParentUrl)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ExternalTarget);
+    }
+
+    public override void Write(ListEntry value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Path, stream);
+            FfiConverterOptionalTypeNodeKind.INSTANCE.Write(value.Kind, stream);
+            FfiConverterOptionalUInt64.INSTANCE.Write(value.Size, stream);
+            FfiConverterOptionalBoolean.INSTANCE.Write(value.HasProperties, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.CreatedRevision, stream);
+            FfiConverterOptionalInt64.INSTANCE.Write(value.Time, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LastAuthor, stream);
+            FfiConverterOptionalTypeLock.INSTANCE.Write(value.Lock, stream);
+            FfiConverterString.INSTANCE.Write(value.AbsolutePath, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ExternalParentUrl, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.ExternalTarget, stream);
+    }
+}
+
+
+
+public record ListOptions (
+    string Path, 
+    Revision PegRevision, 
+    Revision Revision, 
+    string[]? Patterns, 
+    Depth Depth, 
+    bool DirentCreatedRevision, 
+    bool DirentHasProperties, 
+    bool DirentKind, 
+    bool DirentLastAuthor, 
+    bool DirentSize, 
+    bool DirentTime, 
+    bool FetchLocks, 
+    bool IncludeExternals
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeListOptions: FfiConverterRustBuffer<ListOptions> {
+    public static FfiConverterTypeListOptions INSTANCE = new FfiConverterTypeListOptions();
+
+    public override ListOptions Read(BigEndianStream stream) {
+        return new ListOptions(
+            Path: FfiConverterString.INSTANCE.Read(stream),
+            PegRevision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Patterns: FfiConverterOptionalSequenceString.INSTANCE.Read(stream),
+            Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
+            DirentCreatedRevision: FfiConverterBoolean.INSTANCE.Read(stream),
+            DirentHasProperties: FfiConverterBoolean.INSTANCE.Read(stream),
+            DirentKind: FfiConverterBoolean.INSTANCE.Read(stream),
+            DirentLastAuthor: FfiConverterBoolean.INSTANCE.Read(stream),
+            DirentSize: FfiConverterBoolean.INSTANCE.Read(stream),
+            DirentTime: FfiConverterBoolean.INSTANCE.Read(stream),
+            FetchLocks: FfiConverterBoolean.INSTANCE.Read(stream),
+            IncludeExternals: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ListOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Path)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.PegRevision)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Patterns)
+            + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DirentCreatedRevision)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DirentHasProperties)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DirentKind)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DirentLastAuthor)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DirentSize)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DirentTime)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.FetchLocks)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeExternals);
+    }
+
+    public override void Write(ListOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Path, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.PegRevision, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Patterns, stream);
+            FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DirentCreatedRevision, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DirentHasProperties, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DirentKind, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DirentLastAuthor, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DirentSize, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DirentTime, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.FetchLocks, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IncludeExternals, stream);
+    }
+}
+
+
+
+public record ListResult (
+    ListEntry[] Entries
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeListResult: FfiConverterRustBuffer<ListResult> {
+    public static FfiConverterTypeListResult INSTANCE = new FfiConverterTypeListResult();
+
+    public override ListResult Read(BigEndianStream stream) {
+        return new ListResult(
+            Entries: FfiConverterSequenceTypeListEntry.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(ListResult value) {
+        return 0
+            + FfiConverterSequenceTypeListEntry.INSTANCE.AllocationSize(value.Entries);
+    }
+
+    public override void Write(ListResult value, BigEndianStream stream) {
+            FfiConverterSequenceTypeListEntry.INSTANCE.Write(value.Entries, stream);
+    }
+}
+
+
+
 public record Lock (
     string Path, 
     string Token, 
@@ -12877,8 +13749,8 @@ class FfiConverterTypeLock: FfiConverterRustBuffer<Lock> {
 
 public record LogChangedPathEntry (
     LogChangedPathAction Action, 
-    string CopyFromPath, 
-    uint CopyFromRevision, 
+    string? CopyFromPath, 
+    uint? CopyFromRevision, 
     NodeKind NodeKind, 
     bool? TextModified, 
     bool? PropsModified
@@ -12898,8 +13770,8 @@ class FfiConverterTypeLogChangedPathEntry: FfiConverterRustBuffer<LogChangedPath
     public override LogChangedPathEntry Read(BigEndianStream stream) {
         return new LogChangedPathEntry(
             Action: FfiConverterTypeLogChangedPathAction.INSTANCE.Read(stream),
-            CopyFromPath: FfiConverterString.INSTANCE.Read(stream),
-            CopyFromRevision: FfiConverterUInt32.INSTANCE.Read(stream),
+            CopyFromPath: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CopyFromRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             NodeKind: FfiConverterTypeNodeKind.INSTANCE.Read(stream),
             TextModified: FfiConverterOptionalBoolean.INSTANCE.Read(stream),
             PropsModified: FfiConverterOptionalBoolean.INSTANCE.Read(stream)
@@ -12909,8 +13781,8 @@ class FfiConverterTypeLogChangedPathEntry: FfiConverterRustBuffer<LogChangedPath
     public override int AllocationSize(LogChangedPathEntry value) {
         return 0
             + FfiConverterTypeLogChangedPathAction.INSTANCE.AllocationSize(value.Action)
-            + FfiConverterString.INSTANCE.AllocationSize(value.CopyFromPath)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.CopyFromRevision)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.CopyFromPath)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.CopyFromRevision)
             + FfiConverterTypeNodeKind.INSTANCE.AllocationSize(value.NodeKind)
             + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.TextModified)
             + FfiConverterOptionalBoolean.INSTANCE.AllocationSize(value.PropsModified);
@@ -12918,8 +13790,8 @@ class FfiConverterTypeLogChangedPathEntry: FfiConverterRustBuffer<LogChangedPath
 
     public override void Write(LogChangedPathEntry value, BigEndianStream stream) {
             FfiConverterTypeLogChangedPathAction.INSTANCE.Write(value.Action, stream);
-            FfiConverterString.INSTANCE.Write(value.CopyFromPath, stream);
-            FfiConverterUInt32.INSTANCE.Write(value.CopyFromRevision, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.CopyFromPath, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.CopyFromRevision, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.NodeKind, stream);
             FfiConverterOptionalBoolean.INSTANCE.Write(value.TextModified, stream);
             FfiConverterOptionalBoolean.INSTANCE.Write(value.PropsModified, stream);
@@ -12929,7 +13801,7 @@ class FfiConverterTypeLogChangedPathEntry: FfiConverterRustBuffer<LogChangedPath
 
 
 public record LogEntry (
-    uint Revision, 
+    uint? Revision, 
     long? Date, 
     string? Author, 
     string? Message, 
@@ -12952,7 +13824,7 @@ class FfiConverterTypeLogEntry: FfiConverterRustBuffer<LogEntry> {
 
     public override LogEntry Read(BigEndianStream stream) {
         return new LogEntry(
-            Revision: FfiConverterUInt32.INSTANCE.Read(stream),
+            Revision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             Date: FfiConverterOptionalInt64.INSTANCE.Read(stream),
             Author: FfiConverterOptionalString.INSTANCE.Read(stream),
             Message: FfiConverterOptionalString.INSTANCE.Read(stream),
@@ -12965,7 +13837,7 @@ class FfiConverterTypeLogEntry: FfiConverterRustBuffer<LogEntry> {
 
     public override int AllocationSize(LogEntry value) {
         return 0
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.Date)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Author)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Message)
@@ -12976,7 +13848,7 @@ class FfiConverterTypeLogEntry: FfiConverterRustBuffer<LogEntry> {
     }
 
     public override void Write(LogEntry value, BigEndianStream stream) {
-            FfiConverterUInt32.INSTANCE.Write(value.Revision, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.Revision, stream);
             FfiConverterOptionalInt64.INSTANCE.Write(value.Date, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Author, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Message, stream);
@@ -12997,7 +13869,7 @@ public record LogOptions (
     bool DiscoverChangedPaths, 
     bool StrictNodeHistory, 
     bool IncludeMergedRevisions, 
-    string[] RevisionsProperties
+    string[]? RevisionsProperties
 ) {
 
 
@@ -13020,7 +13892,7 @@ class FfiConverterTypeLogOptions: FfiConverterRustBuffer<LogOptions> {
             DiscoverChangedPaths: FfiConverterBoolean.INSTANCE.Read(stream),
             StrictNodeHistory: FfiConverterBoolean.INSTANCE.Read(stream),
             IncludeMergedRevisions: FfiConverterBoolean.INSTANCE.Read(stream),
-            RevisionsProperties: FfiConverterSequenceString.INSTANCE.Read(stream)
+            RevisionsProperties: FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
         );
     }
 
@@ -13033,7 +13905,7 @@ class FfiConverterTypeLogOptions: FfiConverterRustBuffer<LogOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.DiscoverChangedPaths)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.StrictNodeHistory)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeMergedRevisions)
-            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.RevisionsProperties);
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.RevisionsProperties);
     }
 
     public override void Write(LogOptions value, BigEndianStream stream) {
@@ -13044,7 +13916,7 @@ class FfiConverterTypeLogOptions: FfiConverterRustBuffer<LogOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.DiscoverChangedPaths, stream);
             FfiConverterBoolean.INSTANCE.Write(value.StrictNodeHistory, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IncludeMergedRevisions, stream);
-            FfiConverterSequenceString.INSTANCE.Write(value.RevisionsProperties, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.RevisionsProperties, stream);
     }
 }
 
@@ -13119,6 +13991,100 @@ class FfiConverterTypeMergeRange: FfiConverterRustBuffer<MergeRange> {
             FfiConverterInt64.INSTANCE.Write(value.Start, stream);
             FfiConverterInt64.INSTANCE.Write(value.End, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Inheritable, stream);
+    }
+}
+
+
+
+public record PropertyGetOptions (
+    string PropertyName, 
+    string Target, 
+    Revision PegRevision, 
+    Revision Revision, 
+    Depth Depth, 
+    string[] Changelists
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypePropertyGetOptions: FfiConverterRustBuffer<PropertyGetOptions> {
+    public static FfiConverterTypePropertyGetOptions INSTANCE = new FfiConverterTypePropertyGetOptions();
+
+    public override PropertyGetOptions Read(BigEndianStream stream) {
+        return new PropertyGetOptions(
+            PropertyName: FfiConverterString.INSTANCE.Read(stream),
+            Target: FfiConverterString.INSTANCE.Read(stream),
+            PegRevision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
+            Changelists: FfiConverterSequenceString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PropertyGetOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.PropertyName)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Target)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.PegRevision)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Changelists);
+    }
+
+    public override void Write(PropertyGetOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.PropertyName, stream);
+            FfiConverterString.INSTANCE.Write(value.Target, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.PegRevision, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
+            FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.Changelists, stream);
+    }
+}
+
+
+
+public record PropertyGetResult (
+    Dictionary<string, string> Properties, 
+    string[] InheritedProperties, 
+    uint ActualRevision
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypePropertyGetResult: FfiConverterRustBuffer<PropertyGetResult> {
+    public static FfiConverterTypePropertyGetResult INSTANCE = new FfiConverterTypePropertyGetResult();
+
+    public override PropertyGetResult Read(BigEndianStream stream) {
+        return new PropertyGetResult(
+            Properties: FfiConverterDictionaryStringString.INSTANCE.Read(stream),
+            InheritedProperties: FfiConverterSequenceString.INSTANCE.Read(stream),
+            ActualRevision: FfiConverterUInt32.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PropertyGetResult value) {
+        return 0
+            + FfiConverterDictionaryStringString.INSTANCE.AllocationSize(value.Properties)
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.InheritedProperties)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.ActualRevision);
+    }
+
+    public override void Write(PropertyGetResult value, BigEndianStream stream) {
+            FfiConverterDictionaryStringString.INSTANCE.Write(value.Properties, stream);
+            FfiConverterSequenceString.INSTANCE.Write(value.InheritedProperties, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.ActualRevision, stream);
     }
 }
 
@@ -13712,6 +14678,80 @@ class FfiConverterTypeSvgRenderOptions: FfiConverterRustBuffer<SvgRenderOptions>
 
 
 
+public record TextChange (
+    TextPosition? Original, 
+    TextPosition? Modified
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeTextChange: FfiConverterRustBuffer<TextChange> {
+    public static FfiConverterTypeTextChange INSTANCE = new FfiConverterTypeTextChange();
+
+    public override TextChange Read(BigEndianStream stream) {
+        return new TextChange(
+            Original: FfiConverterOptionalTypeTextPosition.INSTANCE.Read(stream),
+            Modified: FfiConverterOptionalTypeTextPosition.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TextChange value) {
+        return 0
+            + FfiConverterOptionalTypeTextPosition.INSTANCE.AllocationSize(value.Original)
+            + FfiConverterOptionalTypeTextPosition.INSTANCE.AllocationSize(value.Modified);
+    }
+
+    public override void Write(TextChange value, BigEndianStream stream) {
+            FfiConverterOptionalTypeTextPosition.INSTANCE.Write(value.Original, stream);
+            FfiConverterOptionalTypeTextPosition.INSTANCE.Write(value.Modified, stream);
+    }
+}
+
+
+
+public record TextPosition (
+    ulong Pos, 
+    ulong Len
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeTextPosition: FfiConverterRustBuffer<TextPosition> {
+    public static FfiConverterTypeTextPosition INSTANCE = new FfiConverterTypeTextPosition();
+
+    public override TextPosition Read(BigEndianStream stream) {
+        return new TextPosition(
+            Pos: FfiConverterUInt64.INSTANCE.Read(stream),
+            Len: FfiConverterUInt64.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(TextPosition value) {
+        return 0
+            + FfiConverterUInt64.INSTANCE.AllocationSize(value.Pos)
+            + FfiConverterUInt64.INSTANCE.AllocationSize(value.Len);
+    }
+
+    public override void Write(TextPosition value, BigEndianStream stream) {
+            FfiConverterUInt64.INSTANCE.Write(value.Pos, stream);
+            FfiConverterUInt64.INSTANCE.Write(value.Len, stream);
+    }
+}
+
+
+
 public record TrustServer (
     uint AcceptFailures, 
     bool Save
@@ -13744,6 +14784,67 @@ class FfiConverterTypeTrustServer: FfiConverterRustBuffer<TrustServer> {
     public override void Write(TrustServer value, BigEndianStream stream) {
             FfiConverterUInt32.INSTANCE.Write(value.AcceptFailures, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Save, stream);
+    }
+}
+
+
+
+public record UpdateOptions (
+    string[] Paths, 
+    Revision Revision, 
+    Depth Depth, 
+    bool DepthIsSticky, 
+    bool IgnoreExternals, 
+    bool AllowUnverObstructions, 
+    bool AddsAdModification, 
+    bool MakeParents
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeUpdateOptions: FfiConverterRustBuffer<UpdateOptions> {
+    public static FfiConverterTypeUpdateOptions INSTANCE = new FfiConverterTypeUpdateOptions();
+
+    public override UpdateOptions Read(BigEndianStream stream) {
+        return new UpdateOptions(
+            Paths: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
+            DepthIsSticky: FfiConverterBoolean.INSTANCE.Read(stream),
+            IgnoreExternals: FfiConverterBoolean.INSTANCE.Read(stream),
+            AllowUnverObstructions: FfiConverterBoolean.INSTANCE.Read(stream),
+            AddsAdModification: FfiConverterBoolean.INSTANCE.Read(stream),
+            MakeParents: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(UpdateOptions value) {
+        return 0
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Paths)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.DepthIsSticky)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreExternals)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.AllowUnverObstructions)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.AddsAdModification)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MakeParents);
+    }
+
+    public override void Write(UpdateOptions value, BigEndianStream stream) {
+            FfiConverterSequenceString.INSTANCE.Write(value.Paths, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
+            FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.DepthIsSticky, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.AllowUnverObstructions, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.AddsAdModification, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.MakeParents, stream);
     }
 }
 
@@ -14230,6 +15331,40 @@ class FfiConverterTypeDepth: FfiConverterRustBuffer<Depth> {
 
 
 
+public enum DiffFileIgnoreSpace: int {
+    
+    None,
+    Change,
+    All
+}
+
+class FfiConverterTypeDiffFileIgnoreSpace: FfiConverterRustBuffer<DiffFileIgnoreSpace> {
+    public static FfiConverterTypeDiffFileIgnoreSpace INSTANCE = new FfiConverterTypeDiffFileIgnoreSpace();
+
+    public override DiffFileIgnoreSpace Read(BigEndianStream stream) {
+        var value = stream.ReadInt() - 1;
+        if (Enum.IsDefined(typeof(DiffFileIgnoreSpace), value)) {
+            return (DiffFileIgnoreSpace)value;
+        } else {
+            throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeDiffFileIgnoreSpace.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(DiffFileIgnoreSpace value) {
+        return 4;
+    }
+
+    public override void Write(DiffFileIgnoreSpace value, BigEndianStream stream) {
+        stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
 public class Exception: UniffiException {
     Exception(string message): base(message) {}
 
@@ -14337,6 +15472,110 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
 
 
 
+public enum ErrorCode: int {
+    
+    Enostat,
+    Enopool,
+    Ebaddate,
+    Einvalsock,
+    Enoproc,
+    Enotime,
+    Enolock,
+    Enopoll,
+    Enosocket,
+    Enothread,
+    Enothdkey,
+    Egeneral,
+    Enoshmavail,
+    Ebadip,
+    Ebadmask,
+    Edsoopen,
+    Eabsolute,
+    Erelative,
+    Eincomplete,
+    Eaboveroot,
+    Ebadpath,
+    Epathwild,
+    Esymnotfound,
+    EprocUnknown,
+    Enotenoughentropy,
+    Inchild,
+    Inparent,
+    Detach,
+    Notdetach,
+    ChildDone,
+    ChildNotDone,
+    Timeup,
+    Incomplete,
+    Badch,
+    Badarg,
+    Eof,
+    Notfound,
+    Anonymous,
+    Filebased,
+    Keybased,
+    Einit,
+    Enotimpl,
+    Emismatch,
+    Ebusy,
+    Eacces,
+    Eexist,
+    Enametoolong,
+    Enoent,
+    Enotdir,
+    Enospc,
+    Enomem,
+    Emfile,
+    Enfile,
+    Ebadf,
+    Einval,
+    Espipe,
+    Eagain,
+    Eintr,
+    Enotsock,
+    Econnrefused,
+    Einprogress,
+    Econnaborted,
+    Econnreset,
+    Etimedout,
+    Ehostunreach,
+    Enetunreach,
+    Eftype,
+    Epipe,
+    Exdev,
+    Enotempty,
+    Eafnosupport,
+    Eopnotsupp,
+    Erange
+}
+
+class FfiConverterTypeErrorCode: FfiConverterRustBuffer<ErrorCode> {
+    public static FfiConverterTypeErrorCode INSTANCE = new FfiConverterTypeErrorCode();
+
+    public override ErrorCode Read(BigEndianStream stream) {
+        var value = stream.ReadInt() - 1;
+        if (Enum.IsDefined(typeof(ErrorCode), value)) {
+            return (ErrorCode)value;
+        } else {
+            throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeErrorCode.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(ErrorCode value) {
+        return 4;
+    }
+
+    public override void Write(ErrorCode value, BigEndianStream stream) {
+        stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
 public enum LogChangedPathAction: int {
     
     Add,
@@ -14362,6 +15601,41 @@ class FfiConverterTypeLogChangedPathAction: FfiConverterRustBuffer<LogChangedPat
     }
 
     public override void Write(LogChangedPathAction value, BigEndianStream stream) {
+        stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
+public enum NativeEol: int {
+    
+    Lf,
+    Crlf,
+    Cr,
+    None
+}
+
+class FfiConverterTypeNativeEOL: FfiConverterRustBuffer<NativeEol> {
+    public static FfiConverterTypeNativeEOL INSTANCE = new FfiConverterTypeNativeEOL();
+
+    public override NativeEol Read(BigEndianStream stream) {
+        var value = stream.ReadInt() - 1;
+        if (Enum.IsDefined(typeof(NativeEol), value)) {
+            return (NativeEol)value;
+        } else {
+            throw new InternalException(String.Format("invalid enum value '{0}' in FfiConverterTypeNativeEOL.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(NativeEol value) {
+        return 4;
+    }
+
+    public override void Write(NativeEol value, BigEndianStream stream) {
         stream.WriteInt((int)value + 1);
     }
 }
@@ -14963,6 +16237,7 @@ public enum WorkingCopyNotifyAction: int {
     StatusCompleted,
     StatusExternal,
     CommitModified,
+    CommitAdded,
     CommitDeleted,
     CommitReplaced,
     CommitPostfixTxDelta,
@@ -15610,6 +16885,37 @@ class FfiConverterOptionalTypeSVNError: FfiConverterRustBuffer<SvnError?> {
 
 
 
+class FfiConverterOptionalTypeTextPosition: FfiConverterRustBuffer<TextPosition?> {
+    public static FfiConverterOptionalTypeTextPosition INSTANCE = new FfiConverterOptionalTypeTextPosition();
+
+    public override TextPosition? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeTextPosition.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(TextPosition? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeTextPosition.INSTANCE.AllocationSize((TextPosition)value);
+        }
+    }
+
+    public override void Write(TextPosition? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeTextPosition.INSTANCE.Write((TextPosition)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeTrustServer: FfiConverterRustBuffer<TrustServer?> {
     public static FfiConverterOptionalTypeTrustServer INSTANCE = new FfiConverterOptionalTypeTrustServer();
 
@@ -15666,6 +16972,120 @@ class FfiConverterOptionalTypeWorkingCopyInfo: FfiConverterRustBuffer<WorkingCop
             stream.WriteByte(1);
             FfiConverterTypeWorkingCopyInfo.INSTANCE.Write((WorkingCopyInfo)value, stream);
         }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeNodeKind: FfiConverterRustBuffer<NodeKind?> {
+    public static FfiConverterOptionalTypeNodeKind INSTANCE = new FfiConverterOptionalTypeNodeKind();
+
+    public override NodeKind? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeNodeKind.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(NodeKind? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeNodeKind.INSTANCE.AllocationSize((NodeKind)value);
+        }
+    }
+
+    public override void Write(NodeKind? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeNodeKind.INSTANCE.Write((NodeKind)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalSequenceString: FfiConverterRustBuffer<string[]?> {
+    public static FfiConverterOptionalSequenceString INSTANCE = new FfiConverterOptionalSequenceString();
+
+    public override string[]? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterSequenceString.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(string[]? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterSequenceString.INSTANCE.AllocationSize((string[])value);
+        }
+    }
+
+    public override void Write(string[]? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterSequenceString.INSTANCE.Write((string[])value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterSequenceUInt32: FfiConverterRustBuffer<uint[]> {
+    public static FfiConverterSequenceUInt32 INSTANCE = new FfiConverterSequenceUInt32();
+
+    public override uint[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<uint>(length);
+        var readFn = FfiConverterUInt32.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(uint[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterUInt32.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(uint[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterUInt32.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
     }
 }
 
@@ -15880,6 +17300,58 @@ class FfiConverterSequenceTypeErrorInfo: FfiConverterRustBuffer<ErrorInfo[]> {
 
 
 
+class FfiConverterSequenceTypeListEntry: FfiConverterRustBuffer<ListEntry[]> {
+    public static FfiConverterSequenceTypeListEntry INSTANCE = new FfiConverterSequenceTypeListEntry();
+
+    public override ListEntry[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<ListEntry>(length);
+        var readFn = FfiConverterTypeListEntry.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(ListEntry[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeListEntry.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(ListEntry[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeListEntry.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeLogEntry: FfiConverterRustBuffer<LogEntry[]> {
     public static FfiConverterSequenceTypeLogEntry INSTANCE = new FfiConverterSequenceTypeLogEntry();
 
@@ -16029,6 +17501,58 @@ class FfiConverterSequenceTypeStatusEntry: FfiConverterRustBuffer<StatusEntry[]>
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeStatusEntry.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeTextChange: FfiConverterRustBuffer<TextChange[]> {
+    public static FfiConverterSequenceTypeTextChange INSTANCE = new FfiConverterSequenceTypeTextChange();
+
+    public override TextChange[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<TextChange>(length);
+        var readFn = FfiConverterTypeTextChange.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(TextChange[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeTextChange.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(TextChange[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeTextChange.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }
@@ -16294,19 +17818,10 @@ internal static class _UniFFIAsync {
 }
 #pragma warning restore 8625
 public static class EngineMethods {
-    /// <exception cref="Exception"></exception>
-    public static byte[] RenderSvgToRgba(string @svgData, uint @width, uint @height) {
-        return FfiConverterByteArray.INSTANCE.Lift(
-    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_engine_fn_func_render_svg_to_rgba(FfiConverterString.INSTANCE.Lower(@svgData), FfiConverterUInt32.INSTANCE.Lower(@width), FfiConverterUInt32.INSTANCE.Lower(@height), ref _status)
-));
-    }
-
-
-    public static void SetupSvg(byte[][] @fonts) {
+    public static void EngineInitialize() {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_engine_fn_func_setup_svg(FfiConverterSequenceByteArray.INSTANCE.Lower(@fonts), ref _status)
+    _UniFFILib.uniffi_engine_fn_func_engine_initialize( ref _status)
 );
     }
 
@@ -16332,6 +17847,23 @@ public static class EngineMethods {
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_func_svn_err_reposra_into_u32(FfiConverterTypeSvnErrnoReposRa.INSTANCE.Lower(@err), ref _status)
 ));
+    }
+
+
+    /// <exception cref="Exception"></exception>
+    public static byte[] RenderSvgToRgba(string @svgData, uint @width, uint @height) {
+        return FfiConverterByteArray.INSTANCE.Lift(
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_render_svg_to_rgba(FfiConverterString.INSTANCE.Lower(@svgData), FfiConverterUInt32.INSTANCE.Lower(@width), FfiConverterUInt32.INSTANCE.Lower(@height), ref _status)
+));
+    }
+
+
+    public static void SetupSvg(byte[][] @fonts) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_setup_svg(FfiConverterSequenceByteArray.INSTANCE.Lower(@fonts), ref _status)
+);
     }
 
 

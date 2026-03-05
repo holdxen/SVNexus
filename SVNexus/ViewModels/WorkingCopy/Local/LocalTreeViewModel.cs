@@ -10,16 +10,17 @@ using SVNexus.Generated;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeViewModel.OnLocalTreeItemSelected>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
+public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
 {
-    
     
     public partial class TreeItemViewModel: ViewModelBase
     {
-    
+        
+        public required LocalTreeViewModel Root { get; init; }
+
         [ObservableProperty]
-        private bool _isExpanded;
-    
+        public partial bool IsExpanded { get; set; }
+        
         public ObservableCollection<TreeItemViewModel> Children {get; set;} = [];
     
         [ObservableProperty]
@@ -58,7 +59,7 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
         public required partial string WorkingCopyPath { get; set; }
     
         [ObservableProperty]
-        public required partial bool IsSelected { get; set; }
+        public required partial bool IsChecked { get; set; }
 
 
         public List<object> MenuItems { get; } = [];
@@ -69,36 +70,38 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
         public required WeakReferenceMessenger Messenger { get; init; }
 
 
-        partial void OnIsSelectedChanged(bool value)
+        partial void OnIsCheckedChanged(bool value)
         {
-            Messenger.Send(new OnLocalTreeItemSelected()
-            {
-                IsSelected = value,
-                ItemModel = this
-            });
+            // Messenger.Send(new OnLocalTreeItemChecked()
+            // {
+            //     IsChecked = value,
+            //     ItemModel = this
+            // });
+            Root.OnItemChecked(this, value);
         }
 
         partial void OnIsExpandedChanged(bool value)
         {
-            Messenger.Send(new OnLocalTreeItemExpanded()
-            {
-                IsExpanded = value,
-                ItemModel = this
-            });
+            Root.OnItemExpanded(this, value);
+            // Messenger.Send(new OnLocalTreeItemExpanded()
+            // {
+            //     IsExpanded = value,
+            //     ItemModel = this
+            // });
         }
     }
     
-    public class OnLocalTreeItemSelected
-    {
-        public required bool IsSelected { get; init; }
-        public required TreeItemViewModel ItemModel { get; init; }
-    }
-    
-    public class OnLocalTreeItemExpanded
-    {
-        public required bool IsExpanded { get; init; }
-        public required TreeItemViewModel ItemModel { get; init; }
-    }
+    // public class OnLocalTreeItemChecked
+    // {
+    //     public required bool IsChecked { get; init; }
+    //     public required TreeItemViewModel ItemModel { get; init; }
+    // }
+    //
+    // public class OnLocalTreeItemExpanded
+    // {
+    //     public required bool IsExpanded { get; init; }
+    //     public required TreeItemViewModel ItemModel { get; init; }
+    // }
 
     public override bool KeepAlive { get; set; } = true;
 
@@ -106,7 +109,7 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
     public ObservableCollection<TreeItemViewModel> Items { get; set; } = [];
     
     [ObservableProperty]
-    public partial object? SelectedItem { get; set; }
+    public partial TreeItemViewModel? SelectedItem { get; set; }
     
     public required string WorkingCopyPath { get; set; }
 
@@ -117,28 +120,53 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
 
 
     public WeakReferenceMessenger Messenger { get; } = new();
+    
+    public event Action<object?, StatusEntry?>? SelectedItemChanged;
 
-    public LocalTreeViewModel()
+    // public LocalTreeViewModel()
+    // {
+    //     Messenger.Register<OnLocalTreeItemChecked>(this);
+    //     Messenger.Register<OnLocalTreeItemExpanded>(this);
+    // }
+
+
+    partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
-        Messenger.Register<OnLocalTreeItemSelected>(this);
-        Messenger.Register<OnLocalTreeItemExpanded>(this);
+        SelectedItemChanged?.Invoke(this, value?.StatusEntry);
     }
 
 
-    public void Receive(OnLocalTreeItemSelected message)
+    // public void Receive(OnLocalTreeItemChecked message)
+    // {
+    //     if (message.ItemModel.StatusEntry is null)
+    //     {
+    //         return;
+    //     }
+    //     if (message.IsChecked)
+    //     {
+    //         SelectedItems.Add(message.ItemModel.StatusEntry.Path);
+    //     }
+    //     else
+    //     {
+    //         SelectedItems.RemoveAll((e) => e == message.ItemModel.StatusEntry.Path);
+    //     }
+    // }
+
+    public void OnItemChecked(TreeItemViewModel item, bool check)
     {
-        if (message.ItemModel.StatusEntry is null)
+        if (item.StatusEntry is null)
         {
             return;
         }
-        if (message.IsSelected)
+        if (check)
         {
-            SelectedItems.Add(message.ItemModel.StatusEntry.Path);
+            SelectedItems.Add(item.StatusEntry.Path);
         }
         else
         {
-            SelectedItems.RemoveAll((e) => e == message.ItemModel.StatusEntry.Path);
+            SelectedItems.RemoveAll((e) => e == item.StatusEntry.Path);
         }
+
     }
 
     public void Update(StatusEntry[] statusEntries)
@@ -149,11 +177,12 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
         {
             StatusEntry = null,
             WorkingCopyPath = WorkingCopyPath,
-            IsSelected = false,
+            IsChecked = false,
             Messenger = Messenger,
             Text = Path.GetFileName(WorkingCopyPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
             IsExpanded = ExpandedItems.Contains(WorkingCopyPath),
             Path = WorkingCopyPath,
+            Root = this
         };
         
         
@@ -176,8 +205,8 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
             if (statusEntry.Path == WorkingCopyPath)
             {
                 root.StatusEntry = statusEntry;
-                root.IsSelected = SelectedItems.Contains(statusEntry.Path);
-                if (root.IsSelected)
+                root.IsChecked = SelectedItems.Contains(statusEntry.Path);
+                if (root.IsChecked)
                 {
                     cleanSelectedItems.Add(statusEntry.Path);
                 }
@@ -205,9 +234,10 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
                         Messenger = Messenger,
                         Text = part,
                         StatusEntry = null,
-                        IsSelected = false,
+                        IsChecked = false,
                         Path = itemPath,
-                        IsExpanded = ExpandedItems.Contains(itemPath)
+                        IsExpanded = ExpandedItems.Contains(itemPath),
+                        Root = this
                     };
                     if (item.IsExpanded)
                     {
@@ -218,8 +248,8 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
                     if (index == parts.Length - 1)
                     {
                         item.StatusEntry = statusEntry;
-                        item.IsSelected = SelectedItems.Contains(statusEntry.Path);
-                        if (item.IsSelected)
+                        item.IsChecked = SelectedItems.Contains(statusEntry.Path);
+                        if (item.IsChecked)
                         {
                             cleanSelectedItems.Add(statusEntry.Path);
                         }
@@ -231,8 +261,8 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
                     if (index == parts.Length - 1)
                     {
                         first.StatusEntry = statusEntry;
-                        first.IsSelected = SelectedItems.Contains(statusEntry.Path);
-                        if (first.IsSelected)
+                        first.IsChecked = SelectedItems.Contains(statusEntry.Path);
+                        if (first.IsChecked)
                         {
                             cleanSelectedItems.Add(statusEntry.Path);
                         }
@@ -255,15 +285,27 @@ public partial class LocalTreeViewModel: ViewModelBase, IRecipient<LocalTreeView
         ExpandedItems = cleanExpandedItems;
     }
 
-    public void Receive(OnLocalTreeItemExpanded message)
+    // public void Receive(OnLocalTreeItemExpanded message)
+    // {
+    //     if (message.IsExpanded)
+    //     {
+    //         ExpandedItems.Add(message.ItemModel.Path);
+    //     }
+    //     else
+    //     {
+    //         ExpandedItems.RemoveAll((e) => e == message.ItemModel.Path);
+    //     }
+    // }
+
+    public void OnItemExpanded(TreeItemViewModel item, bool expanded)
     {
-        if (message.IsExpanded)
+        if (expanded)
         {
-            ExpandedItems.Add(message.ItemModel.Path);
+            ExpandedItems.Add(item.Path);
         }
         else
         {
-            ExpandedItems.RemoveAll((e) => e == message.ItemModel.Path);
+            ExpandedItems.RemoveAll(e => e == item.Path);
         }
     }
 }

@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="remote:RemoteDetailViewModel"
+             Padding="20 5"
+             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteDetailView">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="10">
+            <u:Descriptions HorizontalAlignment="Left">
+                <u:Descriptions.Resources>
+                    <Thickness x:Key="DescriptionsItemMargin">0</Thickness>
+                    <Thickness x:Key="DescriptionsKeyPadding">0 0 5 0</Thickness>
+                </u:Descriptions.Resources>
+                <u:DescriptionsItem Label="Author" Content="{Binding Author}" />
+                <u:DescriptionsItem Label="DateTime" Content="{Binding DateTimeText}" />
+                <u:DescriptionsItem Label="Revision" Content="{Binding Revision}"></u:DescriptionsItem>
+                <u:DescriptionsItem Label="Message" >
+                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Message}"></SelectableTextBlock>
+                </u:DescriptionsItem>
+            </u:Descriptions>
+            <u:Divider Orientation="Horizontal"></u:Divider>
+            <u:SelectionList ItemsSource="{Binding ChangeItems}">
+                <u:SelectionList.ItemTemplate>
+                    <DataTemplate DataType="remote:RemoteDetailViewModel+ChangeItemViewModel">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <components:SvgRender Margin="4 0" Source="{Binding Icon}" 
+                                                  Width="18"
+                                                  Height="18"
+                                                  />
+                            <TextBlock Name="TextPart" 
+                                       Grid.Column="1" 
+                                       VerticalAlignment="Center"
+                                       Text="{Binding RelativePath}"></TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </u:SelectionList.ItemTemplate>
+            </u:SelectionList>
+            <!-- <ItemsControl ItemsSource="{Binding ChangeItems}"> -->
+            <!--     <ItemsControl.ItemTemplate> -->
+            <!--         <DataTemplate DataType="remote:RemoteDetailViewModel+ChangeItemViewModel"> -->
+            <!--             <Grid ColumnDefinitions="Auto, *"> -->
+            <!--                 <components:SvgRender Source="{Binding Icon}"/> -->
+            <!--                 <TextBlock Grid.Column="1" Text="{Binding RelativePath}"></TextBlock> -->
+            <!--             </Grid> -->
+            <!--         </DataTemplate> -->
+            <!--     </ItemsControl.ItemTemplate> -->
+            <!-- </ItemsControl> -->
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

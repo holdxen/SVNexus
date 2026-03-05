@@ -36,8 +36,30 @@ pub fn backup(path: impl AsRef<Path>) -> error::Result<PathBuf> {
         let status = Command::new("tar")
             .current_dir(path)
             .arg("zxcf")
-            .arg(".")
             .arg(&file)
+            .arg(".")
+            .status()?;
+
+        snafu::ensure!(
+            status.success(),
+            builder::General {
+                detail: "Failed to backup"
+            }
+        );
+        return Ok(file);
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        file_name.push(".tar.gz");
+        let mut file = dir.keep();
+        file.push(file_name);
+
+        let status = Command::new("tar")
+            .current_dir(path)
+            .arg("-zcf")
+            .arg(&file)
+            .arg(".")
             .status()?;
 
         snafu::ensure!(

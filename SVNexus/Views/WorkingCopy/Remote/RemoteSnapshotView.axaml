@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:u="https://irihi.tech/ursa"
+             x:DataType="remote:RemoteSnapshotViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteSnapshotView">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <Grid ColumnDefinitions="*, Auto, 3*">
+        <components:LoadingOrError Grid.Column="0" 
+                                   State="{Binding TreeViewState}">
+            <TreeView
+                SelectionMode="Single"
+                      SelectedItem="{Binding SelectedItem}"
+                      AutoScrollToSelectedItem="False"
+                      ItemsSource="{Binding Files}">
+                <TreeView.DataTemplates>
+                    <TreeDataTemplate x:DataType="remote:RemoteSnapshotViewModel+FileItemViewModel" 
+                                      ItemsSource="{Binding Children}">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <components:SvgRender Grid.Column="0" 
+                                                  Margin="2 0"
+                                                  VerticalAlignment="Center"
+                                                  Width="12" 
+                                                  Height="12" 
+                                                  Source="{Binding NodeKindIcon}"/> 
+                            <TextBlock Grid.Column="1" 
+                                       VerticalAlignment="Center" 
+                                       Text="{Binding Name}"></TextBlock>
+                        </Grid>
+                    </TreeDataTemplate>
+                </TreeView.DataTemplates>
+            </TreeView>
+        </components:LoadingOrError>
+        <GridSplitter Background="Transparent"
+                      Grid.Column="1">
+        </GridSplitter>
+        <components:LoadingOrError Grid.Column="2" 
+                                   Margin="{DynamicResource ThicknessCardMargin}"
+                                   CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                                   State="{Binding EditorState}"
+                                   >
+            <Border Theme="{DynamicResource CardBorder}">
+                <Border.Resources>
+                    <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+                </Border.Resources>
+                <edit:TextEditor ShowLineNumbers="True"
+                                 IsReadOnly="True">
+                    <Interaction.Behaviors>
+                        <behaviors:DocumentTextBindingBehavior Text="{Binding Code, Mode=TwoWay}"/>
+                    </Interaction.Behaviors>
+                </edit:TextEditor>
+            </Border>
+        </components:LoadingOrError>
+        <!-- <u:LoadingContainer Grid.Column="2" -->
+        <!--                     LoadingMessage="Coming soon" -->
+        <!--                     IsLoading="{Binding IsEditorLoading}" -->
+        <!--                     CornerRadius="{DynamicResource RadiusCardCornerRadius}" -->
+        <!--                     Margin="{DynamicResource ThicknessCardMargin}" -->
+        <!--                     Theme="{StaticResource BorderInnerLoading}"> -->
+        <!--     <Border Theme="{DynamicResource CardBorder}"> -->
+        <!--         <edit:TextEditor ShowLineNumbers="True" -->
+        <!--                          IsReadOnly="True"> -->
+        <!--             <Interaction.Behaviors> -->
+        <!--                 <behaviors:DocumentTextBindingBehavior Text="{Binding Code, Mode=TwoWay}"/> -->
+        <!--             </Interaction.Behaviors> -->
+        <!--         </edit:TextEditor> -->
+        <!--     </Border> -->
+        <!-- </u:LoadingContainer> -->
+        
+        <!-- <Grid Grid.Column="2"> -->
+        <!--     <Border Theme="{DynamicResource CardBorder}"> -->
+        <!--         <edit:TextEditor  ShowLineNumbers="True" -->
+        <!--                           IsReadOnly="True"> -->
+        <!--             <Interaction.Behaviors> -->
+        <!--                 <behaviors:DocumentTextBindingBehavior Text="{Binding Code, Mode=TwoWay}" /> -->
+        <!--             </Interaction.Behaviors> -->
+        <!--         </edit:TextEditor> -->
+        <!--     </Border> -->
+        <!--     <u:LoadingContainer -->
+        <!--         CornerRadius="{DynamicResource RadiusCardCornerRadius}" -->
+        <!--         Margin="{DynamicResource ThicknessCardMargin}" -->
+        <!--         Theme="{StaticResource Custom}" -->
+        <!--         IsVisible="True" -->
+        <!--         IsLoading="True"> -->
+        <!--     </u:LoadingContainer> -->
+        <!-- </Grid> -->
+    </Grid>
+</UserControl>

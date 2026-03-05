@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SVNexus.Components.DifferenceEditor">
+    <Grid ColumnDefinitions="*, Auto, *">
+        <edit:TextEditor x:Name="LeftEditor"
+                               Grid.Column="0"
+                               ShowLineNumbers="True"
+                               IsReadOnly="True"
+                               HorizontalScrollBarVisibility="Auto"
+                               VerticalScrollBarVisibility="Auto"/>
+
+        <!-- 中间列：可用来画 hunk 连接线 / overview -->
+        <Border Grid.Column="1" Width="16" Background="Transparent">
+            <Canvas x:Name="LinkCanvas"/>
+        </Border>
+
+        <edit:TextEditor x:Name="RightEditor"
+                               Grid.Column="2"
+                               ShowLineNumbers="True"
+                               IsReadOnly="True"
+                               HorizontalScrollBarVisibility="Auto"
+                               VerticalScrollBarVisibility="Auto"/>
+    </Grid>
+</UserControl>

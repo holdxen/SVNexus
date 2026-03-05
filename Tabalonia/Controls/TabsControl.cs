@@ -105,6 +105,10 @@ public class TabsControl : TabControl
     
     public static readonly StyledProperty<object?> RightContentProperty =
         AvaloniaProperty.Register<TabsControl, object?>(nameof(RightContent));
+
+    public static readonly StyledProperty<object?> ContentProperty = AvaloniaProperty.Register<TabsControl, object?>(
+        nameof(Content));
+
     
     #endregion
 
@@ -137,6 +141,12 @@ public class TabsControl : TabControl
 
 
     #region Public Properties
+    
+    public object? Content
+    {
+        get => GetValue(ContentProperty);
+        set => SetValue(ContentProperty, value);
+    }
     
     public double AdjacentHeaderItemOffset
     {

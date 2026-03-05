@@ -9,15 +9,15 @@
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalListView">
     <ListBox
         SelectedItem="{Binding SelectedItem}"
-             SelectionMode="Multiple"
-             ItemsSource="{Binding Items}">
+        SelectionMode="Multiple"
+        ItemsSource="{Binding Items}">
         <ListBox.ItemTemplate>
             <DataTemplate x:DataType="local:LocalListViewModel+ListItemViewModel">
                 <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto">
                     <CheckBox Grid.Column="0"
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
-                              IsChecked="{Binding IsSelected}">
+                              IsChecked="{Binding IsChecked}">
                     </CheckBox>
                     <components:SvgRender Margin="2, 0"
                                           Grid.Column="1"

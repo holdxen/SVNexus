@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -10,14 +13,12 @@ using SVNexus.ViewModels.WorkingCopy;
 
 namespace SVNexus.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>, IRecipient<OnRemoveTabByLocalViewModel>
+public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>, IRecipient<OnRemoveTabByLocalViewModel>, IRecipient<OnRemoveTabByContent>
 {
     
     public partial class TabItemViewViewModel: ViewModelLite
     {
 
-        public string TabId { get; set; } = string.Empty;
-        
         [ObservableProperty]
         private bool _closable = true;
     
@@ -33,6 +34,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     
         [ObservableProperty]
         private object? _content;
+        
+        
+        [ObservableProperty]
+        public partial bool IsSelected { get; set; }
     
     
     }
@@ -40,23 +45,20 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public MainWindowViewModel()
     {
-        WeakReferenceMessenger.Default.Register<OnRemoveTab>(this);
-        WeakReferenceMessenger.Default.Register<OnOpenRepository>(this);
-        WeakReferenceMessenger.Default.Register<OnAddTab>(this);
-        WeakReferenceMessenger.Default.Register<OnRemoveTabByLocalViewModel>(this);
-        Tabs.Add(NewTab());
+        this.RegisterAllMessages(Manager.MainWindow);
+        AddTab();
     }
     
     // private readonly IAppState _appState;
 
 
-    [ObservableProperty]
-    private Rect _tabRect;
+    // [ObservableProperty]
+    // private Rect _tabRect;
 
 
-    partial void OnTabRectChanged(Rect value)
-    {
-    }
+    // partial void OnTabRectChanged(Rect value)
+    // {
+    // }
 
     // public int TabIndex { get => _appState.TabIndex; set => _appState.TabIndex = value; }
     
@@ -64,7 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     // public ObservableCollection<TabItemModel> Tabs { get => _appState.Tabs; set => _appState.Tabs = value; }
     
     [ObservableProperty]
-    private int _selectedIndex;
+    private int _selectedIndex = -1;
 
     public ObservableCollection<TabItemViewViewModel> Tabs { get; set; } = [];
 
@@ -80,13 +82,15 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     //     }
     // }
     //
-    
-    
-    // #e5f3ff
 
-    double CalculateTabWidth()
+    partial void OnSelectedIndexChanged(int value)
     {
-        return (TabRect.Width - 100) / Tabs.Count;
+        var index = 0;
+        foreach (var tab in Tabs)
+        {
+            tab.IsSelected = index == value;
+            index++;
+        }
     }
 
     
@@ -102,28 +106,23 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
         };
     }
 
-    [RelayCommand]
+    private void AddTab(TabItemViewViewModel tab)
+    {
+        Tabs.Add(tab);
+        SelectedIndex = Tabs.Count - 1;
+    }
+
+    // [RelayCommand]
     private void AddTab()
     {
-        Console.WriteLine("Add tab");
         var tab = new TabItemViewViewModel
         {
             Text = "Welcome",
             Content = new WelcomeViewModel()
         };
         
-        
-        Tabs.Add(tab);
-        
-        var w = CalculateTabWidth();
-        // var maxWidth = 235;
-        // Console.WriteLine($"set width to w ${w}");
-        //
-        // Dispatcher.UIThread.Post(() =>
-        //     {
-        //         tab.Width = Math.Min(w, maxWidth);
-        //     }
-        // );
+        AddTab(tab);
+       
     }
 
     public void Receive(OnRemoveTab message)
@@ -144,7 +143,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     private void ReleaseUnmanagedResources()
     {
-        WeakReferenceMessenger.Default.UnregisterAll(this);
+        Manager.MainWindow.UnregisterAll(this);
     }
 
     public void Dispose()
@@ -155,7 +154,16 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public void Receive(OnOpenRepository message)
     {
+        var workingCopyView = WorkingCopyViewModel.Create(message.Value);
+
+        var tab = new TabItemViewViewModel()
+        {
+            Closable = true,
+            Content = workingCopyView,
+            Text = Path.GetFileName(message.Value.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+        };
         
+        AddTab(tab);
     }
 
     public void Receive(OnAddTab message)
@@ -176,6 +184,18 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
                 SelectedIndex = SelectedIndex == 1 ? 1 : SelectedIndex - 1;
             }
             Tabs.Remove(tab);
+            break;
+        }
+    }
+
+    public void Receive(OnRemoveTabByContent message)
+    {
+        foreach (var tab in Tabs)
+        {
+            if (Equals(tab.Content, message.Value))
+            {
+                Tabs.Remove(tab);
+            }
             break;
         }
     }

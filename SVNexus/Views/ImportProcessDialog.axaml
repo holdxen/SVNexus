@@ -4,20 +4,56 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
+             xmlns:converters="clr-namespace:SVNexus.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="workingCopy:ImportProcessDialogModel"
+             xmlns:conv="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia.Base"
+             xmlns:models="clr-namespace:SVNexus.Models"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             x:DataType="viewModels:ImportProcessDialogModel"
              x:Class="SVNexus.Views.ImportProcessDialog">
-    <!-- <u:Timeline ItemsSource="{Binding Steps}"> -->
-    <!--     <u:Timeline.ItemTemplate> -->
-    <!--         <DataTemplate x:DataType="workingCopy:ImportProcessDialogModel+StepItemViewModel"> -->
-    <!--             ~1~ <u:TimelineItem Content="{Binding Content}"></u:TimelineItem> @1@ -->
-    <!--             <u:TimelineItem Content="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></u:TimelineItem> -->
-    <!--         </DataTemplate> -->
-    <!--     </u:Timeline.ItemTemplate> -->
-    <!-- </u:Timeline> -->
-    <u:Timeline ItemsSource="{Binding Steps}" ContentMemberBinding="{Binding Content}" HeaderMemberBinding="{Binding Content}">
+    <UserControl.Resources>
+        <converters:EqualsConverter x:Key="EqualsConverter"/>
+    </UserControl.Resources>
+    <Grid RowDefinitions="*, Auto">
+        
+    <u:Timeline Grid.Row="0" ItemsSource="{Binding Steps}" 
+                IconMemberBinding="{Binding State}" 
+                ContentMemberBinding="{Binding Content}"
+                TimeMemberBinding="{Binding DateTime}"
+                Mode="Right"
+                HeaderMemberBinding="{Binding Title}">
         <u:Timeline.IconTemplate>
-            <DataTemplate x:DataType="workingCopy:ImportProcessDialogModel+StepItemViewModel"></DataTemplate>
+            <DataTemplate x:DataType="viewModels:ImportProcessDialogModel+StepState">
+                <Grid>
+                    <!-- <u:LoadingIcon IsVisible="{Binding Converter={x:Static conv:BoolConverters.Not}, Path=.}"></u:LoadingIcon> -->
+                    <!-- <Ellipse IsVisible="{Binding}" Fill="LimeGreen"></Ellipse> -->
+                    <u:LoadingIcon 
+                        IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Loading}}"/>
+                    <Ellipse Width="12" 
+                             Height="12" 
+                             IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Success}}" 
+                             Fill="{DynamicResource SemiColorSuccess}"/>
+                    <Ellipse Width="12" 
+                             Height="12" 
+                             IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Error}}" 
+                             Fill="{DynamicResource SemiColorDanger}"/>
+                </Grid>
+            </DataTemplate>
         </u:Timeline.IconTemplate>
     </u:Timeline>
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto" Margin="0 10 0 0">
+            <TextBlock Text="{Binding Error}" Foreground="{DynamicResource SemiColorDanger}"></TextBlock>
+            <Button Grid.Column="1" Content="关闭" IsVisible="{Binding Closable}" 
+                    Command="{Binding CloseCommand}"></Button>
+            <Border Grid.Column="2" Width="5"></Border>
+            <u:IconButton Grid.Column="3" 
+                          Command="{Binding CancelCommand}"
+                          Content="取消" 
+                          Classes="Colorful Danger" 
+                          IsLoading="{Binding IsCanceling}" 
+                          IsEnabled="{Binding !IsCanceling}"
+                          IsVisible="{Binding CancelButtonVisible}"
+                          ></u:IconButton>
+        </Grid>
+    </Grid>
 </UserControl>

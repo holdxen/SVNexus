@@ -2,7 +2,100 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:converters="clr-namespace:SVNexus.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="remote:RemoteViewModel"
              x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteView">
-    Welcome to Avalonia!
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <UserControl.Styles>
+        <Style Selector="DataGridCell:focus /template/ Panel#FocusVisual">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+    </UserControl.Styles>
+    <UserControl.Resources>
+        <converters:EqualsConverter x:Key="EqualsConverter"/>
+    </UserControl.Resources>
+    <Grid RowDefinitions="*, Auto, *">
+        <Grid>
+            <DataGrid Grid.Row="0"
+                      x:Name="DataGrid"
+                      SelectedIndex="{Binding SelectedCommitItemIndex}"
+                      CanUserResizeColumns="True"
+                      SelectionMode="Single"
+                      TemplateApplied="DataGrid_OnTemplateApplied"
+                      ItemsSource="{Binding CommitItems}">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="6*">
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="Commit" TextAlignment="Center"></TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="remote:RemoteViewModel+CommitItemViewModel">
+                                <TextBlock HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           Padding="2"
+                                           Text="{Binding DisplayMessage}">
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Author" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate DataType="remote:RemoteViewModel+CommitItemViewModel">
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Author}"></TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Time" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding DateTimeText}">
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Revision" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Revision}"></TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <u:LoadingIcon Margin="0 0 10 10" 
+                           HorizontalAlignment="Right" 
+                           VerticalAlignment="Bottom"
+                           IsVisible="{Binding IsLoading}" />
+        </Grid>
+
+        <GridSplitter Grid.Row="1"></GridSplitter>
+        <Grid Grid.Row="2" RowDefinitions="Auto, *">
+            <TabStrip SelectedIndex="{Binding SelectedViewIndex, Mode=TwoWay}" Grid.Row="0">
+                <TabStripItem Content="Detail"></TabStripItem>
+                <TabStripItem Content="Changes"></TabStripItem>
+                <TabStripItem Content="Snapshot"></TabStripItem>
+            </TabStrip>   
+            <ContentControl Grid.Row="1" 
+                            Content="{Binding DetailViewModel}"
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.DetailViewIndex}}"></ContentControl>
+            <ContentControl Grid.Row="1" 
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.ChangesViewIndex}}"></ContentControl>
+            <ContentControl Grid.Row="1" 
+                            Content="{Binding SnapshotViewModel}"
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.SnapshotViewIndex}}"></ContentControl>
+        </Grid>
+    </Grid>
 </UserControl>

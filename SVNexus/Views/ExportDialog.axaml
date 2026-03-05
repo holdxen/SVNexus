@@ -1,0 +1,108 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             MinWidth="600"
+             x:DataType="viewModels:ExportDialogModel"
+             x:Class="SVNexus.Views.ExportDialog">
+        <Grid RowDefinitions="*, Auto">
+
+        <u:Form Grid.Row="0" HorizontalAlignment="Stretch" LabelPosition="Top">
+            <!-- <u:Form.ItemsPanel> -->
+            <!--     <ItemsPanelTemplate> -->
+            <!--         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *" /> -->
+            <!--     </ItemsPanelTemplate> -->
+            <!-- </u:Form.ItemsPanel> -->
+            <u:FormItem Label="Url:">
+                <TextBox Text="{Binding Url}"></TextBox>
+            </u:FormItem>
+            <u:FormItem Label="Path:">
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBox Grid.Column="0" Text="{Binding Path}"></TextBox>
+                    <components:SvgButton Classes="Default" Command="{Binding SelectFolderCommand}" Grid.Column="1"
+                                          Source="{StaticResource Icons.FolderPlus}" />
+                </Grid>
+            </u:FormItem>
+            <u:FormItem Label="Revision:">
+                <Border BorderThickness="1" Padding="4" CornerRadius="4">
+                    <Grid RowDefinitions="Auto, Auto, Auto, Auto">
+                        <Grid ColumnDefinitions="*, *, *, *, *">
+                            <RadioButton Grid.Column="0" IsChecked="{Binding IsHead}" GroupName="Revision"
+                                         Content="Head">
+                            </RadioButton>
+                            <RadioButton Grid.Column="1" IsChecked="{Binding IsNumber}" GroupName="Revision"
+                                         Content="Number">
+                            </RadioButton>
+                            <RadioButton Grid.Column="2" IsChecked="{Binding IsCommitted}" GroupName="Revision"
+                                         Content="Committed">
+                            </RadioButton>
+                            <RadioButton Grid.Column="3" IsChecked="{Binding IsPrevious}" GroupName="Revision"
+                                         Content="Previous">
+                            </RadioButton>
+                            <RadioButton Grid.Column="4" IsChecked="{Binding IsDate}" GroupName="Revision"
+                                         Content="Date">
+                            </RadioButton>
+                        </Grid>
+                        <Border Grid.Row="1" Height="4"></Border>
+                        <Border Grid.Row="2" IsVisible="{Binding IsNumber}" Padding="0 0 4 0">
+                            <u:NumericULongUpDown Value="{Binding Number}"></u:NumericULongUpDown>
+                        </Border>
+                        <Border Grid.Row="3" IsVisible="{Binding IsDate}">
+                            <u:DateTimePicker
+                                SelectedDate="{Binding DateTime}"
+                                Classes="ClearButton" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </u:FormItem>
+            <u:FormItem Label="Settings:">
+                <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, *">
+                    <Grid ColumnDefinitions="Auto, *">
+                        <TextBlock Text="Depth:" VerticalAlignment="Center"></TextBlock>
+                        <u:EnumSelector Grid.Row="0" Grid.Column="1" 
+                                        Width="200"
+                                        Value="{Binding Depth}" 
+                                        EnumType="{x:Static viewModels:ExportDialogModel.DepthType}"
+                                        DisplayDescription="True">
+                        </u:EnumSelector>
+                    </Grid>
+                    <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="Auto, *">
+                        <TextBlock Text="NativeEOL:" VerticalAlignment="Center"></TextBlock>
+                        <u:EnumSelector Grid.Row="0" Grid.Column="1" 
+                                        Width="200"
+                                        Value="{Binding NativeEol}" 
+                                        EnumType="{x:Static viewModels:ExportDialogModel.NativeEolType}"
+                                        DisplayDescription="True">
+                        </u:EnumSelector>
+                    </Grid>
+                    <CheckBox Margin="0 5" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Content="Ignore Keywords" IsChecked="{Binding IgnoreKeywords}"></CheckBox>
+                    <CheckBox Margin="0 5" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Content="Override" IsChecked="{Binding Override}"></CheckBox>
+                    <CheckBox Margin="0 5" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Content="Ignore Externals" IsChecked="{Binding IgnoreExternals}"></CheckBox>
+                </Grid>
+                <!-- <StackPanel Orientation="Horizontal" Spacing="8"> -->
+                <!--     <u:EnumSelector Width="200" Value="{Binding Depth}" EnumType="{x:Static viewModels:ExportDialogModel.DepthType}" -->
+                <!--                     DisplayDescription="True"> -->
+                <!--     </u:EnumSelector> -->
+                <!--     <CheckBox VerticalAlignment="Center" Content="Ignore Externals" IsChecked="{Binding IgnoreExternals}"></CheckBox> -->
+                <!--     <CheckBox VerticalAlignment="Center" Content="Ignore Keywords" IsChecked="{Binding IgnoreKeywords}"></CheckBox> -->
+                <!--     <CheckBox VerticalAlignment="Center" Content="Overrides" IsChecked="{Binding Override}"></CheckBox> -->
+                <!-- </StackPanel> -->
+            </u:FormItem>
+        </u:Form>
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">
+            <Border Grid.Column="0"></Border>
+            <Button Grid.Column="1" Content="取消" Command="{Binding CloseCommand}"></Button>
+            <Border Grid.Column="2" Width="4"></Border>
+            <Button Grid.Column="3" 
+                    Classes="Primary" 
+                    Theme="{StaticResource SolidButton}" 
+                    Content="确定"
+                    Command="{Binding ConfirmCommand}">
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

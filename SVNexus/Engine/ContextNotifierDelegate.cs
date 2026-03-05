@@ -24,9 +24,13 @@ public sealed class ContextNotifierDelegate : ContextNotifier
     public ContextNotifierDelegate()
     {
         CancelFunc = OnCancel;
+        AuthenticateFunc = OnAuthenticate;
+        SslServerTrustPromptFunc = OnSslServerTrustPrompt;
     }
     
     private readonly Lock _lock = new();
+    
+    private string? _cancelMessage;
 
     public string? CancelMessage
     {
@@ -34,21 +38,28 @@ public sealed class ContextNotifierDelegate : ContextNotifier
         {
             lock (_lock)
             {
-                return field;
+                return _cancelMessage;
             }
         }
         set
         {
             lock (_lock)
             {
-                field = value;
+                _cancelMessage = value;
             }
         }
     }
 
     private string? OnCancel()
     {
-        return CancelMessage;
+        lock (_lock)
+        {
+            if (_cancelMessage == null) return null;
+            var msg =  _cancelMessage;
+            _cancelMessage = null;
+            return msg;
+
+        }
     }
     
     private TrustServer? OnSslServerTrustPrompt(string realm, uint failures, SslServerCertInfo info, bool maySave)
@@ -75,6 +86,30 @@ public sealed class ContextNotifierDelegate : ContextNotifier
             await OverlayDialog.ShowModal<TrustServerDialog, TrustServerDialogModel>(trustServerDialogModel, options: options, hostId: DialogHostId);
             return new TrustServer(failures, trustServerDialogModel.Save);
         }).Result;
+    }
+
+
+    private Authentication? OnAuthenticate(string realm, string username, bool maySave)
+    {
+        Console.WriteLine("OnAuthenticate: realm={0}, username={1}, maySave={2}", realm, username, maySave);
+        return Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var options = new OverlayDialogOptions()
+            {
+                IsCloseButtonVisible = false,
+                Title = "Info",
+                Buttons = DialogButton.None
+            };
+            var authenticateDialogModel = new AuthenticateDialogModel()
+            {
+                Realm =  realm,
+                Username =  username,
+                Savable =  maySave,
+            };
+            await OverlayDialog.ShowModal<AuthenticateDialog, AuthenticateDialogModel>(authenticateDialogModel, options: options, hostId: DialogHostId);
+            return authenticateDialogModel.Accept ? new Authentication(Username: authenticateDialogModel.Username, Password: authenticateDialogModel.Password, Save: authenticateDialogModel.Save) : null;
+        }).Result;
+        
     }
     
 

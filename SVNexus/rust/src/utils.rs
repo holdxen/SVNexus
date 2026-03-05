@@ -59,7 +59,7 @@ pub impl *const subversion::ffi::svn_string_t {
 #[easy_ext::ext(CStringer)]
 pub impl *const c_char {
     unsafe fn to_str<'a>(self) -> &'a str {
-        assert!(!self.is_null());
+        assert!(!self.is_null(), "Expected non-null pointer");
         unsafe { CStr::from_ptr(self).to_str().unwrap() }
     }
     unsafe fn to_nullable_str<'a>(self) -> Option<&'a str> {
@@ -70,8 +70,16 @@ pub impl *const c_char {
         }
     }
 
+    unsafe fn to_nullable_string(self) -> Option<String> {
+        if self.is_null() {
+            None
+        } else {
+            unsafe { Some(self.to_str().to_string()) }
+        }
+    }
+
     unsafe fn to_slice<'a>(self) -> &'a [u8] {
-        assert!(!self.is_null());
+        assert!(!self.is_null(), "Expected non-null pointer");
 
         unsafe { CStr::from_ptr(self).to_bytes() }
     }
@@ -185,13 +193,13 @@ impl SvgRenderOptions {
             None
         });
         if let Some(data) = data {
-            println!("Cache hit for SVG rendering.");
+            tracing::info!("Cache hit for SVG rendering.");
             return Ok(data);
         }
 
-        let tree = Tree::from_str(&self.svg, &SVG_OPTIONS.get().unwrap()).context(builder::Svg)?;
+        let tree = Tree::from_str(&self.svg, &SVG_OPTIONS.get().expect("SVG_OPTIONS not initialized")).context(builder::Svg)?;
 
-        let mut pixmap = Pixmap::new(self.width, self.height).unwrap();
+        let mut pixmap = Pixmap::new(self.width, self.height).expect("Unexpected zero size");
 
         let transform = rescale(
             tree.size().width(),

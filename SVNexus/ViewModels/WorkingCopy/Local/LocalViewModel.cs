@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using SVNexus.Components;
 using SVNexus.Engine;
+using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Views;
@@ -14,8 +16,17 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
+public class DifferenceInfo
+{
+    public required List<string> Original { get; set; }
+    public required List<string> Modified { get; set; }
+    public required TextChange[] Changes { get; set; }
+}
+
 public partial class LocalViewModel: ViewModelBase
 {
+
+    private Dictionary<string, DifferenceInfo> _differenceInfos = [];
 
     [ObservableProperty]
     private bool _isTreeView = true;
@@ -43,15 +54,19 @@ public partial class LocalViewModel: ViewModelBase
     [ObservableProperty]
     private LocalListViewModel.ListItemViewModel? _listSelectedItem;
     
-    public ObservableCollection<LocalListViewModel.ListItemViewModel> LocalListItems { get; set; } = [];
-    
-    
-    public ObservableCollection<LocalTreeViewModel.TreeItemViewModel> LocalTreeItems { get; set; } = [];
+    // public ObservableCollection<LocalListViewModel.ListItemViewModel> LocalListItems { get; set; } = [];
+    //
+    //
+    // public ObservableCollection<LocalTreeViewModel.TreeItemViewModel> LocalTreeItems { get; set; } = [];
     
     
     public required string WorkingCopyPath { get; init; }
     
     public required WeakReferenceMessenger Messenger { get; init; }
+
+    [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
+
+    [ObservableProperty] public partial string Code { get; set; } = string.Empty;
 
 
     [RelayCommand]
@@ -75,7 +90,16 @@ public partial class LocalViewModel: ViewModelBase
             },
             WorkingCopyPath = workingCopyPath,
         };
+        
+        model.LocalListViewModel.SelectedItemChanged += OnSelectedItemChanged;
+        model.LocalTreeViewModel.SelectedItemChanged += OnSelectedItemChanged;
+        
         return model;
+    }
+
+    private static void OnSelectedItemChanged(object? arg1, StatusEntry? entry)
+    {
+        throw new NotImplementedException();
     }
 
     // public void Initialize()
@@ -93,7 +117,7 @@ public partial class LocalViewModel: ViewModelBase
     // }
 
     [RelayCommand]
-    private async Task Status()
+    public async Task Status()
     {
         Console.WriteLine($"WorkingCopyPath: {WorkingCopyPath}");
         var contextNotifier = new ContextNotifierDelegate
@@ -124,42 +148,14 @@ public partial class LocalViewModel: ViewModelBase
         }
         catch (System.Exception e)
         {
-            var options = new JsonSerializerOptions
+            e.Handle(svnExceptionHandler: error =>
             {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            };
-            if (e is Generated.Exception.SvnException svnException)
-            {
-                var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, options)!;
                 var errorNumber = new SvnErrnoConstants();
                 if (errorNumber.IsWcNotDirectory(error.Code))
                 {
-                    Console.WriteLine($"WcNotDirectory: {error.Code}");
-                    var hostId = Messenger.Send(new OnGetDialogHostId()).Response;
-                    var result = await MessageBox.ShowOverlayAsync(title: "Error", hostId: hostId, message: "Not a working copy, initialize now", button: MessageBoxButton.YesNo);
-                    if (result is MessageBoxResult.No)
-                    {
-                        WeakReferenceMessenger.Default.Send(new OnRemoveTabByLocalViewModel(this));
-                    }
-                    else
-                    {
-                        var dialogOptions = new OverlayDialogOptions
-                        {
-                            Title = "Test",
-                            IsCloseButtonVisible = true,
-                            Buttons = DialogButton.None
-                        };
-                        await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(new ImportDialogModel()
-                        {
-                            Messenger = Messenger,
-                            Path = WorkingCopyPath,
-                        }, hostId: hostId, options: dialogOptions);
-                    }
+                    Messenger.Send(new OnNotWorkingCopy(WorkingCopyPath));
                 }
-            }
-
-            Messenger.Send(new OnWorkingCopyViewEnabled(false));
+            });
         }
     }
 
@@ -171,7 +167,7 @@ public partial class LocalViewModel: ViewModelBase
         LocalTreeViewModel.Update(statusEntries);
     }
 
-    public Type DepthType => typeof(Depth);
+    public static Type DepthType => typeof(Depth);
     
 
     
@@ -204,8 +200,13 @@ public partial class LocalViewModel: ViewModelBase
                 : LocalListViewModel.SelectedItems.ToArray(),
             Depth: Depth,
             KeepLocks: true,
-            KeepChangelist: false, CommitAsOperations: true, IncludeFileExternals: true, IncludeDirExternals: true,
-            Changelists: [], RevisionPropertyTable: new Dictionary<string, string>(), CommitMessage: CommitMessage);
+            KeepChangelist: false, 
+            CommitAsOperations: true, 
+            IncludeFileExternals: true, 
+            IncludeDirExternals: true,
+            Changelists: [], 
+            RevisionPropertyTable: new Dictionary<string, string>(), 
+            CommitMessage: CommitMessage);
         
         await context.Commit(commitOptions);
 

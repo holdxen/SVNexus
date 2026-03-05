@@ -3,13 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-             x:DataType="workingCopyView1:LocalViewModel"
-             xmlns:ursa="https://irihi.tech/ursa"
+             xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             x:DataType="workingCopyView:LocalViewModel"
              x:CompileBindings="True"
              xmlns:u="https://irihi.tech/ursa"
-             xmlns:lucideAvalonia="clr-namespace:Lucide.Avalonia;assembly=Lucide.Avalonia"
-             xmlns:workingCopyView1="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
+             xmlns:workingCopyView="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
     <UserControl.Resources>
         <!-- <ResourceDictionary> -->
@@ -37,26 +37,40 @@
                 </Grid>
             </Border>
             <GridSplitter
-                Padding="0"
+                Background="Transparent"
                 Grid.Column="1">
             </GridSplitter>
             <Grid Grid.Column="2"
                   MinWidth="2"
                   RowDefinitions="*, Auto">
-                <Border CornerRadius="5"
-                        BorderThickness="1"
-                        Grid.Row="0"
-                        Margin="2"
-                        Background="{DynamicResource SemiColorTertiaryLight}">
-                    <avaloniaEdit:TextEditor
-                        FontFamily="Cascadia Code,Consolas,Menlo,Monospace"
-                        FontSize="14"
-                        FontWeight="Light"
-                        IsReadOnly="True"
-                        ShowLineNumbers="True">
-                    </avaloniaEdit:TextEditor>
-                </Border>
-                <!-- <Control></Control> -->
+                <!-- <Border CornerRadius="5" -->
+                <!--         BorderThickness="1" -->
+                <!--         Grid.Row="0" -->
+                <!--         Margin="2" -->
+                <!--         Background="{DynamicResource SemiColorTertiaryLight}"> -->
+                <!--     <avaloniaEdit:TextEditor -->
+                <!--         FontFamily="Cascadia Code,Consolas,Menlo,Monospace" -->
+                <!--         FontSize="14" -->
+                <!--         FontWeight="Light" -->
+                <!--         IsReadOnly="True" -->
+                <!--         ShowLineNumbers="True"> -->
+                <!--     </avaloniaEdit:TextEditor> -->
+                <!-- </Border> -->
+                <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}"
+                                           CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                                           State="{Binding EditorState}">
+                    <Border Theme="{DynamicResource CardBorder}">
+                        <Border.Resources>
+                            <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+                        </Border.Resources>
+                        <edit:TextEditor ShowLineNumbers="True"
+                                         IsReadOnly="True">
+                            <Interaction.Behaviors>
+                                <behaviors:DocumentTextBindingBehavior Text="{Binding Code, Mode=TwoWay}" />
+                            </Interaction.Behaviors>
+                        </edit:TextEditor>
+                    </Border>
+                </components:LoadingOrError>
                 <Grid
                     Grid.Row="1"
                     Margin="3"
@@ -72,7 +86,8 @@
                           Margin="0, 10"
                           ColumnDefinitions="*, Auto">
                         <StackPanel Grid.Column="0">
-                            <u:EnumSelector EnumType="{Binding DepthType}" Value="{Binding Depth}"></u:EnumSelector>
+                            <u:EnumSelector EnumType="{x:Static workingCopyView:LocalViewModel.DepthType}" 
+                                            Value="{Binding Depth}"></u:EnumSelector>
                         </StackPanel>
                         <Button Grid.Column="1"
                                 Command="{Binding CommitCommand}"
@@ -83,7 +98,5 @@
                 </Grid>
             </Grid>
         </Grid>
-        <u:OverlayDialogHost x:Name="LocalWorkspaceViewDialogHost">
-        </u:OverlayDialogHost>
     </Grid>
 </UserControl>

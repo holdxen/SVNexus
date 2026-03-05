@@ -302,5 +302,191 @@
             </Setter>
         </Style>
     </ControlTheme>
+    
+    <ControlTheme x:Key="{x:Type u:LoadingContainer}" TargetType="u:LoadingContainer">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="MessageForeground" Value="{DynamicResource TextBlockDefaultForeground}" />
+        <Setter Property="Background" Value="{DynamicResource LoadingMaskBackground}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Indicator">
+            <Template>
+                <u:LoadingIcon IsLoading="{Binding $parent[u:LoadingContainer].IsLoading, Mode=TwoWay}" />
+            </Template>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="u:LoadingContainer">
+                <Grid>
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    <u:Loading
+                        Background="{TemplateBinding Background}"
+                        Content="{TemplateBinding LoadingMessage}"
+                        ContentTemplate="{TemplateBinding LoadingMessageTemplate}"
+                        Foreground="{TemplateBinding MessageForeground}"
+                        Indicator="{TemplateBinding Indicator}"
+                        IsLoading="{TemplateBinding IsLoading}" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:loading /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Effect" Value="blur(5)" />
+        </Style>
+    </ControlTheme>
+    
+    
+    <ControlTheme x:Key="CardBorderLoading" TargetType="u:Loading">
+        <Setter Property="Background" Value="{DynamicResource LoadingMaskBackground}" />
+        <Setter Property="Indicator">
+            <Template>
+                <u:LoadingIcon IsLoading="{Binding $parent[u:Loading].IsLoading, Mode=TwoWay}" />
+            </Template>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="u:Loading">
+                <Border ClipToBounds="True"                     
+                        CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                        Margin="{DynamicResource ThicknessCardMargin}"
+                        IsVisible="{TemplateBinding IsLoading}"
+                        >
+                    <Panel>
+                        <iri:PureRectangle
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="{TemplateBinding Background}"
+                            IsHitTestVisible="True" />
+                        <Grid
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            RowDefinitions="Auto, *">
+                            <ContentPresenter HorizontalAlignment="Center" Content="{TemplateBinding Indicator}" />
+                            <ContentPresenter
+                                Name="PART_ContentPresenter"
+                                Grid.Row="1"
+                                Effect="blur(5)"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                IsVisible="{TemplateBinding Content,
+                                                        Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        </Grid>
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+        <ControlTheme x:Key="CardBorderError" TargetType="u:Loading">
+        <Setter Property="Background" Value="{DynamicResource LoadingMaskBackground}" />
+        <Setter Property="Indicator">
+            <Template>
+                <PathIcon Data="{StaticResource SemiIconAlertCircle}" 
+                          Foreground="{DynamicResource SemiColorDanger}"></PathIcon>
+            </Template>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="u:Loading">
+                <Border ClipToBounds="True"                     
+                        CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                        IsVisible="{TemplateBinding IsLoading}"
+                        Margin="{DynamicResource ThicknessCardMargin}">
+                    <Panel>
+                        <iri:PureRectangle
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="{TemplateBinding Background}"
+                            IsHitTestVisible="True" />
+                        <Grid
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            RowDefinitions="Auto, *">
+                            <ContentPresenter HorizontalAlignment="Center" Content="{TemplateBinding Indicator}" />
+                            <ContentPresenter
+                                Name="PART_ContentPresenter"
+                                Grid.Row="1"
+                                Effect="blur(5)"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                IsVisible="{TemplateBinding Content,
+                                                        Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        </Grid>
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="BorderInnerLoading" TargetType="u:LoadingContainer">
+        <Setter Property="MessageForeground" Value="{DynamicResource TextBlockDefaultForeground}" />
+        <Setter Property="Background" Value="{DynamicResource LoadingMaskBackground}" />
+        <Setter Property="Indicator">
+            <Template>
+                <u:LoadingIcon IsLoading="{Binding $parent[u:LoadingContainer].IsLoading, Mode=TwoWay}" />
+            </Template>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="u:LoadingContainer">
+                <Panel>
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    <Border CornerRadius="{TemplateBinding CornerRadius}"
+                            Margin="{TemplateBinding Margin}"
+                            ClipToBounds="True">
+                        <u:Loading
+                            Background="{TemplateBinding Background}"
+                            Content="{TemplateBinding LoadingMessage}"
+                            ContentTemplate="{TemplateBinding LoadingMessageTemplate}"
+                            Foreground="{TemplateBinding MessageForeground}"
+                            Indicator="{TemplateBinding Indicator}"
+                            IsLoading="{TemplateBinding IsLoading}" />
+                    </Border>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:loading /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Effect" Value="blur(5)" />
+        </Style>
+    </ControlTheme>
+    
+    <ControlTheme x:Key="BorderOuterLoading" TargetType="u:LoadingContainer">
+        <Setter Property="MessageForeground" Value="{DynamicResource TextBlockDefaultForeground}" />
+        <Setter Property="Background" Value="{DynamicResource LoadingMaskBackground}" />
+        <Setter Property="Indicator">
+            <Template>
+                <u:LoadingIcon IsLoading="{Binding $parent[u:LoadingContainer].IsLoading, Mode=TwoWay}" />
+            </Template>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="u:LoadingContainer">
+                <Border CornerRadius="{TemplateBinding CornerRadius}"
+                        Margin="{TemplateBinding Margin}"
+                        ClipToBounds="True">
+                    <Panel>
+                        <ContentPresenter
+                            Name="PART_ContentPresenter"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}" />
+                        <u:Loading
+                            Background="{TemplateBinding Background}"
+                            Content="{TemplateBinding LoadingMessage}"
+                            ContentTemplate="{TemplateBinding LoadingMessageTemplate}"
+                            Foreground="{TemplateBinding MessageForeground}"
+                            Indicator="{TemplateBinding Indicator}"
+                            IsLoading="{TemplateBinding IsLoading}" />
+                    </Panel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:loading /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Effect" Value="blur(5)" />
+        </Style>
+    </ControlTheme>
 
 </ResourceDictionary>

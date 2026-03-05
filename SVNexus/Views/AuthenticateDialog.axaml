@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:AuthenticateDialogModel"
+             x:Class="SVNexus.Views.AuthenticateDialog">
+    <Grid RowDefinitions="*, Auto">
+
+        <u:Form Grid.Row="0" HorizontalAlignment="Stretch" LabelPosition="Left">
+            <!-- <u:Form.ItemsPanel> -->
+            <!--     <ItemsPanelTemplate> -->
+            <!--         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *" /> -->
+            <!--     </ItemsPanelTemplate> -->
+            <!-- </u:Form.ItemsPanel> -->
+            <u:FormItem Label="Realm:">
+                <TextBlock Text="{Binding  Realm}"></TextBlock>
+            </u:FormItem>
+            <u:FormItem Label="Username:">
+                <TextBox Text="{Binding Username}"></TextBox>
+            </u:FormItem>
+            <u:FormItem Label="Password:">
+                <TextBox Classes="revealPasswordButton" Text="{Binding Password}"></TextBox>
+            </u:FormItem>
+            <u:FormItem IsVisible="{Binding Savable}" Label="Settings:">
+                <CheckBox IsChecked="{Binding Save}" Content="Save password"></CheckBox>
+            </u:FormItem>
+
+        </u:Form>
+        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" Spacing="4" Grid.Row="1">
+            <Button Classes="Primary" Command="{Binding ConfirmCommand}" Theme="{StaticResource SolidButton}" Content="确定"></Button>
+            <Button Content="取消" Command="{Binding CancelCommand}"></Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

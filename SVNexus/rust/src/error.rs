@@ -19,7 +19,7 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub enum Error {
     #[snafu(display("{}", serde_json::to_string(source).unwrap_or_default()))]
     AprError {
-        source: apr::Error,
+        source: apr::AprError,
         backtrace: Backtrace,
     },
     #[snafu(display("{}", serde_json::to_string(source).unwrap_or_default()))]

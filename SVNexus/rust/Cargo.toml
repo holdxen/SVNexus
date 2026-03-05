@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-uniffi = { version = "0.30.0", features = ["tokio"] }
+uniffi = { version = "0.31.0", features = ["tokio"] }
 chrono = "0.4.40"
 clap = { version = "4.5.32", features = ["derive"] }
 derive-new = "0.7.0"

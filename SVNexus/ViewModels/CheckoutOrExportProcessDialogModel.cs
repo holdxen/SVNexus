@@ -15,7 +15,7 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
 {
     public override Type? ViewType { get; set; } = typeof(CheckoutOrExportProcessDialog);
 
-    public partial class ProcessDetailItemViewModel: ViewModelBase
+    public partial class ProcessLogItemViewModel: ViewModelBase
     {
     
         [ObservableProperty]
@@ -30,12 +30,6 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
         private string _mimeType = string.Empty;
     }
     
-    
-    public class OnCancel
-    {
-        public required CheckoutOrExportProcessDialogModel Model { get; init; }
-    }
-
 
     [ObservableProperty]
     private string _url = string.Empty;
@@ -59,7 +53,7 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
     private string _currentFile = string.Empty;
 
 
-    public ObservableCollection<ProcessDetailItemViewModel> ProcessDetailItems { get; set; } = [];
+    public ObservableCollection<ProcessLogItemViewModel> ProcessLogItems { get; set; } = [];
 
 
     [ObservableProperty]
@@ -68,9 +62,10 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
     [NotifyPropertyChangedFor(nameof(ProcessText))]
     [NotifyPropertyChangedFor(nameof(IsIndeterminate))]
     [NotifyPropertyChangedFor(nameof(OpenButtonVisible))]
+    [NotifyPropertyChangedFor(nameof(CancelButtonVisible))]
     private bool _isCompleted;
 
-    public bool Closable => IsCompleted;
+    public bool Closable => IsCompleted || Error is not null;
     
     
     public required WeakReferenceMessenger Messenger { get; init; }
@@ -83,13 +78,13 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
         {
             RequestClose?.Invoke(this, null);
         }
-        else
-        {
-            Messenger.Send(new OnCancel()
-            {
-                Model = this
-            });
-        }
+        // else
+        // {
+        //     Messenger.Send(new OnCancel()
+        //     {
+        //         Model = this
+        //     });
+        // }
     }
 
     [RelayCommand]
@@ -114,10 +109,22 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
     [NotifyPropertyChangedFor(nameof(Process))]
     [NotifyPropertyChangedFor(nameof(ProcessText))]
     private long _downloaded;
-    
-    
-    
-    public bool IsIndeterminate => !IsCompleted && (Total < 0 || Downloaded < 0);
+
+
+
+    public bool IsIndeterminate => !IsCompleted && Error is null && (Total < 0 || Downloaded < 0);
+    // {
+    //     get
+    //     {
+    //         var value = !IsCompleted && Error is null && (Total < 0 || Downloaded < 0);
+    //         Console.WriteLine("IsIndeterminate: " + value);
+    //         Console.WriteLine("IsCompleted: " + IsCompleted);
+    //         Console.WriteLine("Error: " + Error);
+    //         Console.WriteLine("Total: " + Total);
+    //         Console.WriteLine("Downloaded: " + Downloaded);
+    //         return value;
+    //     }
+    // }
 
     public string ProcessText => Process.ToString(CultureInfo.InvariantCulture) + "%";
 
@@ -144,10 +151,34 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
 
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Closable))]
+    [NotifyPropertyChangedFor(nameof(Process))]
+    [NotifyPropertyChangedFor(nameof(ProcessText))]
+    [NotifyPropertyChangedFor(nameof(IsIndeterminate))]
     [NotifyPropertyChangedFor(nameof(OpenButtonVisible))]
-    private string? _error;
+    [NotifyPropertyChangedFor(nameof(CancelButtonVisible))]
+    public partial string? Error { get; set; }
 
     public bool OpenButtonVisible => IsCompleted && Error is null;
+    
+    
+    public bool CancelButtonVisible => Error is null && !IsCompleted;
+    
+    [ObservableProperty]
+    public partial bool IsCanceling { get; set; }
+
+
+    [RelayCommand]
+    private void Cancel()
+    {
+        if (IsCanceling)
+        {
+            return;
+        }
+
+        Messenger.Send(new OnCancel());
+        IsCanceling = true;
+    }
 
 
     [RelayCommand]
@@ -158,7 +189,7 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
             return;
         }
 
-        WeakReferenceMessenger.Default.Send(new OnOpenRepository(Path));
+        Manager.MainWindow.Send(new OnOpenRepository(Path));
         
         
         

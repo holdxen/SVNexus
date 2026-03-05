@@ -3,7 +3,6 @@
              x:Class="SVNexus.App"
              xmlns:local="using:SVNexus"
              xmlns:semi="https://irihi.tech/semi"
-             xmlns:tab="clr-namespace:Tabalonia.Themes.Fluent;assembly=Tabalonia"
              xmlns:u-Semi="https://irihi.tech/ursa/themes/semi"
              xmlns:custom="clr-namespace:Tabalonia.Themes.Custom;assembly=Tabalonia"
              RequestedThemeVariant="Default">
@@ -37,5 +36,6 @@
          <Style Selector=":is(TopLevel)">
              <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
          </Style>
+         <StyleInclude Source="Components/LoadingOrError.axaml"></StyleInclude>
      </Application.Styles>
 </Application>
