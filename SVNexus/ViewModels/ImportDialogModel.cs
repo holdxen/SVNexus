@@ -21,7 +21,7 @@ public partial class ImportDialogModel: ViewModelBase, IDialogContext
     [ObservableProperty] public partial bool Backup { get; set; } = true;
     
     
-    public required WeakReferenceMessenger Messenger { get; init; }
+    // public required WeakReferenceMessenger Messenger { get; init; }
     
     public string Path { get; set; } = string.Empty;
     
@@ -41,7 +41,7 @@ public partial class ImportDialogModel: ViewModelBase, IDialogContext
     {
         var options = new InitializeRepositoryOptions(Backup: Backup, Local: Path, Remote: Url);
         
-        Messenger.Send(new OnInitializeRepository(options));
+        Manager.Default.Send(new OnInitializeRepository(options), Token);
         
         Close();
     }

@@ -19,7 +19,7 @@ namespace SVNexus.ViewModels;
 
 public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
 {
-    public required WeakReferenceMessenger Messenger { get; init; }
+    // public required WeakReferenceMessenger Messenger { get; init; }
 
     public override Type? ViewType { get; set; } = typeof(CheckoutOrExportDialog);
 
@@ -116,13 +116,13 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
 
         if (string.IsNullOrEmpty(url))
         {
-            Manager.MainWindow.Send(new OnNotification(new Notification()
+            Manager.Default.Send(new OnNotification(new Notification()
             {
                 Title = "错误",
                 Content = "Url must be specified.",
                 Type = NotificationType.Error,
                 ShowIcon = true,
-            }));
+            }), Manager.MainWindowToken);
             return;
         }
 
@@ -130,13 +130,13 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         
         if (string.IsNullOrEmpty(path))
         {
-            Manager.MainWindow.Send(new OnNotification(new Notification()
+            Manager.Default.Send(new OnNotification(new Notification()
             {
                 Title = "错误",
                 Content = "Url must be specified.",
                 Type = NotificationType.Error,
                 ShowIcon = true,
-            }));
+            }),  Manager.MainWindowToken);
             return;
         }
 
@@ -154,7 +154,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         
         
         
-        Messenger.Send(new OnCheckout(checkoutOptions));
+        Manager.Default.Send(new OnCheckout(checkoutOptions), Token);
 
         Close();
 
@@ -171,7 +171,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         };
         
         
-        var result = await Manager.MainWindow.Send(new OnFolderPickerOpen(options));
+        var result = await Manager.Default.Send(new OnFolderPickerOpen(options), Manager.MainWindowToken);
         if (result.Count > 0)
         {
             Path = result[0].Path.AbsolutePath;

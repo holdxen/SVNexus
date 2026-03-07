@@ -11,7 +11,6 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <Folder Include="Resources\Icons\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -67,6 +66,7 @@
         <DependentUpon>CheckoutOrExportProcessDialog.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Remove="Utils\TextE.cs" />
     </ItemGroup>
 
     <ItemGroup>

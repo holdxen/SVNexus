@@ -18,34 +18,32 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     
     public partial class TabItemViewViewModel: ViewModelLite
     {
+        [ObservableProperty]
+        public partial Guid Id { get; set; } = Guid.NewGuid();
 
         [ObservableProperty]
-        private bool _closable = true;
-    
+        public partial bool Closable { get; set; } = true;
+
         [ObservableProperty]
-        private string _text = "";
-    
+        public partial string Text { get; set; } = "";
 
         [RelayCommand]
         private async Task OnClose()
         {
         }
-    
-    
+
+
         [ObservableProperty]
-        private object? _content;
-        
-        
+        public partial object? Content { get; set; }
+
         [ObservableProperty]
         public partial bool IsSelected { get; set; }
     
     
     }
-    
 
     public MainWindowViewModel()
     {
-        this.RegisterAllMessages(Manager.MainWindow);
         AddTab();
     }
     
@@ -143,7 +141,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     private void ReleaseUnmanagedResources()
     {
-        Manager.MainWindow.UnregisterAll(this);
+        Manager.Default.UnregisterAllMessages(this);
     }
 
     public void Dispose()
@@ -154,7 +152,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public void Receive(OnOpenRepository message)
     {
-        var workingCopyView = WorkingCopyViewModel.Create(message.Value);
+        var workingCopyView = new WorkingCopyViewModel
+        {
+            WorkingCopyPath = message.Value,
+        };
 
         var tab = new TabItemViewViewModel()
         {
@@ -168,6 +169,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public void Receive(OnAddTab message)
     {
+        Console.WriteLine("On AddTab");
         Tabs.Add(message.Value);
         SelectedIndex = Tabs.Count - 1;
     }

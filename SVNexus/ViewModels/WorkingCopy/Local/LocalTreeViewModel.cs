@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Messages;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
@@ -67,7 +68,7 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
         public List<object>? Buttons { get; } = [];
         
         
-        public required WeakReferenceMessenger Messenger { get; init; }
+        // public required WeakReferenceMessenger Messenger { get; init; }
 
 
         partial void OnIsCheckedChanged(bool value)
@@ -110,8 +111,9 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
     
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedItem { get; set; }
-    
-    public required string WorkingCopyPath { get; set; }
+
+    [ObservableProperty]
+    public partial string WorkingCopyPath { get; set; } = string.Empty;
 
 
     public List<string> SelectedItems { get; set; } = [];
@@ -119,9 +121,9 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
     public List<string> ExpandedItems { get; set; } = [];
 
 
-    public WeakReferenceMessenger Messenger { get; } = new();
+    // public WeakReferenceMessenger Messenger { get; } = new();
     
-    public event Action<object?, StatusEntry?>? SelectedItemChanged;
+    // public event Action<object?, StatusEntry?>? SelectedItemChanged;
 
     // public LocalTreeViewModel()
     // {
@@ -132,7 +134,7 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
 
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
-        SelectedItemChanged?.Invoke(this, value?.StatusEntry);
+        Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry?.Path));
     }
 
 
@@ -178,7 +180,7 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
             StatusEntry = null,
             WorkingCopyPath = WorkingCopyPath,
             IsChecked = false,
-            Messenger = Messenger,
+            // Messenger = Messenger,
             Text = Path.GetFileName(WorkingCopyPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
             IsExpanded = ExpandedItems.Contains(WorkingCopyPath),
             Path = WorkingCopyPath,
@@ -231,7 +233,7 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
                     var item = new TreeItemViewModel
                     {
                         WorkingCopyPath = WorkingCopyPath,
-                        Messenger = Messenger,
+                        // Messenger = Messenger,
                         Text = part,
                         StatusEntry = null,
                         IsChecked = false,

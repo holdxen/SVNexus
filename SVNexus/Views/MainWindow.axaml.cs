@@ -1,5 +1,7 @@
+using System;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using Ursa.Controls;
 
@@ -14,7 +16,8 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
     {
         InitializeComponent();
         
-        this.RegisterAllMessages(Manager.MainWindow);
+        Ambient.SetGuid(this, Manager.MainWindowToken);
+        Manager.Default.RegisterAllMessages(this, Manager.MainWindowToken);
         
         _notificationManager = new WindowNotificationManager(this);
     }

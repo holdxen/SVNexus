@@ -5,10 +5,13 @@
              xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="workingCopy:WorkingCopyViewModel"
-             DialogHostId="{Binding DialogHostId, Mode=OneWayToSource}"
              IsEnabled="{Binding IsEnabled}"
+             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
+             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath}"
+             inject:Ambient.DialogHostId="{Binding DialogHostId, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.WorkingCopyView">
     <UserControl.Resources>
         <ControlTheme x:Key="CategoryTabItem" TargetType="TabItem">
@@ -31,10 +34,8 @@
         <Grid RowDefinitions="Auto, Auto, *">
             <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *" Margin="0 2">
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <components:SvgButton Classes="Default" 
-                                          Source="{StaticResource Icons.Update}" 
-                                          Command="{Binding UpdateCommand}" />
-
+                    <components:SvgButton Source="{StaticResource Icons.PullRequest}" 
+                                          Command="{Binding UpdateCommand}"></components:SvgButton>
                 </StackPanel>
                 <u:Divider Grid.Column="1" Orientation="Vertical"></u:Divider>
                 <Grid Grid.Column="2">
@@ -42,27 +43,31 @@
                         <StackPanel 
                             Orientation="Horizontal" 
                             Spacing="5">
-                            <components:SvgButton Classes="Default" 
-                                                  Source="{StaticResource Icons.Refresh}" 
-                                                  Command="{Binding LocalViewModel.StatusCommand}" />
+                            <components:LucideIconButton LucideKind="CloudSync" 
+                                                         Classes="ToolBarIconButton"
+                                                         Command="{Binding LocalViewModel.StatusCommand}">
+                            </components:LucideIconButton>
                         </StackPanel>
                         <Border Grid.Column="1"></Border>
                         <StackPanel 
                             Grid.Column="2"
                             Orientation="Horizontal" 
                             Spacing="5">
-                            <components:SvgButton Classes="Default" 
-                                                  Source="{StaticResource Icons.Terminal}" 
-                            />
+                            <components:LucideIconButton Classes="ToolBarIconButton" LucideKind="SquareTerminal"/>
                         </StackPanel>
                     </Grid>
                     <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsRemoteView}">
                         <StackPanel 
                             Orientation="Horizontal" 
                             Spacing="5">
-                            <components:SvgButton Classes="Default" 
-                                                  Source="{StaticResource Icons.LoadMoreList}" 
-                                                  Command="{Binding RemoteViewModel.LoadedCommand}" />
+                            <components:LucideIconButton LucideKind="ListRestart" 
+                                                         Classes="ToolBarIconButton"
+                                                         VerticalAlignment="Center"
+                                                         Command="{Binding RemoteViewModel.LoadedCommand}">
+                            </components:LucideIconButton>
+                            <!-- <components:SvgButton Classes="Default"  -->
+                            <!--                       Source="{StaticResource Icons.LoadMoreList}"  -->
+                            <!--                       Command="{Binding RemoteViewModel.LoadedCommand}" /> -->
                         </StackPanel>
                         <Border Grid.Column="1"></Border>
                         <StackPanel 

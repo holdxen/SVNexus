@@ -1609,7 +1609,6 @@ static class _UniFFILib {
     
     
     
-    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -3209,6 +3208,10 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern RustBuffer uniffi_engine_fn_method_formatsizeoptions_format(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern RustBuffer uniffi_engine_fn_method_svgrenderoptions_render(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
@@ -3226,10 +3229,6 @@ static class _UniFFILib {
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern uint uniffi_engine_fn_func_svn_err_reposra_into_u32(RustBuffer @err,ref UniffiRustCallStatus _uniffi_out_err
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern RustBuffer uniffi_engine_fn_func_render_svg_to_rgba(RustBuffer @svgData,uint @width,uint @height,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -3458,10 +3457,6 @@ static class _UniFFILib {
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern ushort uniffi_engine_checksum_func_svn_err_reposra_into_u32(
-    );
-
-    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ushort uniffi_engine_checksum_func_render_svg_to_rgba(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -5036,12 +5031,6 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_svn_err_reposra_into_u32();
             if (checksum != 42444) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_reposra_into_u32` checksum `42444`, library returned `{checksum}`");
-            }
-        }
-        {
-            var checksum = _UniFFILib.uniffi_engine_checksum_func_render_svg_to_rgba();
-            if (checksum != 46950) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_render_svg_to_rgba` checksum `46950`, library returned `{checksum}`");
             }
         }
         {
@@ -13197,6 +13186,48 @@ class FfiConverterTypeExportOptions: FfiConverterRustBuffer<ExportOptions> {
 
 
 
+public record FormatSizeOptions (
+    ulong Size
+) {
+
+
+
+    
+        public string Format() {
+            return FfiConverterString.INSTANCE.Lift(
+        _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+        _UniFFILib.uniffi_engine_fn_method_formatsizeoptions_format(FfiConverterTypeFormatSizeOptions.INSTANCE.Lower(this), ref _status)
+));
+        }
+    
+    
+    
+
+
+
+}
+
+class FfiConverterTypeFormatSizeOptions: FfiConverterRustBuffer<FormatSizeOptions> {
+    public static FfiConverterTypeFormatSizeOptions INSTANCE = new FfiConverterTypeFormatSizeOptions();
+
+    public override FormatSizeOptions Read(BigEndianStream stream) {
+        return new FormatSizeOptions(
+            Size: FfiConverterUInt64.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(FormatSizeOptions value) {
+        return 0
+            + FfiConverterUInt64.INSTANCE.AllocationSize(value.Size);
+    }
+
+    public override void Write(FormatSizeOptions value, BigEndianStream stream) {
+            FfiConverterUInt64.INSTANCE.Write(value.Size, stream);
+    }
+}
+
+
+
 public record ImportOptions (
     string Path, 
     string Url, 
@@ -14630,7 +14661,8 @@ class FfiConverterTypeStatusResult: FfiConverterRustBuffer<StatusResult> {
 public record SvgRenderOptions (
     string Svg, 
     uint Width, 
-    uint Height
+    uint Height, 
+    string? Color
 ) {
 
 
@@ -14658,7 +14690,8 @@ class FfiConverterTypeSvgRenderOptions: FfiConverterRustBuffer<SvgRenderOptions>
         return new SvgRenderOptions(
             Svg: FfiConverterString.INSTANCE.Read(stream),
             Width: FfiConverterUInt32.INSTANCE.Read(stream),
-            Height: FfiConverterUInt32.INSTANCE.Read(stream)
+            Height: FfiConverterUInt32.INSTANCE.Read(stream),
+            Color: FfiConverterOptionalString.INSTANCE.Read(stream)
         );
     }
 
@@ -14666,13 +14699,15 @@ class FfiConverterTypeSvgRenderOptions: FfiConverterRustBuffer<SvgRenderOptions>
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Svg)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.Width)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Height);
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Height)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Color);
     }
 
     public override void Write(SvgRenderOptions value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Svg, stream);
             FfiConverterUInt32.INSTANCE.Write(value.Width, stream);
             FfiConverterUInt32.INSTANCE.Write(value.Height, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Color, stream);
     }
 }
 
@@ -17846,15 +17881,6 @@ public static class EngineMethods {
         return FfiConverterUInt32.INSTANCE.Lift(
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_func_svn_err_reposra_into_u32(FfiConverterTypeSvnErrnoReposRa.INSTANCE.Lower(@err), ref _status)
-));
-    }
-
-
-    /// <exception cref="Exception"></exception>
-    public static byte[] RenderSvgToRgba(string @svgData, uint @width, uint @height) {
-        return FfiConverterByteArray.INSTANCE.Lift(
-    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_engine_fn_func_render_svg_to_rgba(FfiConverterString.INSTANCE.Lower(@svgData), FfiConverterUInt32.INSTANCE.Lower(@width), FfiConverterUInt32.INSTANCE.Lower(@height), ref _status)
 ));
     }
 

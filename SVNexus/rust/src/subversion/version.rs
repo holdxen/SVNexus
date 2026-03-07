@@ -1,4 +1,4 @@
-use crate::apr;
+use crate::{apr, utils::CStringer};
 use derive_new::new;
 use std::ffi::CStr;
 
@@ -39,15 +39,13 @@ pub struct ExtendedVersion {
 
 pub fn version() -> Version {
     unsafe {
-        let v = ffi::svn_subr_version();
-
-        let v = &*v;
+        let v = ffi::svn_subr_version().as_ref().unwrap();
 
         Version::new(
             v.major,
             v.minor,
             v.patch,
-            apr::char_array_to_string(v.tag).unwrap(),
+            v.tag.to_str().to_string()
         )
     }
 }

@@ -7,6 +7,8 @@
              xmlns:u="https://irihi.tech/ursa"
              x:DataType="viewModels:WelcomeViewModel"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
+             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WelcomeView" 
              DialogHostId="{Binding DialogHostId, Mode=OneWayToSource}">
     <Design.DataContext>
@@ -25,9 +27,12 @@
                                               Command="{Binding ShowExportDialogCommand}"/>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal">
-                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.Terminal}" 
-                                              />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.Terminal}" />
+                        <components:PathIconButton Classes="ToolBarIconButton" 
+                                                   Data="{StaticResource Icons.Terminal1}"></components:PathIconButton>
+ 
+
                     </StackPanel>
                 </Grid>
             </Grid>

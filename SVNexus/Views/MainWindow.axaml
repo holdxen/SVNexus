@@ -7,10 +7,12 @@
         x:Class="SVNexus.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         xmlns:tab="clr-namespace:Tabalonia.Controls;assembly=Tabalonia"
+        xmlns:inject="clr-namespace:SVNexus.Inject"
+        xmlns:messages="clr-namespace:SVNexus.Messages"
         Icon="/Assets/avalonia-logo.ico"
         Title="SVNexus"
-        Background="{DynamicResource TabControlWindowActiveBackgroundBrush}"
-        >
+        inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
+        Background="{DynamicResource TabControlWindowActiveBackgroundBrush}">
     <Window.Resources>
     </Window.Resources>
 
@@ -56,6 +58,7 @@
                     <DataTemplate>
                         <!-- 每个 PageVM 通过 DataTemplate 生成一次 View，之后一直留在可视树里 -->
                         <ContentControl Content="{Binding Content}"
+                                        inject:Ambient.Guid="{Binding Id}"
                                         IsVisible="{Binding IsSelected}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

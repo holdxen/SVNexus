@@ -6,6 +6,7 @@ using Serilog;
 using Avalonia.Controls.Mixins;
 using Avalonia.Svg.Skia;
 using Svg.Skia;
+using SVNexus.Extension;
 
 namespace SVNexus.Components;
 
@@ -110,6 +111,7 @@ public class SvgRender : UserControl
         this.GetObservable(SourceProperty).Subscribe(_ => Regenerate(force: true));
         this.GetObservable(PremultipliedProperty).Subscribe(_ => Regenerate(force: true));
         this.GetObservable(SourceIsBgraProperty).Subscribe(_ => Regenerate(force: true));
+        this.GetObservable(ForegroundProperty).Subscribe(_ => Regenerate(force: true));
         this.GetObservable(DebounceMillisecondsProperty).Subscribe(_ =>
         {
             _debounceTimer?.Stop();
@@ -190,11 +192,18 @@ public class SvgRender : UserControl
 
             if (!force && w == _pxW && h == _pxH) return;
             _pxW = w; _pxH = h;
-        
+
+            var hexColor = Foreground switch
+            {
+                SolidColorBrush brush => brush.Color.ToCssHex(),
+                IImmutableSolidColorBrush immutableSolidColorBrush => immutableSolidColorBrush.Color.ToCssHex(),
+                _ => null
+            };
+            Console.WriteLine("HexColor:  " + hexColor);
 
             // 生成 RGBA/BGRA 数据
             var options = new SvgRenderOptions(
-                Svg: Source, Width: Convert.ToUInt32(w), Height: Convert.ToUInt32(h));
+                Svg: Source, Width: Convert.ToUInt32(w), Height: Convert.ToUInt32(h), Color: hexColor);
             var bytes = options.Render();
         
 

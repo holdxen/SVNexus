@@ -14,6 +14,7 @@ using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
+using SVNexus.Utils;
 using Exception = System.Exception;
 using Notification = Ursa.Controls.Notification;
 
@@ -41,19 +42,43 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
         public string NodeKindIcon => NodeKind.NodeKindIcon();
 
     }
+
+    public class FileCache
+    {
+        public required ListEntry Entry { get; set; }
+        
+        public bool IsTextFile { get; set; }
+        
+        public string Content { get; set; } = string.Empty;
+        
+        public Encoding? Encoding { get; set; }
+        
+        public Dictionary<string, string> Properties { get; set; } = [];
+    }
+
+    public class PropertyItemViewModel
+    {
+        public required string Name { get; set; }
+        
+        public required string Value { get; set; }
+
+    }
     
-    // [ObservableProperty]
-    // public partial bool IsEditorLoading { get; set; }
+    
+    [ObservableProperty]
+    public partial List<PropertyItemViewModel> Properties { get; set; } = [];
+
+    [ObservableProperty]
+    public partial bool IsTextView { get; set; } = true;
+    
+
+    [ObservableProperty] public partial bool IsText { get; set; } = true;
 
     [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = new LoadingOrErrorState.None();
-    
-    // [ObservableProperty]
-    // public partial bool IsTreeViewLoading { get; set; }
 
     [ObservableProperty]
     public partial LoadingOrErrorState TreeViewState { get; set; } = new LoadingOrErrorState.None();
     
-    public required WeakReferenceMessenger Messenger { get; set; }
     
     public required string Url { get; set; }
     
@@ -65,12 +90,30 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
     [ObservableProperty] public partial string Code { get; set; } = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedFileName))]
+    [NotifyPropertyChangedFor(nameof(SelectedFileSizeText))]
+    [NotifyPropertyChangedFor(nameof(SelectedItemLastAuthor))]
+    [NotifyPropertyChangedFor(nameof(SelectedItemHasProperties))]
     public partial FileItemViewModel? SelectedItem { get; set; }
 
 
-    private readonly Dictionary<string, string> _cache = [];
+    public string? SelectedFileName => SelectedItem?.Name;
 
-    private void AddCache(string path, string code)
+    public string? SelectedFileSizeText => SelectedItem?.Entry?.Size is null
+        ? null
+        : new FormatSizeOptions(SelectedItem.Entry.Size ?? 0).Format();
+    
+    [ObservableProperty]
+    public partial string? SelectedFileEncodingName { get; set; }
+    
+    public string? SelectedItemLastAuthor => SelectedItem?.Entry?.LastAuthor;
+
+    public bool SelectedItemHasProperties => SelectedItem?.Entry?.HasProperties ?? false;
+
+
+    private readonly Dictionary<string, FileCache?> _cache = [];
+
+    private void AddCache(string path, FileCache cache)
     {
         const int max = 20;
 
@@ -79,61 +122,122 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
             _cache.Remove(_cache.First().Key);
         }
 
-        _cache[path] = code;
+        _cache[path] = cache;
     }
 
     [RelayCommand]
-    private async Task TryCatFile(string path)
+    private void OnSelectTextView()
     {
-        // TODO 已经在申请内容的文件不要重复申请
-        if (_cache.TryGetValue(path, out var code))
+        IsTextView = true;
+    }
+
+    [RelayCommand]
+    private void OnSelectPropertyView()
+    {
+        IsTextView = false;
+    }
+
+
+    private void SetCache(FileCache fileCache)
+    {
+        IsText = fileCache.IsTextFile;
+        Properties = fileCache.Properties.Select(e => new PropertyItemViewModel()
         {
-            Code = code;
+            Name = e.Key,
+            Value = e.Value
+        }).ToList();
+        if (fileCache.IsTextFile)
+        {
+            Code = fileCache.Content;
+        }
+
+        SelectedFileEncodingName = fileCache.Encoding?.EncodingName;
+        
+        
+    }
+
+    [RelayCommand]
+    private async Task TryCatFile(ListEntry entry)
+    {
+        if (_cache.TryGetValue(entry.Path, out var cache))
+        {
+            if (cache is null)
+            {
+                return;
+            }
+            SetCache(cache);
             EditorState = new LoadingOrErrorState.None();
             return;
         }
         EditorState = LoadingOrErrorState.MakeLoading();
+        _cache[entry.Path] = null;
             
         var catOptions = new CatOptions(
-            Path: Url + "/" + path,
+            Path: Url + "/" + entry.Path,
             PegRevision: new Revision.Head(),
             Revision: Revision,
             ExpandKeywords: false
         );
             
-        var hostId = Messenger.Send(new OnGetDialogHostId()).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
         try
         {
             var result = await context.Cat(catOptions);
-            var text = Encoding.UTF8.GetString(result.Content);
-            Console.WriteLine($"Cat Text: {text}");
-            if (SelectedItem?.Path == path)
+
+            var fileCache = new FileCache
             {
-                Code = text;
+                Entry = entry,
+                Properties = result.Properties
+            };
+            
+            if (TextDetector.IsText(result.Content, out var encoding))
+            {
+                fileCache.IsTextFile = true;
+                fileCache.Content = encoding.GetString(result.Content);
+                fileCache.Encoding = encoding;
             }
-            AddCache(path, text);
+            else
+            {
+                fileCache.IsTextFile = false;
+            }
+            
+
+            if (SelectedItem?.Path == entry.Path)
+            {
+                SetCache(fileCache);
+            }
+            
+
+
+            AddCache(entry.Path, fileCache);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            if (SelectedItem?.Path == path)
+            if (SelectedItem?.Path == entry.Path)
             {
                 EditorState = new LoadingOrErrorState.Error()
                 {
                     ErrorMessage = e.HumanReadableMessage,
                     RetryCommand = TryCatFileCommand,
-                    RetryCommandParameter = path
+                    RetryCommandParameter = entry
                 };
             }
-            throw;
         }
         finally
         {
-            if (SelectedItem?.Path == path)
+            if (SelectedItem?.Path == entry.Path && EditorState is LoadingOrErrorState.Loading)
             {
                 EditorState = LoadingOrErrorState.MakeNone();
+            }
+
+            if (_cache.TryGetValue(entry.Path, out var value))
+            {
+                if (value is null)
+                {
+                    _cache.Remove(entry.Path);
+                }
             }
         }
     }
@@ -144,11 +248,10 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
         {
             Code = string.Empty;
         }
-        else
+        else if (value.Entry is not null)
         {
             // var path = Url + "/" + value.Path;
-            var path = value.Path;
-            Dispatcher.UIThread.InvokeAsync(async () => { await TryCatFile(path); });
+            Dispatcher.UIThread.InvokeAsync(async () => { await TryCatFile(value.Entry); });
             // if (_cache.TryGetValue(path, out var code))
             // {
             //     Code = code;
@@ -208,12 +311,12 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
     
     private void HandleException(Exception e)
     {
-        Manager.MainWindow.Send(new OnNotification(new Notification
+        Manager.Default.Send(new OnNotification(new Notification
         {
             Title = "Error",
             Content = $"Failed to query: {e.HumanReadableMessage}",
             Type = NotificationType.Error,
-        }));
+        }), Manager.MainWindowToken);
     }
 
     public void BuildFileTree(ListEntry[] entries)
@@ -239,11 +342,6 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
                     {
                         Name = part,
                     };
-                    Console.WriteLine("Add File: {0}", item.Name);
-                    if (item.Name.IsWhiteSpace())
-                    {
-                        Console.WriteLine("Empty File: {0}", entry);
-                    }
                     parent.Add(item);
                     if (index == parts.Length - 1)
                     {
@@ -268,7 +366,7 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
     [RelayCommand]
     private async Task OnLoaded()
     {
-        var hostId = Messenger.Send(new OnGetDialogHostId()).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
 
@@ -284,7 +382,7 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
                 Patterns: null, 
                 Depth: Depth.Infinity, 
                 DirentCreatedRevision: false, 
-                DirentHasProperties: false, 
+                DirentHasProperties: true, 
                 DirentKind: true, 
                 DirentLastAuthor: true, 
                 DirentSize: true, 

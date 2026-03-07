@@ -8,6 +8,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              MinWidth="600"
              x:DataType="viewModels:ExportDialogModel"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
+             inject:Ambient.Guid="{Binding Mode=OneWayToSource}"
              x:Class="SVNexus.Views.ExportDialog">
         <Grid RowDefinitions="*, Auto">
 

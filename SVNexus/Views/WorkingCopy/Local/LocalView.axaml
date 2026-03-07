@@ -10,6 +10,9 @@
              xmlns:workingCopyView="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
+             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
+             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
     <UserControl.Resources>
         <!-- <ResourceDictionary> -->

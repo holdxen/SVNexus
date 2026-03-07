@@ -23,7 +23,7 @@ public class DifferenceInfo
     public required TextChange[] Changes { get; set; }
 }
 
-public partial class LocalViewModel: ViewModelBase
+public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemChanged>
 {
 
     private Dictionary<string, DifferenceInfo> _differenceInfos = [];
@@ -35,9 +35,9 @@ public partial class LocalViewModel: ViewModelBase
     private bool _isListView;
 
 
-    public required LocalListViewModel LocalListViewModel { get; set; }
-    
-    public required LocalTreeViewModel LocalTreeViewModel { get; set; }
+    public LocalListViewModel LocalListViewModel { get; set; } = new();
+
+    public LocalTreeViewModel LocalTreeViewModel { get; set; } = new();
 
 
     public override bool KeepAlive { get; set; } = true;
@@ -58,11 +58,12 @@ public partial class LocalViewModel: ViewModelBase
     //
     //
     // public ObservableCollection<LocalTreeViewModel.TreeItemViewModel> LocalTreeItems { get; set; } = [];
+
+
+    [ObservableProperty]
+    public partial string WorkingCopyPath { private get; set; } = string.Empty;
     
-    
-    public required string WorkingCopyPath { get; init; }
-    
-    public required WeakReferenceMessenger Messenger { get; init; }
+    // public required WeakReferenceMessenger Messenger { get; init; }
 
     [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
 
@@ -75,27 +76,20 @@ public partial class LocalViewModel: ViewModelBase
         await Status();
     }
 
-    public static LocalViewModel Create(string workingCopyPath, WeakReferenceMessenger workingCopyViewMessenger)
-    {
-        var model = new LocalViewModel
-        {
-            Messenger = workingCopyViewMessenger,
-            LocalListViewModel = new LocalListViewModel()
-            {
-                WorkingCopyPath = workingCopyPath,
-            },
-            LocalTreeViewModel = new LocalTreeViewModel()
-            {
-                WorkingCopyPath =  workingCopyPath,
-            },
-            WorkingCopyPath = workingCopyPath,
-        };
-        
-        model.LocalListViewModel.SelectedItemChanged += OnSelectedItemChanged;
-        model.LocalTreeViewModel.SelectedItemChanged += OnSelectedItemChanged;
-        
-        return model;
-    }
+    // public static LocalViewModel Create(WeakReferenceMessenger workingCopyViewMessenger)
+    // {
+    //     var model = new LocalViewModel
+    //     {
+    //         // Messenger = workingCopyViewMessenger,
+    //         LocalListViewModel = new LocalListViewModel(),
+    //         LocalTreeViewModel = new LocalTreeViewModel(),
+    //     };
+    //     
+    //     model.LocalListViewModel.SelectedItemChanged += OnSelectedItemChanged;
+    //     model.LocalTreeViewModel.SelectedItemChanged += OnSelectedItemChanged;
+    //     
+    //     return model;
+    // }
 
     private static void OnSelectedItemChanged(object? arg1, StatusEntry? entry)
     {
@@ -153,7 +147,7 @@ public partial class LocalViewModel: ViewModelBase
                 var errorNumber = new SvnErrnoConstants();
                 if (errorNumber.IsWcNotDirectory(error.Code))
                 {
-                    Messenger.Send(new OnNotWorkingCopy(WorkingCopyPath));
+                    Manager.Default.Send(new OnNotWorkingCopy(WorkingCopyPath), Token);
                 }
             });
         }
@@ -180,7 +174,7 @@ public partial class LocalViewModel: ViewModelBase
     [RelayCommand]
     private async Task Commit()
     {
-        var hostId = Messenger.Send(new OnGetDialogHostId()).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
 
 
         var contextNotifierDelegate = new ContextNotifierDelegate()
@@ -210,5 +204,9 @@ public partial class LocalViewModel: ViewModelBase
         
         await context.Commit(commitOptions);
 
+    }
+
+    public void Receive(OnSelectedItemChanged message)
+    {
     }
 }

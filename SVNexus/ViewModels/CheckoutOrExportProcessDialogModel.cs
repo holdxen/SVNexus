@@ -189,7 +189,7 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
             return;
         }
 
-        Manager.MainWindow.Send(new OnOpenRepository(Path));
+        Manager.Default.Send(new OnOpenRepository(Path), Manager.MainWindowToken);
         
         
         

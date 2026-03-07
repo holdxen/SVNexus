@@ -37,5 +37,8 @@
              <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
          </Style>
          <StyleInclude Source="Components/LoadingOrError.axaml"></StyleInclude>
+         <StyleInclude Source="Components/LucideIconButton.axaml"></StyleInclude>
+         <StyleInclude Source="Components/PathIconButton.axaml"></StyleInclude>
+         <StyleInclude Source="Resources/Style/StyledClasses.axaml"></StyleInclude>
      </Application.Styles>
 </Application>

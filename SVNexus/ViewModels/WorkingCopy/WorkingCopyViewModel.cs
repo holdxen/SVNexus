@@ -24,6 +24,8 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     IRecipient<OnInitializeRepository>, 
     IRecipient<OnNotWorkingCopy>
 {
+
+    
     public override bool KeepAlive { get; set; } = true;
 
     public required string WorkingCopyPath { get; set; }
@@ -34,17 +36,16 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     
     
     [ObservableProperty]
-    public required partial LocalViewModel LocalViewModel { get; set; }
-    
-    
-    [ObservableProperty]
-    public required partial RemoteViewModel RemoteViewModel { get; set; }
+    public partial LocalViewModel LocalViewModel { get; set; } = new();
+
+
+    [ObservableProperty] public partial RemoteViewModel RemoteViewModel { get; set; } = new();
 
     
     [ObservableProperty]
     public partial string? DialogHostId { get; set; }
 
-    public required WeakReferenceMessenger Messenger { get; init; }
+    // public required WeakReferenceMessenger Messenger { get; init; }
 
 
     [ObservableProperty] public partial bool IsEnabled { get; set; } = true;
@@ -69,29 +70,23 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     }
     
 
-    public static WorkingCopyViewModel Create(string workingCopyPath)
-    {
-        var messenger = new WeakReferenceMessenger();
-        return new WorkingCopyViewModel
-        {
-            Messenger = messenger,
-            WorkingCopyPath = workingCopyPath,
-            LocalViewModel = LocalViewModel.Create(workingCopyPath, messenger),
-            RemoteViewModel = new RemoteViewModel
-            {
-                WorkingCopyPath = workingCopyPath,
-                Messenger = messenger
-            }
-        }.RegisterMessages();
-    }
+    // public static WorkingCopyViewModel Create(string workingCopyPath)
+    // {
+    //     var messenger = new WeakReferenceMessenger();
+    //     return new WorkingCopyViewModel
+    //     {
+    //         Messenger = messenger,
+    //         WorkingCopyPath = workingCopyPath,
+    //     }.RegisterMessages();
+    // }
 
 
-    private WorkingCopyViewModel RegisterMessages()
-    {
-        this.RegisterAllMessages(Messenger);
-        return this;
-    }
-    
+    // private WorkingCopyViewModel RegisterMessages()
+    // {
+    //     this.RegisterAllMessages(Messenger);
+    //     return this;
+    // }
+    //
 
     public void Receive(OnGetDialogHostId message)
     {
@@ -256,7 +251,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
             if (result is MessageBoxResult.No)
             {
                 // Manager.MainWindow.Send(new OnRemoveTabByLocalViewModel(this));
-                Manager.MainWindow.Send(new OnRemoveTabByContent(this));
+                Manager.Default.Send(new OnRemoveTabByContent(this), Manager.MainWindowToken);
             }
             else
             {
@@ -268,7 +263,6 @@ public partial class WorkingCopyViewModel : ViewModelBase,
                 };
                 await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(new ImportDialogModel()
                 {
-                    Messenger = Messenger,
                     Path = WorkingCopyPath,
                 }, hostId: DialogHostId, options: dialogOptions);
             }

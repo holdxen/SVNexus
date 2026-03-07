@@ -7,6 +7,9 @@
              x:DataType="local:LocalTreeViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="True"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
+             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
+             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalTreeView">
     <TreeView SelectionMode="Multiple"
               Margin="0"

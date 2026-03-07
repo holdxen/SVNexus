@@ -74,10 +74,10 @@ public partial class RemoteViewModel: ViewModelBase
     public ObservableCollection<CommitItemViewModel> CommitItems { get; } = [];
     
     // public string? Url { get; set; }
+
+    [ObservableProperty] public partial string WorkingCopyPath { get; set; } = string.Empty;
     
-    public required string WorkingCopyPath { get; set; }
-    
-    public required WeakReferenceMessenger Messenger { get; set; }
+    // public required WeakReferenceMessenger Messenger { get; set; }
 
     [ObservableProperty]
     public partial bool IsLoading { get; set; }
@@ -105,7 +105,7 @@ public partial class RemoteViewModel: ViewModelBase
         };
         SnapshotViewModel = new RemoteSnapshotViewModel()
         {
-            Messenger = Messenger,
+            // Messenger = Messenger,
             Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
             Url = ThisEntry.Url
         };
@@ -147,16 +147,16 @@ public partial class RemoteViewModel: ViewModelBase
         {
             if (!ExceptionExtension.SvnErrnoConstants.IsWcNotWorkingCopy(error.Code)) return;
             handled = true;
-            Messenger.Send(new OnNotWorkingCopy(WorkingCopyPath));
+            Manager.Default.Send(new OnNotWorkingCopy(WorkingCopyPath), Token);
         });
         if (!handled)
         {
-            Manager.MainWindow.Send(new OnNotification(new Notification
+            Manager.Default.Send(new OnNotification(new Notification
             {
                 Title = "Error",
                 Content = $"Failed to query: {e.HumanReadableMessage}",
                 Type = NotificationType.Error,
-            }));
+            }), Manager.MainWindowToken);
         }
     }
     
@@ -169,7 +169,7 @@ public partial class RemoteViewModel: ViewModelBase
         {
             return true;
         }
-        var hostId = Messenger.Send(new OnGetDialogHostId()).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
 
@@ -222,7 +222,7 @@ public partial class RemoteViewModel: ViewModelBase
                 return;
             }
 
-            var hostId = Messenger.Send(new OnGetDialogHostId()).Response;
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
 
             context = Engine.Engine.Instance.SimpleContext(hostId);
 

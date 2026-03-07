@@ -1,0 +1,23 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:components="clr-namespace:SVNexus.Components"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="TextBlock.VCenter">
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+    </Style>
+    
+    <Style Selector="TextBlock.HCenter">
+        <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+    </Style>
+    
+    
+    <Style Selector="components|LucideIconButton.ToolBarIconButton">
+        <Setter Property="Size" Value="22"></Setter>
+    </Style>
+
+</Styles>

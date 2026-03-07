@@ -2,7 +2,7 @@ use std::{
     cell::RefCell,
     collections::{HashMap, hash_map::Entry},
     ffi::{CStr, c_char, c_void},
-    sync::OnceLock,
+    sync::{Arc, OnceLock},
 };
 
 use crate::{
@@ -143,13 +143,14 @@ thread_local! {
     static SVG: RefCell<HashMap<String, DecodedSvg>> = Default::default();
 }
 
-static SVG_OPTIONS: OnceLock<resvg::usvg::Options<'static>> = OnceLock::new();
+static FONTS: OnceLock<Arc<fontdb::Database>> = OnceLock::new();
 
 #[derive(new)]
 pub struct DecodedSvg {
     width: u32,
     height: u32,
     rgba: Vec<u8>,
+    color: Option<String>
 }
 
 #[derive(new, uniffi::Record)]
@@ -157,17 +158,23 @@ pub struct SvgRenderOptions {
     svg: String,
     width: u32,
     height: u32,
+    color: Option<String>
 }
 
 #[uniffi::export]
 fn setup_svg(fonts: Vec<Vec<u8>>) {
-    SVG_OPTIONS.get_or_init(|| {
-        let mut options = resvg::usvg::Options::default();
-        let fontdb = options.fontdb_mut();
+    FONTS.get_or_init(|| {
+        let mut fontdb = fontdb::Database::new();
         for font in fonts {
             fontdb.load_font_data(font);
         }
-        options
+        fontdb.into()
+        // let mut options = resvg::usvg::Options::default();
+        // let fontdb = options.fontdb_mut();
+        // for font in fonts {
+        //     fontdb.load_font_data(font);
+        // }
+        // options
     });
 }
 
@@ -184,6 +191,7 @@ impl SvgRenderOptions {
                 Entry::Occupied(occupied_entry) => {
                     if occupied_entry.get().width == self.width
                         && occupied_entry.get().height == self.height
+                        && occupied_entry.get().color == self.color
                     {
                         return Some(occupied_entry.get().rgba.clone());
                     }
@@ -196,8 +204,20 @@ impl SvgRenderOptions {
             tracing::info!("Cache hit for SVG rendering.");
             return Ok(data);
         }
+        let fonts = FONTS.get().expect("SVG_OPTIONS not initialized").clone();
 
-        let tree = Tree::from_str(&self.svg, &SVG_OPTIONS.get().expect("SVG_OPTIONS not initialized")).context(builder::Svg)?;
+        let style = self.color.as_ref().map(|color| format!(r#"svg, g, path, rect, circle, ellipse, polygon, polyline, text {{ stroke: {} !important; }}"#, color));
+
+        let options = usvg::Options {
+            fontdb: fonts,
+            style_sheet: style,
+            ..Default::default()
+        };
+
+
+        tracing::info!("Render svg with color={:?}", self.color);
+
+        let tree = Tree::from_str(&self.svg, &options).context(builder::Svg)?;
 
         let mut pixmap = Pixmap::new(self.width, self.height).expect("Unexpected zero size");
 
@@ -216,7 +236,7 @@ impl SvgRenderOptions {
         SVG.with_borrow_mut(|svg| {
             svg.insert(
                 self.svg.clone(),
-                DecodedSvg::new(self.width, self.height, data.clone()),
+                DecodedSvg::new(self.width, self.height, data.clone(), self.color),
             );
         });
 
@@ -224,54 +244,67 @@ impl SvgRenderOptions {
     }
 }
 
+// #[uniffi::export]
+// fn render_svg_to_rgba(svg_data: String, width: u32, height: u32) -> error::Result<Vec<u8>> {
+//     use resvg::*;
+//     use usvg::*;
+
+//     let data = SVG.with_borrow_mut(|svg| {
+//         let entry = svg.entry(svg_data.clone());
+
+//         match entry {
+//             Entry::Occupied(occupied_entry) => {
+//                 if occupied_entry.get().width == width && occupied_entry.get().height == height {
+//                     return Some(occupied_entry.get().rgba.clone());
+//                 }
+//             }
+//             Entry::Vacant(_) => {}
+//         }
+//         None
+//     });
+//     if let Some(data) = data {
+//         println!("Cache hit for SVG rendering.");
+//         return Ok(data);
+//     }
+
+//     println!("size: width={}, height={}", width, height);
+//     println!("Render Svg:\n{}", svg_data);
+
+//     let mut options = Options::default();
+//     options.fontdb_mut().load_system_fonts();
+
+//     let tree = Tree::from_str(&svg_data, &options).context(builder::Svg)?;
+
+//     let mut pixmap = Pixmap::new(width, height).unwrap();
+
+//     let transform = rescale(
+//         tree.size().width(),
+//         tree.size().height(),
+//         width as f32,
+//         height as f32,
+//     );
+//     render(&tree, transform, &mut pixmap.as_mut());
+
+//     // pixmap.save_png("./test.png").unwrap()
+
+//     let data = pixmap.take();
+
+//     SVG.with_borrow_mut(|svg| {
+//         svg.insert(svg_data, DecodedSvg::new(width, height, data.clone()));
+//     });
+
+//     Ok(data)
+// }
+
+
+#[derive(Debug, uniffi::Record)]
+pub struct FormatSizeOptions {
+    size: u64
+}
+
 #[uniffi::export]
-fn render_svg_to_rgba(svg_data: String, width: u32, height: u32) -> error::Result<Vec<u8>> {
-    use resvg::*;
-    use usvg::*;
-
-    let data = SVG.with_borrow_mut(|svg| {
-        let entry = svg.entry(svg_data.clone());
-
-        match entry {
-            Entry::Occupied(occupied_entry) => {
-                if occupied_entry.get().width == width && occupied_entry.get().height == height {
-                    return Some(occupied_entry.get().rgba.clone());
-                }
-            }
-            Entry::Vacant(_) => {}
-        }
-        None
-    });
-    if let Some(data) = data {
-        println!("Cache hit for SVG rendering.");
-        return Ok(data);
+impl FormatSizeOptions {
+    pub fn format(self) -> String {
+        humansize::format_size(self.size, humansize::DECIMAL)
     }
-
-    println!("size: width={}, height={}", width, height);
-    println!("Render Svg:\n{}", svg_data);
-
-    let mut options = Options::default();
-    options.fontdb_mut().load_system_fonts();
-
-    let tree = Tree::from_str(&svg_data, &options).context(builder::Svg)?;
-
-    let mut pixmap = Pixmap::new(width, height).unwrap();
-
-    let transform = rescale(
-        tree.size().width(),
-        tree.size().height(),
-        width as f32,
-        height as f32,
-    );
-    render(&tree, transform, &mut pixmap.as_mut());
-
-    // pixmap.save_png("./test.png").unwrap()
-
-    let data = pixmap.take();
-
-    SVG.with_borrow_mut(|svg| {
-        svg.insert(svg_data, DecodedSvg::new(width, height, data.clone()));
-    });
-
-    Ok(data)
 }

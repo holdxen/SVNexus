@@ -78,7 +78,7 @@ public partial class SvgButton : UserControl
 
         // 只有在控件区域内抬起才算“点击”
         var pt = e.GetPosition(this);
-        var inside = pt.X >= 0 && pt.Y >= 0 && pt.X <= Bounds.Width && pt.Y <= Bounds.Height;
+        var inside = pt is { X: >= 0, Y: >= 0 } && pt.X <= Bounds.Width && pt.Y <= Bounds.Height;
 
         if (inside)
             RaiseClick(e);

@@ -7,6 +7,8 @@
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
              x:DataType="viewModels:CheckoutOrExportDialogModel"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
+             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              MinWidth="500"
              x:Class="SVNexus.Views.CheckoutOrExportDialog">
     <Grid RowDefinitions="*, Auto">

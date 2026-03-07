@@ -24,14 +24,8 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
     public override bool KeepAlive { get; set; } = true;
     
     
-    private WeakReferenceMessenger Messenger { get; } = new();
+    // private WeakReferenceMessenger Messenger { get; } = new();
 
-
-    public WelcomeViewModel()
-    {
-        this.RegisterAllMessages(Messenger);
-    }
-    
     
     [ObservableProperty]
     private string? _dialogHostId;
@@ -47,10 +41,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
         };
         
         Console.WriteLine($"Show dialog {DialogHostId}");
-        await OverlayDialog.ShowModal<Views.CheckoutOrExportDialog, CheckoutOrExportDialogModel>(new CheckoutOrExportDialogModel()
-        {
-            Messenger = Messenger
-        }, DialogHostId, options: options);
+        await OverlayDialog.ShowModal<Views.CheckoutOrExportDialog, CheckoutOrExportDialogModel>(new CheckoutOrExportDialogModel(), DialogHostId, options: options);
         Console.WriteLine("Close dialog");
     }
 
@@ -65,18 +56,21 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
         };
         
         
-        var result = await Manager.MainWindow.Send(new OnFolderPickerOpen(options));
+        var result = await Manager.Default.Send(new OnFolderPickerOpen(options), Manager.MainWindowToken);
         if (result.Count == 1)
         {
 
-            var workingCopyView = WorkingCopyViewModel.Create(result[0].Path.AbsolutePath);
-
-            Manager.MainWindow.Send(new OnAddTab(new MainWindowViewModel.TabItemViewViewModel()
+            var workingCopyView = new WorkingCopyViewModel
+            {
+                WorkingCopyPath = result[0].Path.AbsolutePath,
+            };
+            Console.WriteLine("Send Add tab: {0} {1}", workingCopyView.WorkingCopyPath, Manager.MainWindowToken);
+            Manager.Default.Send(new OnAddTab(new MainWindowViewModel.TabItemViewViewModel()
             {
                 Closable = true,
                 Content = workingCopyView,
                 Text = result[0].Name,
-            }));
+            }), Manager.MainWindowToken);
         }
     }
 
@@ -172,10 +166,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
     [RelayCommand]
     private async Task ShowExportDialog()
     {
-        var exportDialogModel = new ExportDialogModel
-        {
-            Messenger = Messenger,
-        };
+        var exportDialogModel = new ExportDialogModel();
         
         var options = new OverlayDialogOptions
         {

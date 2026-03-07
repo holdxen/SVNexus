@@ -1,0 +1,58 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="using:SVNexus.Components">
+    <Design.PreviewWith>
+        <components:PathIconButton />
+    </Design.PreviewWith>
+
+    <Style Selector="components|PathIconButton.ToolBarIconButton">
+        <Setter Property="Size" Value="18"></Setter>
+        <Setter Property="Spacing" Value="4"></Setter>
+    </Style>
+    <Style Selector="components|PathIconButton">
+        <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border VerticalAlignment="{TemplateBinding VerticalAlignment}" 
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
+                        Classes="Clickable" Padding="{TemplateBinding Spacing}">
+                        <Path
+                            Width="{TemplateBinding Size}"
+                            Height="{TemplateBinding Size}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Stroke="{DynamicResource SemiColorText1}"
+                            StrokeThickness="{TemplateBinding StrokeThickness}"
+                            StrokeLineCap="{TemplateBinding StrokeLineCap}"
+                            StrokeJoin="{TemplateBinding StrokeJoin}"
+                            Data="{TemplateBinding Data}">
+                        </Path>
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="Tapped">
+                            <InvokeCommandAction Command="{TemplateBinding Command}" 
+                                                 CommandParameter="{TemplateBinding CommandParameter}">
+                            </InvokeCommandAction>
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        
+        <Style Selector="^:pointerover /template/ Border.Clickable">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>
+        </Style>
+
+        <!-- 按下：关键是写在 PathIconButton 的状态上 -->
+        <Style Selector="^:pressed /template/ Border.Clickable">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter>
+        </Style>
+    
+        <Style Selector="^ /template/ Border.Clickable">
+            <Setter Property="CornerRadius" Value="{DynamicResource ButtonCornerRadius}"></Setter>
+            <Setter Property="ClipToBounds" Value="True"></Setter>
+        </Style>
+        
+    </Style>
+
+</Styles>

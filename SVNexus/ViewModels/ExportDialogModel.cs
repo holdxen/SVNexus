@@ -65,7 +65,7 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
     [ObservableProperty] public partial NativeEol NativeEol { get; set; } = NativeEol.None;
     
     
-    public required WeakReferenceMessenger Messenger { get; init; }
+    // public required WeakReferenceMessenger Messenger { get; init; }
 
     [RelayCommand]
     private async Task SelectFolder()
@@ -77,7 +77,7 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
         };
         
         
-        var result = await Manager.MainWindow.Send(new OnFolderPickerOpen(options));
+        var result = await Manager.Default.Send(new OnFolderPickerOpen(options), Manager.MainWindowToken);
         if (result.Count > 0)
         {
             Path = result[0].Path.AbsolutePath;
@@ -123,13 +123,13 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
 
         if (string.IsNullOrEmpty(url))
         {
-            Manager.MainWindow.Send(new OnNotification(new Notification()
+            Manager.Default.Send(new OnNotification(new Notification()
             {
                 Title = "错误",
                 Content = "Url must be specified.",
                 Type = NotificationType.Error,
                 ShowIcon = true,
-            }));
+            }), Manager.MainWindowToken);
             return;
         }
 
@@ -137,13 +137,13 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
         
         if (string.IsNullOrEmpty(path))
         {
-            Manager.MainWindow.Send(new OnNotification(new Notification
+            Manager.Default.Send(new OnNotification(new Notification
             {
                 Title = "错误",
                 Content = "Url must be specified.",
                 Type = NotificationType.Error,
                 ShowIcon = true,
-            }));
+            }), Manager.MainWindowToken);
             return;
         }
 
@@ -158,7 +158,7 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
             Depth: Depth,
             NativeEol: NativeEol);
         
-        Messenger.Send(new OnExport(options));
+        Manager.Default.Send(new OnExport(options), Token);
         
         Close();
     }

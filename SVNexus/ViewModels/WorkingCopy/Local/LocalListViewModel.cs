@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Messages;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
@@ -13,27 +14,8 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
 {
     // private WeakReferenceMessenger Messenger { get; } = new();
 
-    public required string WorkingCopyPath { get; init; }
+    [ObservableProperty] public partial string WorkingCopyPath { get; set; } = string.Empty;
 
-
-    public event Action<object?, StatusEntry?>? SelectedItemChanged;
-    
-    
-    
-
-    // public LocalListViewModel()
-    // {
-    //     Messenger.Register(this);
-    // }
-    //
-    
-    
-    
-    // public class OnLocalListItemSelected
-    // {
-    //     public required bool IsSelected { get; init; }
-    //     public required ListItemViewModel ItemModel { get; init; }
-    // }
 
     public partial class ListItemViewModel : ViewModelLite
     {
@@ -103,7 +85,7 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
 
     partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
-        SelectedItemChanged?.Invoke(this, value?.StatusEntry);
+        Manager.Default.Send(new OnSelectedItemChanged(value?.AbsolutePath));
     }
 
     // public void Receive(OnLocalListItemSelected message)
@@ -134,7 +116,7 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
                 Parent = this
             };
             // item.ItemCheckStateChanged += OnItemCheckStateChanged;
-            if (SelectedItem?.WorkingCopyPath == entry.Path)
+            if (SelectedItem?.AbsolutePath == entry.Path)
             {
                 selectedItem = item;
             }
@@ -145,7 +127,7 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
         SelectedItem = selectedItem;
         
         Console.WriteLine("Items: {0}", Items.Count);
-        SelectedItems = Items.Where(item => item.IsChecked).Select(item => item.WorkingCopyPath).ToList();
+        SelectedItems = Items.Where(item => item.IsChecked).Select(item => item.AbsolutePath).ToList();
     }
 
     private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)
