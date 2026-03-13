@@ -7,10 +7,6 @@ namespace SVNexus.Extension;
 
 public static class Extension
 {
-    public static string TrimStartString(this string self, string s, StringComparison comparisonType = StringComparison.Ordinal)
-    {
-        return self.StartsWith(s) ? self[s.Length..] : self;
-    }
 
     public static string LogChangedPathActionIcon(this LogChangedPathAction action)
     {
@@ -62,7 +58,7 @@ public static class Extension
         {
             NodeKind.File => "Icons.File-Normal",
             NodeKind.Directory => "Icons.Directory-Close",
-            NodeKind.Unknown => "Icons.FileUnknown",
+            NodeKind.Unknown => "Icons.File-Unknown",
             NodeKind.Symlink => "Icons.File-Symlink", 
             _ => "Icons.FileUnknown"
         };

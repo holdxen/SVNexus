@@ -11,6 +11,12 @@
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalTreeView">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <TreeView SelectionMode="Multiple"
               Margin="0"
               Padding="0"
@@ -26,7 +32,8 @@
             </Style>
         </TreeView.Styles>
         <TreeView.DataTemplates>
-            <TreeDataTemplate x:DataType="local:LocalTreeViewModel+TreeItemViewModel" ItemsSource="{Binding Children}">
+            <TreeDataTemplate x:DataType="local:LocalTreeViewModel+TreeItemViewModel" 
+                              ItemsSource="{Binding Children}">
                 <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto, Auto"
                       IsHitTestVisible="True"
                       Background="Transparent">

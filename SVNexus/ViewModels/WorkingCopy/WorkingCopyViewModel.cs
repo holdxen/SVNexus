@@ -25,14 +25,22 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     IRecipient<OnNotWorkingCopy>
 {
 
+    public const int LocalViewIndex = 0;
+    public const int RemoteViewIndex = 1;
+    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLocalView))]
+    [NotifyPropertyChangedFor(nameof(IsRemoteView))]
+    public partial int SelectedViewIndex { get; set; } = LocalViewIndex;
     
     public override bool KeepAlive { get; set; } = true;
 
-    public required string WorkingCopyPath { get; set; }
+    [ObservableProperty]
+    public required partial string WorkingCopyPath { get; set; }
     
-    [ObservableProperty] public partial bool IsLocalView { get; set; } = true;
+    public bool IsLocalView => SelectedViewIndex == LocalViewIndex;
 
-    [ObservableProperty] public partial bool IsRemoteView { get; set; } = false;
+    public bool IsRemoteView => SelectedViewIndex == RemoteViewIndex;
     
     
     [ObservableProperty]
@@ -251,7 +259,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
             if (result is MessageBoxResult.No)
             {
                 // Manager.MainWindow.Send(new OnRemoveTabByLocalViewModel(this));
-                Manager.Default.Send(new OnRemoveTabByContent(this), Manager.MainWindowToken);
+                Manager.Default.Send(new OnRemoveTab(Token), Manager.MainWindowToken);
             }
             else
             {

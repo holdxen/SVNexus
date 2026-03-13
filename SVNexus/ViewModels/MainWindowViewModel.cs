@@ -8,12 +8,14 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using SVNexus.Engine;
+using SVNexus.Extension;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
 
 namespace SVNexus.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>, IRecipient<OnRemoveTabByLocalViewModel>, IRecipient<OnRemoveTabByContent>
+public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>//, IRecipient<OnRemoveTabByLocalViewModel>, IRecipient<OnRemoveTabByContent>
 {
     
     public partial class TabItemViewViewModel: ViewModelLite
@@ -110,7 +112,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
         SelectedIndex = Tabs.Count - 1;
     }
 
-    // [RelayCommand]
+    [RelayCommand]
     private void AddTab()
     {
         var tab = new TabItemViewViewModel
@@ -125,17 +127,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public void Receive(OnRemoveTab message)
     {
-        var index = Tabs.IndexOf(message.Value);
+        var index = Tabs.FindIndex(e => e.Id == message.Value);
+        
         if (index == -1 || SelectedIndex != index)
         {
             return;
         }
 
+        Tabs.RemoveAt(index);
+        
         if (index != 0)
         {
             index--;
         }
-        Tabs.Remove(message.Value);
         SelectedIndex = index;
     }
 
@@ -161,7 +165,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
         {
             Closable = true,
             Content = workingCopyView,
-            Text = Path.GetFileName(message.Value.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+            // Text = Path.GetFileName(message.Value.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+            Text = message.Value.GetFileName()
         };
         
         AddTab(tab);
@@ -174,33 +179,33 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
         SelectedIndex = Tabs.Count - 1;
     }
 
-    public void Receive(OnRemoveTabByLocalViewModel message)
-    {
-        foreach (var tab in Tabs)
-        {
-            if (tab.Content is not WorkingCopyViewModel workingCopyViewModel ||
-                workingCopyViewModel.LocalViewModel != message.Value) continue;
-            var index = Tabs.IndexOf(tab);
-            if (index == SelectedIndex)
-            {
-                SelectedIndex = SelectedIndex == 1 ? 1 : SelectedIndex - 1;
-            }
-            Tabs.Remove(tab);
-            break;
-        }
-    }
-
-    public void Receive(OnRemoveTabByContent message)
-    {
-        foreach (var tab in Tabs)
-        {
-            if (Equals(tab.Content, message.Value))
-            {
-                Tabs.Remove(tab);
-            }
-            break;
-        }
-    }
+    // public void Receive(OnRemoveTabByLocalViewModel message)
+    // {
+    //     foreach (var tab in Tabs)
+    //     {
+    //         if (tab.Content is not WorkingCopyViewModel workingCopyViewModel ||
+    //             workingCopyViewModel.LocalViewModel != message.Value) continue;
+    //         var index = Tabs.IndexOf(tab);
+    //         if (index == SelectedIndex)
+    //         {
+    //             SelectedIndex = SelectedIndex == 1 ? 1 : SelectedIndex - 1;
+    //         }
+    //         Tabs.Remove(tab);
+    //         break;
+    //     }
+    // }
+    //
+    // public void Receive(OnRemoveTabByContent message)
+    // {
+    //     foreach (var tab in Tabs)
+    //     {
+    //         if (Equals(tab.Content, message.Value))
+    //         {
+    //             Tabs.Remove(tab);
+    //         }
+    //         break;
+    //     }
+    // }
 
     ~MainWindowViewModel()
     {

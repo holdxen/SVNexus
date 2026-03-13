@@ -33,7 +33,6 @@
         <PackageReference Include="Semi.Avalonia.DataGrid" Version="11.3.7.2" />
         <PackageReference Include="Semi.Avalonia.Dock" Version="11.3.6.2" />
         <PackageReference Include="Semi.Avalonia.Tabalonia" Version="11.0.0-beta1" />
-        <PackageReference Include="Serilog" Version="4.3.0" />
         <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.2" />
         <PackageReference Include="System.Reactive" Version="6.1.0" />
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3" />

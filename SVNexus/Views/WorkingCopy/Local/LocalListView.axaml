@@ -7,16 +7,47 @@
              x:DataType="local:LocalListViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:inject="clr-namespace:SVNexus.Inject"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:vm="clr-namespace:SVNexus.ViewModels"
+             xmlns:converters="clr-namespace:SVNexus.Converters"
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalListView">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="local:LocalListViewModel+MenuIconViewModel">
+            <components:SvgRender Classes.Themable="{Binding Themable}"
+                                  Source="{Binding Source, Converter={x:Static converters:StaticResourceConverter.Default}}"></components:SvgRender>
+        </DataTemplate>
+    </UserControl.DataTemplates>
     <ListBox
+        x:Name="ListBox"
         SelectedItem="{Binding SelectedItem}"
         SelectionMode="Multiple"
         ItemsSource="{Binding Items}">
+        <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+                <Setter Property="CornerRadius" Value="5"></Setter>
+                <Setter Property="Padding" Value="0"></Setter>
+            </Style>
+            <Style Selector="ListBoxItem:pressed">
+                <Setter Property="Background" Value="{DynamicResource ListBoxItemPointeroverBackground}"></Setter>
+            </Style>
+            <Style Selector="ListBoxItem:selected">
+                <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" />
+                <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedBackground}" />
+                <Style Selector="^:pointerover">
+                    <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedPointeroverBackground}" />
+                </Style>
+            </Style>
+        </ListBox.Styles>
         <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="local:LocalListViewModel+ListItemViewModel">
-                <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto">
+            <DataTemplate DataType="local:LocalListViewModel+ListItemViewModel">
+                <Grid x:Name="ItemRoot" 
+                      Margin="2 4"
+                      Background="Transparent"
+                      inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}" 
+                      ColumnDefinitions="Auto, Auto, *, Auto" >
+
                     <CheckBox Grid.Column="0"
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
@@ -28,19 +59,65 @@
                                           Height="{Binding #ListItemText.Bounds.Height}"
                                           Source="{Binding PathSvgIcon, Mode=OneWay}">
                     </components:SvgRender>
-                    <TextBlock Grid.Column="2"
-                               x:Name="ListItemText"
-                               Text="{Binding Text}"
-                               ToolTip.Tip="{Binding AbsolutePath}"
-                               HorizontalAlignment="Left"
-                               VerticalAlignment="Center">
-                    </TextBlock>
-                    <ItemsControl Grid.Column="3"></ItemsControl>
+                    <Grid Grid.Column="2">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <TextBlock Grid.Column="0"
+                                       MaxLines="1"
+                                       x:Name="ListItemText"
+                                       Text="{Binding Name}"
+                                       ToolTip.Tip="{Binding AbsolutePath}"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center">
+                            </TextBlock>
+                            <TextBlock Margin="5 0 0 0" 
+                                       Grid.Column="1"
+                                       Classes="Quaternary VCenter"
+                                       FontSize="12"
+                                       Text="{Binding ContainsDirectory}" >
+                            </TextBlock>
+                        </Grid>
+                        <components:SvgButton IsVisible="{Binding #ItemRoot.IsPointerOver}" 
+                                              Source="{StaticResource Icons.More}"
+                                              VerticalAlignment="Center" 
+                                              Name="MoreButton"
+                                              x:Name="MoreButton"
+                                              Size="16"
+                                              EnableFlyout="{Binding MenuItems, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                              HorizontalAlignment="Right">
+                            <components:SvgButton.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedLeft" ItemsSource="{Binding MenuItems}">
+                                    <MenuFlyout.ItemContainerTheme>
+                                        <ControlTheme TargetType="MenuItem"
+                                                      BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                      x:DataType="vm:MenuItemViewModel">
+                                            <Setter Property="Icon" Value="{Binding Icon}"></Setter>
+                                            <Setter Property="Padding" Value="4 2"></Setter>
+                                            <Setter Property="Header" Value="{Binding Header}" />
+                                            <Setter Property="ItemsSource" Value="{Binding Children}" />
+                                            <Setter Property="Command" Value="{Binding Command}" />
+                                            <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+                                            <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+                                        </ControlTheme>
+                                    </MenuFlyout.ItemContainerTheme>
+                                </MenuFlyout>
+                                <!-- <MenuFlyout Placement="Bottom"> -->
+                                <!--     <MenuItem Classes="Thin" Header="Revert" Command="{Binding RevertCommand}"> -->
+                                <!--         <MenuItem.Icon> -->
+                                <!--             <components:SvgRender Classes="Themable" -->
+                                <!--                                   Source="{StaticResource Icons.OperationRevert}"> -->
+                                <!--             </components:SvgRender> -->
+                                <!--         </MenuItem.Icon> -->
+                                <!--     </MenuItem> -->
+                                <!--     <MenuItem Classes="Thin" Header="Copy" /> -->
+                                <!--     <MenuItem Classes="Thin" Header="Delete" /> -->
+                                <!-- </MenuFlyout> -->
+                            </components:SvgButton.Flyout>
+                        </components:SvgButton>
+                    </Grid>
                     <components:SvgRender
                         ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}"
                         Grid.Column="3"
-                        Width="{Binding #ListItemText.Bounds.Height}"
-                        Height="{Binding #ListItemText.Bounds.Height}"
+                        Size="20"
                         Margin="3 0"
                         Source="{Binding StatusSvgIcon, Mode=OneWay}">
                     </components:SvgRender>
@@ -48,8 +125,5 @@
                 </Grid>
             </DataTemplate>
         </ListBox.ItemTemplate>
-        <ListBox.Resources>
-            <Thickness x:Key="ListBoxItemDefaultPadding">2 4</Thickness>
-        </ListBox.Resources>
     </ListBox>
 </UserControl>

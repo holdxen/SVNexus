@@ -2,4 +2,4 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace SVNexus.Messages;
 
-public class OnSelectedItemChanged(string? value) : ValueChangedMessage<string?>(value);
+public class OnSelectedItemChanged(object? value) : ValueChangedMessage<object?>(value);

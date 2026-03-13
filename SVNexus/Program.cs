@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Avalonia.Platform;
 using SVNexus.Generated;
+using SVNexus.Utils;
 
 namespace SVNexus;
 
@@ -43,6 +44,8 @@ internal static class Program
     public static void Main(string[] args)
     {
         EngineMethods.EngineInitialize();
+        Log.Info("Initializing Rust successfully");
+        Console.WriteLine("{0} {1}", 1, 2);
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

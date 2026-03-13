@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using SVNexus.Utils;
 using SVNexus.ViewModels;
 
 namespace SVNexus;
@@ -17,21 +18,24 @@ namespace SVNexus;
 public class ViewLocator : IDataTemplate
 {
 
-    private readonly Dictionary<object, Control> _cache = [];
-
-
-
-
-
-    void CacheControl(object value, Control control)
+    private readonly LimitedDictionary<object, Control> _cache = new()
     {
-        const int maxCacheItem = 20;
-        if (_cache.Count >= maxCacheItem + 1)
-        {
-            _cache.Remove(_cache.First().Key);
-        }
-        _cache[value] = control;
-    }
+        Limit = 20
+    };
+
+
+
+
+
+    // void CacheControl(object value, Control control)
+    // {
+    //     const int maxCacheItem = 20;
+    //     if (_cache.Count >= maxCacheItem + 1)
+    //     {
+    //         _cache.Remove(_cache.First().Key);
+    //     }
+    //     _cache[value] = control;
+    // }
     
     public Control? Build(object? param)
     {
@@ -74,7 +78,7 @@ public class ViewLocator : IDataTemplate
         
         if (keepAlive)
         {
-            CacheControl(param, widget); 
+            _cache.Add(param, widget);
         }
 
         return widget;

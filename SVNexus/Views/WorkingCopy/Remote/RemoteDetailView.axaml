@@ -16,9 +16,15 @@
                     <Thickness x:Key="DescriptionsItemMargin">0</Thickness>
                     <Thickness x:Key="DescriptionsKeyPadding">0 0 5 0</Thickness>
                 </u:Descriptions.Resources>
-                <u:DescriptionsItem Label="Author" Content="{Binding Author}" />
-                <u:DescriptionsItem Label="DateTime" Content="{Binding DateTimeText}" />
-                <u:DescriptionsItem Label="Revision" Content="{Binding Revision}"></u:DescriptionsItem>
+                <u:DescriptionsItem Label="Author" >
+                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Author}"></SelectableTextBlock>
+                </u:DescriptionsItem>
+                <u:DescriptionsItem Label="DateTime" >
+                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding DateTimeText}"></SelectableTextBlock>
+                </u:DescriptionsItem>
+                <u:DescriptionsItem Label="Revision" >
+                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Revision}"></SelectableTextBlock>
+                </u:DescriptionsItem>
                 <u:DescriptionsItem Label="Message" >
                     <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Message}"></SelectableTextBlock>
                 </u:DescriptionsItem>
@@ -28,10 +34,10 @@
                 <u:SelectionList.ItemTemplate>
                     <DataTemplate DataType="remote:RemoteDetailViewModel+ChangeItemViewModel">
                         <Grid ColumnDefinitions="Auto, *">
-                            <components:SvgRender Margin="4 0" Source="{Binding Icon}" 
-                                                  Width="18"
-                                                  Height="18"
-                                                  />
+                            <components:SvgRender Grid.Column="0" 
+                                                  Margin="4 0" 
+                                                  Source="{Binding Icon}" 
+                                                  Size="18"/>
                             <TextBlock Name="TextPart" 
                                        Grid.Column="1" 
                                        VerticalAlignment="Center"

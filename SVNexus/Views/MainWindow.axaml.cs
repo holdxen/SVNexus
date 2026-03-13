@@ -7,10 +7,11 @@ using Ursa.Controls;
 
 namespace SVNexus.Views;
 
-public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecipient<OnNotification>
+public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecipient<OnNotification>, IRecipient<OnShowToast>
 {
     
     private readonly WindowNotificationManager _notificationManager;
+    private readonly WindowToastManager _toastManager;
     
     public MainWindow()
     {
@@ -20,6 +21,7 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
         Manager.Default.RegisterAllMessages(this, Manager.MainWindowToken);
         
         _notificationManager = new WindowNotificationManager(this);
+        _toastManager = new WindowToastManager(this);
     }
     
     
@@ -41,5 +43,18 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
     public void Receive(OnNotification message)
     {
         _notificationManager.Show(message.Value);
+    }
+
+    public void Receive(OnShowToast message)
+    {
+        _toastManager.Show(
+            message.Content, 
+            message.Type, 
+            message.Expiration, 
+            message.ShowIcon, 
+            message.ShowClose, 
+            message.OnClick, 
+            message.OnClose, 
+            message.Classes);
     }
 }

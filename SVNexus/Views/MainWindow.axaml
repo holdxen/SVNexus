@@ -9,6 +9,7 @@
         xmlns:tab="clr-namespace:Tabalonia.Controls;assembly=Tabalonia"
         xmlns:inject="clr-namespace:SVNexus.Inject"
         xmlns:messages="clr-namespace:SVNexus.Messages"
+        xmlns:components="clr-namespace:SVNexus.Components"
         Icon="/Assets/avalonia-logo.ico"
         Title="SVNexus"
         inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
@@ -64,6 +65,17 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </tab:TabsControl.Content>
+        <tab:TabsControl.AddIconContent> 
+            <components:SvgButton Command="{Binding AddTabCommand}" 
+                                  Source="{StaticResource Icons.Plus}" 
+                                  Size="20" 
+                                  CornerRadius="10"/>
+        </tab:TabsControl.AddIconContent>
+        <tab:TabsControl.RightContent>
+            <StackPanel Orientation="Horizontal">
+                <components:SvgButton Classes="ToolButton" Source="{StaticResource Icons.Setting}"></components:SvgButton>
+            </StackPanel>
+        </tab:TabsControl.RightContent>
         
         
 

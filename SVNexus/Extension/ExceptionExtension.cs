@@ -40,25 +40,22 @@ public static class ExceptionExtension
             }
         }
 
-        public void Handle(Action<SvnError>? svnExceptionHandler = null, Action<AprError>? aprExceptionHandler = null, Action<System.Exception>? exceptionHandler  = null)
+        public bool Handle(Func<SvnError, bool>? svnExceptionHandler = null, Func<AprError, bool>? aprExceptionHandler = null, Func<System.Exception, bool>? exceptionHandler  = null)
         {
             switch (e)
             {
                 case Exception.SvnException svnException when svnExceptionHandler is not null:
                 {
                     var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, Options)!;
-                    svnExceptionHandler.Invoke(error);
-                    break;
+                    return svnExceptionHandler.Invoke(error);
                 }
                 case Exception.AprException aprException when aprExceptionHandler is not null:
                 {
                     var error = JsonSerializer.Deserialize<AprError>(aprException.Message, Options)!;
-                    aprExceptionHandler.Invoke(error);
-                    break;
+                    return aprExceptionHandler.Invoke(error);
                 }
                 default:
-                    exceptionHandler?.Invoke(e);
-                    break;
+                    return exceptionHandler?.Invoke(e) ?? false;
             }
         }
     }

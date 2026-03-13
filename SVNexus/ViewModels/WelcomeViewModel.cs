@@ -22,13 +22,13 @@ namespace SVNexus.ViewModels;
 public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IRecipient<OnExport>
 {
     public override bool KeepAlive { get; set; } = true;
-    
-    
+
+
     // private WeakReferenceMessenger Messenger { get; } = new();
 
-    
+
     [ObservableProperty]
-    private string? _dialogHostId;
+    public partial string? DialogHostId { get; set; }
 
     [RelayCommand]
     private async Task ShowCheckoutDialog()
@@ -62,7 +62,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
 
             var workingCopyView = new WorkingCopyViewModel
             {
-                WorkingCopyPath = result[0].Path.AbsolutePath,
+                WorkingCopyPath = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar(),
             };
             Console.WriteLine("Send Add tab: {0} {1}", workingCopyView.WorkingCopyPath, Manager.MainWindowToken);
             Manager.Default.Send(new OnAddTab(new MainWindowViewModel.TabItemViewViewModel()

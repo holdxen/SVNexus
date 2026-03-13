@@ -20,6 +20,7 @@ using Notification = Ursa.Controls.Notification;
 
 namespace SVNexus.ViewModels.WorkingCopy.Remote;
 
+// TODO: allow see inherit property
 public partial class RemoteSnapshotViewModel: ViewModelBase
 {
     
@@ -111,19 +112,22 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
     public bool SelectedItemHasProperties => SelectedItem?.Entry?.HasProperties ?? false;
 
 
-    private readonly Dictionary<string, FileCache?> _cache = [];
-
-    private void AddCache(string path, FileCache cache)
+    private readonly LimitedDictionary<string, FileCache?> _cache = new()
     {
-        const int max = 20;
+        Limit = 20
+    };
 
-        if (_cache.Count >= max)
-        {
-            _cache.Remove(_cache.First().Key);
-        }
-
-        _cache[path] = cache;
-    }
+    // private void AddCache(string path, FileCache cache)
+    // {
+    //     const int max = 20;
+    //
+    //     if (_cache.Count >= max)
+    //     {
+    //         _cache.Remove(_cache.First().Key);
+    //     }
+    //
+    //     _cache[path] = cache;
+    // }
 
     [RelayCommand]
     private void OnSelectTextView()
@@ -211,7 +215,8 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
             
 
 
-            AddCache(entry.Path, fileCache);
+            // AddCache(entry.Path, fileCache);
+            _cache.Add(entry.Path, fileCache);
         }
         catch (Exception e)
         {
@@ -244,9 +249,18 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
 
     partial void OnSelectedItemChanged(FileItemViewModel? value)
     {
-        if (value is null || value.NodeKind != NodeKind.File)
+        if (value is null)
         {
             Code = string.Empty;
+        }
+        else if (value.NodeKind is NodeKind.Directory)
+        {
+            Code = string.Empty;
+            if (value.Entry?.HasProperties == true)
+            {
+                IsTextView = false;
+                // TODO load property
+            }
         }
         else if (value.Entry is not null)
         {
@@ -363,9 +377,10 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
         }
     }
     
-    [RelayCommand]
-    private async Task OnLoaded()
+    protected override async Task OnLoaded()
     {
+        await base.OnLoaded();
+        
         var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
@@ -400,7 +415,7 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
             TreeViewState = new LoadingOrErrorState.Error()
             {
                 ErrorMessage = e.HumanReadableMessage,
-                RetryCommand = loadedCommand,
+                RetryCommand = LoadedCommand,
                 RetryCommandParameter = null
             };
         }

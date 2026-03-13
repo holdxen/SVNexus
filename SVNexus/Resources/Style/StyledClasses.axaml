@@ -7,6 +7,14 @@
         </Border>
     </Design.PreviewWith>
 
+    <Style Selector="Label.VCenter">
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+    </Style>
+    
+    <Style Selector="Label.HCenter">
+        <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+    </Style>
+    
     <Style Selector="TextBlock.VCenter">
         <Setter Property="VerticalAlignment" Value="Center"></Setter>
     </Style>
@@ -18,6 +26,14 @@
     
     <Style Selector="components|LucideIconButton.ToolBarIconButton">
         <Setter Property="Size" Value="22"></Setter>
+    </Style>
+    
+    <Style Selector="MenuItem.Thin">
+        <Setter Property="Padding" Value="4 2"></Setter>
+    </Style>
+    
+    <Style Selector="components|SvgRender.Themable">
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
     </Style>
 
 </Styles>

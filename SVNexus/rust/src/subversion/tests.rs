@@ -1,5 +1,4 @@
 use super::apr;
-use super::context::*;
 
 #[test]
 fn uri_is_canonical() {

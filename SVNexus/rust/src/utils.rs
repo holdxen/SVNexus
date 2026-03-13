@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    error::{self, Error, builder},
+    error::{self, builder},
     subversion,
 };
 
@@ -117,27 +117,7 @@ pub impl<T> T {
     }
 }
 
-fn rescale(
-    source_width: f32,
-    source_height: f32,
-    target_width: f32,
-    target_height: f32,
-) -> Transform {
-    let scale_x = target_width / source_width as f32;
-    let scale_y = target_height / source_width as f32;
-    let scale = scale_x.min(scale_y); // 取最小值，确保不溢出
 
-    // 计算居中偏移（从左上角平移到中心）
-    let scaled_width = source_width * scale;
-    let scaled_height = source_height * scale;
-    let dx = (target_width - scaled_width) / 2.0; // X偏移
-    let dy = (target_height - scaled_height) / 2.0; // Y偏移
-
-    // 构建变换：先缩放SVG，然后平移到居中位置
-    let transform = Transform::from_scale(scale, scale).post_translate(dx, dy);
-
-    transform
-}
 
 thread_local! {
     static SVG: RefCell<HashMap<String, DecodedSvg>> = Default::default();
@@ -178,6 +158,28 @@ fn setup_svg(fonts: Vec<Vec<u8>>) {
     });
 }
 
+fn rescale(
+    source_width: f32,
+    source_height: f32,
+    target_width: f32,
+    target_height: f32,
+) -> Transform {
+    let scale_x = target_width / source_width as f32;
+    let scale_y = target_height / source_height as f32;
+    let scale = scale_x.min(scale_y); // 取最小值，确保不溢出
+
+    // 计算居中偏移（从左上角平移到中心）
+    let scaled_width = source_width * scale;
+    let scaled_height = source_height * scale;
+    let dx = (target_width - scaled_width) / 2.0; // X偏移
+    let dy = (target_height - scaled_height) / 2.0; // Y偏移
+
+    // 构建变换：先缩放SVG，然后平移到居中位置
+    let transform = Transform::from_scale(scale, scale).post_translate(dx, dy);
+
+    transform
+}
+
 #[uniffi::export]
 impl SvgRenderOptions {
     fn render(self) -> error::Result<Vec<u8>> {
@@ -201,12 +203,12 @@ impl SvgRenderOptions {
             None
         });
         if let Some(data) = data {
-            tracing::info!("Cache hit for SVG rendering.");
+            tracing::trace!("Cache hit for SVG rendering.");
             return Ok(data);
         }
         let fonts = FONTS.get().expect("SVG_OPTIONS not initialized").clone();
 
-        let style = self.color.as_ref().map(|color| format!(r#"svg, g, path, rect, circle, ellipse, polygon, polyline, text {{ stroke: {} !important; }}"#, color));
+        let style = self.color.as_ref().map(|color| format!(r#"svg, g, path, rect, circle, ellipse, polygon, polyline, text {{ stroke: {} !important; }} svg {{ color: {} !important; }}"#, color, color));
 
         let options = usvg::Options {
             fontdb: fonts,
@@ -221,6 +223,28 @@ impl SvgRenderOptions {
 
         let mut pixmap = Pixmap::new(self.width, self.height).expect("Unexpected zero size");
 
+        // let oversample = 4u32;
+        // let render_width = self.width.checked_mul(oversample).expect("");
+        // let render_height = self.height.checked_mul(oversample).expect("");
+
+        // let mut large_pixmap = Pixmap::new(render_width, render_height).expect("Unexpected zero size");
+
+        // let large_transform = rescale(tree.size().width(), tree.size().height(), render_width as f32, render_height as f32);
+
+        // render(&tree, large_transform, &mut large_pixmap.as_mut());
+
+        // let mut final_pixmap = Pixmap::new(self.width, self.height).expect("Unexpected zero size");
+
+        // let mut paint = PixmapPaint::default();
+
+        // paint.quality = tiny_skia::FilterQuality::Bicubic;
+
+        // let downscale = Transform::from_scale(self.width as f32 / render_width as f32, self.height as f32 / render_height as f32);
+
+        // final_pixmap.draw_pixmap(0, 0, large_pixmap.as_ref(), &paint, downscale, None);
+
+        // let mut pixmap = Pixmap::new(self.width, self.height).expect("Unexpected zero size");
+
         let transform = rescale(
             tree.size().width(),
             tree.size().height(),
@@ -229,9 +253,9 @@ impl SvgRenderOptions {
         );
         render(&tree, transform, &mut pixmap.as_mut());
 
-        // pixmap.save_png("./test.png").unwrap()
-
         let data = pixmap.take();
+        //
+        // let data = final_pixmap.take();
 
         SVG.with_borrow_mut(|svg| {
             svg.insert(
@@ -307,4 +331,30 @@ impl FormatSizeOptions {
     pub fn format(self) -> String {
         humansize::format_size(self.size, humansize::DECIMAL)
     }
+}
+
+
+#[uniffi::export]
+fn log_info(line: i32, file: &str, member: &str, content: &str) {
+    tracing::info!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+}
+
+#[uniffi::export]
+fn log_error(line: i32, file: &str, member: &str, content: &str) {
+    tracing::error!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+}
+
+#[uniffi::export]
+fn log_trace(line: i32, file: &str, member: &str, content: &str) {
+    tracing::trace!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+}
+
+#[uniffi::export]
+fn log_debug(line: i32, file: &str, member: &str, content: &str) {
+    tracing::debug!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+}
+
+#[uniffi::export]
+fn log_warn(line: i32, file: &str, member: &str, content: &str) {
+    tracing::warn!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
 }

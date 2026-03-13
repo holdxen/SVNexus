@@ -50,13 +50,11 @@ public class DocumentTextBindingBehavior : Behavior<TextEditor>
 
     private void TextPropertyChanged(string text)
     {
-        if (_textEditor?.Document is not null)
-        {
-            var caretOffset = _textEditor.CaretOffset;   // 保留光标位置
-            _textEditor.Document.Text = text;
+        if (_textEditor?.Document is null) return;
+        var caretOffset = _textEditor.CaretOffset;   // 保留光标位置
+        _textEditor.Document.Text = text;
 
-            // 【关键修复】光标位置限制在新文本长度内，防止越界崩溃
-            _textEditor.CaretOffset = Math.Min(caretOffset, _textEditor.Document.TextLength);
-        }
+        // 【关键修复】光标位置限制在新文本长度内，防止越界崩溃
+        _textEditor.CaretOffset = Math.Min(caretOffset, _textEditor.Document.TextLength);
     }
 }

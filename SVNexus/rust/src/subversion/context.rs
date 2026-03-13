@@ -61,6 +61,10 @@ impl AsyncContext {
             .await
     }
 
+    pub async fn cleanup(&self, opts: CleanupOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.cleanup(opts)).await
+    }
+
     pub async fn list(&self, opts: ListOptions) -> error::Result<ListResult> {
         self.call_async(|mut context| context.list(opts)).await
     }
@@ -133,14 +137,8 @@ impl AsyncContext {
 
     #[uniffi::constructor]
     pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
-        eprintln!("debug:{}:{}", file!(), line!());
-        // let context = Context::create(opts)?;
         let context = ContextFactory::instance()?.create_context(opts)?;
-        eprintln!("debug:{}:{}", file!(), line!());
-
         let context = Arc::new(parking_lot::Mutex::new(context));
-        eprintln!("debug:{}:{}", file!(), line!());
-
         Ok(AsyncContext { context })
     }
 }
@@ -187,7 +185,6 @@ pub struct ContextInner {
     // on_progress_notify: Box<dyn Fn(i64, i64) + Send>,
     // on_authenticate: Box<dyn Fn(String, String, bool) -> Option<Authentication> + Send>,
     //
-
     #[new(default)]
     current_list_options: Option<ListOptions>,
 
@@ -287,7 +284,7 @@ impl Proxies {
 
         if let Some(http) = self.http.as_ref() {
             // Apply HTTP proxy settings
-            println!("set http proxy: {:#?}", http);
+            tracing::info!("set http proxy: {:#?}", http);
             unsafe {
                 ffi::svn_config_set(
                     config,
@@ -482,7 +479,7 @@ impl WorkingCopyNotify {
 
             let lock_state = WorkingCopyNotifyLockState::try_from(ptr.lock_state).unwrap();
 
-            println!("WorkingCopyNotify revision: {}", ptr.revision);
+            tracing::info!("WorkingCopyNotify revision: {}", ptr.revision);
             let revision = if ptr.revision < 0 {
                 None
             } else {
@@ -694,7 +691,7 @@ pub struct StatusEntry {
     repos_root_url: Option<String>,
     repos_uuid: Option<String>,
     repos_relpath: Option<String>,
-    revision: RevisionNumber,
+    revision: Option<RevisionNumber>,
     last_changed_revision: Option<RevisionNumber>,
     last_changed_date: i64,
     last_changed_author: Option<String>,
@@ -790,7 +787,7 @@ pub struct StatusOptions {
     revision: Revision,
     depth: Depth,
     get_all: bool,
-    update: bool,
+    // update: bool,
     check_out_of_date: bool,
     check_working_copy: bool,
     no_ignore: bool,
@@ -967,13 +964,13 @@ impl StatusEntry {
         entry: *const ffi::svn_client_status_t,
     ) -> Self {
         unsafe {
-            let path = apr::char_array_to_string(path).unwrap();
+            let path = path.to_str().to_string();
 
             let entry = &*entry;
 
             let node_kind = NodeKind::try_from(entry.kind).unwrap();
 
-            let local_absolute_path = apr::char_array_to_string(entry.local_abspath).unwrap();
+            let local_absolute_path = entry.local_abspath.to_str().to_string();
 
             // let file_size: u64 = entry.filesize.try_into().unwrap();
             let file_size = if entry.filesize == -1 {
@@ -1002,7 +999,7 @@ impl StatusEntry {
 
             let repos_relpath = apr::char_array_to_string(entry.repos_relpath);
 
-            let revision = RevisionNumber::try_from(entry.revision).unwrap();
+            let revision = RevisionNumber::try_from(entry.revision).ok();
 
             let last_changed_revision = entry.changed_rev.try_into().ok();
 
@@ -1312,7 +1309,7 @@ unsafe extern "C" fn on_notify(
 
         let notify = WorkingCopyNotify::from_raw(notify);
 
-        println!("Notify: {:#?}", notify);
+        tracing::info!("Notify: {:#?}", notify);
 
         this.context_notifier.working_copy_notify(notify);
 
@@ -1326,23 +1323,6 @@ impl Default for Depth {
     fn default() -> Self {
         Depth::Unknown
     }
-}
-
-unsafe extern "C" fn status_callback(
-    baton: *mut c_void,
-    path: *const c_char,
-    status: *const ffi::svn_client_status_t,
-    pool: *mut ffi::apr_pool_t,
-) -> *mut ffi::svn_error_t {
-    let this = unsafe { &mut *(baton as *mut ContextInner) };
-
-    tracing::info!("Add entry");
-    let entry = unsafe { StatusEntry::from_path_and_ptr(path, status) };
-    tracing::info!("translated entry");
-
-    this.status_entries.push(entry);
-
-    svn_no_error()
 }
 
 #[uniffi::export]
@@ -1538,7 +1518,7 @@ unsafe extern "C" fn may_save_password_as_plain_text(
     baton: *mut c_void,
     pool: *mut ffi::apr_pool_t,
 ) -> *mut ffi::svn_error_t {
-    println!("may_save_password_as_plain_text");
+    tracing::info!("may_save_password_as_plain_text");
     let ctx = unsafe { &mut *(baton as *mut ContextInner) };
 
     unsafe {
@@ -1833,7 +1813,7 @@ unsafe extern "C" fn on_authenticate(
     may_save: ffi::svn_boolean_t,
     pool: *mut ffi::apr_pool_t,
 ) -> *mut ffi::svn_error_t {
-    println!("on_authenticate");
+    tracing::info!("on_authenticate");
     unsafe {
         let cancel = on_cancel(baton);
         if !cancel.is_null() {
@@ -2068,7 +2048,7 @@ pub struct ListOptions {
 
 #[derive(Debug, Clone, new, uniffi::Record)]
 pub struct ListResult {
-    entries: Vec<ListEntry>
+    entries: Vec<ListEntry>,
 }
 
 #[derive(Debug, Clone, uniffi::Record)]
@@ -2086,10 +2066,8 @@ pub struct ListEntry {
     external_target: Option<String>,
 }
 
-
-
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_diff_file_ignore_space_t)]
-#[derive(uniffi::Enum, Debug)]
+#[derive(uniffi::Enum, Debug, Clone, Copy)]
 pub enum DiffFileIgnoreSpace {
     None = ffi::svn_diff_file_ignore_space_t_svn_diff_file_ignore_space_none,
     Change = ffi::svn_diff_file_ignore_space_t_svn_diff_file_ignore_space_change,
@@ -2104,16 +2082,25 @@ pub struct DifferenceFileOptions {
     context_size: i32,
 }
 
-impl From<DifferenceFileOptions> for ffi::svn_diff_file_options_t {
-    fn from(value: DifferenceFileOptions) -> Self {
-        Self {
-            ignore_eol_style: value.ignore_eol_style.into(),
-            ignore_space: value.ignore_space.into(),
-            show_c_function: value.show_c_function.into(),
-            context_size: value.context_size.try_into().unwrap(),
-        }
+impl DifferenceFileOptions {
+    fn setup(&self, options: &mut ffi::svn_diff_file_options_t) {
+        options.ignore_eol_style = self.ignore_eol_style.into();
+        options.ignore_space = self.ignore_space.into();
+        options.show_c_function = self.show_c_function.into();
+        options.context_size = self.context_size.into();
     }
 }
+
+// impl From<DifferenceFileOptions> for ffi::svn_diff_file_options_t {
+//     fn from(value: DifferenceFileOptions) -> Self {
+//         Self {
+//             ignore_eol_style: value.ignore_eol_style.into(),
+//             ignore_space: value.ignore_space.into(),
+//             show_c_function: value.show_c_function.into(),
+//             context_size: value.context_size.try_into().unwrap(),
+//         }
+//     }
+// }
 
 #[derive(uniffi::Record, Debug)]
 pub struct DifferenceOptions {
@@ -2143,22 +2130,26 @@ impl DifferenceOptions {
 
             let mut diff = std::ptr::null_mut::<ffi::svn_diff_t>();
 
-            let options: ffi::svn_diff_file_options_t = options.options.into();
+            let file_options = ffi::svn_diff_file_options_create(pool.as_mut_ptr());
 
-            println!("{}:{}", file!(), line!());
+            options.options.setup(file_options.as_mut().unwrap());
+
+
+            // let options: ffi::svn_diff_file_options_t = options.options.into();
+
+            tracing::info!("{}:{}", file!(), line!());
             let error = ffi::svn_diff_mem_string_diff(
                 diff.pointer_mut(),
                 original,
                 modified,
-                options.pointer(),
+                file_options,
                 pool.as_mut_ptr(),
             );
-            println!("{}:{}", file!(), line!());
+            tracing::info!("{}:{}", file!(), line!());
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let mut functions = ffi::svn_diff_output_fns_t::default();
-
 
             let mut modified: Vec<TextChange> = Vec::with_capacity(128);
 
@@ -2171,15 +2162,15 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-
-                println!("+==============");
-                println!("original_start: {}", original_start);
-                println!("original_length: {}", original_length);
-                println!("modified_start: {}", modified_start);
-                println!("modified_length: {}", modified_length);
-                println!("latest_start: {}", latest_start);
-                println!("latest_length: {}", latest_length);
-                println!("-==============");
+                tracing::info!("output_common");
+                tracing::info!("+==============");
+                tracing::info!("original_start: {}", original_start);
+                tracing::info!("original_length: {}", original_length);
+                tracing::info!("modified_start: {}", modified_start);
+                tracing::info!("modified_length: {}", modified_length);
+                tracing::info!("latest_start: {}", latest_start);
+                tracing::info!("latest_length: {}", latest_length);
+                tracing::info!("-==============");
 
                 svn_no_error()
             }
@@ -2193,35 +2184,50 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-                println!("*==============");
-                println!("original_start: {}", original_start);
-                println!("original_length: {}", original_length);
-                println!("modified_start: {}", modified_start);
-                println!("modified_length: {}", modified_length);
-                println!("latest_start: {}", latest_start);
-                println!("latest_length: {}", latest_length);
-                println!("/==============");
+                tracing::info!("output_diff_modified");
+                tracing::info!("*==============");
+                tracing::info!("original_start: {}", original_start);
+                tracing::info!("original_length: {}", original_length);
+                tracing::info!("modified_start: {}", modified_start);
+                tracing::info!("modified_length: {}", modified_length);
+                tracing::info!("latest_start: {}", latest_start);
+                tracing::info!("latest_length: {}", latest_length);
+                tracing::info!("/==============");
 
                 unsafe {
                     let changes = output_baton as *mut Vec<TextChange>;
                     let changes = changes.as_mut().unwrap();
 
-                    let mut change = TextChange::default();
+                    let original = TextPosition {
+                        pos: original_start.try_into().unwrap_or_default(),
+                        len: original_length.try_into().unwrap_or_default()
+                    };
 
-                    if original_length > 0 {
-                        change.original = Some(TextPosition { pos: original_start.try_into().unwrap(), len: original_length.try_into().unwrap() });
-                    }
+                    let modified = TextPosition {
+                        pos: modified_start.try_into().unwrap_or_default(),
+                        len: modified_length.try_into().unwrap_or_default()
+                    };
 
-                    if modified_length > 0 {
-                        change.modified = Some(TextPosition { pos: modified_start.try_into().unwrap(), len: modified_length.try_into().unwrap() });
-                    }
+                    let change = TextChange { original, modified };
+
+                    // let mut change = TextChange::default();
+
+                    // if original_length > 0 {
+                    //     change.original = Some(TextPosition {
+                    //         pos: original_start.try_into().unwrap(),
+                    //         len: original_length.try_into().unwrap(),
+                    //     });
+                    // }
+
+                    // if modified_length > 0 {
+                    //     change.modified = Some(TextPosition {
+                    //         pos: modified_start.try_into().unwrap(),
+                    //         len: modified_length.try_into().unwrap(),
+                    //     });
+                    // }
 
                     changes.push(change);
-
-
                 }
-
-
 
                 std::ptr::null_mut()
             }
@@ -2235,15 +2241,15 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-
-                println!("(==============");
-                println!("original_start: {}", original_start);
-                println!("original_length: {}", original_length);
-                println!("modified_start: {}", modified_start);
-                println!("modified_length: {}", modified_length);
-                println!("latest_start: {}", latest_start);
-                println!("latest_length: {}", latest_length);
-                println!(")==============");
+                tracing::info!("output_diff_common");
+                tracing::info!("(==============");
+                tracing::info!("original_start: {}", original_start);
+                tracing::info!("original_length: {}", original_length);
+                tracing::info!("modified_start: {}", modified_start);
+                tracing::info!("modified_length: {}", modified_length);
+                tracing::info!("latest_start: {}", latest_start);
+                tracing::info!("latest_length: {}", latest_length);
+                tracing::info!(")==============");
 
                 svn_no_error()
             }
@@ -2257,19 +2263,18 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-
-                println!("[==============");
-                println!("original_start: {}", original_start);
-                println!("original_length: {}", original_length);
-                println!("modified_start: {}", modified_start);
-                println!("modified_length: {}", modified_length);
-                println!("latest_start: {}", latest_start);
-                println!("latest_length: {}", latest_length);
-                println!("]==============");
+                tracing::info!("output_diff_latest");
+                tracing::info!("[==============");
+                tracing::info!("original_start: {}", original_start);
+                tracing::info!("original_length: {}", original_length);
+                tracing::info!("modified_start: {}", modified_start);
+                tracing::info!("modified_length: {}", modified_length);
+                tracing::info!("latest_start: {}", latest_start);
+                tracing::info!("latest_length: {}", latest_length);
+                tracing::info!("]==============");
 
                 svn_no_error()
             }
-
 
             functions.output_diff_common = Some(output_diff_common);
             functions.output_diff_modified = Some(output_diff_modified);
@@ -2284,12 +2289,8 @@ impl DifferenceOptions {
                 std::ptr::null_mut::<std::ffi::c_void>(),
             );
 
-            Ok(DifferenceResult {
-                modified
-            })
-
+            Ok(DifferenceResult { modified })
         }
-
     }
 }
 
@@ -2299,10 +2300,10 @@ pub struct TextPosition {
     pub len: u64,
 }
 
-#[derive(uniffi::Record, Debug, Default)]
+#[derive(uniffi::Record, Debug)]
 pub struct TextChange {
-    pub original: Option<TextPosition>,
-    pub modified: Option<TextPosition>,
+    pub original: TextPosition,
+    pub modified: TextPosition,
 }
 
 #[derive(uniffi::Record, Debug)]
@@ -2685,6 +2686,16 @@ pub trait InitializeRepositoryNotifier: Send + Sync + 'static {
     fn on_finished(&self) -> error::Result<()>;
 }
 
+#[derive(Debug, uniffi::Record)]
+pub struct CleanupOptions {
+    pub path: String,
+    break_locks: bool,
+    fix_recorded_timestamps: bool,
+    clear_dav_cache: bool,
+    vacuum_pristines: bool,
+    include_externals: bool,
+}
+
 impl Context {
     fn ctx(&self) -> &ffi::svn_client_ctx_t {
         unsafe { &*self.ptr }
@@ -2769,6 +2780,29 @@ impl Context {
     }
 
     pub fn status(&mut self, opts: StatusOptions) -> error::Result<StatusResult> {
+        unsafe extern "C" fn status_receiver(
+            baton: *mut c_void,
+            path: *const c_char,
+            status: *const ffi::svn_client_status_t,
+            pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
+            unsafe {
+                let error = on_cancel(baton);
+                if !error.is_null() {
+                    return error;
+                }
+
+                let this = (baton as *mut ContextInner).as_mut().unwrap();
+
+                let entry = StatusEntry::from_path_and_ptr(path, status);
+
+                this.status_entries.push(entry);
+            }
+            // tracing::info!("translated entry: {:#?}", entry);
+
+            svn_no_error()
+        }
+
         let mut result_revision: ffi::svn_revnum_t = 0;
 
         let revision = opts.revision.to_opt_revision();
@@ -2777,6 +2811,8 @@ impl Context {
         // unsafe { apr::Array::from_string_list(opts.changelist.len(), opts.changelist)? };
 
         self.inner.status_entries.clear();
+
+        tracing::info!("status options={:#?}", opts);
 
         unsafe {
             let mut pool = apr::Pool::create();
@@ -2796,7 +2832,7 @@ impl Context {
                 opts.ignore_externals.into(),
                 opts.depth_as_sticky.into(),
                 changelist,
-                Some(status_callback),
+                Some(status_receiver),
                 &mut *self.inner as *mut ContextInner as *mut c_void,
                 pool.as_mut_ptr(),
             );
@@ -3066,7 +3102,7 @@ impl Context {
                 opts.keep_local.into(),
                 table,
                 Some(commit_callback),
-                &mut *self.inner as *mut _ as *mut c_void,
+                self.inner.inner_void_pointer_mut(),
                 self.ctx_mut(),
                 pool.as_mut_ptr(),
             );
@@ -3215,9 +3251,9 @@ impl Context {
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         }
-        println!("got entry size: {}", self.inner.log_entries.len());
+        tracing::info!("got entry size: {}", self.inner.log_entries.len());
         let r = LogResult::new(std::mem::take(&mut self.inner.log_entries));
-        println!("result: {}", r.log_entries.len());
+        tracing::info!("result: {}", r.log_entries.len());
         Ok(r)
     }
 
@@ -3273,13 +3309,13 @@ impl Context {
 
             let mut stream = super::stream::Stream::create(Default::default());
 
-            let path = pool.string(opts.path)?;
+            let path = pool.string(opts.path.as_str())?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
             let revision = opts.revision.to_opt_revision();
 
-            println!("Call cat3");
+            tracing::info!("Call cat3: {:#?}", opts);
             let error = ffi::svn_client_cat3(
                 &mut properties as *mut _,
                 stream.stream(),
@@ -3291,7 +3327,7 @@ impl Context {
                 pool.as_mut_ptr(),
                 pool.as_mut_ptr(),
             );
-            println!("Call finished cat3");
+            tracing::info!("Call finished cat3");
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
             let content = stream.take_write_buffer();
@@ -3420,6 +3456,30 @@ impl Context {
 
     fn property_get(&mut self, opts: PropertyGetOptions) {}
 
+    fn cleanup(&mut self, opts: CleanupOptions) -> error::Result<()> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let path = pool.string(opts.path)?;
+
+            let path = ffi::svn_dirent_canonicalize(path, pool.as_mut_ptr());
+
+            let error = ffi::svn_client_cleanup2(
+                path,
+                opts.break_locks.into(),
+                opts.fix_recorded_timestamps.into(),
+                opts.clear_dav_cache.into(),
+                opts.vacuum_pristines.into(),
+                opts.include_externals.into(),
+                self.ctx_mut(),
+                pool.as_mut_ptr(),
+            );
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+        }
+
+        Ok(())
+    }
+
     fn list(&mut self, opts: ListOptions) -> error::Result<ListResult> {
         unsafe extern "C" fn list_receiver(
             baton: *mut c_void,
@@ -3432,7 +3492,6 @@ impl Context {
             _scratch_pool: *mut apr::ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
-
                 let error = on_cancel(baton);
                 if !error.is_null() {
                     return error;
@@ -3490,9 +3549,7 @@ impl Context {
 
                 // tracing::info!("List entry: {:#?}", entry);
 
-
                 this.list_entries.push(entry);
-
             }
             svn_no_error()
         }
@@ -3507,7 +3564,12 @@ impl Context {
 
             // let patterns = pool.string_array(opts.patterns.len(), opts.patterns.iter())?;
             //
-            let patterns = opts.patterns.as_ref().map(|e| pool.string_array(e.len(), e.iter())).transpose()?.unwrap_or_default();
+            let patterns = opts
+                .patterns
+                .as_ref()
+                .map(|e| pool.string_array(e.len(), e.iter()))
+                .transpose()?
+                .unwrap_or_default();
 
             let mut dirent: u32 = 0;
             if opts.dirent_created_revision {
@@ -3549,10 +3611,10 @@ impl Context {
             tracing::info!("Finish list4:");
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         }
-        Ok(ListResult { entries: std::mem::take(&mut self.inner.list_entries) })
+        Ok(ListResult {
+            entries: std::mem::take(&mut self.inner.list_entries),
+        })
     }
-
-
 
     fn create(opts: CreateContextOptions) -> error::Result<Self> {
         let mut pool = unsafe { apr::Pool::create() };
@@ -3701,14 +3763,14 @@ impl Context {
             let ctx = ptr.as_mut().unwrap();
             ctx.auth_baton = auth_baton;
             ctx.log_msg_func3 = Some(on_get_commit_message);
-            ctx.log_msg_baton3 = &mut *inner as *mut _ as *mut c_void;
+            ctx.log_msg_baton3 = inner.inner_void_pointer_mut();
             ctx.notify_func2 = Some(on_notify);
-            ctx.notify_baton2 = &mut *inner as *mut _ as *mut c_void;
+            ctx.notify_baton2 = inner.inner_void_pointer_mut();
             ctx.cancel_func = Some(on_cancel);
-            ctx.cancel_baton = &mut *inner as *mut _ as *mut c_void;
+            ctx.cancel_baton = inner.inner_void_pointer_mut();
 
             ctx.progress_func = Some(on_progress_notify);
-            ctx.progress_baton = (&mut *inner) as *mut _ as *mut c_void;
+            ctx.progress_baton = inner.inner_void_pointer_mut();
 
             if let Some(ref name) = opts.name {
                 ctx.client_name = pool.string(name)?;

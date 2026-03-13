@@ -19,20 +19,25 @@
             <Grid RowDefinitions="Auto, *">
                 <Grid Grid.Row="0" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto">
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
-                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.SvnCheckout}" 
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Checkout"
+                                              Source="{StaticResource Icons.CloudDownload}" 
                                               Command="{Binding ShowCheckoutDialogCommand}"/>
-                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.SvnOpenFolder}" 
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Open working copy"
+                                              Source="{StaticResource Icons.LocateFixed}" 
                                               Command="{Binding OpenLocalRepositoryCommand}"/>
-                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.Export}" 
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Export"
+                                              Source="{StaticResource Icons.Download}" 
                                               Command="{Binding ShowExportDialogCommand}"/>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <components:SvgButton Classes="Default" Source="{StaticResource Icons.Terminal}" />
-                        <components:PathIconButton Classes="ToolBarIconButton" 
-                                                   Data="{StaticResource Icons.Terminal1}"></components:PathIconButton>
- 
-
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" 
+                                VerticalAlignment="Center">
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Open terminal"
+                                              Source="{StaticResource Icons.Terminal}" />
                     </StackPanel>
                 </Grid>
             </Grid>

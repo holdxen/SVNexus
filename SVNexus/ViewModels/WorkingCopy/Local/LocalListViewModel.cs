@@ -2,11 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
+using Avalonia.Controls.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
@@ -15,32 +23,29 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
     // private WeakReferenceMessenger Messenger { get; } = new();
 
     [ObservableProperty] public partial string WorkingCopyPath { get; set; } = string.Empty;
+    
+    public partial class MenuIconViewModel: ViewModelBase
+    {
+        [ObservableProperty]
+        public partial string? Source { get; set; }
+
+        [ObservableProperty] public partial bool Themable { get; set; } = true;
+    }
 
 
     public partial class ListItemViewModel : ViewModelLite
     {
         
-        // public event Action<ListItemViewModel, bool>? ItemCheckStateChanged;
+        public LocalListViewModel? Parent { get; set; }
         
-        public required LocalListViewModel Parent { get; init; }
         
         [ObservableProperty]
         public partial bool IsChecked { get; set; }
 
-        partial void OnIsCheckedChanged(bool value)
-        {
-            
-            // Messenger.Send(new OnLocalListItemSelected
-            // {
-            //     IsSelected = value,
-            //     ItemModel = this
-            // });
-            
-            // ItemCheckStateChanged?.Invoke(this, value);
-            Parent.OnItemCheckStateChanged(this, value);
-        }
 
-        public string Text => StatusEntry.Path.TrimStart(WorkingCopyPath.ToCharArray());
+        public string? ContainsDirectory => StatusEntry.Path.GetDirectoryName()?.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar();
+
+        public string Name => StatusEntry.Path.GetFileName();
     
 
         public string AbsolutePath => StatusEntry.Path;
@@ -57,14 +62,235 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
     
 
         [ObservableProperty] 
-        [NotifyPropertyChangedFor(nameof(Text))]
+        [NotifyPropertyChangedFor(nameof(Name))]
+        [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
         [NotifyPropertyChangedFor(nameof(AbsolutePath))]
         public required partial StatusEntry StatusEntry { get; set; }
-    
-    
-        public required string WorkingCopyPath { get; init; }
-    
-    
+
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Name))]
+        [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
+        public partial string WorkingCopyPath { get; set; } = string.Empty;
+
+
+        public List<MenuItemViewModel>? MenuItems
+        {
+            get
+            {
+                List<MenuItemViewModel> menuItems = [];
+                switch (StatusEntry.NodeStatus)
+                {
+                    case NodeStatus.None:
+                        break;
+                    case NodeStatus.Unversioned:
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Add",
+                            Command = AddCommand,
+                            Icon = new MenuIconViewModel()
+                            {
+                                Source = "Icons.OperationAdd"
+                            }
+                        });
+                        break;
+                    case NodeStatus.Normal:
+                        break;
+                    case NodeStatus.Added:
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Revert",
+                            Command = RevertCommand,
+                            Icon = new MenuIconViewModel()
+                            {
+                                Source = "Icons.OperationRevert"
+                            }
+                        });
+                        break;
+                    case NodeStatus.Missing:
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Revert",
+                            Command = RevertCommand,
+                            Icon = new MenuIconViewModel()
+                            {
+                                Source =  "Icons.OperationRevert"
+                            }
+                        });
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Delete",
+                            Command = DeleteCommand,
+                            Icon = new MenuIconViewModel()
+                            {
+                                Source =   "Icons.OperationDelete"
+                            }
+                        });
+                        break;
+                    case NodeStatus.Deleted:
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Revert",
+                            Command = RevertCommand,
+                            Icon = new MenuIconViewModel()
+                            {
+                                Source = "Icons.OperationRevert"
+                            }
+                        });
+                        break;
+                    case NodeStatus.Replaced:
+                        break;
+                    case NodeStatus.Modified:
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Revert",
+                            Command = RevertCommand,
+                            Icon = new MenuIconViewModel()
+                            {
+                                Source = "Icons.OperationRevert"
+                            }
+                        });
+                        break;
+                    case NodeStatus.Merged:
+                        menuItems.Add(new MenuItemViewModel()
+                        {
+                            Header = "Merge",
+                        });
+                        break;
+                    case NodeStatus.Conflicted:
+                        break;
+                    case NodeStatus.Ignored:
+                        break;
+                    case NodeStatus.Obstructed:
+                        break;
+                    case NodeStatus.External:
+                        break;
+                    case NodeStatus.Incomplete:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                
+                return menuItems.Count == 0 ? null : menuItems;
+            }
+        }
+
+        partial void OnIsCheckedChanged(bool value)
+        {
+            Parent?.OnItemCheckStateChanged(this, value);
+        }
+
+        public string? GetDialogHostId()
+        {
+            if (Parent is null)
+            {
+                return null;
+            }
+
+            var token = Parent.Token;
+            
+            
+            return  Manager.Default.Send(new OnGetDialogHostId(), token).Response;
+        }
+
+
+        [RelayCommand]
+        private async Task Add()
+        {
+            if (Parent is null)
+            {
+                return;
+            }
+
+            var token = Parent.Token;
+            
+            
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), token).Response;
+
+
+            try
+            {
+                using var context = Engine.Engine.Instance.SimpleContext(hostId);
+
+                var addOptions = new AddOptions(AbsolutePath, Depth.Empty, false, false, false, false);
+                
+                await context.Add(addOptions);
+                Manager.Default.Send(new OnRefreshWorkingCopy(), token);
+            }
+            catch (System.Exception e)
+            {
+                Manager.Default.Send(new OnShowToast()
+                {
+                    Content = $"Failed to add: {e.HumanReadableMessage}",
+                    Type = NotificationType.Error
+                }, Manager.MainWindowToken);
+            }
+            
+        }
+
+        [RelayCommand]
+        private async Task Delete()
+        {
+            
+        }
+        
+        [RelayCommand]
+        private async Task Revert()
+        {
+
+            if (Parent is null)
+            {
+                return;
+            }
+
+            var token = Parent.Token;
+            
+            
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), token).Response;
+            
+            if (StatusEntry.NodeStatus == NodeStatus.Unversioned)
+            {
+                // var result = await MessageBox.ShowOverlayAsync(message: $"\n{AbsolutePath.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()} will be permanently deleted", 
+                //     title: "Warning", hostId: hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+                // if (result != MessageBoxResult.Yes)
+                // {
+                //     return;
+                // }
+
+                return;
+            }
+
+            var result = await MessageBox.ShowOverlayAsync(message: $"Whether to revert:\n{AbsolutePath.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()}", 
+                title: "Question", hostId: hostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            try
+            {
+                using var context = Engine.Engine.Instance.SimpleContext(hostId);
+                var revertOptions = new RevertOptions(
+                    Paths: [AbsolutePath], 
+                    Depth: Depth.Empty, 
+                    Changelists: [], 
+                    ClearChangelists: false, 
+                    MetadataOnly: false, 
+                    AddedKeepLocal: true);
+            
+                await context.Revert(revertOptions);
+                Manager.Default.Send(new OnRefreshWorkingCopy(), token);
+            }
+            catch (System.Exception e)
+            {
+                Manager.Default.Send(new OnShowToast()
+                {
+                    Content = $"Failed to revert {e.HumanReadableMessage}",
+                    Type = NotificationType.Error
+                }, Manager.MainWindowToken);
+            }
+        }
+
+
         // public required WeakReferenceMessenger Messenger { get; init; }
 
 
@@ -80,12 +306,47 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
     public ObservableCollection<ListItemViewModel> Items { get; } = [];
     
     
-    public List<string> SelectedItems { get; set; } = [];
+    public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
+    
+    [ObservableProperty]
+    public partial bool? AllChecked { get; set; }
 
+    private bool BlockSignal { get; set; }
+
+
+    partial void OnAllCheckedChanged(bool? value)
+    {
+        if (BlockSignal)
+        {
+            return;
+        }
+
+        if (value is null)
+        {
+            return;
+            
+        }
+
+        BlockSignal = true;
+
+        foreach (var item in Items)
+        {
+            item.IsChecked = value.GetValueOrDefault();
+        }
+
+        BlockSignal = false;
+
+    }
+
+    
+
+    
+    
+    
 
     partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
-        Manager.Default.Send(new OnSelectedItemChanged(value?.AbsolutePath));
+        Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), Token);
     }
 
     // public void Receive(OnLocalListItemSelected message)
@@ -109,11 +370,8 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
         {
             var item = new ListItemViewModel
             {
-                WorkingCopyPath = WorkingCopyPath,
-                // Messenger =  Messenger,
                 StatusEntry = entry,
-                IsChecked = SelectedItems.Contains(entry.Path),
-                Parent = this
+                IsChecked = CheckedItems.ContainsKey(entry.Path),
             };
             // item.ItemCheckStateChanged += OnItemCheckStateChanged;
             if (SelectedItem?.AbsolutePath == entry.Path)
@@ -122,23 +380,56 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
             }
             
             Items.Add(item);
+
+            item.Parent = this;
         }
 
         SelectedItem = selectedItem;
         
-        Console.WriteLine("Items: {0}", Items.Count);
-        SelectedItems = Items.Where(item => item.IsChecked).Select(item => item.AbsolutePath).ToList();
+        CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
+        
+        UpdateAllChecked();
     }
 
     private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)
     {
         if (check)
         {
-            SelectedItems.Add(itemModel.StatusEntry.Path);
+            CheckedItems.Add(itemModel.StatusEntry.Path, itemModel.StatusEntry);
         }
         else
         {
-            SelectedItems.RemoveAll(model => itemModel.StatusEntry.Path == model);
-        }    
+            // CheckedItems.RemoveAll(model => itemModel.StatusEntry.Path == model);
+            CheckedItems.Remove(itemModel.StatusEntry.Path);
+        }
+        
+        UpdateAllChecked();
+    }
+    
+    private void UpdateAllChecked()
+    {
+        if (BlockSignal)
+        {
+            return;
+        }
+        BlockSignal = true;
+        if (Items.Count == 0)
+        {
+            AllChecked = false;
+        }
+        else if (CheckedItems.Count == Items.Count)
+        {
+            AllChecked = true;
+        }
+        else if (CheckedItems.Count == 0)
+        {
+            AllChecked = false;
+        }
+        else
+        {
+            AllChecked = null;
+        }
+        BlockSignal = false;
+        Console.Write("Set All checked: {0}, Checked={1} Item={2}", AllChecked, CheckedItems.Count, Items.Count);
     }
 }

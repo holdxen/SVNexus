@@ -67,10 +67,11 @@
                             <ItemsPresenter Name="PART_ItemsPresenter"
                                             ItemsPanel="{TemplateBinding ItemsPanel}" />
 
-                            <Button Name="PART_AddItemButton"
-                                    Classes="AddItemCommandButtonStyle" 
-                                    Command="{Binding AddItemCommand, RelativeSource={RelativeSource TemplatedParent}}"
-                                    IsVisible="{TemplateBinding ShowDefaultAddButton}"/>
+                            <!-- <Button Name="PART_AddItemButton" -->
+                            <!--         Classes="AddItemCommandButtonStyle"  -->
+                            <!--         Command="{Binding AddItemCommand, RelativeSource={RelativeSource TemplatedParent}}" -->
+                            <!--         IsVisible="{TemplateBinding ShowDefaultAddButton}"/> -->
+                            <ContentPresenter Name="PART_AddItemButton" IsVisible="{TemplateBinding ShowDefaultAddButton}" Content="{TemplateBinding AddIconContent}"></ContentPresenter>
 
                             <Thumb Name="PART_RightDragWindowThumb"
                                    MinWidth="{TemplateBinding RightThumbWidth}"

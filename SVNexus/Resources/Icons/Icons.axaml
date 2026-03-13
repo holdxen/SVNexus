@@ -41,15 +41,52 @@
         ]]>
     </system:String>
     
-    <system:String x:Key="Icons.FileUnknown">
+    <system:String x:Key="Icons.File-Unknown">
         <![CDATA[
-            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="#000000"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="#000000" d="M13.586 2A2 2 0 0 1 15 2.586L19.414 7A2 2 0 0 1 20 8.414V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7.586ZM12 4H6v16h12V10h-4.5A1.5 1.5 0 0 1 12 8.5V4Zm0 13a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-6a2.5 2.5 0 0 1 1.546 4.464a12.11 12.11 0 0 0-.292.241c-.407.343-.852.717-1.254.717c-.625 0-.86-.49-.86-.844s.211-.734.385-.948c.254-.313.565-.564.784-.737a.5.5 0 1 0-.809-.393a1 1 0 1 1-2 0A2.5 2.5 0 0 1 12 11Zm2-6.586V8h3.586L14 4.414Z"/></g></svg>
+        <svg viewBox="-6.4 -6.4 76.80 76.80" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g fill-rule="evenodd" clip-rule="evenodd"> <path d="M5.113.007c-2.803 0-5.074 2.271-5.074 5.074v53.84c0 2.803 2.271 5.074 5.074 5.074h45.774c2.801 0 5.074-2.271 5.074-5.074v-38.606l-18.903-20.308h-31.945z" fill="#8199AF"></path> <path d="M55.976 20.352v1h-12.799s-6.312-1.26-6.129-6.707c0 0 .208 5.707 6.004 5.707h12.924z" fill="#617F9B"></path> <path d="M37.074 0v14.561c0 1.656 1.104 5.791 6.104 5.791h12.799l-18.903-20.352z" opacity=".5" fill="#ffffff"></path> </g> </g></svg>
         ]]>
     </system:String>
     
     <system:String x:Key="Icons.Status-Unversioned">
         <![CDATA[
-            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="#000000"><g fill="none"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"/><path fill="#000000" d="M13.586 2A2 2 0 0 1 15 2.586L19.414 7A2 2 0 0 1 20 8.414V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7.586ZM12 4H6v16h12V10h-4.5A1.5 1.5 0 0 1 12 8.5V4Zm0 13a1 1 0 1 1 0 2a1 1 0 0 1 0-2Zm0-6a2.5 2.5 0 0 1 1.546 4.464a12.11 12.11 0 0 0-.292.241c-.407.343-.852.717-1.254.717c-.625 0-.86-.49-.86-.844s.211-.734.385-.948c.254-.313.565-.564.784-.737a.5.5 0 1 0-.809-.393a1 1 0 1 1-2 0A2.5 2.5 0 0 1 12 11Zm2-6.586V8h3.586L14 4.414Z"/></g></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#E07B00"/>
+    </linearGradient>
+    <linearGradient id="innerGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD580"/>
+      <stop offset="100%" stop-color="#F5A623"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="0.6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer circle with gradient -->
+  <circle cx="8" cy="8" r="7.5" fill="url(#bgGrad)" />
+
+  <!-- Inner subtle highlight ring -->
+  <circle cx="8" cy="8" r="7.5" fill="none" stroke="#FFD580" stroke-width="0.5" opacity="0.4"/>
+
+  <text
+    x="8"
+    y="11.4"
+    text-anchor="middle"
+    font-family="JetBrains Mono"
+    font-size="9.5"
+    font-weight="700"
+    fill="#1A0F00"
+    opacity="0.85"
+    filter="url(#glow)"
+  >?</text>
+</svg>
+
         ]]>
     </system:String>
     
@@ -76,7 +113,7 @@
         <![CDATA[
             <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
               <circle cx="8" cy="8" r="7" fill="#f87171" stroke="#ef4444" stroke-width="1"/>
-              <text x="8" y="12" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="white">!</text>
+              <text x="8" y="12" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="bold" fill="white">!</text>
             </svg>
         ]]>
     </system:String>
@@ -252,19 +289,9 @@
         ]]>
     </system:String>
     
-    <system:String x:Key="Icons.Refresh">
-        <![CDATA[
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-ccw-icon lucide-refresh-ccw"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-        ]]>
-    </system:String>
     <system:String x:Key="Icons.Export">
         <![CDATA[
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M128.5 64C93.2 64 64.5 92.7 64.5 128L64.5 512C64.5 547.3 93.2 576 128.5 576L384.5 576C419.8 576 448.5 547.3 448.5 512L448.5 416L526.6 416L495.6 447C486.2 456.4 486.2 471.6 495.6 480.9C505 490.2 520.2 490.3 529.5 480.9L601.5 408.9C610.9 399.5 610.9 384.3 601.5 375L529.5 303C520.1 293.6 504.9 293.6 495.6 303C486.3 312.4 486.2 327.6 495.6 336.9L526.6 367.9L448.5 367.9L448.5 234.4C448.5 217.4 441.8 201.1 429.8 189.1L323.2 82.7C311.2 70.7 295 64 278 64L128.5 64zM390 240L296.5 240C283.2 240 272.5 229.3 272.5 216L272.5 122.5L390 240zM256.5 392C256.5 378.7 267.2 368 280.5 368L384.5 368L384.5 416L280.5 416C267.2 416 256.5 405.3 256.5 392z"/></svg>
-        ]]>
-    </system:String>
-    <system:String x:Key="Icons.Update">
-        <![CDATA[
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M262.8 65.8C271.8 62.1 282.1 64.1 289 71L345 127C354.4 136.4 354.4 151.6 345 160.9L289 216.9C282.1 223.8 271.8 225.8 262.8 222.1C253.8 218.4 248 209.7 248 200L248 176L224 176C206.3 176 192 190.3 192 208L192 422.7C220.3 435 240 463.2 240 496C240 540.2 204.2 576 160 576C115.8 576 80 540.2 80 496C80 463.2 99.7 435 128 422.7L128 208C128 155 171 112 224 112L248 112L248 88C248 78.3 253.8 69.5 262.8 65.8zM456 144C456 157.3 466.7 168 480 168C493.3 168 504 157.3 504 144C504 130.7 493.3 120 480 120C466.7 120 456 130.7 456 144zM448 217.3C419.7 205 400 176.8 400 144C400 99.8 435.8 64 480 64C524.2 64 560 99.8 560 144C560 176.8 540.3 205 512 217.3L512 432C512 485 469 528 416 528L392 528L392 552C392 561.7 386.2 570.5 377.2 574.2C368.2 577.9 357.9 575.9 351 569L295 513C285.6 503.6 285.6 488.4 295 479.1L351 423.1C357.9 416.2 368.2 414.2 377.2 417.9C386.2 421.6 392 430.3 392 440L392 464L416 464C433.7 464 448 449.7 448 432L448 217.3zM136 496C136 509.3 146.7 520 160 520C173.3 520 184 509.3 184 496C184 482.7 173.3 472 160 472C146.7 472 136 482.7 136 496z"/></svg>
         ]]>
     </system:String>
     
@@ -284,7 +311,6 @@
     
     <system:String x:Key="Icons.FileKindUnknown">
         <![CDATA[
-        <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
 <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M14 2.26953V6.40007C14 6.96012 14 7.24015 14.109 7.45406C14.2049 7.64222 14.3578 7.7952 14.546 7.89108C14.7599 8.00007 15.0399 8.00007 15.6 8.00007H19.7305M9.84998 12.0022C10.0262 11.5014 10.3739 11.079 10.8317 10.81C11.2895 10.5409 11.8277 10.4426 12.351 10.5324C12.8743 10.6221 13.349 10.8942 13.6909 11.3004C14.0329 11.7066 14.22 12.2207 14.2192 12.7517C14.2192 14.2506 11.9709 15 11.9709 15M12 18H12.01M14 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H15.2C16.8802 22 17.7202 22 18.362 21.673C18.9265 21.3854 19.3854 20.9265 19.673 20.362C20 19.7202 20 18.8802 20 17.2V8L14 2Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
@@ -312,10 +338,86 @@
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M5.5 8C6.88071 8 8 6.88071 8 5.5C8 4.11929 6.88071 3 5.5 3C4.11929 3 3 4.11929 3 5.5C3 6.88071 4.11929 8 5.5 8ZM5.5 8V16M5.5 16C4.11929 16 3 17.1193 3 18.5C3 19.8807 4.11929 21 5.5 21C6.88071 21 8 19.8807 8 18.5C8 17.1193 6.88071 16 5.5 16ZM18.5 16V8.7C18.5 7.5799 18.5 7.01984 18.282 6.59202C18.0903 6.21569 17.7843 5.90973 17.408 5.71799C16.9802 5.5 16.4201 5.5 15.3 5.5H12M18.5 16C19.8807 16 21 17.1193 21 18.5C21 19.8807 19.8807 21 18.5 21C17.1193 21 16 19.8807 16 18.5C16 17.1193 17.1193 16 18.5 16ZM12 5.5L14.5 8M12 5.5L14.5 3" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 ]]>
     </system:String>
+    <system:String x:Key="Icons.Refresh">
+        <![CDATA[
+        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M22.707,10.293a1,1,0,0,1,0,1.414l-2,2a1,1,0,0,1-1.414,0l-2-2a1,1,0,0,1,1.414-1.414l.108.108a6.972,6.972,0,0,0-2.44-3.866,1,1,0,1,1,1.25-1.56,8.946,8.946,0,0,1,3.269,5.717l.4-.4A1,1,0,0,1,22.707,10.293ZM4.975,6.375a1,1,0,1,0,1.56,1.25A6.972,6.972,0,0,1,10.4,5.185l-.108.108a1,1,0,1,0,1.414,1.414l2-2a1,1,0,0,0,0-1.414l-2-2a1,1,0,0,0-1.414,1.414l.4.4A8.946,8.946,0,0,0,4.975,6.375Zm12.49,10a6.972,6.972,0,0,1-3.866,2.44l.108-.108a1,1,0,0,0-1.414-1.414l-2,2a1,1,0,0,0,0,1.414l2,2a1,1,0,0,0,1.414-1.414l-.4-.4a8.946,8.946,0,0,0,5.717-3.269,1,1,0,1,0-1.56-1.25ZM6.374,19.025a1,1,0,1,0,1.251-1.56A6.972,6.972,0,0,1,5.185,13.6l.108.108a1,1,0,1,0,1.414-1.414l-2-2a1,1,0,0,0-1.414,0l-2,2a1,1,0,0,0,1.414,1.414l.4-.4A8.949,8.949,0,0,0,6.374,19.025Z"></path></g></svg>
+]]>
+    </system:String>
     
-    <StreamGeometry x:Key="Icons.Terminal1">M13 15H16
-        M8 15L10.5 12.5V12.5C10.7761 12.2239 10.7761 11.7761 10.5 11.5V11.5L8 9
-        M3 8C3 6.11438 3 5.17157 3.58579 4.58579C4.17157 4 5.11438 4 7 4H12H17C18.8856 4 19.8284 4 20.4142 4.58579C21 5.17157 21 6.11438 21 8V12V16C21 17.8856 21 18.8284 20.4142 19.4142C19.8284 20 18.8856 20 17 20H12H7C5.11438 20 4.17157 20 3.58579 19.4142C3 18.8284 3 17.8856 3 16V12V8Z</StreamGeometry>
+    <system:String x:Key="Icons.LocateFixed">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.CloudDownload">
+        <![CDATA[
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16.9999 19C19.209 19 20.9999 17.2091 20.9999 15C20.9999 12.7909 19.209 11 16.9999 11H16.9774C16.9923 10.8353 16.9999 10.6685 16.9999 10.5C16.9999 7.46243 14.5374 5 11.4999 5C8.4623 5 5.99986 7.46243 5.99986 10.5C5.99986 10.5047 5.99987 10.5095 5.99988 10.5142C4.04366 10.9113 2.57129 12.6408 2.57129 14.7142C2.57129 17.0811 4.49007 18.9999 6.857 18.9999" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12 14L12 19M12 19L14 17M12 19L10 17" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Download">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.OperationRevert">
+        <![CDATA[
+<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M320 128C426 128 512 214 512 320C512 426 426 512 320 512C254.8 512 197.1 479.5 162.4 429.7C152.3 415.2 132.3 411.7 117.8 421.8C103.3 431.9 99.8 451.9 109.9 466.4C156.1 532.6 233 576 320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C234.3 64 158.5 106.1 112 170.7L112 144C112 126.3 97.7 112 80 112C62.3 112 48 126.3 48 144L48 256C48 273.7 62.3 288 80 288L104.6 288C105.1 288 105.6 288 106.1 288L192.1 288C209.8 288 224.1 273.7 224.1 256C224.1 238.3 209.8 224 192.1 224L153.8 224C186.9 166.6 249 128 320 128zM344 216C344 202.7 333.3 192 320 192C306.7 192 296 202.7 296 216L296 320C296 326.4 298.5 332.5 303 337L375 409C384.4 418.4 399.6 418.4 408.9 409C418.2 399.6 418.3 384.4 408.9 375.1L343.9 310.1L343.9 216z"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.More">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-vertical-icon lucide-ellipsis-vertical"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Plus">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.List">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-icon lucide-list"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.FolderTree">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-tree-icon lucide-folder-tree"><path d="M20 10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-.9-1.2A1 1 0 0 0 15 3h-2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"/><path d="M20 21a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-2.9a1 1 0 0 1-.88-.55l-.42-.85a1 1 0 0 0-.92-.6H13a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1Z"/><path d="M3 5a2 2 0 0 0 2 2h3"/><path d="M3 3v13a2 2 0 0 0 2 2h3"/></svg>
+]]>
+    </system:String>
+    
+    <system:String x:Key="Icons.TreeExpand">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-chevrons-up-down-icon lucide-list-chevrons-up-down"><path d="M3 5h8"/><path d="M3 12h8"/><path d="M3 19h8"/><path d="m15 8 3-3 3 3"/><path d="m15 16 3 3 3-3"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.TreeCollapse">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-chevrons-down-up-icon lucide-list-chevrons-down-up"><path d="M3 5h8"/><path d="M3 12h8"/><path d="M3 19h8"/><path d="m15 5 3 3 3-3"/><path d="m15 19 3-3 3 3"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.OperationAdd">
+        <![CDATA[
+        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M12,1A11,11,0,1,0,23,12,11.013,11.013,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9.01,9.01,0,0,1,12,21Zm5-9a1,1,0,0,1-1,1H13v3a1,1,0,0,1-2,0V13H8a1,1,0,0,1,0-2h3V8a1,1,0,0,1,2,0v3h3A1,1,0,0,1,17,12Z"></path></g></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.OperationDelete">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Setting">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Search">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+]]>
+    </system:String>
+    
     
     <!-- <system:String></system:String> -->
     <!-- <StreamGeometry> -->

@@ -91,17 +91,20 @@ public partial class RemoteViewModel: ViewModelBase
     [ObservableProperty]
     public partial RemoteSnapshotViewModel? SnapshotViewModel { get; set; }
     
+    [ObservableProperty]
+    public partial RemoteChangesViewModel? ChangesViewModel { get; set; }
+    
     public InfoEntry? ThisEntry { get; set; }
 
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
-        var r = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
+        var relativeToRoot = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
         var commitItem = CommitItems[value];
         DetailViewModel = new RemoteDetailViewModel
         {
             Entry = commitItem.Entry,
-            RelativeToRoot = r
+            RelativeToRoot = relativeToRoot
         };
         SnapshotViewModel = new RemoteSnapshotViewModel()
         {
@@ -109,6 +112,9 @@ public partial class RemoteViewModel: ViewModelBase
             Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
             Url = ThisEntry.Url
         };
+        if (commitItem.Revision is not null)
+        {
+        }
     }
 
     // public void UpdateViewModel(int commitItemIndex, int viewIndex)
@@ -142,21 +148,19 @@ public partial class RemoteViewModel: ViewModelBase
 
     private void HandleException(Exception e)
     {
-        var handled = false;
-        e.Handle(svnExceptionHandler: error =>
+        var handled = e.Handle(svnExceptionHandler: error =>
         {
-            if (!ExceptionExtension.SvnErrnoConstants.IsWcNotWorkingCopy(error.Code)) return;
-            handled = true;
+            if (!ExceptionExtension.SvnErrnoConstants.IsWcNotWorkingCopy(error.Code)) return false;
             Manager.Default.Send(new OnNotWorkingCopy(WorkingCopyPath), Token);
+            return true;
         });
         if (!handled)
         {
-            Manager.Default.Send(new OnNotification(new Notification
+            Manager.Default.Send(new OnShowToast()
             {
-                Title = "Error",
-                Content = $"Failed to query: {e.HumanReadableMessage}",
+                Content = $"Failed to query:\n{e.HumanReadableMessage}",
                 Type = NotificationType.Error,
-            }), Manager.MainWindowToken);
+            }, Manager.MainWindowToken);
         }
     }
     
@@ -308,9 +312,9 @@ public partial class RemoteViewModel: ViewModelBase
 
     }
 
-    [RelayCommand]
-    private async Task OnLoaded()
+    protected override async Task OnLoaded()
     {
+        await base.OnLoaded();
         await Log(20);
     }
 

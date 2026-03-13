@@ -1,4 +1,4 @@
-use crate::{apr::ffi::apr_array_header_t, subversion};
+use crate::subversion;
 
 use super::error::builder;
 use serde::{Deserialize, Serialize};

@@ -95,6 +95,7 @@
                             Content="{Binding DetailViewModel}"
                             IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.DetailViewIndex}}"></ContentControl>
             <ContentControl Grid.Row="1" 
+                            Content="{Binding ChangesViewModel}"
                             IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.ChangesViewIndex}}"></ContentControl>
             <ContentControl Grid.Row="1" 
                             Content="{Binding SnapshotViewModel}"

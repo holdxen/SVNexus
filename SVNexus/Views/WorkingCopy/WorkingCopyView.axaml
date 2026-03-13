@@ -33,41 +33,63 @@
     <Grid>
         <Grid RowDefinitions="Auto, Auto, *">
             <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *" Margin="0 2">
-                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <components:SvgButton Source="{StaticResource Icons.PullRequest}" 
-                                          Command="{Binding UpdateCommand}"></components:SvgButton>
-                </StackPanel>
+                <!-- <StackPanel Grid.Row="0" Orientation="Horizontal"> -->
+                <!--     <components:SvgButton Classes="ToolButton"  -->
+                <!--                           Source="{StaticResource Icons.PullRequest}"  -->
+                <!--                           ToolTip.Tip="Update" -->
+                <!--                           Command="{Binding UpdateCommand}"></components:SvgButton> -->
+                <!-- </StackPanel> -->
+                <TabStrip Grid.Column="0" SelectedIndex="{Binding SelectedViewIndex, Mode=TwoWay}">
+                    <!-- <TabStrip.Styles> -->
+                    <!--     <Style Selector="TabStripItem"> -->
+                    <!--         <Setter Property="BorderThickness" Value="0"></Setter> -->
+                    <!--     </Style> -->
+                    <!-- </TabStrip.Styles> -->
+                    <TabStrip.Resources>
+                        <SolidColorBrush Color="Transparent" x:Key="TabItemLinePipePointeroverBorderBrush"></SolidColorBrush>
+                    </TabStrip.Resources>
+                    <TabStrip.Styles>
+                        <Style Selector="TabStrip /template/ Border#PART_BorderSeparator">
+                            <Setter Property="IsVisible" Value="False" />
+                        </Style>
+                    </TabStrip.Styles>
+                    <TabStripItem Content="Local"></TabStripItem>
+                    <TabStripItem Content="Remote"></TabStripItem>
+                </TabStrip>   
                 <u:Divider Grid.Column="1" Orientation="Vertical"></u:Divider>
                 <Grid Grid.Column="2">
                     <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsLocalView}">
                         <StackPanel 
                             Orientation="Horizontal" 
                             Spacing="5">
-                            <components:LucideIconButton LucideKind="CloudSync" 
-                                                         Classes="ToolBarIconButton"
-                                                         Command="{Binding LocalViewModel.StatusCommand}">
-                            </components:LucideIconButton>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Refresh"
+                                                  Source="{StaticResource Icons.Refresh}"
+                                                  Command="{Binding LocalViewModel.StatusCommand}"></components:SvgButton>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Revert"
+                                                  Source="{StaticResource Icons.OperationRevert}"
+                                                  Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
                         </StackPanel>
                         <Border Grid.Column="1"></Border>
                         <StackPanel 
                             Grid.Column="2"
                             Orientation="Horizontal" 
                             Spacing="5">
-                            <components:LucideIconButton Classes="ToolBarIconButton" LucideKind="SquareTerminal"/>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Open terminal"
+                                                  Source="{StaticResource Icons.Terminal}"
+                                                  Command="{Binding UpdateCommand}"></components:SvgButton>
                         </StackPanel>
                     </Grid>
                     <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsRemoteView}">
                         <StackPanel 
                             Orientation="Horizontal" 
                             Spacing="5">
-                            <components:LucideIconButton LucideKind="ListRestart" 
-                                                         Classes="ToolBarIconButton"
-                                                         VerticalAlignment="Center"
-                                                         Command="{Binding RemoteViewModel.LoadedCommand}">
-                            </components:LucideIconButton>
-                            <!-- <components:SvgButton Classes="Default"  -->
-                            <!--                       Source="{StaticResource Icons.LoadMoreList}"  -->
-                            <!--                       Command="{Binding RemoteViewModel.LoadedCommand}" /> -->
+                            <components:SvgButton Classes="ToolButton"
+                                                  ToolTip.Tip="Load more revisions"
+                                                  Source="{StaticResource Icons.LoadMoreList}"
+                                                  Command="{Binding RemoteViewModel.LoadedCommand}" />
                         </StackPanel>
                         <Border Grid.Column="1"></Border>
                         <StackPanel 
@@ -106,63 +128,71 @@
             <!--         <ContentControl Grid.Column="2" Content="{Binding LocalViewModel}"></ContentControl> -->
             <!--     </TabItem> -->
             <!-- </TabControl> -->
-            <Grid Grid.Row="2" ColumnDefinitions="Auto, Auto, *">
-                <StackPanel Grid.Column="0" Margin="5" Spacing="5">
-                    <Border HorizontalAlignment="Left"
-                            Theme="{StaticResource RadioButtonGroupBorder}">
-                        <StackPanel Orientation="Vertical">
-                            <RadioButton
-                                FontSize="14"
-                                GroupName="LocalOrRemote"
-                                Width="150"
-                                IsChecked="{Binding IsRemoteView}"
-                                Theme="{DynamicResource CardRadioButton}">
-                                <!-- <LucideIcon Kind="HardDrive" Size="20"></LucideIcon> -->
-                                Remote
-                            </RadioButton>
-                            <RadioButton
-                                GroupName="LocalOrRemote"
-                                FontSize="14"
-                                Width="150"
-                                IsChecked="{Binding IsLocalView}"
-                                Theme="{DynamicResource CardRadioButton}">
-                                <!-- <LucideIcon Kind="Server" Size="20"></LucideIcon> -->
-                                Local
-                            </RadioButton>
-                        </StackPanel>
-                    </Border>
-                    <Border HorizontalAlignment="Left"
-                            Theme="{StaticResource RadioButtonGroupBorder}">
-                        <StackPanel Orientation="Horizontal">
-                            <RadioButton
-                                FontSize="12"
-                                GroupName="ListOrTree"
-                                Padding="6 2"
-                                IsChecked="{Binding LocalViewModel.IsListView}"
-                                Theme="{DynamicResource ButtonRadioButton}">
-                                <LucideIcon Kind="List" Size="20"></LucideIcon>
-                            </RadioButton>
-                            <RadioButton
-                                GroupName="ListOrTree"
-                                FontSize="12"
-                                Padding="6 2"
-                                IsChecked="{Binding LocalViewModel.IsTreeView}"
-                                Theme="{DynamicResource ButtonRadioButton}">
-                                <LucideIcon Kind="FolderTree" Size="20"></LucideIcon>
-                            </RadioButton>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-                <Rectangle Grid.Column="1" 
-                           Fill="{DynamicResource DividerBorderBrush}" 
-                           Width="2"></Rectangle>
-                <ContentControl Grid.Column="2" 
-                                IsVisible="{Binding IsLocalView}" 
-                                Content="{Binding LocalViewModel}" />
-                <ContentControl Grid.Column="2" 
-                                IsVisible="{Binding IsRemoteView}" 
-                                Content="{Binding RemoteViewModel}" />
-            </Grid>
+            <!-- <Grid Grid.Row="2" > -->
+            <!--     <StackPanel Grid.Column="0" Margin="5" Spacing="5"> -->
+            <!--         <Border HorizontalAlignment="Left" -->
+            <!--                 Theme="{StaticResource RadioButtonGroupBorder}"> -->
+            <!--             <StackPanel Orientation="Vertical"> -->
+            <!--                 <RadioButton -->
+            <!--                     FontSize="14" -->
+            <!--                     GroupName="LocalOrRemote" -->
+            <!--                     Width="150" -->
+            <!--                     IsChecked="{Binding IsRemoteView}" -->
+            <!--                     Theme="{DynamicResource CardRadioButton}"> -->
+            <!--                     ~1~ <LucideIcon Kind="HardDrive" Size="20"></LucideIcon> @1@ -->
+            <!--                     Remote -->
+            <!--                 </RadioButton> -->
+            <!--                 <RadioButton -->
+            <!--                     GroupName="LocalOrRemote" -->
+            <!--                     FontSize="14" -->
+            <!--                     Width="150" -->
+            <!--                     IsChecked="{Binding IsLocalView}" -->
+            <!--                     Theme="{DynamicResource CardRadioButton}"> -->
+            <!--                     ~1~ <LucideIcon Kind="Server" Size="20"></LucideIcon> @1@ -->
+            <!--                     Local -->
+            <!--                 </RadioButton> -->
+            <!--             </StackPanel> -->
+            <!--         </Border> -->
+            <!--         <Border HorizontalAlignment="Left" -->
+            <!--                 Theme="{StaticResource RadioButtonGroupBorder}"> -->
+            <!--             <StackPanel Orientation="Horizontal"> -->
+            <!--                 <RadioButton -->
+            <!--                     FontSize="12" -->
+            <!--                     GroupName="ListOrTree" -->
+            <!--                     Padding="6 2" -->
+            <!--                     IsChecked="{Binding LocalViewModel.IsListView}" -->
+            <!--                     Theme="{DynamicResource ButtonRadioButton}"> -->
+            <!--                     <LucideIcon Kind="List" Size="20"></LucideIcon> -->
+            <!--                 </RadioButton> -->
+            <!--                 <RadioButton -->
+            <!--                     GroupName="ListOrTree" -->
+            <!--                     FontSize="12" -->
+            <!--                     Padding="6 2" -->
+            <!--                     IsChecked="{Binding LocalViewModel.IsTreeView}" -->
+            <!--                     Theme="{DynamicResource ButtonRadioButton}"> -->
+            <!--                     <LucideIcon Kind="FolderTree" Size="20"></LucideIcon> -->
+            <!--                 </RadioButton> -->
+            <!--             </StackPanel> -->
+            <!--         </Border> -->
+            <!--     </StackPanel> -->
+            <!--     <Rectangle Grid.Column="1" -->
+            <!--                Fill="{DynamicResource DividerBorderBrush}" -->
+            <!--                Width="2"></Rectangle> -->
+            <!--     <ContentControl  -->
+            <!--                     IsVisible="{Binding IsLocalView}"  -->
+            <!--                     Content="{Binding LocalViewModel}" /> -->
+            <!--     <ContentControl  -->
+            <!--                     IsVisible="{Binding IsRemoteView}"  -->
+            <!--                     Content="{Binding RemoteViewModel}" /> -->
+            <!-- </Grid> -->
+            <ContentControl 
+                Grid.Row="2"
+                IsVisible="{Binding IsLocalView}" 
+                Content="{Binding LocalViewModel}" />
+            <ContentControl 
+                Grid.Row="2"
+                IsVisible="{Binding IsRemoteView}" 
+                Content="{Binding RemoteViewModel}" />
         </Grid>
         <u:OverlayDialogHost x:Name="WorkingCopyViewDialogHost"></u:OverlayDialogHost>
     </Grid>

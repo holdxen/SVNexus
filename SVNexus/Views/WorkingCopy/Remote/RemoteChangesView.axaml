@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:u="https://irihi.tech/ursa"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="remote:RemoteChangesViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteChangesView">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="remote:RemoteChangesViewModel+ListViewModel">
+        </DataTemplate>
+    </UserControl.DataTemplates>
+    <Grid ColumnDefinitions="* , Auto, 3*">
+        <Grid Grid.Column="0" RowDefinitions="Auto, Auto, *">
+            <Grid Grid.Row="0" Margin="2" ColumnDefinitions="Auto, *, Auto">
+                <StackPanel Grid.Column="0"
+                            IsVisible="{Binding IsListView}"
+                            Orientation="Horizontal">
+                </StackPanel>
+                <StackPanel Grid.Column="0"
+                            Spacing="2"
+                            IsVisible="{Binding IsTreeView}"
+                            Orientation="Horizontal">
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Expand"
+                                          Size="14" Source="{StaticResource Icons.TreeExpand}">
+                    </components:SvgButton>
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Collapse"
+                                          Size="14" Source="{StaticResource Icons.TreeCollapse}">
+                    </components:SvgButton>
+                </StackPanel>
+                <Border Grid.Column="1"></Border>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
+                    <components:SvgButton
+                        Command="{Binding SwitchToListViewCommand}"
+                        Classes.Selected="{Binding IsListView}"
+                        Source="{StaticResource Icons.List}">
+                    </components:SvgButton>
+                    <components:SvgButton
+                        Command="{Binding SwitchToTreeViewCommand}"
+                        Classes.Selected="{Binding IsTreeView}"
+                        Source="{StaticResource Icons.FolderTree}">
+                    </components:SvgButton>
+                    <StackPanel.Styles>
+                        <Style Selector="components|SvgButton.Selected">
+                            <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
+                        </Style>
+                        <Style Selector="components|SvgButton">
+                            <Setter Property="Size" Value="14"></Setter>
+                            <Setter Property="Spacing" Value="2"></Setter>
+                        </Style>
+                    </StackPanel.Styles>
+                </StackPanel>
+            </Grid>
+            <u:Divider Grid.Row="1" Orientation="Horizontal"></u:Divider>
+            <Grid Grid.Row="2">
+                <ContentControl IsVisible="{Binding IsTreeView}"
+                                Content="{Binding}">
+                </ContentControl>
+                <ContentControl IsVisible="{Binding IsListView}"
+                                Content="{Binding}">
+                </ContentControl>
+            </Grid>
+        </Grid>
+        <GridSplitter Grid.Column="1" Background="Transparent"></GridSplitter>
+        <components:DifferenceEditor Grid.Column="2" />
+    </Grid>
+</UserControl>

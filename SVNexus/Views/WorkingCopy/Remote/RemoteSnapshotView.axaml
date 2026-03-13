@@ -100,9 +100,11 @@
                             <StackPanel 
                                 VerticalAlignment="Center" 
                                 HorizontalAlignment="Center" >
-                                <components:SvgRender Width="100" Height="100" Source="{StaticResource Icons.FileKindUnknown}">
+                                <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}">
                                 </components:SvgRender>
-                                <TextBlock Text="{Binding SelectedFileName}"></TextBlock>
+                                <Label Content="{Binding SelectedFileName}" 
+                                       Classes="Large VCenter HCenter" 
+                                       Theme="{StaticResource TagLabel}"></Label>
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -125,10 +127,22 @@
                         </StackPanel>
                         <Rectangle Grid.Column="1"></Rectangle>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                            <TextBlock Classes="VCenter" Text="{Binding SelectedItemLastAuthor}"></TextBlock>
-                            <TextBlock Classes="VCenter" Text="{Binding SelectedFileName}"></TextBlock>
-                            <TextBlock Classes="VCenter" Text="{Binding SelectedFileSizeText}"></TextBlock>
-                            <TextBlock Classes="VCenter" Text="{Binding SelectedFileEncodingName}"></TextBlock>
+                            <Label Classes="VCenter Ghost Grey" 
+                                       Theme="{StaticResource TagLabel}"
+                                       IsVisible="{Binding SelectedItemLastAuthor, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                       Content="{Binding SelectedItemLastAuthor}"></Label>
+                            <Label Classes="VCenter Ghost Grey" 
+                                       Theme="{StaticResource TagLabel}"
+                                       IsVisible="{Binding SelectedFileName, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                       Content="{Binding SelectedFileName}"></Label>
+                            <Label Classes="VCenter Ghost Grey" 
+                                       Theme="{StaticResource TagLabel}"
+                                       IsVisible="{Binding SelectedFileSizeText, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                       Content="{Binding SelectedFileSizeText}"></Label>
+                            <Label Classes="VCenter Ghost Grey" 
+                                       Theme="{StaticResource TagLabel}"
+                                       IsVisible="{Binding SelectedFileEncodingName, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                       Content="{Binding SelectedFileEncodingName}"></Label>
                         </StackPanel>
                     </Grid>
                 </Grid>

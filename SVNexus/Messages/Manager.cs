@@ -47,14 +47,16 @@ public static class Manager
             (target as IRecipient<OnInitializeRepository>)?.Register(messenger, token);
             (target as IRecipient<OnNotification>)?.Register(messenger, token);
             (target as IRecipient<OnOpenRepository>)?.Register(messenger, token);
-            (target as IRecipient<OnRemoveTabByLocalViewModel>)?.Register(messenger, token);
+            // (target as IRecipient<OnRemoveTabByLocalViewModel>)?.Register(messenger, token);
             (target as IRecipient<OnRemoveTab>)?.Register(messenger, token);
             (target as IRecipient<OnWorkingCopyViewEnabled>)?.Register(messenger, token);
             (target as IRecipient<OnCancel>)?.Register(messenger, token);
             (target as IRecipient<OnExport>)?.Register(messenger, token);
             (target as IRecipient<OnNotWorkingCopy>)?.Register(messenger, token);
-            (target as IRecipient<OnRemoveTabByContent>)?.Register(messenger, token);
+            // (target as IRecipient<OnRemoveTabByContent>)?.Register(messenger, token);
             (target as IRecipient<OnSelectedItemChanged>)?.Register(messenger, token);
+            (target as IRecipient<OnShowToast>)?.Register(messenger, token);
+            (target as IRecipient<OnRefreshWorkingCopy>)?.Register(messenger, token);
         }
         
         public void UnregisterAllMessages(object target)
@@ -66,14 +68,14 @@ public static class Manager
             (target as IRecipient<OnInitializeRepository>)?.Unregister(messenger);
             (target as IRecipient<OnNotification>)?.Unregister(messenger);
             (target as IRecipient<OnOpenRepository>)?.Unregister(messenger);
-            (target as IRecipient<OnRemoveTabByLocalViewModel>)?.Unregister(messenger);
             (target as IRecipient<OnRemoveTab>)?.Unregister(messenger);
             (target as IRecipient<OnWorkingCopyViewEnabled>)?.Unregister(messenger);
             (target as IRecipient<OnCancel>)?.Unregister(messenger);
             (target as IRecipient<OnExport>)?.Unregister(messenger);
             (target as IRecipient<OnNotWorkingCopy>)?.Unregister(messenger);
-            (target as IRecipient<OnRemoveTabByContent>)?.Unregister(messenger);
             (target as IRecipient<OnSelectedItemChanged>)?.Unregister(messenger);
+            (target as IRecipient<OnShowToast>)?.Unregister(messenger);
+            (target as IRecipient<OnRefreshWorkingCopy>)?.Unregister(messenger);
         }
     }
 

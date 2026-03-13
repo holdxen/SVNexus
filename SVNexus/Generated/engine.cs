@@ -1609,6 +1609,18 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -3064,6 +3076,10 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ulong uniffi_engine_fn_method_asynccontext_cleanup(ulong @ptr,RustBuffer @opts
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern ulong uniffi_engine_fn_method_asynccontext_commit(ulong @ptr,RustBuffer @opts
     );
 
@@ -3229,6 +3245,26 @@ static class _UniFFILib {
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern uint uniffi_engine_fn_func_svn_err_reposra_into_u32(RustBuffer @err,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_func_log_debug(int @line,RustBuffer @file,RustBuffer @member,RustBuffer @content,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_func_log_error(int @line,RustBuffer @file,RustBuffer @member,RustBuffer @content,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_func_log_info(int @line,RustBuffer @file,RustBuffer @member,RustBuffer @content,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_func_log_trace(int @line,RustBuffer @file,RustBuffer @member,RustBuffer @content,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uniffi_engine_fn_func_log_warn(int @line,RustBuffer @file,RustBuffer @member,RustBuffer @content,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -3457,6 +3493,26 @@ static class _UniFFILib {
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern ushort uniffi_engine_checksum_func_svn_err_reposra_into_u32(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_func_log_debug(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_func_log_error(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_func_log_info(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_func_log_trace(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_func_log_warn(
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
@@ -4884,6 +4940,10 @@ static class _UniFFILib {
     );
 
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern ushort uniffi_engine_checksum_method_asynccontext_cleanup(
+    );
+
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern ushort uniffi_engine_checksum_method_asynccontext_commit(
     );
 
@@ -5031,6 +5091,36 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_svn_err_reposra_into_u32();
             if (checksum != 42444) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_svn_err_reposra_into_u32` checksum `42444`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_log_debug();
+            if (checksum != 10476) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_debug` checksum `10476`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_log_error();
+            if (checksum != 26065) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_error` checksum `26065`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_log_info();
+            if (checksum != 46738) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_info` checksum `46738`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_log_trace();
+            if (checksum != 25688) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_trace` checksum `25688`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_log_warn();
+            if (checksum != 54759) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_warn` checksum `54759`, library returned `{checksum}`");
             }
         }
         {
@@ -7170,6 +7260,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_cleanup();
+            if (checksum != 4854) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_cleanup` checksum `4854`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_commit();
             if (checksum != 29410) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_commit` checksum `29410`, library returned `{checksum}`");
@@ -7605,6 +7701,8 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<uint> Checkout(CheckoutOptions @opts);
     /// <exception cref="Exception"></exception>
+    Task Cleanup(CleanupOptions @opts);
+    /// <exception cref="Exception"></exception>
     Task<CommitResult> Commit(CommitOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<DeleteResult> Delete(DeleteOptions @opts);
@@ -7777,6 +7875,24 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u32(future),
         // Lift
         (result) => FfiConverterUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task Cleanup(CleanupOptions @opts) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_cleanup(thisPtr, FfiConverterTypeCleanupOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -12551,6 +12667,59 @@ class FfiConverterTypeCheckoutOptions: FfiConverterRustBuffer<CheckoutOptions> {
 
 
 
+public record CleanupOptions (
+    string Path, 
+    bool BreakLocks, 
+    bool FixRecordedTimestamps, 
+    bool ClearDavCache, 
+    bool VacuumPristines, 
+    bool IncludeExternals
+) {
+
+
+
+    
+
+
+
+}
+
+class FfiConverterTypeCleanupOptions: FfiConverterRustBuffer<CleanupOptions> {
+    public static FfiConverterTypeCleanupOptions INSTANCE = new FfiConverterTypeCleanupOptions();
+
+    public override CleanupOptions Read(BigEndianStream stream) {
+        return new CleanupOptions(
+            Path: FfiConverterString.INSTANCE.Read(stream),
+            BreakLocks: FfiConverterBoolean.INSTANCE.Read(stream),
+            FixRecordedTimestamps: FfiConverterBoolean.INSTANCE.Read(stream),
+            ClearDavCache: FfiConverterBoolean.INSTANCE.Read(stream),
+            VacuumPristines: FfiConverterBoolean.INSTANCE.Read(stream),
+            IncludeExternals: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CleanupOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Path)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.BreakLocks)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.FixRecordedTimestamps)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.ClearDavCache)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.VacuumPristines)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeExternals);
+    }
+
+    public override void Write(CleanupOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Path, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.BreakLocks, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.FixRecordedTimestamps, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.ClearDavCache, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.VacuumPristines, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IncludeExternals, stream);
+    }
+}
+
+
+
 public record CommitInfo (
     uint Revision, 
     string Date, 
@@ -14406,7 +14575,7 @@ public record StatusEntry (
     string? ReposRootUrl, 
     string? ReposUuid, 
     string? ReposRelpath, 
-    uint Revision, 
+    uint? Revision, 
     uint? LastChangedRevision, 
     long LastChangedDate, 
     string? LastChangedAuthor, 
@@ -14454,7 +14623,7 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             ReposRootUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
             ReposUuid: FfiConverterOptionalString.INSTANCE.Read(stream),
             ReposRelpath: FfiConverterOptionalString.INSTANCE.Read(stream),
-            Revision: FfiConverterUInt32.INSTANCE.Read(stream),
+            Revision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             LastChangedRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             LastChangedDate: FfiConverterInt64.INSTANCE.Read(stream),
             LastChangedAuthor: FfiConverterOptionalString.INSTANCE.Read(stream),
@@ -14492,7 +14661,7 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposRootUrl)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposUuid)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposRelpath)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.LastChangedRevision)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.LastChangedDate)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LastChangedAuthor)
@@ -14528,7 +14697,7 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             FfiConverterOptionalString.INSTANCE.Write(value.ReposRootUrl, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.ReposUuid, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.ReposRelpath, stream);
-            FfiConverterUInt32.INSTANCE.Write(value.Revision, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.Revision, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.LastChangedRevision, stream);
             FfiConverterInt64.INSTANCE.Write(value.LastChangedDate, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.LastChangedAuthor, stream);
@@ -14557,7 +14726,6 @@ public record StatusOptions (
     Revision Revision, 
     Depth Depth, 
     bool GetAll, 
-    bool Update, 
     bool CheckOutOfDate, 
     bool CheckWorkingCopy, 
     bool NoIgnore, 
@@ -14583,7 +14751,6 @@ class FfiConverterTypeStatusOptions: FfiConverterRustBuffer<StatusOptions> {
             Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
             GetAll: FfiConverterBoolean.INSTANCE.Read(stream),
-            Update: FfiConverterBoolean.INSTANCE.Read(stream),
             CheckOutOfDate: FfiConverterBoolean.INSTANCE.Read(stream),
             CheckWorkingCopy: FfiConverterBoolean.INSTANCE.Read(stream),
             NoIgnore: FfiConverterBoolean.INSTANCE.Read(stream),
@@ -14599,7 +14766,6 @@ class FfiConverterTypeStatusOptions: FfiConverterRustBuffer<StatusOptions> {
             + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.GetAll)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Update)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CheckOutOfDate)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CheckWorkingCopy)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoIgnore)
@@ -14613,7 +14779,6 @@ class FfiConverterTypeStatusOptions: FfiConverterRustBuffer<StatusOptions> {
             FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
             FfiConverterBoolean.INSTANCE.Write(value.GetAll, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Update, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CheckOutOfDate, stream);
             FfiConverterBoolean.INSTANCE.Write(value.CheckWorkingCopy, stream);
             FfiConverterBoolean.INSTANCE.Write(value.NoIgnore, stream);
@@ -14714,8 +14879,8 @@ class FfiConverterTypeSvgRenderOptions: FfiConverterRustBuffer<SvgRenderOptions>
 
 
 public record TextChange (
-    TextPosition? Original, 
-    TextPosition? Modified
+    TextPosition Original, 
+    TextPosition Modified
 ) {
 
 
@@ -14731,20 +14896,20 @@ class FfiConverterTypeTextChange: FfiConverterRustBuffer<TextChange> {
 
     public override TextChange Read(BigEndianStream stream) {
         return new TextChange(
-            Original: FfiConverterOptionalTypeTextPosition.INSTANCE.Read(stream),
-            Modified: FfiConverterOptionalTypeTextPosition.INSTANCE.Read(stream)
+            Original: FfiConverterTypeTextPosition.INSTANCE.Read(stream),
+            Modified: FfiConverterTypeTextPosition.INSTANCE.Read(stream)
         );
     }
 
     public override int AllocationSize(TextChange value) {
         return 0
-            + FfiConverterOptionalTypeTextPosition.INSTANCE.AllocationSize(value.Original)
-            + FfiConverterOptionalTypeTextPosition.INSTANCE.AllocationSize(value.Modified);
+            + FfiConverterTypeTextPosition.INSTANCE.AllocationSize(value.Original)
+            + FfiConverterTypeTextPosition.INSTANCE.AllocationSize(value.Modified);
     }
 
     public override void Write(TextChange value, BigEndianStream stream) {
-            FfiConverterOptionalTypeTextPosition.INSTANCE.Write(value.Original, stream);
-            FfiConverterOptionalTypeTextPosition.INSTANCE.Write(value.Modified, stream);
+            FfiConverterTypeTextPosition.INSTANCE.Write(value.Original, stream);
+            FfiConverterTypeTextPosition.INSTANCE.Write(value.Modified, stream);
     }
 }
 
@@ -16920,37 +17085,6 @@ class FfiConverterOptionalTypeSVNError: FfiConverterRustBuffer<SvnError?> {
 
 
 
-class FfiConverterOptionalTypeTextPosition: FfiConverterRustBuffer<TextPosition?> {
-    public static FfiConverterOptionalTypeTextPosition INSTANCE = new FfiConverterOptionalTypeTextPosition();
-
-    public override TextPosition? Read(BigEndianStream stream) {
-        if (stream.ReadByte() == 0) {
-            return null;
-        }
-        return FfiConverterTypeTextPosition.INSTANCE.Read(stream);
-    }
-
-    public override int AllocationSize(TextPosition? value) {
-        if (value == null) {
-            return 1;
-        } else {
-            return 1 + FfiConverterTypeTextPosition.INSTANCE.AllocationSize((TextPosition)value);
-        }
-    }
-
-    public override void Write(TextPosition? value, BigEndianStream stream) {
-        if (value == null) {
-            stream.WriteByte(0);
-        } else {
-            stream.WriteByte(1);
-            FfiConverterTypeTextPosition.INSTANCE.Write((TextPosition)value, stream);
-        }
-    }
-}
-
-
-
-
 class FfiConverterOptionalTypeTrustServer: FfiConverterRustBuffer<TrustServer?> {
     public static FfiConverterOptionalTypeTrustServer INSTANCE = new FfiConverterOptionalTypeTrustServer();
 
@@ -17882,6 +18016,46 @@ public static class EngineMethods {
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_func_svn_err_reposra_into_u32(FfiConverterTypeSvnErrnoReposRa.INSTANCE.Lower(@err), ref _status)
 ));
+    }
+
+
+    public static void LogDebug(int @line, string @file, string @member, string @content) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_log_debug(FfiConverterInt32.INSTANCE.Lower(@line), FfiConverterString.INSTANCE.Lower(@file), FfiConverterString.INSTANCE.Lower(@member), FfiConverterString.INSTANCE.Lower(@content), ref _status)
+);
+    }
+
+
+    public static void LogError(int @line, string @file, string @member, string @content) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_log_error(FfiConverterInt32.INSTANCE.Lower(@line), FfiConverterString.INSTANCE.Lower(@file), FfiConverterString.INSTANCE.Lower(@member), FfiConverterString.INSTANCE.Lower(@content), ref _status)
+);
+    }
+
+
+    public static void LogInfo(int @line, string @file, string @member, string @content) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_log_info(FfiConverterInt32.INSTANCE.Lower(@line), FfiConverterString.INSTANCE.Lower(@file), FfiConverterString.INSTANCE.Lower(@member), FfiConverterString.INSTANCE.Lower(@content), ref _status)
+);
+    }
+
+
+    public static void LogTrace(int @line, string @file, string @member, string @content) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_log_trace(FfiConverterInt32.INSTANCE.Lower(@line), FfiConverterString.INSTANCE.Lower(@file), FfiConverterString.INSTANCE.Lower(@member), FfiConverterString.INSTANCE.Lower(@content), ref _status)
+);
+    }
+
+
+    public static void LogWarn(int @line, string @file, string @member, string @content) {
+        
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_log_warn(FfiConverterInt32.INSTANCE.Lower(@line), FfiConverterString.INSTANCE.Lower(@file), FfiConverterString.INSTANCE.Lower(@member), FfiConverterString.INSTANCE.Lower(@content), ref _status)
+);
     }
 
 

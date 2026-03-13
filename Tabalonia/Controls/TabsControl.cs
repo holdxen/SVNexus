@@ -141,6 +141,15 @@ public class TabsControl : TabControl
 
 
     #region Public Properties
+
+    public static readonly StyledProperty<object?> AddIconContentProperty = AvaloniaProperty.Register<TabsControl, object?>(
+        nameof(AddIconContent));
+
+    public object? AddIconContent
+    {
+        get => GetValue(AddIconContentProperty);
+        set => SetValue(AddIconContentProperty, value);
+    }
     
     public object? Content
     {
@@ -305,7 +314,7 @@ public class TabsControl : TabControl
 
     private void RemoveItem(DragTabItem container)
     {
-        object? item = ItemFromContainer(container);
+        var item = ItemFromContainer(container);
 
         if (item == null)
             return;
@@ -313,7 +322,7 @@ public class TabsControl : TabControl
         if (ItemsSource is not IList itemsList)
             return;
 
-        int removedItemIndex = itemsList.IndexOf(item);
+        var removedItemIndex = itemsList.IndexOf(item);
 
         if (removedItemIndex == -1)
             return;
@@ -323,7 +332,7 @@ public class TabsControl : TabControl
         if (tabClosingEventArgs.Cancel)
             return;
 
-        bool removedItemIsSelected = SelectedItem == item;
+        var removedItemIsSelected = SelectedItem == item;
 
         itemsList.Remove(item);
 
@@ -345,8 +354,12 @@ public class TabsControl : TabControl
 
     private IEnumerable<DragTabItem> DragTabItems()
     {
-        foreach (object item in Items)
+        foreach (var item in Items)
         {
+            if (item is null)
+            {
+                continue;
+            }
             var container = ContainerFromItem(item);
 
             if (container is DragTabItem dragTabItem)
@@ -363,15 +376,18 @@ public class TabsControl : TabControl
 
         _draggedItem.IsSelected = true;
 
-        object? item = ItemFromContainer(_draggedItem);
+        var item = ItemFromContainer(_draggedItem);
 
-        if (item != null)
+        switch (item)
         {
-            if (item is TabItem tabItem)
+            case null:
+                return;
+            case TabItem tabItem:
                 tabItem.IsSelected = true;
-
-            SelectedItem = item;
+                break;
         }
+
+        SelectedItem = item;
     }
 
 
@@ -438,28 +454,22 @@ public class TabsControl : TabControl
 
     private void MoveTabModelsIfNeeded()
     {
-        object? item = ItemFromContainer(_draggedItem);
+        var item = ItemFromContainer(_draggedItem);
 
-        if (item != null)
-        {
-            DragTabItem container = _draggedItem;
+        if (item == null) return;
+        var container = _draggedItem;
 
-            if (ItemsSource is IList list)
-            {
-                if (container.LogicalIndex != list.IndexOf(item))
-                {
-                    list.Remove(item);
-                    list.Insert(container.LogicalIndex, item);
+        if (ItemsSource is not IList list) return;
+        if (container.LogicalIndex == list.IndexOf(item)) return;
+        list.Remove(item);
+        list.Insert(container.LogicalIndex, item);
 
-                    SelectedItem = item;
+        SelectedItem = item;
 
-                    int i = 0;
+        var i = 0;
 
-                    foreach (var dragTabItem in DragTabItems())
-                        dragTabItem.LogicalIndex = i++;
-                }
-            }
-        }
+        foreach (var dragTabItem in DragTabItems())
+            dragTabItem.LogicalIndex = i++;
     }
 
     private void OnThumbBeginDrag(object? sender, PointerPressedEventArgs e)

@@ -15,7 +15,7 @@ strum = { version = "0.27.1", features = ["derive"] }
 tokio = { version = "1.43.0", features = ["full"] }
 tokio-stream = { version = "0.1.17", features = ["io-util", "sync"] }
 tracing = "0.1.41"
-tracing-subscriber = "0.3.19"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 uuid = { version = "1.15.1", features = ["v4"] }
 bitflags = "2.9.0"
 once_cell = { version = "1.21.3", features = ["parking_lot"] }
@@ -23,8 +23,8 @@ tempfile = "3.23.0"
 easy-ext = "1.0.2"
 
 svnexus_macro = { path = "./svnexus_macro" }
-resvg = "0.45.1"
-tiny-skia = "0.11.4"
+resvg = "0.47.0"
+tiny-skia = "0.12.0"
 fontdb = "0.23.0"
 serde_json = "1.0.140"
 serde = { version = "1.0.219", features = ["derive"] }

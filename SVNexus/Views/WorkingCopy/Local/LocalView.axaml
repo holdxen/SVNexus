@@ -30,13 +30,67 @@
     <Grid>
         <Grid ColumnDefinitions="*, Auto, 4*">
             <Border Grid.Column="0">
-                <Grid Margin="3">
-                    <ContentControl IsVisible="{Binding IsTreeView}"
-                                    Content="{Binding LocalTreeViewModel}">
-                    </ContentControl>
-                    <ContentControl IsVisible="{Binding IsListView}"
-                                    Content="{Binding LocalListViewModel}">
-                    </ContentControl>
+                <Grid Margin="3" RowDefinitions="Auto, Auto, *">
+                    <Grid Grid.Row="0" Margin="2" ColumnDefinitions="Auto, *, Auto">
+                        <StackPanel Grid.Column="0" 
+                                    IsVisible="{Binding IsListView}"
+                                    Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding LocalListViewModel.AllChecked}" 
+                                      Content="全选"></CheckBox>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Search"
+                                                  Size="14" 
+                                                  Source="{StaticResource Icons.Search}">
+                            </components:SvgButton>
+                        </StackPanel>
+                        <StackPanel Grid.Column="0" 
+                                    Spacing="2"
+                                    IsVisible="{Binding IsTreeView}"
+                                    Orientation="Horizontal">
+                            <CheckBox Content="全选" IsChecked="{Binding LocalTreeViewModel.AllChecked}"></CheckBox>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Search"
+                                                  Size="14" Source="{StaticResource Icons.Search}">
+                            </components:SvgButton>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Expand"
+                                                  Size="14" Source="{StaticResource Icons.TreeExpand}">
+                            </components:SvgButton>
+                            <components:SvgButton Classes="ToolButton" 
+                                                  ToolTip.Tip="Collapse"
+                                                  Size="14" Source="{StaticResource Icons.TreeCollapse}">
+                            </components:SvgButton>
+                        </StackPanel>
+                        <Border Grid.Column="1"></Border>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
+                            <components:SvgButton
+                                Command="{Binding SwitchToListViewCommand}"
+                                Classes.Selected="{Binding IsListView}"
+                                Source="{StaticResource Icons.List}"></components:SvgButton>
+                            <components:SvgButton
+                                Command="{Binding SwitchToTreeViewCommand}"
+                                Classes.Selected="{Binding IsTreeView}"
+                                Source="{StaticResource Icons.FolderTree}"></components:SvgButton>
+                            <StackPanel.Styles>
+                                <Style Selector="components|SvgButton.Selected">
+                                    <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
+                                </Style>
+                                <Style Selector="components|SvgButton">
+                                    <Setter Property="Size" Value="14"></Setter>
+                                    <Setter Property="Spacing" Value="2"></Setter>
+                                </Style>
+                            </StackPanel.Styles>
+                        </StackPanel>
+                    </Grid>
+                    <u:Divider Grid.Row="1" Orientation="Horizontal"></u:Divider>
+                    <Grid Grid.Row="2">
+                        <ContentControl IsVisible="{Binding IsTreeView}"
+                                        Content="{Binding LocalTreeViewModel}">
+                        </ContentControl>
+                        <ContentControl IsVisible="{Binding IsListView}"
+                                        Content="{Binding LocalListViewModel}">
+                        </ContentControl>
+                    </Grid>
                 </Grid>
             </Border>
             <GridSplitter
@@ -66,12 +120,9 @@
                         <Border.Resources>
                             <Thickness x:Key="ThicknessCardMargin">0</Thickness>
                         </Border.Resources>
-                        <edit:TextEditor ShowLineNumbers="True"
-                                         IsReadOnly="True">
-                            <Interaction.Behaviors>
-                                <behaviors:DocumentTextBindingBehavior Text="{Binding Code, Mode=TwoWay}" />
-                            </Interaction.Behaviors>
-                        </edit:TextEditor>
+                        <Grid>
+                            <components:DifferenceEditor Difference="{Binding Difference}"></components:DifferenceEditor>
+                        </Grid>
                     </Border>
                 </components:LoadingOrError>
                 <Grid
@@ -88,9 +139,16 @@
                     <Grid Grid.Row="1"
                           Margin="0, 10"
                           ColumnDefinitions="*, Auto">
-                        <StackPanel Grid.Column="0">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
                             <u:EnumSelector EnumType="{x:Static workingCopyView:LocalViewModel.DepthType}" 
+                                            VerticalAlignment="Center"
                                             Value="{Binding Depth}"></u:EnumSelector>
+                            <CheckBox VerticalAlignment="Center" 
+                                      IsChecked="{Binding CommitMissingAsDelete}" 
+                                      Content="Commit missing as delete"></CheckBox>
+                            <CheckBox VerticalAlignment="Center" 
+                                      IsChecked="{Binding AddUnversionedBeforeCommit}" 
+                                      Content="Add unversioned before commit"></CheckBox>
                         </StackPanel>
                         <Button Grid.Column="1"
                                 Command="{Binding CommitCommand}"

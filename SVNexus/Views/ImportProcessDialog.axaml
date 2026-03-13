@@ -12,48 +12,49 @@
              x:DataType="viewModels:ImportProcessDialogModel"
              x:Class="SVNexus.Views.ImportProcessDialog">
     <UserControl.Resources>
-        <converters:EqualsConverter x:Key="EqualsConverter"/>
+        <converters:EqualsConverter x:Key="EqualsConverter" />
     </UserControl.Resources>
     <Grid RowDefinitions="*, Auto">
-        
-    <u:Timeline Grid.Row="0" ItemsSource="{Binding Steps}" 
-                IconMemberBinding="{Binding State}" 
-                ContentMemberBinding="{Binding Content}"
-                TimeMemberBinding="{Binding DateTime}"
-                Mode="Right"
-                HeaderMemberBinding="{Binding Title}">
-        <u:Timeline.IconTemplate>
-            <DataTemplate x:DataType="viewModels:ImportProcessDialogModel+StepState">
-                <Grid>
-                    <!-- <u:LoadingIcon IsVisible="{Binding Converter={x:Static conv:BoolConverters.Not}, Path=.}"></u:LoadingIcon> -->
-                    <!-- <Ellipse IsVisible="{Binding}" Fill="LimeGreen"></Ellipse> -->
-                    <u:LoadingIcon 
-                        IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Loading}}"/>
-                    <Ellipse Width="12" 
-                             Height="12" 
-                             IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Success}}" 
-                             Fill="{DynamicResource SemiColorSuccess}"/>
-                    <Ellipse Width="12" 
-                             Height="12" 
-                             IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Error}}" 
-                             Fill="{DynamicResource SemiColorDanger}"/>
-                </Grid>
-            </DataTemplate>
-        </u:Timeline.IconTemplate>
-    </u:Timeline>
+
+        <u:Timeline Grid.Row="0" ItemsSource="{Binding Steps}"
+                    IconMemberBinding="{Binding State}"
+                    ContentMemberBinding="{Binding Content}"
+                    TimeMemberBinding="{Binding DateTime}"
+                    Mode="Right"
+                    HeaderMemberBinding="{Binding Title}">
+            <u:Timeline.IconTemplate>
+                <DataTemplate x:DataType="viewModels:ImportProcessDialogModel+StepState">
+                    <Grid>
+                        <!-- <u:LoadingIcon IsVisible="{Binding Converter={x:Static conv:BoolConverters.Not}, Path=.}"></u:LoadingIcon> -->
+                        <!-- <Ellipse IsVisible="{Binding}" Fill="LimeGreen"></Ellipse> -->
+                        <u:LoadingIcon
+                            IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Loading}}" />
+                        <Ellipse Width="12"
+                                 Height="12"
+                                 IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Success}}"
+                                 Fill="{DynamicResource SemiColorSuccess}" />
+                        <Ellipse Width="12"
+                                 Height="12"
+                                 IsVisible="{Binding Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static viewModels:ImportProcessDialogModel+StepState.Error}}"
+                                 Fill="{DynamicResource SemiColorDanger}" />
+                    </Grid>
+                </DataTemplate>
+            </u:Timeline.IconTemplate>
+        </u:Timeline>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto" Margin="0 10 0 0">
             <TextBlock Text="{Binding Error}" Foreground="{DynamicResource SemiColorDanger}"></TextBlock>
-            <Button Grid.Column="1" Content="关闭" IsVisible="{Binding Closable}" 
-                    Command="{Binding CloseCommand}"></Button>
+            <Button Grid.Column="1" Content="关闭" IsVisible="{Binding Closable}"
+                    Command="{Binding CloseCommand}">
+            </Button>
             <Border Grid.Column="2" Width="5"></Border>
-            <u:IconButton Grid.Column="3" 
+            <u:IconButton Grid.Column="3"
                           Command="{Binding CancelCommand}"
-                          Content="取消" 
-                          Classes="Colorful Danger" 
-                          IsLoading="{Binding IsCanceling}" 
+                          Content="取消"
+                          Classes="Colorful Danger"
+                          IsLoading="{Binding IsCanceling}"
                           IsEnabled="{Binding !IsCanceling}"
-                          IsVisible="{Binding CancelButtonVisible}"
-                          ></u:IconButton>
+                          IsVisible="{Binding CancelButtonVisible}">
+            </u:IconButton>
         </Grid>
     </Grid>
 </UserControl>

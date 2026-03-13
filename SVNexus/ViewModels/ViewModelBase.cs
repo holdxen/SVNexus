@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SVNexus.Messages;
 
 namespace SVNexus.ViewModels;
@@ -23,8 +27,36 @@ public abstract partial class ViewModelBase : ObservableObject
 
         if (newValue != Guid.Empty)
         {
-            Console.WriteLine("RegisterAllMessages: Token: {0} {1}", Token, this.GetType().FullName);
             Manager.Default.RegisterAllMessages(this, newValue);
+        }
+    }
+    
+
+    private Channel<Func<Task>>? LoadedActionChannel { get; set; } =  Channel.CreateUnbounded<Func<Task>>(new  UnboundedChannelOptions()
+    {
+        SingleReader = true,
+        SingleWriter =  true
+    });
+
+    [RelayCommand]
+    protected virtual async Task OnLoaded()
+    {
+        while (LoadedActionChannel?.Reader.TryRead(out var action) ?? false)
+        {
+            await action();
+        }
+        LoadedActionChannel = null;
+    }
+
+    public async Task InvokeLoadedAction(Func<Task> action)
+    {
+        if (LoadedActionChannel is null)
+        {
+            await action();
+        }
+        else 
+        {
+            await LoadedActionChannel.Writer.WriteAsync(action);
         }
     }
 }
