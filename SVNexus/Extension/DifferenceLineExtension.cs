@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SVNexus.Components;
 
 namespace SVNexus.Extension;
@@ -10,6 +11,10 @@ public static class DifferenceLineExtension
     {
         public int ExcludeIndexToRealIndex(int index, DifferenceLine.Kind[] exclude)
         {
+            if (index == 0)
+            {
+                return differences.TakeWhile(line => exclude.Contains(line.DifferenceKind)).Count();
+            }
 
             var excludeIndex = 0;
             var realInex = 0;

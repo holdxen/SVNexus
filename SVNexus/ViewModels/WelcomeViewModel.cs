@@ -21,14 +21,6 @@ namespace SVNexus.ViewModels;
 
 public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IRecipient<OnExport>
 {
-    public override bool KeepAlive { get; set; } = true;
-
-
-    // private WeakReferenceMessenger Messenger { get; } = new();
-
-
-    [ObservableProperty]
-    public partial string? DialogHostId { get; set; }
 
     [RelayCommand]
     private async Task ShowCheckoutDialog()
@@ -39,10 +31,10 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             IsCloseButtonVisible = true,
             Buttons = DialogButton.None
         };
+
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         
-        Console.WriteLine($"Show dialog {DialogHostId}");
-        await OverlayDialog.ShowModal<Views.CheckoutOrExportDialog, CheckoutOrExportDialogModel>(new CheckoutOrExportDialogModel(), DialogHostId, options: options);
-        Console.WriteLine("Close dialog");
+        await OverlayDialog.ShowModal<Views.CheckoutOrExportDialog, CheckoutOrExportDialogModel>(new CheckoutOrExportDialogModel(), hostId, options: options);
     }
 
 
@@ -76,7 +68,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
 
     public void Receive(OnCheckout message)
     {
-        Console.WriteLine($"OnCheckout {message}");
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {
@@ -111,7 +103,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
                     model.Downloaded = downloaded;
                 });
             },
-            DialogHostId = DialogHostId
+            DialogHostId = hostId
         };
         
         
@@ -133,7 +125,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: DialogHostId, options: options);
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: hostId, options: options);
         });
         
         Task.Run(async () =>
@@ -175,13 +167,15 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             Buttons = DialogButton.None
         };
         
-        await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options, hostId: DialogHostId);
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        
+        await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options, hostId: hostId);
     }
 
     public void Receive(OnExport message)
     {
         
-        Console.WriteLine($"OnCheckout {message}");
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {
@@ -216,7 +210,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
                     model.Downloaded = downloaded;
                 });
             },
-            DialogHostId = DialogHostId
+            DialogHostId = hostId
         };
         
         
@@ -238,7 +232,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: DialogHostId, options: options);
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: hostId, options: options);
         });
         
         Task.Run(async () =>

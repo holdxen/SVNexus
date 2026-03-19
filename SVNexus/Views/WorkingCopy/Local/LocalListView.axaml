@@ -13,6 +13,12 @@
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalListView">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <UserControl.DataTemplates>
         <DataTemplate DataType="local:LocalListViewModel+MenuIconViewModel">
             <components:SvgRender Classes.Themable="{Binding Themable}"

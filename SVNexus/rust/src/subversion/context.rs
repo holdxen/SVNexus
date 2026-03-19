@@ -1,11 +1,13 @@
 use super::ffi;
+use super::wc::*;
 use super::{SVNError, svn_no_error};
 use crate::apr;
+use crate::apr::AprArray;
 use crate::error::{self, builder};
 use crate::subversion::utils;
-use crate::utils::Pointer;
 use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
+use crate::utils::{Pointer, PointerMapper};
 use core::panic;
 use derive_new::new;
 use snafu::ResultExt;
@@ -14,134 +16,7 @@ use std::ffi::{CStr, c_char, c_void};
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 
-pub struct WorkingCopyContext {
-    context: *mut ffi::svn_wc_context_t,
-}
-
 pub type RevisionNumber = u32;
-
-#[easy_ext::ext]
-pub impl ffi::svn_revnum_t {
-    fn into_optional_revision(self) -> Option<RevisionNumber> {
-        if self < 0 {
-            None
-        } else {
-            Some(self.try_into().unwrap())
-        }
-    }
-}
-
-#[derive(uniffi::Object)]
-pub struct AsyncContext {
-    context: Arc<parking_lot::Mutex<Context>>,
-}
-
-impl AsyncContext {
-    async fn call_async<F, R>(&self, call: F) -> error::Result<R>
-    where
-        F: (FnOnce(parking_lot::MutexGuard<'_, Context>) -> error::Result<R>) + Send + 'static,
-        R: Send + 'static,
-    {
-        let context = self.context.clone();
-        let result = tokio::task::spawn_blocking(move || {
-            let context = context.lock();
-            call(context)
-        })
-        .await
-        .context(builder::Runtime)??;
-
-        Ok(result)
-    }
-}
-
-#[uniffi::export(async_runtime = "tokio")]
-impl AsyncContext {
-    pub async fn url_from_path(&self, path: String) -> error::Result<String> {
-        self.call_async(|mut context| context.url_from_path(path))
-            .await
-    }
-
-    pub async fn cleanup(&self, opts: CleanupOptions) -> error::Result<()> {
-        self.call_async(|mut context| context.cleanup(opts)).await
-    }
-
-    pub async fn list(&self, opts: ListOptions) -> error::Result<ListResult> {
-        self.call_async(|mut context| context.list(opts)).await
-    }
-
-    pub async fn info(&self, opts: InfoOptions) -> error::Result<InfoResult> {
-        self.call_async(|mut context| context.info(opts)).await
-    }
-
-    pub async fn checkout(&self, opts: CheckoutOptions) -> error::Result<RevisionNumber> {
-        self.call_async(|mut context| context.checkout(opts)).await
-    }
-
-    pub async fn status(&self, opts: StatusOptions) -> error::Result<StatusResult> {
-        self.call_async(|mut context| context.status(opts)).await
-    }
-
-    pub async fn add(&self, opts: AddOptions) -> error::Result<()> {
-        self.call_async(|mut context| context.add(opts)).await
-    }
-
-    pub async fn commit(&self, opts: CommitOptions) -> error::Result<CommitResult> {
-        self.call_async(|mut context| context.commit(opts)).await
-    }
-
-    pub async fn cat(&self, opts: CatOptions) -> error::Result<CatResult> {
-        self.call_async(|mut context| context.cat(opts)).await
-    }
-
-    pub async fn delete(&self, opts: DeleteOptions) -> error::Result<DeleteResult> {
-        self.call_async(|mut context| context.delete(opts)).await
-    }
-
-    pub async fn revert(&self, opts: RevertOptions) -> error::Result<()> {
-        self.call_async(|mut context| context.revert(opts)).await
-    }
-
-    pub async fn log(&self, opts: LogOptions) -> error::Result<LogResult> {
-        self.call_async(|mut context| context.log(opts)).await
-    }
-
-    pub async fn log_next(
-        &self,
-        opts: LogOptions,
-        receiver: Arc<dyn LogReceiver>,
-    ) -> error::Result<()> {
-        self.call_async(|mut context| context.log_next(opts, receiver))
-            .await
-    }
-
-    pub async fn import(&self, opts: ImportOptions) -> error::Result<ImportResult> {
-        self.call_async(|mut context| context.import(opts)).await
-    }
-
-    pub async fn export(&self, opts: ExportOptions) -> error::Result<RevisionNumber> {
-        self.call_async(|mut context| context.export(opts)).await
-    }
-
-    pub async fn update(&self, opts: UpdateOptions) -> error::Result<Vec<RevisionNumber>> {
-        self.call_async(|mut context| context.update(opts)).await
-    }
-
-    pub async fn initialize_repository(
-        &self,
-        opts: InitializeRepositoryOptions,
-        notifier: Arc<dyn InitializeRepositoryNotifier>,
-    ) -> error::Result<()> {
-        self.call_async(|mut context| context.initialize_repository(opts, notifier))
-            .await
-    }
-
-    #[uniffi::constructor]
-    pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
-        let context = ContextFactory::instance()?.create_context(opts)?;
-        let context = Arc::new(parking_lot::Mutex::new(context));
-        Ok(AsyncContext { context })
-    }
-}
 
 #[uniffi::export(with_foreign)]
 pub trait ContextNotifier: Send + Sync + 'static {
@@ -162,6 +37,7 @@ pub trait ContextNotifier: Send + Sync + 'static {
         username: String,
         may_save: bool,
     ) -> Option<Authentication>;
+    fn conflict(&self, description: WorkingCopyConflictDescription) -> WorkingCopyConflictResult;
 }
 
 #[derive(new)]
@@ -200,6 +76,9 @@ pub struct ContextInner {
 
     #[new(default)]
     info_entries: HashMap<String, InfoEntry>,
+
+    #[new(default)]
+    conflicts: Vec<Conflict>,
 }
 
 // impl Default for ContextInner {
@@ -365,292 +244,6 @@ pub struct CommitItem {
     outgoing_property_changes: HashMap<String, String>,
     session_real_path: Option<String>,
     move_from_absolute_path: Option<String>,
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_notify_state_t)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, uniffi::Enum)]
-pub enum WorkingCopyNotifyState {
-    Inapplicable = ffi::svn_wc_notify_state_t_svn_wc_notify_state_inapplicable,
-    Unknown = ffi::svn_wc_notify_state_t_svn_wc_notify_state_unknown,
-    Unchanged = ffi::svn_wc_notify_state_t_svn_wc_notify_state_unchanged,
-    Missing = ffi::svn_wc_notify_state_t_svn_wc_notify_state_missing,
-    Obstructed = ffi::svn_wc_notify_state_t_svn_wc_notify_state_obstructed,
-    Changed = ffi::svn_wc_notify_state_t_svn_wc_notify_state_changed,
-    Merged = ffi::svn_wc_notify_state_t_svn_wc_notify_state_merged,
-    Conflicted = ffi::svn_wc_notify_state_t_svn_wc_notify_state_conflicted,
-    SourceMissing = ffi::svn_wc_notify_state_t_svn_wc_notify_state_source_missing,
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_notify_lock_state_t)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, uniffi::Enum)]
-// #[repr(u32)]
-pub enum WorkingCopyNotifyLockState {
-    InApplicable = ffi::svn_wc_notify_lock_state_t_svn_wc_notify_lock_state_inapplicable,
-    Unknown = ffi::svn_wc_notify_lock_state_t_svn_wc_notify_lock_state_unknown,
-    Unchanged = ffi::svn_wc_notify_lock_state_t_svn_wc_notify_lock_state_unchanged,
-    Locked = ffi::svn_wc_notify_lock_state_t_svn_wc_notify_lock_state_locked,
-    Unlocked = ffi::svn_wc_notify_lock_state_t_svn_wc_notify_lock_state_unlocked,
-}
-
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, uniffi::Record)]
-pub struct MergeRange {
-    start: i64,
-    end: i64,
-    inheritable: bool,
-}
-
-impl MergeRange {
-    unsafe fn from_raw(ptr: *const ffi::svn_merge_range_t) -> Self {
-        unsafe {
-            let ptr = &*ptr;
-
-            Self {
-                start: ptr.start.try_into().unwrap(),
-                end: ptr.end.try_into().unwrap(),
-                inheritable: ptr.inheritable != 0,
-            }
-        }
-    }
-}
-
-pub type LineNumber = u32;
-
-#[derive(Debug, Clone, uniffi::Record)]
-pub struct WorkingCopyNotify {
-    pub path: String,
-    pub action: WorkingCopyNotifyAction,
-    pub kind: NodeKind,
-    pub mime_type: Option<String>,
-    pub lock: Option<Lock>,
-    pub err: Option<SVNError>,
-    pub content_state: WorkingCopyNotifyState,
-    pub property_state: WorkingCopyNotifyState,
-    pub lock_state: WorkingCopyNotifyLockState,
-    pub revision: Option<RevisionNumber>,
-    pub changelist_name: Option<String>,
-    pub merge_range: Option<MergeRange>,
-    pub url: Option<String>,
-    pub path_prefix: Option<String>,
-    pub property_name: Option<String>,
-    pub revision_properties: HashMap<String, String>,
-    pub old_revision: Option<RevisionNumber>,
-    pub hunk_original_start: u32,
-    pub hunk_original_length: u32,
-    pub hunk_modified_start: u32,
-    pub hunk_modified_length: u32,
-    pub hunk_matched_line: u32,
-    pub hunk_fuzz: u32,
-}
-
-impl WorkingCopyNotify {
-    unsafe fn from_raw(ptr: *const ffi::svn_wc_notify_t) -> Self {
-        unsafe {
-            let ptr = ptr.as_ref().unwrap();
-
-            let path = apr::char_array_to_string(ptr.path).unwrap();
-
-            let action = WorkingCopyNotifyAction::try_from(ptr.action)
-                .expect(format!("Invalid notify action: {}", ptr.action).as_str());
-
-            let kind = NodeKind::try_from(ptr.kind)
-                .expect(format!("Invalid node kind: {}", ptr.kind).as_str());
-
-            let mime_type = apr::char_array_to_string(ptr.mime_type);
-
-            // let lock = if ptr.lock.is_null() {
-            //     None
-            // } else {
-            //     Some(Lock::from_ptr(ptr.lock))
-            // };
-
-            let lock = ptr.lock.as_ref().map(|v| Lock::from_ptr(v));
-
-            let err = ptr.err.as_ref().map(|v| SVNError::from_not_null_ptr(v));
-
-            // let err = if ptr.err.is_null() {
-            //     None
-            // } else {
-            //     Some(Error::from_not_null_ptr(ptr.err))
-            // };
-
-            let content_state = WorkingCopyNotifyState::try_from(ptr.content_state).unwrap();
-
-            let property_state = WorkingCopyNotifyState::try_from(ptr.prop_state).unwrap();
-
-            let lock_state = WorkingCopyNotifyLockState::try_from(ptr.lock_state).unwrap();
-
-            tracing::info!("WorkingCopyNotify revision: {}", ptr.revision);
-            let revision = if ptr.revision < 0 {
-                None
-            } else {
-                Some(ptr.revision.try_into().unwrap())
-            };
-
-            let changelist_name = apr::char_array_to_string(ptr.changelist_name);
-
-            let merge_range = if ptr.merge_range.is_null() {
-                None
-            } else {
-                Some(MergeRange::from_raw(ptr.merge_range))
-            };
-
-            let url = apr::char_array_to_string(ptr.url);
-
-            let path_prefix = if ptr.path_prefix.is_null() {
-                None
-            } else {
-                Some(apr::char_array_to_string(ptr.path_prefix).unwrap())
-            };
-
-            let property_name = if ptr.prop_name.is_null() {
-                None
-            } else {
-                Some(apr::char_array_to_string(ptr.prop_name).unwrap())
-            };
-
-            let revision_properties = HashMap::default();
-
-            let old_revision = if ptr.old_revision < 0 {
-                None
-            } else {
-                Some(ptr.old_revision.try_into().unwrap())
-            };
-
-            let hunk_original_start = ptr.hunk_original_start.try_into().unwrap();
-
-            let hunk_original_length = ptr.hunk_original_length.try_into().unwrap();
-
-            let hunk_modified_start = ptr.hunk_modified_start.try_into().unwrap();
-
-            let hunk_modified_length = ptr.hunk_modified_length.try_into().unwrap();
-
-            let hunk_matched_line = ptr.hunk_matched_line.try_into().unwrap();
-
-            let hunk_fuzz = ptr.hunk_fuzz.try_into().unwrap();
-
-            Self {
-                path,
-                action,
-                kind,
-                mime_type,
-                lock,
-                err,
-                content_state,
-                property_state,
-                lock_state,
-                revision,
-                changelist_name,
-                merge_range,
-                url,
-                path_prefix,
-                property_name,
-                revision_properties,
-                old_revision,
-                hunk_original_start,
-                hunk_original_length,
-                hunk_modified_start,
-                hunk_modified_length,
-                hunk_matched_line,
-                hunk_fuzz,
-            }
-        }
-    }
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_notify_action_t)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, uniffi::Enum)]
-pub enum WorkingCopyNotifyAction {
-    Add = ffi::svn_wc_notify_action_t_svn_wc_notify_add,
-    Copy = ffi::svn_wc_notify_action_t_svn_wc_notify_copy,
-    Delete = ffi::svn_wc_notify_action_t_svn_wc_notify_delete,
-    Restore = ffi::svn_wc_notify_action_t_svn_wc_notify_restore,
-    Revert = ffi::svn_wc_notify_action_t_svn_wc_notify_revert,
-    FailedRevert = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_revert,
-    Resolved = ffi::svn_wc_notify_action_t_svn_wc_notify_resolved,
-    Skip = ffi::svn_wc_notify_action_t_svn_wc_notify_skip,
-    UpdateDelete = ffi::svn_wc_notify_action_t_svn_wc_notify_update_delete,
-    UpdateAdd = ffi::svn_wc_notify_action_t_svn_wc_notify_update_add,
-    UpdateUpdate = ffi::svn_wc_notify_action_t_svn_wc_notify_update_update,
-    UpdateCompleted = ffi::svn_wc_notify_action_t_svn_wc_notify_update_completed,
-    UpdateExternal = ffi::svn_wc_notify_action_t_svn_wc_notify_update_external,
-    StatusCompleted = ffi::svn_wc_notify_action_t_svn_wc_notify_status_completed,
-    StatusExternal = ffi::svn_wc_notify_action_t_svn_wc_notify_status_external,
-    CommitModified = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_modified,
-    CommitAdded = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_added,
-    CommitDeleted = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_deleted,
-    CommitReplaced = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_replaced,
-    CommitPostfixTxDelta = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_postfix_txdelta,
-    BlameRevision = ffi::svn_wc_notify_action_t_svn_wc_notify_blame_revision,
-    Locked = ffi::svn_wc_notify_action_t_svn_wc_notify_locked,
-    Unlocked = ffi::svn_wc_notify_action_t_svn_wc_notify_unlocked,
-    FailedLock = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_lock,
-    FailedUnlock = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_unlock,
-    Exists = ffi::svn_wc_notify_action_t_svn_wc_notify_exists,
-    ChangelistSet = ffi::svn_wc_notify_action_t_svn_wc_notify_changelist_set,
-    ChangelistClear = ffi::svn_wc_notify_action_t_svn_wc_notify_changelist_clear,
-    ChangelistMoved = ffi::svn_wc_notify_action_t_svn_wc_notify_changelist_moved,
-    MergeBegin = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_begin,
-    ForeignMergeBegin = ffi::svn_wc_notify_action_t_svn_wc_notify_foreign_merge_begin,
-    UpdateReplace = ffi::svn_wc_notify_action_t_svn_wc_notify_update_replace,
-    PropertyAdded = ffi::svn_wc_notify_action_t_svn_wc_notify_property_added,
-    PropertyDeleted = ffi::svn_wc_notify_action_t_svn_wc_notify_property_deleted,
-    PropertyDeletedNonexistent =
-        ffi::svn_wc_notify_action_t_svn_wc_notify_property_deleted_nonexistent,
-    RevisionPropertySet = ffi::svn_wc_notify_action_t_svn_wc_notify_revprop_set,
-    RevisionPropertyDeleted = ffi::svn_wc_notify_action_t_svn_wc_notify_revprop_deleted,
-    MergeCompleted = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_completed,
-    TreeConflict = ffi::svn_wc_notify_action_t_svn_wc_notify_tree_conflict,
-    FailedExternal = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_external,
-    UpdateStarted = ffi::svn_wc_notify_action_t_svn_wc_notify_update_started,
-    UpdateSkipObstruction = ffi::svn_wc_notify_action_t_svn_wc_notify_update_skip_obstruction,
-    UpdateSkipWorkingOnly = ffi::svn_wc_notify_action_t_svn_wc_notify_update_skip_working_only,
-    UpdateSkipAccessDenied = ffi::svn_wc_notify_action_t_svn_wc_notify_update_skip_access_denied,
-    UpdateExternalRemoved = ffi::svn_wc_notify_action_t_svn_wc_notify_update_external_removed,
-    UpdateShadowedAdd = ffi::svn_wc_notify_action_t_svn_wc_notify_update_shadowed_add,
-    UpdateShadowedUpdate = ffi::svn_wc_notify_action_t_svn_wc_notify_update_shadowed_update,
-    UpdateShadowedDelete = ffi::svn_wc_notify_action_t_svn_wc_notify_update_shadowed_delete,
-    MergeRecordInfo = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_record_info,
-    MergeElideInfo = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_elide_info,
-    Patch = ffi::svn_wc_notify_action_t_svn_wc_notify_patch,
-    PatchAppliedHunk = ffi::svn_wc_notify_action_t_svn_wc_notify_patch_applied_hunk,
-    PatchRejectHunk = ffi::svn_wc_notify_action_t_svn_wc_notify_patch_rejected_hunk,
-    PatchHunkAlreadyApplied = ffi::svn_wc_notify_action_t_svn_wc_notify_patch_hunk_already_applied,
-    CommitCopied = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_copied,
-    CommitCopiedReplaced = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_copied_replaced,
-    UrlRedirect = ffi::svn_wc_notify_action_t_svn_wc_notify_url_redirect,
-    PathNonexistent = ffi::svn_wc_notify_action_t_svn_wc_notify_path_nonexistent,
-    Exclude = ffi::svn_wc_notify_action_t_svn_wc_notify_exclude,
-    FailedConflict = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_conflict,
-    FailedMissing = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_missing,
-    FailedOutOfDate = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_out_of_date,
-    FailedNoParent = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_no_parent,
-    FailedLocked = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_locked,
-    FailedForbiddenByServer = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_forbidden_by_server,
-    SkipConflicted = ffi::svn_wc_notify_action_t_svn_wc_notify_skip_conflicted,
-    UpdateBrokenLock = ffi::svn_wc_notify_action_t_svn_wc_notify_update_broken_lock,
-    FailedObstruction = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_obstruction,
-    ConflictResolverDone = ffi::svn_wc_notify_action_t_svn_wc_notify_conflict_resolver_done,
-    LeftLocalModifications = ffi::svn_wc_notify_action_t_svn_wc_notify_left_local_modifications,
-    ForeignCopyBegin = ffi::svn_wc_notify_action_t_svn_wc_notify_foreign_copy_begin,
-    MoveBroken = ffi::svn_wc_notify_action_t_svn_wc_notify_move_broken,
-    CleanupExternal = ffi::svn_wc_notify_action_t_svn_wc_notify_cleanup_external,
-    FailedRequiresTarget = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_requires_target,
-    InfoExternal = ffi::svn_wc_notify_action_t_svn_wc_notify_info_external,
-    CommitFinalizing = ffi::svn_wc_notify_action_t_svn_wc_notify_commit_finalizing,
-    ResolvedText = ffi::svn_wc_notify_action_t_svn_wc_notify_resolved_text,
-    ResolvedProp = ffi::svn_wc_notify_action_t_svn_wc_notify_resolved_prop,
-    ResolvedTree = ffi::svn_wc_notify_action_t_svn_wc_notify_resolved_tree,
-    BeginSearchTreeConflictDetails =
-        ffi::svn_wc_notify_action_t_svn_wc_notify_begin_search_tree_conflict_details,
-    TreeConflictDetailsProgress =
-        ffi::svn_wc_notify_action_t_svn_wc_notify_tree_conflict_details_progress,
-    EndSearchTreeConflictDetails =
-        ffi::svn_wc_notify_action_t_svn_wc_notify_end_search_tree_conflict_details,
-    HydratingStart = ffi::svn_wc_notify_action_t_svn_wc_notify_hydrating_start,
-    HydratingFile = ffi::svn_wc_notify_action_t_svn_wc_notify_hydrating_file,
-    HydratingEnd = ffi::svn_wc_notify_action_t_svn_wc_notify_hydrating_end,
-    Warning = ffi::svn_wc_notify_action_t_svn_wc_notify_warning,
-    RevertNoAccess = ffi::svn_wc_notify_action_t_svn_wc_notify_revert_noaccess,
 }
 
 // #[repr(i32)]
@@ -896,13 +489,13 @@ impl Revision {
 impl CommitInfo {
     unsafe fn from_ptr(info: *const ffi::svn_commit_info_t) -> Self {
         unsafe {
-            let info = &*info;
+            let info = info.as_ref().unwrap();
             Self {
                 revision: info.revision.try_into().unwrap(),
-                date: apr::char_array_to_string(info.date).unwrap(),
-                author: apr::char_array_to_string(info.author).unwrap(),
-                post_commit_err: apr::char_array_to_string(info.post_commit_err),
-                repos_root: apr::char_array_to_string(info.repos_root),
+                date: info.date.to_str().to_string(),
+                author: info.author.to_str().to_string(),
+                post_commit_err: info.post_commit_err.to_nullable_string(),
+                repos_root: info.repos_root.to_nullable_string(),
             }
         }
     }
@@ -928,17 +521,17 @@ unsafe extern "C" fn commit_callback(
     }
 }
 
-impl Lock {
-    fn from_ptr(ptr: *const ffi::svn_lock_t) -> Self {
+impl From<*const ffi::svn_lock_t> for Lock {
+    fn from(ptr: *const ffi::svn_lock_t) -> Self {
         unsafe {
             let lock = ptr.as_ref().unwrap();
-            let path = apr::char_array_to_string(lock.path).unwrap();
+            let path = lock.path.to_str().to_string();
 
-            let token = apr::char_array_to_string(lock.token).unwrap();
+            let token = lock.token.to_str().to_string();
 
-            let owner = apr::char_array_to_string(lock.owner).unwrap();
+            let owner = lock.owner.to_str().to_string();
 
-            let comment = apr::char_array_to_string(lock.comment).unwrap();
+            let comment = lock.comment.to_str().to_string();
 
             let is_dav_comment = lock.is_dav_comment != 0;
 
@@ -966,7 +559,7 @@ impl StatusEntry {
         unsafe {
             let path = path.to_str().to_string();
 
-            let entry = &*entry;
+            let entry = entry.as_ref().unwrap();
 
             let node_kind = NodeKind::try_from(entry.kind).unwrap();
 
@@ -993,11 +586,11 @@ impl StatusEntry {
 
             let copied = entry.copied != 0;
 
-            let repos_root_url = apr::char_array_to_string(entry.repos_root_url);
+            let repos_root_url = entry.repos_root_url.to_nullable_string();
 
-            let repos_uuid = apr::char_array_to_string(entry.repos_uuid);
+            let repos_uuid = entry.repos_uuid.to_nullable_string();
 
-            let repos_relpath = apr::char_array_to_string(entry.repos_relpath);
+            let repos_relpath = entry.repos_relpath.to_nullable_string();
 
             let revision = RevisionNumber::try_from(entry.revision).ok();
 
@@ -1005,19 +598,15 @@ impl StatusEntry {
 
             let last_changed_date: i64 = entry.changed_date.try_into().unwrap();
 
-            let last_changed_author = apr::char_array_to_string(entry.changed_author);
+            let last_changed_author = entry.changed_author.to_nullable_string();
 
             let switched = entry.switched != 0;
 
             let file_external = entry.file_external != 0;
 
-            let lock = if entry.lock.is_null() {
-                None
-            } else {
-                Some(Lock::from_ptr(entry.lock))
-            };
+            let lock = entry.lock.map(Lock::from);
 
-            let changelist = apr::char_array_to_string(entry.changelist);
+            let changelist = entry.changelist.to_nullable_string();
 
             let depth = Depth::try_from(entry.depth).unwrap();
 
@@ -1029,17 +618,9 @@ impl StatusEntry {
 
             let repos_prop_status = NodeStatus::try_from(entry.repos_prop_status).unwrap();
 
-            let repos_lock = if entry.repos_lock.is_null() {
-                None
-            } else {
-                Some(Lock::from_ptr(entry.repos_lock))
-            };
+            let repos_lock = entry.repos_lock.map(Lock::from);
 
-            let out_of_date_changed_revision = if entry.ood_changed_rev == -1 {
-                None
-            } else {
-                Some(entry.ood_changed_rev.try_into().unwrap())
-            };
+            let out_of_date_changed_revision = entry.ood_changed_rev.try_into().ok();
 
             let out_of_date_changed_date = if entry.ood_changed_date == 0 {
                 None
@@ -1047,11 +628,11 @@ impl StatusEntry {
                 Some(entry.ood_changed_date.try_into().unwrap())
             };
 
-            let out_of_date_changed_author = apr::char_array_to_string(entry.ood_changed_author);
+            let out_of_date_changed_author = entry.ood_changed_author.to_nullable_string();
 
-            let moved_from_absolute_path = apr::char_array_to_string(entry.moved_from_abspath);
+            let moved_from_absolute_path = entry.moved_from_abspath.to_nullable_string();
 
-            let moved_to_absolute_path = apr::char_array_to_string(entry.moved_to_abspath);
+            let moved_to_absolute_path = entry.moved_to_abspath.to_nullable_string();
 
             Self {
                 path,
@@ -1141,19 +722,19 @@ impl CommitItem {
 
     unsafe fn from_item(item: *const ffi::svn_client_commit_item3_t) -> Self {
         unsafe {
-            let item = &*item;
+            let item = item.as_ref().unwrap();
 
-            let path = apr::char_array_to_string(item.path).unwrap();
+            let path = item.path.to_str().to_string();
 
             let kind = NodeKind::try_from(item.kind).unwrap();
 
-            let url = apr::char_array_to_string(item.url).unwrap();
+            let url = item.url.to_str().to_string();
 
-            let copy_from_url = apr::char_array_to_string(item.copyfrom_url);
+            let copy_from_url = item.copyfrom_url.to_nullable_string();
 
             let mut incoming_property_changes = HashMap::new();
             if !item.incoming_prop_changes.is_null() {
-                let prop = &*item.incoming_prop_changes;
+                let prop = item.incoming_prop_changes.as_ref().unwrap();
 
                 incoming_property_changes.reserve(prop.nelts as _);
 
@@ -1166,7 +747,7 @@ impl CommitItem {
                     }
                     let element = &**offset;
 
-                    let key = apr::char_array_to_string(element.name).unwrap();
+                    let key = element.name.to_str().to_string();
 
                     let slice = std::slice::from_raw_parts(
                         (*element.value).data as *const u8,
@@ -1193,7 +774,7 @@ impl CommitItem {
                     }
                     let element = &**offset;
 
-                    let key = apr::char_array_to_string(element.name).unwrap();
+                    let key = element.name.to_str().to_string();
 
                     let slice = std::slice::from_raw_parts(
                         (*element.value).data as *const u8,
@@ -1208,7 +789,7 @@ impl CommitItem {
             let revision = item.revision.try_into().ok();
             let state = item.state_flags;
 
-            let session_real_path = apr::char_array_to_string(item.session_relpath);
+            let session_real_path = item.session_relpath.to_nullable_string();
 
             let copy_from_revision = if item.copyfrom_url.is_null() || item.copyfrom_rev < 0 {
                 None
@@ -1216,7 +797,7 @@ impl CommitItem {
                 Some(item.copyfrom_rev.try_into().unwrap())
             };
 
-            let move_from_absolute_path = apr::char_array_to_string(item.moved_from_abspath);
+            let move_from_absolute_path = item.moved_from_abspath.to_nullable_string();
 
             Self {
                 path,
@@ -1235,12 +816,12 @@ impl CommitItem {
     }
 }
 
-unsafe fn char_from_pool(string: &str, pool: *mut ffi::apr_pool_t) -> *const c_char {
-    let mut bytes = vec![0; string.len() + 1];
-    bytes[..string.len()].copy_from_slice(string.as_bytes());
+// unsafe fn char_from_pool(string: &str, pool: *mut ffi::apr_pool_t) -> *const c_char {
+//     let mut bytes = vec![0; string.len() + 1];
+//     bytes[..string.len()].copy_from_slice(string.as_bytes());
 
-    unsafe { ffi::apr_pstrndup(pool, bytes.as_ptr() as _, bytes.len()) }
-}
+//     unsafe { ffi::apr_pstrndup(pool, bytes.as_ptr() as _, bytes.len()) }
+// }
 
 unsafe extern "C" fn on_progress_notify(
     progress: ffi::apr_off_t,
@@ -1282,18 +863,30 @@ unsafe extern "C" fn on_get_commit_message(
         return svn_no_error();
     }
 
+
     unsafe {
+        let error = on_cancel(baton);
+        if error.is_null() {
+            return error;
+        }
+
         let this = &mut *(baton as *mut ContextInner);
 
-        *log_msg = char_from_pool(&this.commit_message, pool);
+        let mut pool = apr::Pool::from_raw(pool);
+
+        *log_msg = pool.string(this.commit_message.as_str()).expect("Invalid message");
 
         this.commit_message.clear();
 
         *tmp_file = std::ptr::null();
 
-        let items = CommitItem::from_items(commit_items);
+        let items = commit_items.to_vec(|ptr| CommitItem::from_item(ptr as _));
+
+        // let items = CommitItem::from_items(commit_items);
 
         this.commit_items.extend(items);
+
+        std::mem::forget(pool);
     }
 
     svn_no_error()
@@ -1305,9 +898,9 @@ unsafe extern "C" fn on_notify(
     pool: *mut ffi::apr_pool_t,
 ) {
     unsafe {
-        let this = &mut *(baton as *mut ContextInner);
+        let this = (baton as *mut ContextInner).as_mut().unwrap();
 
-        let notify = WorkingCopyNotify::from_raw(notify);
+        let notify = WorkingCopyNotify::from(notify);
 
         tracing::info!("Notify: {:#?}", notify);
 
@@ -1325,193 +918,6 @@ impl Default for Depth {
     }
 }
 
-#[uniffi::export]
-fn svn_err_general_into_u32(err: SvnErrnoGeneral) -> u32 {
-    err.into()
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_errno_t)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, uniffi::Enum)]
-pub enum SvnErrnoGeneral {
-    Warning = ffi::svn_errno_t_SVN_WARNING,
-    BadContainingPool = ffi::svn_errno_t_SVN_ERR_BAD_CONTAINING_POOL,
-    BadFilename = ffi::svn_errno_t_SVN_ERR_BAD_FILENAME,
-    BadUrl = ffi::svn_errno_t_SVN_ERR_BAD_URL,
-    BadDate = ffi::svn_errno_t_SVN_ERR_BAD_DATE,
-    BadMimeType = ffi::svn_errno_t_SVN_ERR_BAD_MIME_TYPE,
-    BadPropertyValue = ffi::svn_errno_t_SVN_ERR_BAD_PROPERTY_VALUE,
-    BadVersionFileFormat = ffi::svn_errno_t_SVN_ERR_BAD_VERSION_FILE_FORMAT,
-    BadRelativePath = ffi::svn_errno_t_SVN_ERR_BAD_RELATIVE_PATH,
-    BadUuid = ffi::svn_errno_t_SVN_ERR_BAD_UUID,
-    BadConfigValue = ffi::svn_errno_t_SVN_ERR_BAD_CONFIG_VALUE,
-    BadServerSpecification = ffi::svn_errno_t_SVN_ERR_BAD_SERVER_SPECIFICATION,
-    BadChecksumKind = ffi::svn_errno_t_SVN_ERR_BAD_CHECKSUM_KIND,
-    BadChecksumParse = ffi::svn_errno_t_SVN_ERR_BAD_CHECKSUM_PARSE,
-    BadToken = ffi::svn_errno_t_SVN_ERR_BAD_TOKEN,
-    BadChangelistName = ffi::svn_errno_t_SVN_ERR_BAD_CHANGELIST_NAME,
-    BadAtomic = ffi::svn_errno_t_SVN_ERR_BAD_ATOMIC,
-    BadCompressionMethod = ffi::svn_errno_t_SVN_ERR_BAD_COMPRESSION_METHOD,
-    BadPropertyValueEol = ffi::svn_errno_t_SVN_ERR_BAD_PROPERTY_VALUE_EOL,
-    XmlAttribNotFound = ffi::svn_errno_t_SVN_ERR_XML_ATTRIB_NOT_FOUND,
-    XmlMissingAncestry = ffi::svn_errno_t_SVN_ERR_XML_MISSING_ANCESTRY,
-    XmlUnknownEncoding = ffi::svn_errno_t_SVN_ERR_XML_UNKNOWN_ENCODING,
-    XmlMalformed = ffi::svn_errno_t_SVN_ERR_XML_MALFORMED,
-    XmlUnescapableData = ffi::svn_errno_t_SVN_ERR_XML_UNESCAPABLE_DATA,
-    XmlUnexpectedElement = ffi::svn_errno_t_SVN_ERR_XML_UNEXPECTED_ELEMENT,
-    IoInconsistentEol = ffi::svn_errno_t_SVN_ERR_IO_INCONSISTENT_EOL,
-    IoUnknownEol = ffi::svn_errno_t_SVN_ERR_IO_UNKNOWN_EOL,
-    IoCorruptEol = ffi::svn_errno_t_SVN_ERR_IO_CORRUPT_EOL,
-    IoUniqueNamesExhausted = ffi::svn_errno_t_SVN_ERR_IO_UNIQUE_NAMES_EXHAUSTED,
-    IoPipeFrameError = ffi::svn_errno_t_SVN_ERR_IO_PIPE_FRAME_ERROR,
-    IoPipeReadError = ffi::svn_errno_t_SVN_ERR_IO_PIPE_READ_ERROR,
-    IoWriteError = ffi::svn_errno_t_SVN_ERR_IO_WRITE_ERROR,
-    IoPipeWriteError = ffi::svn_errno_t_SVN_ERR_IO_PIPE_WRITE_ERROR,
-    StreamUnexpectedEof = ffi::svn_errno_t_SVN_ERR_STREAM_UNEXPECTED_EOF,
-    StreamMalformedData = ffi::svn_errno_t_SVN_ERR_STREAM_MALFORMED_DATA,
-    StreamUnrecognizedData = ffi::svn_errno_t_SVN_ERR_STREAM_UNRECOGNIZED_DATA,
-    StreamSeekNotSupported = ffi::svn_errno_t_SVN_ERR_STREAM_SEEK_NOT_SUPPORTED,
-    StreamNotSupported = ffi::svn_errno_t_SVN_ERR_STREAM_NOT_SUPPORTED,
-    NodeUnknownKind = ffi::svn_errno_t_SVN_ERR_NODE_UNKNOWN_KIND,
-    NodeUnexpectedKind = ffi::svn_errno_t_SVN_ERR_NODE_UNEXPECTED_KIND,
-    EntryNotFound = ffi::svn_errno_t_SVN_ERR_ENTRY_NOT_FOUND,
-    EntryExists = ffi::svn_errno_t_SVN_ERR_ENTRY_EXISTS,
-    EntryMissingRevision = ffi::svn_errno_t_SVN_ERR_ENTRY_MISSING_REVISION,
-    EntryMissingUrl = ffi::svn_errno_t_SVN_ERR_ENTRY_MISSING_URL,
-    EntryAttributeInvalid = ffi::svn_errno_t_SVN_ERR_ENTRY_ATTRIBUTE_INVALID,
-    EntryForbidden = ffi::svn_errno_t_SVN_ERR_ENTRY_FORBIDDEN,
-    WcObstructedUpdate = ffi::svn_errno_t_SVN_ERR_WC_OBSTRUCTED_UPDATE,
-    WcUnwindMismatch = ffi::svn_errno_t_SVN_ERR_WC_UNWIND_MISMATCH,
-    WcUnwindEmpty = ffi::svn_errno_t_SVN_ERR_WC_UNWIND_EMPTY,
-    WcUnwindNotEmpty = ffi::svn_errno_t_SVN_ERR_WC_UNWIND_NOT_EMPTY,
-    WcLocked = ffi::svn_errno_t_SVN_ERR_WC_LOCKED,
-    WcNotLocked = ffi::svn_errno_t_SVN_ERR_WC_NOT_LOCKED,
-    WcInvalidLock = ffi::svn_errno_t_SVN_ERR_WC_INVALID_LOCK,
-    WcNotWorkingCopy = ffi::svn_errno_t_SVN_ERR_WC_NOT_WORKING_COPY,
-    // WcNotDirectory = ffi::svn_errno_t_SVN_ERR_WC_NOT_DIRECTORY,
-    WcNotFile = ffi::svn_errno_t_SVN_ERR_WC_NOT_FILE,
-    WcBadAdmLog = ffi::svn_errno_t_SVN_ERR_WC_BAD_ADM_LOG,
-    WcPathNotFound = ffi::svn_errno_t_SVN_ERR_WC_PATH_NOT_FOUND,
-    WcNotUpToDate = ffi::svn_errno_t_SVN_ERR_WC_NOT_UP_TO_DATE,
-    WcLeftLocalMod = ffi::svn_errno_t_SVN_ERR_WC_LEFT_LOCAL_MOD,
-    WcScheduleConflict = ffi::svn_errno_t_SVN_ERR_WC_SCHEDULE_CONFLICT,
-    WcPathFound = ffi::svn_errno_t_SVN_ERR_WC_PATH_FOUND,
-    WcFoundConflict = ffi::svn_errno_t_SVN_ERR_WC_FOUND_CONFLICT,
-    WcCorrupt = ffi::svn_errno_t_SVN_ERR_WC_CORRUPT,
-    WcCorruptTextBase = ffi::svn_errno_t_SVN_ERR_WC_CORRUPT_TEXT_BASE,
-    WcNodeKindChange = ffi::svn_errno_t_SVN_ERR_WC_NODE_KIND_CHANGE,
-    WcInvalidOpOnCwd = ffi::svn_errno_t_SVN_ERR_WC_INVALID_OP_ON_CWD,
-    WcBadAdmLogStart = ffi::svn_errno_t_SVN_ERR_WC_BAD_ADM_LOG_START,
-    WcUnsupportedFormat = ffi::svn_errno_t_SVN_ERR_WC_UNSUPPORTED_FORMAT,
-    WcBadPath = ffi::svn_errno_t_SVN_ERR_WC_BAD_PATH,
-    WcInvalidSchedule = ffi::svn_errno_t_SVN_ERR_WC_INVALID_SCHEDULE,
-    WcInvalidRelocation = ffi::svn_errno_t_SVN_ERR_WC_INVALID_RELOCATION,
-    WcInvalidSwitch = ffi::svn_errno_t_SVN_ERR_WC_INVALID_SWITCH,
-}
-
-#[uniffi::export]
-fn svn_err_fs_reposra_into_u32(err: SvnErrnoFsReposRa) -> u32 {
-    err.into()
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_errno_t)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, uniffi::Enum)]
-pub enum SvnErrnoFsReposRa {
-    FsGeneral = ffi::svn_errno_t_SVN_ERR_FS_GENERAL,
-    FsCleanup = ffi::svn_errno_t_SVN_ERR_FS_CLEANUP,
-    FsAlreadyOpen = ffi::svn_errno_t_SVN_ERR_FS_ALREADY_OPEN,
-    FsNotOpen = ffi::svn_errno_t_SVN_ERR_FS_NOT_OPEN,
-    FsCorrupt = ffi::svn_errno_t_SVN_ERR_FS_CORRUPT,
-    FsPathSyntax = ffi::svn_errno_t_SVN_ERR_FS_PATH_SYNTAX,
-    FsNoSuchRevision = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_REVISION,
-    FsNoSuchTransaction = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_TRANSACTION,
-    FsNoSuchEntry = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_ENTRY,
-    FsNoSuchRepresentation = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_REPRESENTATION,
-    FsNoSuchString = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_STRING,
-    FsNoSuchCopy = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_COPY,
-    FsTransactionNotMutable = ffi::svn_errno_t_SVN_ERR_FS_TRANSACTION_NOT_MUTABLE,
-    FsNotFound = ffi::svn_errno_t_SVN_ERR_FS_NOT_FOUND,
-    FsIdNotFound = ffi::svn_errno_t_SVN_ERR_FS_ID_NOT_FOUND,
-    FsNotId = ffi::svn_errno_t_SVN_ERR_FS_NOT_ID,
-    FsNotDirectory = ffi::svn_errno_t_SVN_ERR_FS_NOT_DIRECTORY,
-    FsNotFile = ffi::svn_errno_t_SVN_ERR_FS_NOT_FILE,
-    FsNotSinglePathComponent = ffi::svn_errno_t_SVN_ERR_FS_NOT_SINGLE_PATH_COMPONENT,
-    FsNotMutable = ffi::svn_errno_t_SVN_ERR_FS_NOT_MUTABLE,
-    FsAlreadyExists = ffi::svn_errno_t_SVN_ERR_FS_ALREADY_EXISTS,
-    FsRootDir = ffi::svn_errno_t_SVN_ERR_FS_ROOT_DIR,
-    FsNotTxnRoot = ffi::svn_errno_t_SVN_ERR_FS_NOT_TXN_ROOT,
-    FsNotRevisionRoot = ffi::svn_errno_t_SVN_ERR_FS_NOT_REVISION_ROOT,
-    FsConflict = ffi::svn_errno_t_SVN_ERR_FS_CONFLICT,
-    FsRepChanged = ffi::svn_errno_t_SVN_ERR_FS_REP_CHANGED,
-    FsRepNotMutable = ffi::svn_errno_t_SVN_ERR_FS_REP_NOT_MUTABLE,
-    FsMalformedSkel = ffi::svn_errno_t_SVN_ERR_FS_MALFORMED_SKEL,
-    FsTxnOutOfDate = ffi::svn_errno_t_SVN_ERR_FS_TXN_OUT_OF_DATE,
-    FsBerkeleyDb = ffi::svn_errno_t_SVN_ERR_FS_BERKELEY_DB,
-    FsBerkeleyDbDeadlock = ffi::svn_errno_t_SVN_ERR_FS_BERKELEY_DB_DEADLOCK,
-    FsTransactionDead = ffi::svn_errno_t_SVN_ERR_FS_TRANSACTION_DEAD,
-    FsTransactionNotDead = ffi::svn_errno_t_SVN_ERR_FS_TRANSACTION_NOT_DEAD,
-    FsUnknownFsType = ffi::svn_errno_t_SVN_ERR_FS_UNKNOWN_FS_TYPE,
-    FsNoUser = ffi::svn_errno_t_SVN_ERR_FS_NO_USER,
-    FsPathAlreadyLocked = ffi::svn_errno_t_SVN_ERR_FS_PATH_ALREADY_LOCKED,
-    FsPathNotLocked = ffi::svn_errno_t_SVN_ERR_FS_PATH_NOT_LOCKED,
-    FsBadLockToken = ffi::svn_errno_t_SVN_ERR_FS_BAD_LOCK_TOKEN,
-    FsNoLockToken = ffi::svn_errno_t_SVN_ERR_FS_NO_LOCK_TOKEN,
-    FsLockOwnerMismatch = ffi::svn_errno_t_SVN_ERR_FS_LOCK_OWNER_MISMATCH,
-    FsNoSuchLock = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_LOCK,
-    FsLockExpired = ffi::svn_errno_t_SVN_ERR_FS_LOCK_EXPIRED,
-    FsOutOfDate = ffi::svn_errno_t_SVN_ERR_FS_OUT_OF_DATE,
-    FsUnsupportedFormat = ffi::svn_errno_t_SVN_ERR_FS_UNSUPPORTED_FORMAT,
-    FsRepBeingWritten = ffi::svn_errno_t_SVN_ERR_FS_REP_BEING_WRITTEN,
-    FsTxnNameTooLong = ffi::svn_errno_t_SVN_ERR_FS_TXN_NAME_TOO_LONG,
-    FsNoSuchNodeOrigin = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_NODE_ORIGIN,
-    FsUnsupportedUpgrade = ffi::svn_errno_t_SVN_ERR_FS_UNSUPPORTED_UPGRADE,
-    FsNoSuchChecksumRep = ffi::svn_errno_t_SVN_ERR_FS_NO_SUCH_CHECKSUM_REP,
-    FsPropBasevalueMismatch = ffi::svn_errno_t_SVN_ERR_FS_PROP_BASEVALUE_MISMATCH,
-    FsIncorrectEditorCompletion = ffi::svn_errno_t_SVN_ERR_FS_INCORRECT_EDITOR_COMPLETION,
-    FsPackedRevpropReadFailure = ffi::svn_errno_t_SVN_ERR_FS_PACKED_REVPROP_READ_FAILURE,
-    FsRevpropCacheInitFailure = ffi::svn_errno_t_SVN_ERR_FS_REVPROP_CACHE_INIT_FAILURE,
-    FsMalformedTxnId = ffi::svn_errno_t_SVN_ERR_FS_MALFORMED_TXN_ID,
-}
-
-#[uniffi::export]
-fn svn_err_reposra_into_u32(err: SvnErrnoReposRa) -> u32 {
-    err.into()
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_errno_t)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, uniffi::Enum)]
-pub enum SvnErrnoReposRa {
-    ReposLocked = ffi::svn_errno_t_SVN_ERR_REPOS_LOCKED,
-    ReposHookFailure = ffi::svn_errno_t_SVN_ERR_REPOS_HOOK_FAILURE,
-    ReposBadArgs = ffi::svn_errno_t_SVN_ERR_REPOS_BAD_ARGS,
-    ReposNoDataForReport = ffi::svn_errno_t_SVN_ERR_REPOS_NO_DATA_FOR_REPORT,
-    ReposBadRevisionReport = ffi::svn_errno_t_SVN_ERR_REPOS_BAD_REVISION_REPORT,
-    ReposUnsupportedVersion = ffi::svn_errno_t_SVN_ERR_REPOS_UNSUPPORTED_VERSION,
-    ReposDisabledFeature = ffi::svn_errno_t_SVN_ERR_REPOS_DISABLED_FEATURE,
-    ReposPostCommitHookFailed = ffi::svn_errno_t_SVN_ERR_REPOS_POST_COMMIT_HOOK_FAILED,
-    ReposPostLockHookFailed = ffi::svn_errno_t_SVN_ERR_REPOS_POST_LOCK_HOOK_FAILED,
-    ReposPostUnlockHookFailed = ffi::svn_errno_t_SVN_ERR_REPOS_POST_UNLOCK_HOOK_FAILED,
-    ReposUnsupportedUpgrade = ffi::svn_errno_t_SVN_ERR_REPOS_UNSUPPORTED_UPGRADE,
-    RaIllegalUrl = ffi::svn_errno_t_SVN_ERR_RA_ILLEGAL_URL,
-    RaNotAuthorized = ffi::svn_errno_t_SVN_ERR_RA_NOT_AUTHORIZED,
-    RaUnknownAuth = ffi::svn_errno_t_SVN_ERR_RA_UNKNOWN_AUTH,
-    RaNotImplemented = ffi::svn_errno_t_SVN_ERR_RA_NOT_IMPLEMENTED,
-    RaOutOfDate = ffi::svn_errno_t_SVN_ERR_RA_OUT_OF_DATE,
-    RaNoReposUuid = ffi::svn_errno_t_SVN_ERR_RA_NO_REPOS_UUID,
-    RaUnsupportedAbiVersion = ffi::svn_errno_t_SVN_ERR_RA_UNSUPPORTED_ABI_VERSION,
-    RaNotLocked = ffi::svn_errno_t_SVN_ERR_RA_NOT_LOCKED,
-    RaPartialReplayNotSupported = ffi::svn_errno_t_SVN_ERR_RA_PARTIAL_REPLAY_NOT_SUPPORTED,
-    RaUuidMismatch = ffi::svn_errno_t_SVN_ERR_RA_UUID_MISMATCH,
-    RaReposRootUrlMismatch = ffi::svn_errno_t_SVN_ERR_RA_REPOS_ROOT_URL_MISMATCH,
-    RaSessionUrlMismatch = ffi::svn_errno_t_SVN_ERR_RA_SESSION_URL_MISMATCH,
-    RaCannotCreateTunnel = ffi::svn_errno_t_SVN_ERR_RA_CANNOT_CREATE_TUNNEL,
-    RaCannotCreateSession = ffi::svn_errno_t_SVN_ERR_RA_CANNOT_CREATE_SESSION,
-    RaDavSockInit = ffi::svn_errno_t_SVN_ERR_RA_DAV_SOCK_INIT,
-    RaDavCreatingRequest = ffi::svn_errno_t_SVN_ERR_RA_DAV_CREATING_REQUEST,
-    RaDavRequestFailed = ffi::svn_errno_t_SVN_ERR_RA_DAV_REQUEST_FAILED,
-    RaDavOptionsReqFailed = ffi::svn_errno_t_SVN_ERR_RA_DAV_OPTIONS_REQ_FAILED,
-    RaDavPropsNotFound = ffi::svn_errno_t_SVN_ERR_RA_DAV_PROPS_NOT_FOUND,
-}
-
 unsafe extern "C" fn may_save_password_as_plain_text(
     save: *mut ffi::svn_boolean_t,
     realm_string: *const c_char,
@@ -1522,7 +928,7 @@ unsafe extern "C" fn may_save_password_as_plain_text(
     let ctx = unsafe { &mut *(baton as *mut ContextInner) };
 
     unsafe {
-        let realm_string = CStr::from_ptr(realm_string).to_str().unwrap();
+        let realm_string = realm_string.to_str();
         // *save = (ctx.on_may_save_password_as_plain_text)(realm_string).into();
         *save = ctx
             .context_notifier
@@ -1568,12 +974,12 @@ impl SslServerCertInfo {
     unsafe fn from_raw(info: *const ffi::svn_auth_ssl_server_cert_info_t) -> Self {
         let info = unsafe { info.as_ref().unwrap() };
         unsafe {
-            let hostname = apr::char_array_to_string(info.hostname).unwrap();
-            let fingerprint = apr::char_array_to_string(info.fingerprint).unwrap();
-            let valid_from = apr::char_array_to_string(info.valid_from).unwrap();
-            let valid_until = apr::char_array_to_string(info.valid_until).unwrap();
-            let issuer = apr::char_array_to_string(info.issuer_dname).unwrap();
-            let ascii_cert = apr::char_array_to_string(info.ascii_cert).unwrap();
+            let hostname = info.hostname.to_str().to_string();
+            let fingerprint = info.fingerprint.to_str().to_string();
+            let valid_from = info.valid_from.to_str().to_string();
+            let valid_until = info.valid_until.to_str().to_string();
+            let issuer = info.issuer_dname.to_str().to_string();
+            let ascii_cert = info.ascii_cert.to_str().to_string();
 
             Self {
                 hostname,
@@ -1690,7 +1096,7 @@ impl LogChangedPathEntry {
             let ptr = &*ptr;
 
             let action = LogChangedPathAction::from_i8(ptr.action);
-            let copy_from_path = apr::char_array_to_string(ptr.copyfrom_path);
+            let copy_from_path = ptr.copyfrom_path.to_nullable_string();
             let copy_from_revision = ptr.copyfrom_rev.try_into().ok();
 
             let node_kind = NodeKind::try_from(ptr.node_kind).unwrap();
@@ -1756,8 +1162,8 @@ impl LogEntry {
                 }
             }
 
-            let author = apr::char_array_to_string(author);
-            let message = apr::char_array_to_string(message);
+            let author = author.to_nullable_string();
+            let message = message.to_nullable_string();
             let date = if time_is_valid { Some(time) } else { None };
 
             let mut changed_path_entries = HashMap::new();
@@ -1975,12 +1381,13 @@ pub struct CatOptions {
     peg_revision: Revision,
     revision: Revision,
     expand_keywords: bool,
+    get_properties: bool,
 }
 
 #[derive(Debug, new, uniffi::Record)]
 pub struct CatResult {
     content: Vec<u8>,
-    properties: HashMap<String, String>,
+    properties: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -2046,6 +1453,130 @@ pub struct ListOptions {
     include_externals: bool,
 }
 
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct ConflictWalkOptions {
+    local_absolute_path: String,
+    depth: Depth,
+}
+
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct ConflictWalkResult {
+    conflicts: Vec<Conflict>,
+}
+
+#[svnexus_macro::enum_converter(repr_type = ffi::svn_client_conflict_option_id_t)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, uniffi::Enum)]
+pub enum ConflictOptionId {
+    Undefined = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_undefined,
+    Postpone = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_postpone,
+    BaseText = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_base_text,
+    IncomingText = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_text,
+    WorkingText = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_working_text,
+    IncomingTextWhereConflicted = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_text_where_conflicted,
+    WorkingTextWhereConflicted = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_working_text_where_conflicted,
+    MergedText = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_merged_text,
+    Unspecified = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_unspecified,
+    AcceptCurrentWcState =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_accept_current_wc_state,
+    UpdateMoveDestination =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_update_move_destination,
+    UpdateAnyMovedAwayChildren = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_update_any_moved_away_children,
+    IncomingAddIgnore =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_add_ignore,
+    IncomingAddedFileTextMerge = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_added_file_text_merge,
+    IncomingAddedFileReplaceAndMerge = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_added_file_replace_and_merge,
+    IncomingAddedDirMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_added_dir_merge,
+    IncomingAddedDirReplace =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_added_dir_replace,
+    IncomingAddedDirReplaceAndMerge = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_added_dir_replace_and_merge,
+    IncomingDeleteIgnore =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_delete_ignore,
+    IncomingDeleteAccept =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_delete_accept,
+    IncomingMoveFileTextMerge = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_move_file_text_merge,
+    IncomingMoveDirMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_incoming_move_dir_merge,
+    LocalMoveFileTextMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_local_move_file_text_merge,
+    LocalMoveDirMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_local_move_dir_merge,
+    SiblingMoveFileTextMerge = ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_sibling_move_file_text_merge,
+    SiblingMoveDirMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_sibling_move_dir_merge,
+    BothMovedFileMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_both_moved_file_merge,
+    BothMovedFileMoveMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_both_moved_file_move_merge,
+    BothMovedDirMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_both_moved_dir_merge,
+    BothMovedDirMoveMerge =
+        ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_both_moved_dir_move_merge,
+}
+
+pub struct ConflictOption {
+    id: ConflictOptionId,
+    label: String,
+    description: String,
+}
+
+
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct ConflictPropertyValue {
+    base_value: Option<String>,
+    working_value: Option<String>,
+    incoming_old_value: Option<String>,
+    incoming_new_value: Option<String>,
+}
+
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct ConflictInfo {
+    local_absolute_path: String,
+    operation: WorkingCopyOperation,
+    incoming_change: WorkingCopyConflictAction,
+    local_change: WorkingCopyConflictReason,
+    recommended_option_id: ConflictOptionId,
+}
+
+impl From<*mut ffi::svn_client_conflict_t> for ConflictInfo {
+    fn from(value: *mut ffi::svn_client_conflict_t) -> Self{
+        unsafe {
+            let local_absolute_path = ffi::svn_client_conflict_get_local_abspath(value).to_str().to_string();
+            let operation = ffi::svn_client_conflict_get_operation(value).try_into().unwrap();
+            let incoming_change = ffi::svn_client_conflict_get_incoming_change(value).try_into().unwrap();
+            let local_change = ffi::svn_client_conflict_get_local_change(value).try_into().unwrap();
+            let recommended_option_id = ffi::svn_client_conflict_get_recommended_option_id(value).try_into().unwrap();
+            ConflictInfo {
+                local_absolute_path,
+                operation,
+                incoming_change,
+                local_change,
+                recommended_option_id,
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, uniffi::Enum)]
+pub enum Conflict {
+    Text {
+        info: ConflictInfo,
+        base_absolute_path: Option<String>,
+        working_absolute_path: Option<String>,
+        incoming_old_absolute_path: Option<String>,
+        incoming_new_absolute_path: Option<String>,
+    },
+    Property {
+        info: ConflictInfo,
+        properties: HashMap<String, ConflictPropertyValue>,
+        description: Option<String>,
+    },
+    Tree {
+        info: ConflictInfo,
+        victim_node_kind: NodeKind,
+    },
+}
+
 #[derive(Debug, Clone, new, uniffi::Record)]
 pub struct ListResult {
     entries: Vec<ListEntry>,
@@ -2065,6 +1596,17 @@ pub struct ListEntry {
     external_parent_url: Option<String>,
     external_target: Option<String>,
 }
+
+pub struct CopyOptions {
+    sources: Vec<String>,
+    destination: String,
+    copy_as_child: bool,
+    make_parents: bool,
+    ignore_externals: bool,
+    metadata_only: bool,
+    pin_externals: bool,
+}
+
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_diff_file_ignore_space_t)]
 #[derive(uniffi::Enum, Debug, Clone, Copy)]
@@ -2134,7 +1676,6 @@ impl DifferenceOptions {
 
             options.options.setup(file_options.as_mut().unwrap());
 
-
             // let options: ffi::svn_diff_file_options_t = options.options.into();
 
             tracing::info!("{}:{}", file!(), line!());
@@ -2200,12 +1741,12 @@ impl DifferenceOptions {
 
                     let original = TextPosition {
                         pos: original_start.try_into().unwrap_or_default(),
-                        len: original_length.try_into().unwrap_or_default()
+                        len: original_length.try_into().unwrap_or_default(),
                     };
 
                     let modified = TextPosition {
                         pos: modified_start.try_into().unwrap_or_default(),
-                        len: modified_length.try_into().unwrap_or_default()
+                        len: modified_length.try_into().unwrap_or_default(),
                     };
 
                     let change = TextChange { original, modified };
@@ -2311,292 +1852,6 @@ pub struct DifferenceResult {
     pub modified: Vec<TextChange>,
 }
 
-#[derive(uniffi::Enum, Debug)]
-pub enum CheckSum {
-    Md5(Vec<u8>),
-    Sha1(Vec<u8>),
-    Fnv1a32(Vec<u8>),
-    Fnv1a32x4(Vec<u8>),
-}
-
-#[easy_ext::ext]
-impl *const ffi::svn_checksum_t {
-    fn to_check_sum(self) -> CheckSum {
-        unsafe {
-            let ptr = self.as_ref().unwrap();
-
-            match ptr.kind {
-                ffi::svn_checksum_kind_t_svn_checksum_md5 => {
-                    let digest = std::slice::from_raw_parts(ptr.digest, 16);
-
-                    CheckSum::Md5(digest.to_vec())
-                }
-                ffi::svn_checksum_kind_t_svn_checksum_sha1 => {
-                    let digest = std::slice::from_raw_parts(ptr.digest, 20);
-
-                    CheckSum::Sha1(digest.to_vec())
-                }
-                ffi::svn_checksum_kind_t_svn_checksum_fnv1a_32 => {
-                    let digest = std::slice::from_raw_parts(ptr.digest, 4);
-                    CheckSum::Fnv1a32(digest.to_vec())
-                }
-                ffi::svn_checksum_kind_t_svn_checksum_fnv1a_32x4 => {
-                    let digest = std::slice::from_raw_parts(ptr.digest, 4);
-                    CheckSum::Fnv1a32x4(digest.to_vec())
-                }
-                kind => panic!("Invalid checksum type: {}", kind),
-            }
-        }
-    }
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_conflict_kind_t)]
-#[derive(uniffi::Enum, Debug)]
-pub enum WorkingCopyConflictKind {
-    Text = ffi::svn_wc_conflict_kind_t_svn_wc_conflict_kind_text,
-    Property = ffi::svn_wc_conflict_kind_t_svn_wc_conflict_kind_property,
-    Tree = ffi::svn_wc_conflict_kind_t_svn_wc_conflict_kind_tree,
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_conflict_kind_t)]
-#[derive(uniffi::Enum, Debug)]
-pub enum WorkingCopyConflictAction {
-    Edit = ffi::svn_wc_conflict_action_t_svn_wc_conflict_action_edit,
-    Add = ffi::svn_wc_conflict_action_t_svn_wc_conflict_action_add,
-    Delete = ffi::svn_wc_conflict_action_t_svn_wc_conflict_action_delete,
-    Replace = ffi::svn_wc_conflict_action_t_svn_wc_conflict_action_replace,
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_conflict_reason_t)]
-#[derive(uniffi::Enum, Debug)]
-pub enum WorkingCopyConflictReason {
-    Edited = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_edited,
-    Obstructed = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_obstructed,
-    Deleted = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_deleted,
-    Missing = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_missing,
-    Unversioned = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_unversioned,
-    Added = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_added,
-    Replaced = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_replaced,
-    MovedAway = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_moved_away,
-    MovedHere = ffi::svn_wc_conflict_reason_t_svn_wc_conflict_reason_moved_here,
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_operation_t)]
-#[derive(uniffi::Enum, Debug)]
-pub enum WorkingCopyOperation {
-    None = ffi::svn_wc_operation_t_svn_wc_operation_none,
-    Update = ffi::svn_wc_operation_t_svn_wc_operation_update,
-    Switch = ffi::svn_wc_operation_t_svn_wc_operation_switch,
-    Merge = ffi::svn_wc_operation_t_svn_wc_operation_merge,
-}
-
-#[derive(uniffi::Record, Debug, new)]
-pub struct WorkingCopyInfo {
-    schedule: WorkingCopySchedule,
-    copy_from_revision: Option<RevisionNumber>,
-    check_sum: CheckSum,
-    changelist: String,
-    depth: Depth,
-    recorded_size: Option<u64>,
-    recorded_time: i64,
-    working_copy_absolute_path: String,
-    moved_from_absolute_path: Option<String>,
-    moved_to_absolute_path: Option<String>,
-    working_copy_format: i32,
-    store_pristine: bool,
-}
-
-#[easy_ext::ext]
-impl *const ffi::svn_wc_info_t {
-    fn to_working_copy_info(self) -> WorkingCopyInfo {
-        unsafe {
-            let ptr = self.as_ref().unwrap();
-            let schedule = ptr.schedule.try_into().unwrap();
-            let copy_from_revision = ptr.copyfrom_rev.into_optional_revision();
-            let check_sum = ptr.checksum.to_check_sum();
-            let changelist = ptr.changelist.to_str().to_string();
-            let depth = ptr.depth.try_into().unwrap();
-            let recorded_size = if ptr.recorded_size < 0 {
-                None
-            } else {
-                Some(ptr.recorded_size.try_into().unwrap())
-            };
-
-            let recorded_time = ptr.recorded_time.try_into().unwrap();
-
-            let working_copy_absolute_path = ptr.wcroot_abspath.to_str().to_string();
-
-            let moved_from_absolute_path = ptr
-                .moved_from_abspath
-                .to_nullable_str()
-                .map(|v| v.to_string());
-
-            let moved_to_absolute_path = ptr
-                .moved_to_abspath
-                .to_nullable_str()
-                .map(|v| v.to_string());
-
-            let working_copy_format = ptr.wc_format.try_into().unwrap();
-
-            let store_pristine = ptr.store_pristine != 0;
-
-            WorkingCopyInfo {
-                schedule,
-                copy_from_revision,
-                check_sum,
-                changelist,
-                depth,
-                recorded_size,
-                recorded_time,
-                working_copy_absolute_path,
-                moved_from_absolute_path,
-                moved_to_absolute_path,
-                working_copy_format,
-                store_pristine,
-            }
-        }
-    }
-}
-
-#[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_schedule_t)]
-#[derive(uniffi::Enum, Debug)]
-pub enum WorkingCopySchedule {
-    Normal = ffi::svn_wc_schedule_t_svn_wc_schedule_normal,
-    Add = ffi::svn_wc_schedule_t_svn_wc_schedule_add,
-    Delete = ffi::svn_wc_schedule_t_svn_wc_schedule_delete,
-    Replace = ffi::svn_wc_schedule_t_svn_wc_schedule_replace,
-}
-
-#[derive(new, Debug, uniffi::Record)]
-pub struct WorkingCopyConflictDescription {
-    local_absolute_path: String,
-    node_kind: NodeKind,
-    kind: WorkingCopyConflictKind,
-    property_name: Option<String>,
-    is_binary: bool,
-    mime_type: Option<String>,
-    action: WorkingCopyConflictAction,
-    base_absolute_path: Option<String>,
-    their_absolute_path: String,
-    my_absolute_path: String,
-    merged_file: Option<String>,
-    src_left_version: WorkingCopyConflictVersion,
-    src_right_version: WorkingCopyConflictVersion,
-    property_value_base: Option<Vec<u8>>,
-    property_value_working: Option<Vec<u8>>,
-    property_value_incoming_old: Option<Vec<u8>>,
-    property_value_incoming_new: Option<Vec<u8>>,
-}
-
-impl WorkingCopyConflictDescription {
-    fn from_raw(ptr: *const ffi::svn_wc_conflict_description2_t) -> Self {
-        unsafe {
-            let ptr = ptr.as_ref().unwrap();
-
-            let local_absolute_path = ptr.local_abspath.to_str().to_string();
-
-            let node_kind = ptr.node_kind.try_into().unwrap();
-
-            let kind = ptr.kind.try_into().unwrap();
-
-            let property_name = ptr.property_name.to_nullable_str().map(|v| v.to_string());
-
-            let is_binary = ptr.is_binary != 0;
-
-            let mime_type = ptr.mime_type.to_nullable_str().map(|v| v.to_string());
-
-            let action = ptr.action.try_into().unwrap();
-
-            let base_absolute_path = ptr.base_abspath.to_nullable_str().map(|v| v.to_string());
-
-            let their_absolute_path = ptr.their_abspath.to_str().to_string();
-
-            let my_absolute_path = ptr.my_abspath.to_str().to_string();
-
-            let merged_file = ptr.merged_file.to_nullable_str().map(|v| v.to_string());
-
-            let src_left_version = ptr.src_left_version.to_working_copy_conflict_version();
-
-            let src_right_version = ptr.src_right_version.to_working_copy_conflict_version();
-
-            let property_value_base = ptr.prop_value_base.to_nullable_slice().map(|v| v.to_vec());
-
-            let property_value_working = ptr
-                .prop_value_working
-                .to_nullable_slice()
-                .map(|v| v.to_vec());
-
-            let property_value_incoming_old = ptr
-                .prop_value_incoming_old
-                .to_nullable_slice()
-                .map(|v| v.to_vec());
-
-            let property_value_incoming_new = ptr
-                .prop_value_incoming_new
-                .to_nullable_slice()
-                .map(|v| v.to_vec());
-
-            Self {
-                local_absolute_path,
-                node_kind,
-                kind,
-                property_name,
-                is_binary,
-                mime_type,
-                action,
-                base_absolute_path,
-                their_absolute_path,
-                my_absolute_path,
-                merged_file,
-                src_left_version,
-                src_right_version,
-                property_value_base,
-                property_value_working,
-                property_value_incoming_new,
-                property_value_incoming_old,
-            }
-        }
-    }
-}
-
-#[derive(uniffi::Record, Debug, new)]
-pub struct WorkingCopyConflictVersion {
-    repos_url: String,
-    peg_revision: RevisionNumber,
-    path_in_repos: String,
-    node_kind: NodeKind,
-    repos_uuid: String,
-}
-
-#[easy_ext::ext]
-impl *const ffi::svn_wc_conflict_version_t {
-    fn to_working_copy_conflict_version(self) -> WorkingCopyConflictVersion {
-        assert!(!self.is_null());
-
-        unsafe {
-            let ptr = self.as_ref().unwrap();
-
-            let repos_url = ptr.repos_url.to_str().to_string();
-
-            let peg_revision = ptr.peg_rev.try_into().unwrap();
-
-            let path_in_repos = ptr.path_in_repos.to_str().to_string();
-
-            let node_kind = ptr.node_kind.try_into().unwrap();
-
-            let repos_uuid = ptr.repos_uuid.to_str().to_string();
-
-            WorkingCopyConflictVersion {
-                repos_url,
-                peg_revision,
-                path_in_repos,
-                node_kind,
-                repos_uuid,
-            }
-        }
-    }
-}
-
 #[derive(uniffi::Record, Debug, new)]
 pub struct InfoEntry {
     url: String,
@@ -2643,13 +1898,13 @@ impl *const ffi::svn_client_info2_t {
             let lock = if ptr.lock.is_null() {
                 None
             } else {
-                Some(Lock::from_ptr(ptr.lock))
+                Some(Lock::from(ptr.lock))
             };
 
             let working_copy_info = if ptr.wc_info.is_null() {
                 None
             } else {
-                Some(ptr.wc_info.to_working_copy_info())
+                Some(ptr.wc_info.into())
             };
 
             InfoEntry {
@@ -3303,7 +2558,7 @@ impl Context {
 
     pub fn cat(&mut self, opts: CatOptions) -> error::Result<CatResult> {
         unsafe {
-            let mut properties = std::ptr::null_mut();
+            let mut properties: *mut ffi::apr_hash_t = std::ptr::null_mut();
 
             let mut pool = apr::Pool::create();
 
@@ -3315,9 +2570,12 @@ impl Context {
 
             let revision = opts.revision.to_opt_revision();
 
-            tracing::info!("Call cat3: {:#?}", opts);
             let error = ffi::svn_client_cat3(
-                &mut properties as *mut _,
+                if opts.get_properties {
+                    properties.pointer_mut()
+                } else {
+                    std::ptr::null_mut()
+                },
                 stream.stream(),
                 path,
                 &peg_revision as *const _,
@@ -3327,12 +2585,15 @@ impl Context {
                 pool.as_mut_ptr(),
                 pool.as_mut_ptr(),
             );
-            tracing::info!("Call finished cat3");
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
             let content = stream.take_write_buffer();
 
-            let properties = pool.apr_hash_to_hash_map(properties);
+            let properties = if properties.is_null() {
+                None
+            } else {
+                Some(pool.apr_hash_to_hash_map(properties))
+            };
 
             Ok(CatResult {
                 content,
@@ -3403,7 +2664,7 @@ impl Context {
         Ok(InfoResult { entries })
     }
 
-    fn url_from_path(&mut self, path: String) -> error::Result<String> {
+    pub fn url_from_path(&mut self, path: String) -> error::Result<String> {
         unsafe {
             let mut pool = apr::Pool::create();
             let mut url: *const i8 = std::ptr::null_mut();
@@ -3421,7 +2682,7 @@ impl Context {
         }
     }
 
-    fn update(&mut self, opts: UpdateOptions) -> error::Result<Vec<RevisionNumber>> {
+    pub fn update(&mut self, opts: UpdateOptions) -> error::Result<Vec<RevisionNumber>> {
         unsafe {
             let mut pool = apr::Pool::create();
             let paths = pool.string_array(opts.paths.len(), opts.paths.iter())?;
@@ -3456,7 +2717,7 @@ impl Context {
 
     fn property_get(&mut self, opts: PropertyGetOptions) {}
 
-    fn cleanup(&mut self, opts: CleanupOptions) -> error::Result<()> {
+    pub fn cleanup(&mut self, opts: CleanupOptions) -> error::Result<()> {
         unsafe {
             let mut pool = apr::Pool::create();
 
@@ -3480,7 +2741,7 @@ impl Context {
         Ok(())
     }
 
-    fn list(&mut self, opts: ListOptions) -> error::Result<ListResult> {
+    pub fn list(&mut self, opts: ListOptions) -> error::Result<ListResult> {
         unsafe extern "C" fn list_receiver(
             baton: *mut c_void,
             path: *const c_char,
@@ -3500,7 +2761,7 @@ impl Context {
                 let this = (baton as *mut ContextInner).as_mut().unwrap();
                 let opts = this.current_list_options.as_ref().unwrap();
                 let path = path.to_str().to_string();
-                let lock = lock.as_ref().map(|e| Lock::from_ptr(e));
+                let lock = lock.map(Lock::from);
                 let absolute_path = abs_path.to_str().to_string();
                 let external_parent_url = external_parent_url.to_nullable_string();
                 let external_target = external_target.to_nullable_string();
@@ -3614,6 +2875,147 @@ impl Context {
         Ok(ListResult {
             entries: std::mem::take(&mut self.inner.list_entries),
         })
+    }
+
+    pub fn conflict_walk(&mut self, opts: ConflictWalkOptions) -> error::Result<ConflictWalkResult> {
+        // struct Baton {
+        //     ctx: *mut ffi::svn_client_ctx_t,
+        //     inner: *mut ContextInner,
+        // }
+
+        unsafe extern "C" fn conflict_walker(
+            baton: *mut c_void,
+            conflict: *mut ffi::svn_client_conflict_t,
+            scratch_pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
+            let mut is_text: ffi::svn_boolean_t = 0;
+            let mut is_tree: ffi::svn_boolean_t = 0;
+            let mut property_conflict: *mut ffi::apr_array_header_t = std::ptr::null_mut();
+
+            unsafe {
+                let inner = (baton as *mut ContextInner).as_mut().unwrap();
+
+                let error = ffi::svn_client_conflict_get_conflicted(
+                    is_text.pointer_mut(),
+                    property_conflict.pointer_mut(),
+                    is_tree.pointer_mut(),
+                    conflict,
+                    scratch_pool,
+                    scratch_pool,
+                );
+                if !error.is_null() {
+                    return error;
+                }
+                if is_text == 0 && is_tree == 0 && property_conflict.is_null() {
+                    tracing::info!("Unspecified conflict");
+                    return svn_no_error();
+                }
+
+                let info = ConflictInfo::from(conflict);
+
+                if is_text != 0 {
+                    // let mut options: *mut ffi::apr_array_header_t = std::ptr::null_mut();
+                    // let error = ffi::svn_client_conflict_text_get_resolution_options(options.pointer_mut(), conflict, ctx, scratch_pool, scratch_pool);
+                    // if !error.is_null() {
+                    //     return error;
+                    // }
+
+                    let mut base_absolute_path: *const c_char = std::ptr::null_mut();
+                    let mut working_absolute_path: *const c_char = std::ptr::null_mut();
+                    let mut incoming_old_absolute_path: *const c_char = std::ptr::null_mut();
+                    let mut incoming_new_absolute_path: *const c_char = std::ptr::null_mut();
+
+                    let error = ffi::svn_client_conflict_text_get_contents(
+                        base_absolute_path.pointer_mut(),
+                        working_absolute_path.pointer_mut(),
+                        incoming_old_absolute_path.pointer_mut(),
+                        incoming_new_absolute_path.pointer_mut(),
+                        conflict,
+                        scratch_pool,
+                        scratch_pool,
+                    );
+                    if !error.is_null() {
+                        return error;
+                    }
+
+                    let base_absolute_path = base_absolute_path.to_nullable_string();
+                    let working_absolute_path = working_absolute_path.to_nullable_string();
+                    let incoming_old_absolute_path =
+                        incoming_old_absolute_path.to_nullable_string();
+                    let incoming_new_absolute_path =
+                        incoming_new_absolute_path.to_nullable_string();
+
+                    inner.conflicts.push(Conflict::Text {
+                        base_absolute_path,
+                        working_absolute_path,
+                        incoming_old_absolute_path,
+                        incoming_new_absolute_path,
+                        info,
+                    });
+                } else if !property_conflict.is_null() {
+                    let property_names = property_conflict.to_vec(|ptr| ptr);
+
+                    let mut properties = HashMap::new();
+
+                    for i in property_names {
+
+                        let mut base_value: *const ffi::svn_string_t = std::ptr::null_mut();
+                        let mut working_value: *const ffi::svn_string_t = std::ptr::null_mut();
+                        let mut incoming_old_value: *const ffi::svn_string_t = std::ptr::null_mut();
+                        let mut incoming_new_value: *const ffi::svn_string_t = std::ptr::null_mut();
+
+
+                        let error = ffi::svn_client_conflict_prop_get_propvals(base_value.pointer_mut(), working_value.pointer_mut(), incoming_old_value.pointer_mut(), incoming_new_value.pointer_mut(), conflict, i, scratch_pool);
+                        if !error.is_null() {
+                            return error;
+                        }
+                        let base_value = base_value.to_nullable_string();
+                        let working_value = working_value.to_nullable_string();
+                        let incoming_old_value = incoming_old_value.to_nullable_string();
+                        let incoming_new_value = incoming_new_value.to_nullable_string();
+
+                        properties.insert(i.to_str().to_string(), ConflictPropertyValue {
+                            base_value,
+                            working_value,
+                            incoming_old_value,
+                            incoming_new_value
+                        });
+
+                    }
+                    let mut description: *const c_char = std::ptr::null_mut();
+                    let error = ffi::svn_client_conflict_prop_get_description(description.pointer_mut(), conflict, scratch_pool, scratch_pool);
+                    if !error.is_null() {
+                        return error;
+                    }
+
+                    let description = description.to_nullable_string();
+
+                    inner.conflicts.push(Conflict::Property { properties, description, info });
+
+
+                } else if is_tree != 0 {
+                    let victim_node_kind = ffi::svn_client_conflict_tree_get_victim_node_kind(conflict).try_into().unwrap();
+
+                    inner.conflicts.push(Conflict::Tree { info, victim_node_kind });
+                }
+            }
+            svn_no_error()
+        }
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let local_absolute_path = pool.string(opts.local_absolute_path)?;
+            let error = ffi::svn_client_conflict_walk(
+                local_absolute_path,
+                opts.depth.into(),
+                Some(conflict_walker),
+                self.inner.inner_void_pointer_mut(),
+                self.ctx_mut(),
+                pool.as_mut_ptr(),
+            );
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+        };
+
+        Ok(ConflictWalkResult { conflicts: std::mem::take(&mut self.inner.conflicts) })
     }
 
     fn create(opts: CreateContextOptions) -> error::Result<Self> {
@@ -3759,6 +3161,53 @@ impl Context {
             }
         }
 
+        unsafe extern "C" fn conflict(
+            result: *mut *mut ffi::svn_wc_conflict_result_t,
+            description: *const ffi::svn_wc_conflict_description2_t,
+            baton: *mut c_void,
+            result_pool: *mut ffi::apr_pool_t,
+            scratch_pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
+            unsafe {
+                let this = (baton as *mut ContextInner).as_mut().unwrap();
+
+                let description = WorkingCopyConflictDescription::from(description);
+
+                let user_result = this.context_notifier.conflict(description);
+
+                let mut pool = ManuallyDrop::new(apr::Pool::from_raw(result_pool));
+
+                let merged_file = user_result
+                    .merged_file
+                    .map(|e| pool.string(e).expect("Invalid file"))
+                    .unwrap_or_default();
+
+                *result = ffi::svn_wc_create_conflict_result(
+                    user_result.choise.into(),
+                    merged_file,
+                    result_pool,
+                );
+
+                let result = (*result).as_mut().unwrap();
+
+                result.choice = user_result.choise.into();
+                result.merged_value = user_result
+                    .merged_value
+                    .map(|e| {
+                        ffi::svn_string_ncreate(
+                            e.as_ptr() as _,
+                            e.len().try_into().unwrap(),
+                            result_pool,
+                        )
+                    })
+                    .unwrap_or_default();
+
+                result.save_merged = user_result.save_merged.into();
+            }
+
+            svn_no_error()
+        }
+
         unsafe {
             let ctx = ptr.as_mut().unwrap();
             ctx.auth_baton = auth_baton;
@@ -3771,6 +3220,9 @@ impl Context {
 
             ctx.progress_func = Some(on_progress_notify);
             ctx.progress_baton = inner.inner_void_pointer_mut();
+
+            ctx.conflict_func2 = Some(conflict);
+            ctx.conflict_baton2 = inner.inner_void_pointer_mut();
 
             if let Some(ref name) = opts.name {
                 ctx.client_name = pool.string(name)?;

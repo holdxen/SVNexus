@@ -10,8 +10,6 @@ namespace SVNexus.ViewModels;
 
 public abstract partial class ViewModelBase : ObservableObject
 {
-    public virtual bool KeepAlive { get; set; }
-    
     public virtual Type? ViewType { get; set; }
 
 
@@ -32,23 +30,48 @@ public abstract partial class ViewModelBase : ObservableObject
     }
     
 
-    private Channel<Func<Task>>? LoadedActionChannel { get; set; } =  Channel.CreateUnbounded<Func<Task>>(new  UnboundedChannelOptions()
+    private Channel<object>? LoadedActionChannel { get; set; } =  Channel.CreateUnbounded<object>(new  UnboundedChannelOptions()
     {
         SingleReader = true,
         SingleWriter =  true
     });
+    
+    public bool Loaded => LoadedActionChannel == null;
 
     [RelayCommand]
     protected virtual async Task OnLoaded()
     {
-        while (LoadedActionChannel?.Reader.TryRead(out var action) ?? false)
+        while (LoadedActionChannel?.Reader.TryRead(out var obj) ?? false)
         {
-            await action();
+            switch (obj)
+            {
+                case Action action:
+                    action();
+                    break;
+                case Func<Task> func:
+                    await func();
+                    break;
+                case Task task:
+                    await task;
+                    break;
+            }
         }
         LoadedActionChannel = null;
     }
 
-    public async Task InvokeLoadedAction(Func<Task> action)
+    public void InvokeLoadedAction(Action action)
+    {
+        if (LoadedActionChannel is null)
+        {
+            action();
+        }
+        else
+        {
+            LoadedActionChannel.Writer.TryWrite(action);
+        }
+    }
+
+    public async Task InvokeLoadedFunc(Func<Task> action)
     {
         if (LoadedActionChannel is null)
         {

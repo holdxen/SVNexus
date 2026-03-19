@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Avalonia.Dialogs;
 using Avalonia.Platform;
 using SVNexus.Generated;
 using SVNexus.Utils;

@@ -48,6 +48,7 @@
                 <Border VerticalAlignment="{TemplateBinding VerticalAlignment}" 
                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
                         CornerRadius="{TemplateBinding CornerRadius}"
+                        Background="{TemplateBinding Background}"
                         Classes="Clickable" 
                         ClipToBounds="{TemplateBinding ClipToBounds}"
                         Padding="{TemplateBinding Spacing}">
@@ -83,12 +84,18 @@
             </ControlTemplate>
         </Setter>
         
-        <Style Selector="^:pointerover /template/ Border.Clickable">
+        <!-- <Style Selector="^:pointerover /template/ Border.Clickable"> -->
+        <!--     <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter> -->
+        <!-- </Style> -->
+        <!-- -->
+        <!-- <Style Selector="^:pressed /template/ Border.Clickable"> -->
+        <!--     <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter> -->
+        <!-- </Style> -->
+        <Style Selector="^:pointerover">
             <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>
         </Style>
 
-        <!-- 按下：关键是写在 PathIconButton 的状态上 -->
-        <Style Selector="^:pressed /template/ Border.Clickable">
+        <Style Selector="^:pressed">
             <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter>
         </Style>
     </Style>

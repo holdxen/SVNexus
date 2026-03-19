@@ -33,16 +33,8 @@ public partial class RemoteViewModel: ViewModelBase
         
         public uint? Revision => Entry.Revision;
         
-      
-        // [ObservableProperty] 
-        // [NotifyPropertyChangedFor(nameof(DisplayMessage))]
-        // public partial string CommitMessage { get; set; } = string.Empty;
-        //
-        // [ObservableProperty] public partial string Author { get; set; } = string.Empty;
-        
         public string Author => Entry.Author ?? string.Empty;
         
-        //
         public string DisplayMessage
         {
             get
@@ -99,12 +91,12 @@ public partial class RemoteViewModel: ViewModelBase
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
-        var relativeToRoot = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
+        var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
         var commitItem = CommitItems[value];
         DetailViewModel = new RemoteDetailViewModel
         {
             Entry = commitItem.Entry,
-            RelativeToRoot = relativeToRoot
+            RelateToRoot = relateToRoot
         };
         SnapshotViewModel = new RemoteSnapshotViewModel()
         {
@@ -114,6 +106,61 @@ public partial class RemoteViewModel: ViewModelBase
         };
         if (commitItem.Revision is not null)
         {
+            if (value == CommitItems.Count - 1)
+            {
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    while (SelectedCommitItemIndex == value)
+                    {
+                        await Log(10);
+                        if (CommitItems.Count - 1 > value)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (SelectedCommitItemIndex != value)
+                    {
+                        return;
+                    }
+                    var item = CommitItems[value + 1];
+                    if (item.Revision is null)
+                    {
+                        return;
+                    }
+                    
+                    ChangesViewModel = new RemoteChangesViewModel
+                    {
+                        CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
+                        CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
+                        RelateToRoot = relateToRoot,
+                        LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+                    };
+                    ChangesViewModel.Update();
+                    
+                });
+            }
+            else
+            {
+                var item = CommitItems[value + 1];
+                if (item.Revision is null)
+                {
+                    return;
+                }
+                    
+                ChangesViewModel = new RemoteChangesViewModel
+                {
+                    CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
+                    CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
+                    RelateToRoot = relateToRoot,
+                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+                };
+                ChangesViewModel.Update();
+            }
+        }
+        else
+        {
+            ChangesViewModel = null;
         }
     }
 
@@ -209,6 +256,8 @@ public partial class RemoteViewModel: ViewModelBase
         
     }
 
+    private CommitItemViewModel? _parent;
+
 
     private async Task Log(uint limit)
     {
@@ -252,8 +301,6 @@ public partial class RemoteViewModel: ViewModelBase
             // Console.WriteLine(result.LogEntries.Length);
 
 
-            CommitItemViewModel? parent = null;
-
             await context.LogNext(logOptions, new LogReceiverDelegate()
             {
                 OnLogEntryAction = entry =>
@@ -262,7 +309,7 @@ public partial class RemoteViewModel: ViewModelBase
                     {
                         if (entry.Revision is null)
                         {
-                            parent = null;
+                            _parent = null;
                         } 
                         else if (entry.HasChildren)
                         {
@@ -270,12 +317,12 @@ public partial class RemoteViewModel: ViewModelBase
                             {
                                 Entry = entry
                             };
-                            parent = item;
+                            _parent = item;
                             CommitItems.Add(item);
                         }
-                        else if (parent is not null)
+                        else if (_parent is not null)
                         {
-                            parent.Children.Add(new CommitItemViewModel()
+                            _parent.Children.Add(new CommitItemViewModel()
                             {
                                 Entry = entry,
                             });

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
@@ -12,12 +10,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Components;
-using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Utils;
-using SVNexus.Views;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
@@ -25,7 +21,13 @@ namespace SVNexus.ViewModels.WorkingCopy.Local;
 public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemChanged>, IRecipient<OnRefreshWorkingCopy>
 {
 
-    private readonly LimitedDictionary<string, Difference?> _differences = new()
+    class DifferencesCat
+    {
+        public required CatResult Original { get; set; }
+        public required CatResult Modified { get; set; }
+    }
+
+    private readonly LimitedDictionary<string, DifferencesCat?> _differences = new()
     {
         Limit = 20
     };
@@ -45,9 +47,6 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
     public LocalListViewModel LocalListViewModel { get; set; } = new();
 
     public LocalTreeViewModel LocalTreeViewModel { get; set; } = new();
-
-
-    public override bool KeepAlive { get; set; } = true;
 
 
     [ObservableProperty]
@@ -285,8 +284,6 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
                     Type =  NotificationType.Error
                 }, Manager.MainWindowToken);
             }
-
-            throw;
         }
         finally
         {
@@ -349,78 +346,111 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
     [RelayCommand]
     private async Task Commit()
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
-
-        var context = Engine.Engine.Instance.SimpleContext(hostId);
-
-        List<string> unversioned = [];
-        
-        List<string> missing = [];
-        
-        List<string> others = [];
-
-
-        var items = IsTreeView ? LocalTreeViewModel.CheckedItems : LocalListViewModel.CheckedItems;
-
-        foreach (var item in items)
+        try
         {
-            switch (item.Value.NodeStatus)
+            if (string.IsNullOrEmpty(CommitMessage))
             {
-                case NodeStatus.Unversioned:
-                    unversioned.Add(item.Key);
-                    break;
-                case NodeStatus.Missing:
-                    missing.Add(item.Key);
-                    break;
-                case NodeStatus.None:
-                case NodeStatus.Normal:
-                case NodeStatus.Added:
-                case NodeStatus.Deleted:
-                case NodeStatus.Replaced:
-                case NodeStatus.Modified:
-                case NodeStatus.Merged:
-                case NodeStatus.Conflicted:
-                case NodeStatus.Ignored:
-                case NodeStatus.Obstructed:
-                case NodeStatus.External:
-                case NodeStatus.Incomplete:
-                default:
-                    others.Add(item.Key);
-                    break;
+                Manager.Default.Send(new OnShowToast()
+                {
+                    Content = "Empty commit message is not allowed",
+                    Type = NotificationType.Warning
+                }, Manager.MainWindowToken);
+                return;
             }
-        }
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
 
-        if (missing.Count > 0 && CommitMissingAsDelete)
-        {
-            await context.Delete(new DeleteOptions(missing.ToArray(), false, false, []));
-            
-            others.AddRange(missing);
-        }
+            var context = Engine.Engine.Instance.SimpleContext(hostId);
 
-        if (unversioned.Count > 0)
-        {
-            foreach (var item in unversioned)
-            {
-                await context.Add(new AddOptions(item, Depth.Empty, false, false, false, false));
-            }
-            
-            others.AddRange(unversioned);
-        }
-
-
-        var commitOptions = new CommitOptions(
-            others.ToArray(),
-            Depth: Depth,
-            KeepLocks: true,
-            KeepChangelist: false, 
-            CommitAsOperations: true, 
-            IncludeFileExternals: true, 
-            IncludeDirExternals: true,
-            Changelists: [], 
-            RevisionPropertyTable: new Dictionary<string, string>(), 
-            CommitMessage: CommitMessage);
+            List<string> unversioned = [];
         
-        await context.Commit(commitOptions);
+            List<string> missing = [];
+        
+            List<string> others = [];
+
+
+            var items = IsTreeView ? LocalTreeViewModel.CheckedItems : LocalListViewModel.CheckedItems;
+
+            foreach (var item in items)
+            {
+                switch (item.Value.NodeStatus)
+                {
+                    case NodeStatus.Unversioned:
+                        unversioned.Add(item.Key);
+                        break;
+                    case NodeStatus.Missing:
+                        missing.Add(item.Key);
+                        break;
+                    case NodeStatus.None:
+                    case NodeStatus.Normal:
+                    case NodeStatus.Added:
+                    case NodeStatus.Deleted:
+                    case NodeStatus.Replaced:
+                    case NodeStatus.Modified:
+                    case NodeStatus.Merged:
+                    case NodeStatus.Conflicted:
+                    case NodeStatus.Ignored:
+                    case NodeStatus.Obstructed:
+                    case NodeStatus.External:
+                    case NodeStatus.Incomplete:
+                    default:
+                        others.Add(item.Key);
+                        break;
+                }
+            }
+
+            if (missing.Count > 0 && CommitMissingAsDelete)
+            {
+                await context.Delete(new DeleteOptions(missing.ToArray(), false, false, []));
+            
+                others.AddRange(missing);
+            }
+
+            if (unversioned.Count > 0 && AddUnversionedBeforeCommit)
+            {
+                foreach (var item in unversioned)
+                {
+                    await context.Add(new AddOptions(item, Depth.Empty, false, false, false, false));
+                }
+            
+                others.AddRange(unversioned);
+            }
+
+            if (others.Count == 0)
+            {
+                return;
+            }
+
+
+            var commitOptions = new CommitOptions(
+                others.ToArray(),
+                Depth: Depth,
+                KeepLocks: true,
+                KeepChangelist: false, 
+                CommitAsOperations: true, 
+                IncludeFileExternals: true, 
+                IncludeDirExternals: true,
+                Changelists: [], 
+                RevisionPropertyTable: new Dictionary<string, string>(), 
+                CommitMessage: CommitMessage);
+        
+            await context.Commit(commitOptions);
+            
+            await Status(context);
+
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = "Commit successfully",
+                Type =  NotificationType.Success,
+            }, Manager.MainWindowToken);
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to commit: {e.HumanReadableMessage}",
+                Type =  NotificationType.Error,
+            }, Manager.MainWindowToken);
+        }
 
     }
 
@@ -436,13 +466,13 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
     [RelayCommand]
     private void TryCompareStatusEntry(StatusEntry statusEntry)
     {
-        if (_differences.TryGetValue(statusEntry.Path, out var difference))
+        var contains = _differences.TryGetValue(statusEntry.Path, out var difference);
+        if (contains)
         {
             if (difference is null) return;
-            Difference = difference;
-            EditorState =  LoadingOrErrorState.MakeNone();
-            return;
         }
+        
+        Log.Info($"Selected Entry: {statusEntry}");
             
         _differences[statusEntry.Path] = null;
         EditorState = LoadingOrErrorState.MakeLoading();
@@ -451,19 +481,109 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
         {
 
             var success = false;
+            AsyncContext? context = null;
             try
             {
-                var context =
-                    Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token).Response);
-                var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-                    Revision: new Revision.Working(), ExpandKeywords: true);
-                var resultModified = await context.Cat(catOptions);
+                context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token).Response);
                 
+                // var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                //     Revision: new Revision.Working(), ExpandKeywords: true);
+                // var resultModified = await context.Cat(catOptions);
+                //
+                //
+                // catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                //     Revision: new Revision.Base(), ExpandKeywords: true);
+                // var resultOriginal = await context.Cat(catOptions);
 
-                catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-                    Revision: new Revision.Base(), ExpandKeywords: true);
+                CatResult resultOriginal;
 
-                var resultOriginal = await context.Cat(catOptions);
+                Func<Task<CatResult>> catModified;
+                Func<Task<CatResult>> catOriginal;
+
+                var handle = context;
+                if (statusEntry.NodeStatus is NodeStatus.Missing or NodeStatus.Deleted)
+                {
+                    catModified = () => Task.FromResult(new CatResult([], []));
+                    catOriginal = () =>
+                    {
+                        var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Base(),
+                            Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
+                        return handle.Cat(catOptions);
+                    };
+                }
+                else if (statusEntry.NodeStatus is NodeStatus.Unversioned or NodeStatus.Added)
+                {
+                    catModified = async () =>
+                    {
+                        var content = await File.ReadAllBytesAsync(statusEntry.Path);
+                        return new  CatResult(content, []);
+                    };
+                    catOriginal = () => Task.FromResult(new  CatResult([], []));
+                    
+                }
+                else
+                {
+                    catModified = () =>
+                    {
+                        var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                            Revision: new Revision.Working(), ExpandKeywords: true, GetProperties: false);
+                        return handle.Cat(catOptions);
+                    };
+                    catOriginal = () =>
+                    {
+                        var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                            Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
+                        return handle.Cat(catOptions);
+                    };
+                }
+
+                var resultModified = await catModified();
+                if (difference is null)
+                {
+                    resultOriginal = await catOriginal();
+                }
+                else
+                {
+                    resultOriginal = difference.Original;
+                }
+                
+                
+                // if (difference is null)
+                // {
+                //     if (statusEntry.NodeStatus is NodeStatus.Unversioned or NodeStatus.Added)
+                //     {
+                //         var content = await File.ReadAllBytesAsync(statusEntry.Path);
+                //         resultModified = new CatResult(content, []);
+                //         resultOriginal = new CatResult([], []);
+                //     }
+                //     else if (statusEntry.NodeStatus is NodeStatus.Missing or NodeStatus.Deleted)
+                //     {
+                //         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                //             Revision: new Revision.Base(), ExpandKeywords: true);
+                //         Log.Info($"Cat original: {statusEntry.Path}");
+                //         resultOriginal = await context.Cat(catOptions);
+                //         Log.Info("Finished cat");
+                //         resultModified = new CatResult([], []);
+                //     }
+                //     else
+                //     {
+                //         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                //             Revision: new Revision.Working(), ExpandKeywords: true);
+                //         resultModified = await context.Cat(catOptions);
+                //     
+                //         catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                //             Revision: new Revision.Base(), ExpandKeywords: true);
+                //         resultOriginal = await context.Cat(catOptions);
+                //     }
+                // }
+                // else
+                // {
+                //     var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
+                //         Revision: new Revision.Working(), ExpandKeywords: true);
+                //     resultModified = await context.Cat(catOptions);
+                //     
+                //     resultOriginal = difference.Original;
+                // }
                 
                 var modified = Encoding.UTF8.GetString(resultModified.Content).Split("\n").Select(e =>
                     new DifferenceLine()
@@ -471,6 +591,10 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
                         Content = e,
                         DifferenceKind = DifferenceLine.Kind.Unchanged
                     }).ToList();
+                if (modified.Count > 0 && string.IsNullOrEmpty(modified.Last().Content))
+                {
+                    modified.RemoveAt(modified.Count - 1);
+                }
 
                 var original = Encoding.UTF8.GetString(resultOriginal.Content).Split("\n")
                     .Select(e => new DifferenceLine()
@@ -478,6 +602,11 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
                         Content = e,
                         DifferenceKind = DifferenceLine.Kind.Unchanged
                     }).ToList();
+                
+                if (original.Count > 0 && string.IsNullOrEmpty(original.Last().Content))
+                {
+                    original.RemoveAt(original.Count - 1);
+                }
 
 
                 var diffOptions =
@@ -556,9 +685,13 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
                     Original = original,
                     Modified = modified,
                 };
-                
-                
-                _differences[statusEntry.Path] = info;
+
+
+                _differences[statusEntry.Path] = new DifferencesCat()
+                {
+                    Original = resultOriginal,
+                    Modified = resultModified,
+                };
 
                 if (SelectedItem == statusEntry.Path)
                 {
@@ -580,6 +713,7 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
                     RetryCommand = TryCompareStatusEntryCommand,
                     RetryCommandParameter = statusEntry
                 };
+                success = false;
             }
             finally
             {
@@ -591,6 +725,7 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
                 {
                     EditorState = LoadingOrErrorState.MakeNone();
                 }
+                context?.Dispose();
             }
         });
         

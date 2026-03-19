@@ -14,6 +14,11 @@
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
+    <UserControl.Styles>
+        <Style Selector="components|SvgButton.Selected">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
+        </Style>
+    </UserControl.Styles>
     <UserControl.Resources>
         <!-- <ResourceDictionary> -->
         <!--     <StaticResource x:Key="TreeViewItemPressedBackground" ResourceKey="TreeViewItemPointeroverBackground"></StaticResource> -->
@@ -30,9 +35,10 @@
     <Grid>
         <Grid ColumnDefinitions="*, Auto, 4*">
             <Border Grid.Column="0">
-                <Grid Margin="3" RowDefinitions="Auto, Auto, *">
+                <Grid Margin="3" RowDefinitions="Auto, Auto, Auto, *">
                     <Grid Grid.Row="0" Margin="2" ColumnDefinitions="Auto, *, Auto">
                         <StackPanel Grid.Column="0" 
+                                    Spacing="2"
                                     IsVisible="{Binding IsListView}"
                                     Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding LocalListViewModel.AllChecked}" 
@@ -49,8 +55,11 @@
                                     Orientation="Horizontal">
                             <CheckBox Content="全选" IsChecked="{Binding LocalTreeViewModel.AllChecked}"></CheckBox>
                             <components:SvgButton Classes="ToolButton" 
+                                                  Classes.Selected="{Binding LocalTreeViewModel.SearchMode}"
                                                   ToolTip.Tip="Search"
-                                                  Size="14" Source="{StaticResource Icons.Search}">
+                                                  Command="{Binding  LocalTreeViewModel.ToggleSearchModeCommand}"
+                                                  Size="14" 
+                                                  Source="{StaticResource Icons.Search}">
                             </components:SvgButton>
                             <components:SvgButton Classes="ToolButton" 
                                                   ToolTip.Tip="Expand"
@@ -72,9 +81,6 @@
                                 Classes.Selected="{Binding IsTreeView}"
                                 Source="{StaticResource Icons.FolderTree}"></components:SvgButton>
                             <StackPanel.Styles>
-                                <Style Selector="components|SvgButton.Selected">
-                                    <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
-                                </Style>
                                 <Style Selector="components|SvgButton">
                                     <Setter Property="Size" Value="14"></Setter>
                                     <Setter Property="Spacing" Value="2"></Setter>
@@ -83,7 +89,37 @@
                         </StackPanel>
                     </Grid>
                     <u:Divider Grid.Row="1" Orientation="Horizontal"></u:Divider>
-                    <Grid Grid.Row="2">
+                    <TextBox Grid.Row="2" 
+                             Margin="0 2"
+                             Classes="Small clearButton"
+                             Text="{Binding LocalListViewModel.SearchText}">
+                        <TextBox.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="LocalListViewModel.SearchMode"></Binding>
+                                <Binding Path="IsListView"></Binding>
+                            </MultiBinding>
+                        </TextBox.IsVisible>
+                    </TextBox>
+                    <TextBox Grid.Row="2" 
+                             Margin="0 2"
+                             Classes="Small clearButton"
+                             Text="{Binding LocalTreeViewModel.SearchText}">
+                        <TextBox.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="LocalTreeViewModel.SearchMode"></Binding>
+                                <Binding Path="IsTreeView"></Binding>
+                            </MultiBinding>
+                        </TextBox.IsVisible>
+                    </TextBox>
+                    <!-- <u:Divider Grid.Row="3"> -->
+                    <!--     <u:Divider.IsVisible> -->
+                    <!--         <MultiBinding Converter="{x:Static BoolConverters.And}"> -->
+                    <!--             <Binding Path="LocalListViewModel.SearchMode"></Binding> -->
+                    <!--             <Binding Path="LocalTreeViewModel.SearchMode"></Binding> -->
+                    <!--         </MultiBinding> -->
+                    <!--     </u:Divider.IsVisible> -->
+                    <!-- </u:Divider> -->
+                    <Grid Grid.Row="3">
                         <ContentControl IsVisible="{Binding IsTreeView}"
                                         Content="{Binding LocalTreeViewModel}">
                         </ContentControl>

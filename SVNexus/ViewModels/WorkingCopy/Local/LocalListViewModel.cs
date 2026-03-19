@@ -297,8 +297,6 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
 
     }
 
-    public override bool KeepAlive { get; set; } = true;
-
     [ObservableProperty]
     public partial ListItemViewModel? SelectedItem { get; set; }
     
@@ -307,6 +305,14 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
     
     
     public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
+    
+    [ObservableProperty]
+    public partial bool SearchMode { get; set; } 
+    
+    [ObservableProperty]
+    public partial string SearchText { get; set; } = string.Empty;
+
+
     
     [ObservableProperty]
     public partial bool? AllChecked { get; set; }
@@ -363,32 +369,35 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
 
     public void Update(StatusEntry[] entries)
     {
-        Items.Clear();
-
-        ListItemViewModel? selectedItem = null;
-        foreach (var entry in entries)
+        InvokeLoadedAction(() =>
         {
-            var item = new ListItemViewModel
+            Items.Clear();
+
+            ListItemViewModel? selectedItem = null;
+            foreach (var entry in entries)
             {
-                StatusEntry = entry,
-                IsChecked = CheckedItems.ContainsKey(entry.Path),
-            };
-            // item.ItemCheckStateChanged += OnItemCheckStateChanged;
-            if (SelectedItem?.AbsolutePath == entry.Path)
-            {
-                selectedItem = item;
-            }
+                var item = new ListItemViewModel
+                {
+                    StatusEntry = entry,
+                    IsChecked = CheckedItems.ContainsKey(entry.Path),
+                };
+                // item.ItemCheckStateChanged += OnItemCheckStateChanged;
+                if (SelectedItem?.AbsolutePath == entry.Path)
+                {
+                    selectedItem = item;
+                }
             
-            Items.Add(item);
+                Items.Add(item);
 
-            item.Parent = this;
-        }
+                item.Parent = this;
+            }
 
-        SelectedItem = selectedItem;
+            SelectedItem = selectedItem;
         
-        CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
+            CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
         
-        UpdateAllChecked();
+            UpdateAllChecked();
+        });
     }
 
     private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)

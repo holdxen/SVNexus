@@ -24,6 +24,14 @@ pub impl *const subversion::ffi::svn_string_t {
             std::str::from_utf8(slice).unwrap()
         }
     }
+    unsafe fn to_nullable_string(self) -> Option<String> {
+        if self.is_null() {
+            None
+        } else {
+            unsafe { Some(self.to_str().to_string()) }
+        }
+    }
+
     unsafe fn to_nullable_str<'a>(self) -> Option<&'a str> {
         if self.is_null() {
             None
@@ -41,7 +49,7 @@ pub impl *const subversion::ffi::svn_string_t {
             assert!(!ptr.data.is_null());
 
             let slice =
-                std::slice::from_raw_parts(ptr.data as *const u8, ptr.len.try_into().unwrap());
+                std::slice::from_raw_parts(ptr.data as *const u8, ptr.len.try_into().expect("Unexpected svn_string_t length"));
 
             slice
         }
@@ -60,7 +68,7 @@ pub impl *const subversion::ffi::svn_string_t {
 pub impl *const c_char {
     unsafe fn to_str<'a>(self) -> &'a str {
         assert!(!self.is_null(), "Expected non-null pointer");
-        unsafe { CStr::from_ptr(self).to_str().unwrap() }
+        unsafe { CStr::from_ptr(self).to_str().expect("Invalid UTF-8 data") }
     }
     unsafe fn to_nullable_str<'a>(self) -> Option<&'a str> {
         if self.is_null() {
@@ -114,6 +122,17 @@ pub impl<T> T {
 
     fn pointer(&self) -> *const T {
         self as *const _
+    }
+}
+
+#[easy_ext::ext(PointerMapper)]
+pub impl<T: Sized> *const T {
+    fn map<V>(self, f: impl FnOnce(*const T) -> V) -> Option<V> {
+        if self.is_null() {
+            None
+        } else {
+            Some(f(self))
+        }
     }
 }
 

@@ -10,6 +10,62 @@
              x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteChangesView">
     <UserControl.DataTemplates>
         <DataTemplate DataType="remote:RemoteChangesViewModel+ListViewModel">
+            <ListBox ItemsSource="{Binding Items}">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="CornerRadius" Value="5"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                    <Style Selector="ListBoxItem:pressed">
+                        <Setter Property="Background" Value="{DynamicResource ListBoxItemPointeroverBackground}"></Setter>
+                    </Style>
+                    <Style Selector="ListBoxItem:selected">
+                        <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" />
+                        <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedBackground}" />
+                        <Style Selector="^:pointerover">
+                            <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedPointeroverBackground}" />
+                        </Style>
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+        </DataTemplate>
+        <DataTemplate DataType="remote:RemoteChangesViewModel+ListItemViewModel">
+            <Grid x:Name="ItemRoot"
+                  Margin="2 4"
+                  Background="Transparent"
+                  ColumnDefinitions="Auto, *, Auto">
+                <components:SvgRender Margin="2, 0"
+                                      Grid.Column="0"
+                                      Size="20"
+                                      Source="{Binding NodeKindIcon}">
+                </components:SvgRender>
+                <Grid Grid.Column="1" ToolTip.Tip="{Binding RelativePath}">
+                    <Grid ColumnDefinitions="Auto, *">
+                        <TextBlock Grid.Column="0"
+                                   MaxLines="1"
+                                   x:Name="ListItemText"
+                                   Text="{Binding FileName}"
+                                   ToolTip.Tip="{Binding Path}"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center">
+                        </TextBlock>
+                        <TextBlock Margin="5 0 0 0"
+                                   Grid.Column="1"
+                                   Classes="Quaternary VCenter"
+                                   FontSize="12"
+                                   Text="{Binding RelativeDirectory}">
+                        </TextBlock>
+                    </Grid>
+                </Grid>
+                <components:SvgRender
+                    ToolTip.Tip="{Binding ActionText, Mode=OneWay}"
+                    Grid.Column="2"
+                    Size="20"
+                    Margin="3 0"
+                    Source="{Binding ActionIcon, Mode=OneWay}">
+                </components:SvgRender>
+
+            </Grid>
         </DataTemplate>
     </UserControl.DataTemplates>
     <Grid ColumnDefinitions="* , Auto, 3*">
@@ -58,14 +114,26 @@
             <u:Divider Grid.Row="1" Orientation="Horizontal"></u:Divider>
             <Grid Grid.Row="2">
                 <ContentControl IsVisible="{Binding IsTreeView}"
-                                Content="{Binding}">
+                                Content="{Binding ChangedTreeViewViewModel}">
                 </ContentControl>
                 <ContentControl IsVisible="{Binding IsListView}"
-                                Content="{Binding}">
+                                Content="{Binding ChangedListViewModel}">
                 </ContentControl>
             </Grid>
         </Grid>
         <GridSplitter Grid.Column="1" Background="Transparent"></GridSplitter>
-        <components:DifferenceEditor Grid.Column="2" />
+        <!-- <components:DifferenceEditor Grid.Column="2" /> -->
+        <components:LoadingOrError Grid.Column="2" Margin="{DynamicResource ThicknessCardMargin}"
+                                   CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                                   >
+            <Border Theme="{DynamicResource CardBorder}">
+                <Border.Resources>
+                    <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+                </Border.Resources>
+                <Grid>
+                    <components:DifferenceEditor ></components:DifferenceEditor>
+                </Grid>
+            </Border>
+        </components:LoadingOrError>
     </Grid>
 </UserControl>

@@ -2,6 +2,8 @@ pub mod context;
 pub mod stream;
 mod utils;
 pub mod version;
+pub mod wc;
+pub mod export;
 
 #[cfg(test)]
 mod tests;

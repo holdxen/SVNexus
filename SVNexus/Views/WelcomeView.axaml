@@ -9,40 +9,36 @@
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
              xmlns:inject="clr-namespace:SVNexus.Inject"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
-             x:Class="SVNexus.Views.WelcomeView" 
-             DialogHostId="{Binding DialogHostId, Mode=OneWayToSource}">
+             x:Class="SVNexus.Views.WelcomeView">
     <Design.DataContext>
-        <viewModels:WelcomeViewModel/>
+        <viewModels:WelcomeViewModel />
     </Design.DataContext>
-    <Grid>
-        <Border Padding="4">
-            <Grid RowDefinitions="Auto, *">
-                <Grid Grid.Row="0" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Checkout"
-                                              Source="{StaticResource Icons.CloudDownload}" 
-                                              Command="{Binding ShowCheckoutDialogCommand}"/>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Open working copy"
-                                              Source="{StaticResource Icons.LocateFixed}" 
-                                              Command="{Binding OpenLocalRepositoryCommand}"/>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Export"
-                                              Source="{StaticResource Icons.Download}" 
-                                              Command="{Binding ShowExportDialogCommand}"/>
-                    </StackPanel>
-                    <Border Grid.Column="1"></Border>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" 
-                                VerticalAlignment="Center">
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Open terminal"
-                                              Source="{StaticResource Icons.Terminal}" />
-                    </StackPanel>
-                </Grid>
+    <Border Padding="4">
+        <Grid RowDefinitions="Auto, *">
+            <Grid Grid.Row="0" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Checkout"
+                                          Source="{StaticResource Icons.CloudDownload}"
+                                          Command="{Binding ShowCheckoutDialogCommand}" />
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Open working copy"
+                                          Source="{StaticResource Icons.LocateFixed}"
+                                          Command="{Binding OpenLocalRepositoryCommand}" />
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Export"
+                                          Source="{StaticResource Icons.Download}"
+                                          Command="{Binding ShowExportDialogCommand}" />
+                </StackPanel>
+                <Border Grid.Column="1"></Border>
+                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Open terminal"
+                                          Source="{StaticResource Icons.Terminal}" />
+                </StackPanel>
             </Grid>
-            
-        </Border>
-        <u:OverlayDialogHost x:Name="WelcomeViewDialogHost"></u:OverlayDialogHost>
-    </Grid>
+        </Grid>
+
+    </Border>
 </UserControl>

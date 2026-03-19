@@ -18,15 +18,6 @@ namespace SVNexus;
 public class ViewLocator : IDataTemplate
 {
 
-    private readonly LimitedDictionary<object, Control> _cache = new()
-    {
-        Limit = 20
-    };
-
-
-
-
-
     // void CacheControl(object value, Control control)
     // {
     //     const int maxCacheItem = 20;
@@ -42,20 +33,10 @@ public class ViewLocator : IDataTemplate
         if (param is null)
             return null;
 
-        if (_cache.TryGetValue(param, out var control))
-        {
-            Console.WriteLine("hit cache for view");
-            return control;
-        }
-        Console.WriteLine("create for view");
-
-
-        var keepAlive = false;
         Type? viewType = null;
         if (param is ViewModelBase vm)
         {
             viewType = vm.ViewType;
-            keepAlive = vm.KeepAlive;
         }
 
         if (viewType is null)
@@ -75,11 +56,6 @@ public class ViewLocator : IDataTemplate
         
         
         var widget = (Control)Activator.CreateInstance(viewType)!;
-        
-        if (keepAlive)
-        {
-            _cache.Add(param, widget);
-        }
 
         return widget;
     }

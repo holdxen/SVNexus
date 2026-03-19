@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,7 +20,6 @@ using Ursa.Controls;
 namespace SVNexus.ViewModels.WorkingCopy;
 
 public partial class WorkingCopyViewModel : ViewModelBase, 
-    IRecipient<OnGetDialogHostId>, 
     IRecipient<OnWorkingCopyViewEnabled>, 
     IRecipient<OnInitializeRepository>, 
     IRecipient<OnNotWorkingCopy>
@@ -32,8 +32,6 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     [NotifyPropertyChangedFor(nameof(IsLocalView))]
     [NotifyPropertyChangedFor(nameof(IsRemoteView))]
     public partial int SelectedViewIndex { get; set; } = LocalViewIndex;
-    
-    public override bool KeepAlive { get; set; } = true;
 
     [ObservableProperty]
     public required partial string WorkingCopyPath { get; set; }
@@ -50,11 +48,6 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     [ObservableProperty] public partial RemoteViewModel RemoteViewModel { get; set; } = new();
 
     
-    [ObservableProperty]
-    public partial string? DialogHostId { get; set; }
-
-    // public required WeakReferenceMessenger Messenger { get; init; }
-
 
     [ObservableProperty] public partial bool IsEnabled { get; set; } = true;
 
@@ -62,9 +55,10 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     [RelayCommand]
     private async Task Update()
     {
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token);
         try
         {
-            using var context = Engine.Engine.Instance.SimpleContext(DialogHostId);
+            using var context = Engine.Engine.Instance.SimpleContext(hostId);
             
             var opts = new UpdateOptions(Paths: [WorkingCopyPath], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAdModification: false, MakeParents: true);
             
@@ -72,8 +66,11 @@ public partial class WorkingCopyViewModel : ViewModelBase,
         }
         catch (System.Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to update working copy: {e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            }, Token);
         }
     }
     
@@ -96,11 +93,6 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     // }
     //
 
-    public void Receive(OnGetDialogHostId message)
-    {
-        message.Reply(DialogHostId);
-    }
-
     public void Receive(OnWorkingCopyViewEnabled message)
     {
         IsEnabled = message.Value;
@@ -108,9 +100,10 @@ public partial class WorkingCopyViewModel : ViewModelBase,
 
     public void Receive(OnInitializeRepository message)
     {
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         var contextNotifierDelegate = new ContextNotifierDelegate
         {
-            DialogHostId =  DialogHostId,
+            DialogHostId = hostId,
         };
 
         var messenger = new WeakReferenceMessenger();
@@ -242,7 +235,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
                 Buttons = DialogButton.None
             };
 
-            await OverlayDialog.ShowModal<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: DialogHostId);
+            await OverlayDialog.ShowModal<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
             if (importProcessDialogModel.Error is null)
             {
                 await LocalViewModel.Status();
@@ -253,9 +246,10 @@ public partial class WorkingCopyViewModel : ViewModelBase,
 
     public void Receive(OnNotWorkingCopy message)
     {
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            var result = await MessageBox.ShowOverlayAsync(title: "Error", hostId: DialogHostId, message: "Not a working copy, initialize now", button: MessageBoxButton.YesNo);
+            var result = await MessageBox.ShowOverlayAsync(title: "Error", hostId: hostId, message: "Not a working copy, initialize now", button: MessageBoxButton.YesNo);
             if (result is MessageBoxResult.No)
             {
                 // Manager.MainWindow.Send(new OnRemoveTabByLocalViewModel(this));
@@ -272,7 +266,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
                 await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(new ImportDialogModel()
                 {
                     Path = WorkingCopyPath,
-                }, hostId: DialogHostId, options: dialogOptions);
+                }, hostId: hostId, options: dialogOptions);
             }
 
         });

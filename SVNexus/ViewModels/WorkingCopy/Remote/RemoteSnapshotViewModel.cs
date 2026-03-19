@@ -180,7 +180,8 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
             Path: Url + "/" + entry.Path,
             PegRevision: new Revision.Head(),
             Revision: Revision,
-            ExpandKeywords: false
+            ExpandKeywords: false,
+            GetProperties: true
         );
             
         var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
@@ -193,7 +194,7 @@ public partial class RemoteSnapshotViewModel: ViewModelBase
             var fileCache = new FileCache
             {
                 Entry = entry,
-                Properties = result.Properties
+                Properties = result.Properties ?? [],
             };
             
             if (TextDetector.IsText(result.Content, out var encoding))

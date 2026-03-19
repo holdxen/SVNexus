@@ -1,0 +1,128 @@
+use std::sync::Arc;
+
+use snafu::ResultExt;
+
+use crate::error::{self, builder};
+
+use super::context::*;
+
+
+#[derive(uniffi::Object)]
+pub struct AsyncContext {
+    context: Arc<parking_lot::Mutex<Context>>,
+}
+
+impl AsyncContext {
+    async fn call_async<F, R>(&self, call: F) -> error::Result<R>
+    where
+        F: (FnOnce(parking_lot::MutexGuard<'_, Context>) -> error::Result<R>) + Send + 'static,
+        R: Send + 'static,
+    {
+        let context = self.context.clone();
+        let result = tokio::task::spawn_blocking(move || {
+            let context = context.lock();
+            call(context)
+        })
+        .await
+        .context(builder::Runtime)??;
+
+        Ok(result)
+    }
+}
+
+#[uniffi::export(async_runtime = "tokio")]
+impl AsyncContext {
+    pub async fn url_from_path(&self, path: String) -> error::Result<String> {
+        self.call_async(|mut context| context.url_from_path(path))
+            .await
+    }
+
+    pub async fn cleanup(&self, opts: CleanupOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.cleanup(opts)).await
+    }
+
+    pub async fn list(&self, opts: ListOptions) -> error::Result<ListResult> {
+        self.call_async(|mut context| context.list(opts)).await
+    }
+
+    pub async fn info(&self, opts: InfoOptions) -> error::Result<InfoResult> {
+        self.call_async(|mut context| context.info(opts)).await
+    }
+
+    pub async fn checkout(&self, opts: CheckoutOptions) -> error::Result<RevisionNumber> {
+        self.call_async(|mut context| context.checkout(opts)).await
+    }
+
+    pub async fn status(&self, opts: StatusOptions) -> error::Result<StatusResult> {
+        self.call_async(|mut context| context.status(opts)).await
+    }
+
+    pub async fn add(&self, opts: AddOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.add(opts)).await
+    }
+
+    pub async fn commit(&self, opts: CommitOptions) -> error::Result<CommitResult> {
+        self.call_async(|mut context| context.commit(opts)).await
+    }
+
+    pub async fn cat(&self, opts: CatOptions) -> error::Result<CatResult> {
+        self.call_async(|mut context| context.cat(opts)).await
+    }
+
+    pub async fn delete(&self, opts: DeleteOptions) -> error::Result<DeleteResult> {
+        self.call_async(|mut context| context.delete(opts)).await
+    }
+
+    pub async fn revert(&self, opts: RevertOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.revert(opts)).await
+    }
+
+    pub async fn log(&self, opts: LogOptions) -> error::Result<LogResult> {
+        self.call_async(|mut context| context.log(opts)).await
+    }
+
+    pub async fn log_next(
+        &self,
+        opts: LogOptions,
+        receiver: Arc<dyn LogReceiver>,
+    ) -> error::Result<()> {
+        self.call_async(|mut context| context.log_next(opts, receiver))
+            .await
+    }
+
+    pub async fn import(&self, opts: ImportOptions) -> error::Result<ImportResult> {
+        self.call_async(|mut context| context.import(opts)).await
+    }
+
+    pub async fn export(&self, opts: ExportOptions) -> error::Result<RevisionNumber> {
+        self.call_async(|mut context| context.export(opts)).await
+    }
+
+    pub async fn update(&self, opts: UpdateOptions) -> error::Result<Vec<RevisionNumber>> {
+        self.call_async(|mut context| context.update(opts)).await
+    }
+
+    pub async fn initialize_repository(
+        &self,
+        opts: InitializeRepositoryOptions,
+        notifier: Arc<dyn InitializeRepositoryNotifier>,
+    ) -> error::Result<()> {
+        self.call_async(|mut context| context.initialize_repository(opts, notifier))
+            .await
+    }
+
+    pub async fn conflict_walk(
+        &self,
+        opts: ConflictWalkOptions,
+    ) -> error::Result<ConflictWalkResult> {
+        self.call_async(|mut context| context.conflict_walk(opts))
+            .await
+    }
+
+    #[uniffi::constructor]
+    pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
+        let context = ContextFactory::instance()?.create_context(opts)?;
+        let context = Arc::new(parking_lot::Mutex::new(context));
+        Ok(AsyncContext { context })
+    }
+}

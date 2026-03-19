@@ -57,10 +57,10 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <!-- 每个 PageVM 通过 DataTemplate 生成一次 View，之后一直留在可视树里 -->
-                        <ContentControl Content="{Binding Content}"
-                                        inject:Ambient.Guid="{Binding Id}"
-                                        IsVisible="{Binding IsSelected}" />
+                        <Grid inject:Ambient.Guid="{Binding Id}" IsVisible="{Binding IsSelected}">
+                            <ContentControl Content="{Binding Content}"/>
+                            <components:UniqueOverlayDialogHost></components:UniqueOverlayDialogHost>
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

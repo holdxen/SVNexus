@@ -17,6 +17,8 @@ public sealed class ContextNotifierDelegate : ContextNotifier
     public Action<long, long>? ProgressNotifyAction { get; init; }
     public Func<string, string, bool, Authentication?>? AuthenticateFunc { get; init; }
     
+    public Func<WorkingCopyConflictDescription, WorkingCopyConflictResult> ConflictFunc { get; init; }
+    
     
     public string? DialogHostId { get; init; }
 
@@ -26,6 +28,12 @@ public sealed class ContextNotifierDelegate : ContextNotifier
         CancelFunc = OnCancel;
         AuthenticateFunc = OnAuthenticate;
         SslServerTrustPromptFunc = OnSslServerTrustPrompt;
+        ConflictFunc = OnConflict;
+    }
+
+    private WorkingCopyConflictResult OnConflict(WorkingCopyConflictDescription description)
+    {
+        return new WorkingCopyConflictResult(WorkingCopyConflictChoice.Postpone, null,  false, null);
     }
     
     private readonly Lock _lock = new();
@@ -130,4 +138,9 @@ public sealed class ContextNotifierDelegate : ContextNotifier
 
     public Authentication? Authenticate(string realm, string username, bool maySave)
         => AuthenticateFunc?.Invoke(realm, username, maySave);
+
+    public WorkingCopyConflictResult Conflict(WorkingCopyConflictDescription description)
+    {
+        throw new NotImplementedException();
+    }
 }

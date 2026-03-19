@@ -23,7 +23,7 @@ public partial class RemoteDetailViewModel: ViewModelBase
     
     public string DateTimeText => DateTimeOffset.FromUnixTimeMilliseconds(Entry.Date.GetValueOrDefault() / 1000).UtcDateTime.ToString("u");
     
-    public required string RelativeToRoot { get; set; }
+    public required string RelateToRoot { get; set; }
     
     public partial class ChangeItemViewModel: ViewModelLite
     {
@@ -39,13 +39,15 @@ public partial class RemoteDetailViewModel: ViewModelBase
 
         public string Icon => Entry.Action.LogChangedPathActionIcon();
 
-        public string RelativePath => Path == RelativeToRoot ? "/" : Path.TrimStartString(RelativeToRoot).TrimStart(SystemPath.DirectorySeparatorChar, SystemPath.AltDirectorySeparatorChar);
+        public string RelativePath => Path == RelativeToRoot
+            ? "/"
+            : Path.TrimStartString(RelativeToRoot).TrimStartPathSeparatorChar();
 
     }
 
 
     public List<ChangeItemViewModel> ChangeItems =>
-        Entry.ChangedPathEntries.Select(p => new ChangeItemViewModel { RelativeToRoot = RelativeToRoot, Entry = p.Value, Path = p.Key }).ToList();
+        Entry.ChangedPathEntries.Select(p => new ChangeItemViewModel { RelativeToRoot = RelateToRoot, Entry = p.Value, Path = p.Key }).ToList();
 
 
 }

@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Inject;
 using SVNexus.Messages;
@@ -35,7 +37,7 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
         }
 
         
-        message.Reply(top.StorageProvider.OpenFolderPickerAsync(message.Options));
+        message.Reply(Dispatcher.UIThread.InvokeAsync(async () => await top.StorageProvider.OpenFolderPickerAsync(message.Options)));
         
 
     }
