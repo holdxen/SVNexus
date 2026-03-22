@@ -5,20 +5,20 @@
              xmlns:semi="https://irihi.tech/semi"
              xmlns:u-Semi="https://irihi.tech/ursa/themes/semi"
              xmlns:custom="clr-namespace:Tabalonia.Themes.Custom;assembly=Tabalonia"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Dark">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-             <Application.Resources>
-                 <ResourceDictionary>
-                     <ResourceDictionary.MergedDictionaries>
-                         <ResourceInclude Source="Resources/Style/CommonStyle.axaml"></ResourceInclude>
-                         <ResourceInclude Source="Resources/Icons/Icons.axaml"></ResourceInclude>
-                     </ResourceDictionary.MergedDictionaries>
-                 </ResourceDictionary>
-                 <FontFamily x:Key="JetBrainsMono">avares://SVNexus/Assets/Fonts#JetBrains Mono</FontFamily>
-             </Application.Resources>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="Resources/Style/CommonStyle.axaml"></ResourceInclude>
+                <ResourceInclude Source="Resources/Icons/Icons.axaml"></ResourceInclude>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        <FontFamily x:Key="JetBrainsMono">avares://SVNexus/Assets/Fonts#JetBrains Mono</FontFamily>
+    </Application.Resources>
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
   
     <!-- <Application.Styles> -->

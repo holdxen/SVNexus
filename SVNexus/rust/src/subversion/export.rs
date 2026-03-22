@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use snafu::ResultExt;
 
-use crate::error::{self, builder};
+use crate::{error::{self, builder}, subversion::{version::Version, wc}};
 
 use super::context::*;
 
@@ -32,6 +32,15 @@ impl AsyncContext {
 
 #[uniffi::export(async_runtime = "tokio")]
 impl AsyncContext {
+    pub fn working_copy_context(&self) -> wc::AsyncWorkingCopyContext {
+        wc::AsyncWorkingCopyContext::Context(self.context.clone())
+    }
+
+    pub async fn default_wc_version(&self) -> error::Result<Version> {
+        self.call_async(|mut context| context.default_wc_version())
+            .await
+    }
+
     pub async fn url_from_path(&self, path: String) -> error::Result<String> {
         self.call_async(|mut context| context.url_from_path(path))
             .await

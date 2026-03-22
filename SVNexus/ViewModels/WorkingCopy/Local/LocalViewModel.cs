@@ -73,6 +73,12 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
 
     [ObservableProperty] public partial bool AddUnversionedBeforeCommit { get; set; } = true;
 
+    
+    [ObservableProperty]
+    public partial bool IsWcRoot { get; set; }
+    
+    [ObservableProperty]
+    public partial bool Upgradable { get; set; }
 
     [RelayCommand]
     private void SwitchToListView()
@@ -89,7 +95,57 @@ public partial class LocalViewModel: ViewModelBase, IRecipient<OnSelectedItemCha
     protected override async Task OnLoaded()
     {
         await base.OnLoaded();
+        await CheckWorkingCopyVersion();
+        await CheckWorkingCopyRoot();
         await Status();
+    }
+
+    [RelayCommand]
+    private async Task Relocate()
+    {
+        
+    }
+
+    [RelayCommand]
+    private async Task DiffAndExport()
+    {
+        
+    }
+    
+    [RelayCommand]
+    private async Task ApplyPatch()
+    {
+        
+    }
+
+
+    private async Task CheckWorkingCopyVersion()
+    {
+        using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token));
+        using var wc = context.WorkingCopyContext();
+        
+        var current = await wc.WcVersion(WorkingCopyPath);
+        
+        var recommended = await context.DefaultWcVersion();
+
+        Upgradable = recommended.Compare(current) > 0;
+    }
+    
+
+    private async Task CheckWorkingCopyRoot()
+    {
+        try
+        {
+            using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token).Response);
+            using var wc = context.WorkingCopyContext();
+            var result = await wc.CheckRoot(WorkingCopyPath);
+            IsWcRoot = result.IsWcRoot;
+        }
+        catch (System.Exception e)
+        {
+            IsWcRoot = false;
+        }
+        
     }
 
 

@@ -52,6 +52,8 @@
                     </Style>
                 </TabStrip.Styles>
                 <TabStripItem Content="Local"></TabStripItem>
+                <TabStripItem Content="Changes"></TabStripItem>
+                <TabStripItem Content="History"></TabStripItem>
                 <TabStripItem Content="Remote"></TabStripItem>
             </TabStrip>   
             <u:Divider Grid.Column="1" Orientation="Vertical"></u:Divider>
@@ -61,6 +63,10 @@
                         Orientation="Horizontal" 
                         Spacing="5">
                         <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Update"
+                                              Source="{StaticResource Icons.OperationUpdate}"
+                                              Command="{Binding LocalViewModel.UpdateCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Refresh"
                                               Source="{StaticResource Icons.Refresh}"
                                               Command="{Binding LocalViewModel.StatusCommand}"></components:SvgButton>
@@ -68,6 +74,48 @@
                                               ToolTip.Tip="Revert"
                                               Source="{StaticResource Icons.OperationRevert}"
                                               Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Diff and export"
+                                              Source="{StaticResource Icons.OperationDiff}"
+                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Apply patch"
+                                              Source="{StaticResource Icons.OperationPatch}"
+                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Lock"
+                                              Source="{StaticResource Icons.OperationLock}"
+                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Unlock"
+                                              Source="{StaticResource Icons.OperationUnlock}"
+                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Relocate"
+                                              Source="{StaticResource Icons.OperationDelete}"
+                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Relocate"
+                                              Source="{StaticResource Icons.OperationMkdir}"
+                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Relocate"
+                                              Source="{StaticResource Icons.OperationSwitch}"
+                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Relocate"
+                                              Source="{StaticResource Icons.OperationMerge}"
+                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Relocate"
+                                              Source="{StaticResource Icons.OperationUpgrade}"
+                                              IsVisible="{Binding LocalViewModel.Upgradable}"
+                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Relocate"
+                                              IsVisible="{Binding LocalViewModel.IsWcRoot}"
+                                              Source="{StaticResource Icons.OperationRelocate}"
+                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
                     <StackPanel 

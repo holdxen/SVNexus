@@ -5,6 +5,7 @@ use crate::apr;
 use crate::apr::AprArray;
 use crate::error::{self, builder};
 use crate::subversion::utils;
+use crate::subversion::version::Version;
 use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
 use crate::utils::{Pointer, PointerMapper};
@@ -863,7 +864,6 @@ unsafe extern "C" fn on_get_commit_message(
         return svn_no_error();
     }
 
-
     unsafe {
         let error = on_cancel(baton);
         if error.is_null() {
@@ -874,7 +874,9 @@ unsafe extern "C" fn on_get_commit_message(
 
         let mut pool = apr::Pool::from_raw(pool);
 
-        *log_msg = pool.string(this.commit_message.as_str()).expect("Invalid message");
+        *log_msg = pool
+            .string(this.commit_message.as_str())
+            .expect("Invalid message");
 
         this.commit_message.clear();
 
@@ -1295,6 +1297,14 @@ impl ContextFactory {
 }
 
 #[derive(Debug, uniffi::Record)]
+pub struct RelocateOptions {
+    pub wc_root_dir: String,
+    pub from_prefix: String,
+    pub to_prefix: String,
+    pub ignore_externals: bool,
+}
+
+#[derive(Debug, uniffi::Record)]
 pub struct RevertOptions {
     paths: Vec<String>,
     depth: Depth,
@@ -1520,7 +1530,6 @@ pub struct ConflictOption {
     description: String,
 }
 
-
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct ConflictPropertyValue {
     base_value: Option<String>,
@@ -1539,13 +1548,23 @@ pub struct ConflictInfo {
 }
 
 impl From<*mut ffi::svn_client_conflict_t> for ConflictInfo {
-    fn from(value: *mut ffi::svn_client_conflict_t) -> Self{
+    fn from(value: *mut ffi::svn_client_conflict_t) -> Self {
         unsafe {
-            let local_absolute_path = ffi::svn_client_conflict_get_local_abspath(value).to_str().to_string();
-            let operation = ffi::svn_client_conflict_get_operation(value).try_into().unwrap();
-            let incoming_change = ffi::svn_client_conflict_get_incoming_change(value).try_into().unwrap();
-            let local_change = ffi::svn_client_conflict_get_local_change(value).try_into().unwrap();
-            let recommended_option_id = ffi::svn_client_conflict_get_recommended_option_id(value).try_into().unwrap();
+            let local_absolute_path = ffi::svn_client_conflict_get_local_abspath(value)
+                .to_str()
+                .to_string();
+            let operation = ffi::svn_client_conflict_get_operation(value)
+                .try_into()
+                .unwrap();
+            let incoming_change = ffi::svn_client_conflict_get_incoming_change(value)
+                .try_into()
+                .unwrap();
+            let local_change = ffi::svn_client_conflict_get_local_change(value)
+                .try_into()
+                .unwrap();
+            let recommended_option_id = ffi::svn_client_conflict_get_recommended_option_id(value)
+                .try_into()
+                .unwrap();
             ConflictInfo {
                 local_absolute_path,
                 operation,
@@ -1606,7 +1625,6 @@ pub struct CopyOptions {
     metadata_only: bool,
     pin_externals: bool,
 }
-
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_diff_file_ignore_space_t)]
 #[derive(uniffi::Enum, Debug, Clone, Copy)]
@@ -1956,7 +1974,7 @@ impl Context {
         unsafe { &*self.ptr }
     }
 
-    fn ctx_mut(&mut self) -> &mut ffi::svn_client_ctx_t {
+    pub fn ctx_mut(&mut self) -> &mut ffi::svn_client_ctx_t {
         unsafe { &mut *self.ptr }
     }
 
@@ -2877,7 +2895,10 @@ impl Context {
         })
     }
 
-    pub fn conflict_walk(&mut self, opts: ConflictWalkOptions) -> error::Result<ConflictWalkResult> {
+    pub fn conflict_walk(
+        &mut self,
+        opts: ConflictWalkOptions,
+    ) -> error::Result<ConflictWalkResult> {
         // struct Baton {
         //     ctx: *mut ffi::svn_client_ctx_t,
         //     inner: *mut ContextInner,
@@ -2958,14 +2979,20 @@ impl Context {
                     let mut properties = HashMap::new();
 
                     for i in property_names {
-
                         let mut base_value: *const ffi::svn_string_t = std::ptr::null_mut();
                         let mut working_value: *const ffi::svn_string_t = std::ptr::null_mut();
                         let mut incoming_old_value: *const ffi::svn_string_t = std::ptr::null_mut();
                         let mut incoming_new_value: *const ffi::svn_string_t = std::ptr::null_mut();
 
-
-                        let error = ffi::svn_client_conflict_prop_get_propvals(base_value.pointer_mut(), working_value.pointer_mut(), incoming_old_value.pointer_mut(), incoming_new_value.pointer_mut(), conflict, i, scratch_pool);
+                        let error = ffi::svn_client_conflict_prop_get_propvals(
+                            base_value.pointer_mut(),
+                            working_value.pointer_mut(),
+                            incoming_old_value.pointer_mut(),
+                            incoming_new_value.pointer_mut(),
+                            conflict,
+                            i,
+                            scratch_pool,
+                        );
                         if !error.is_null() {
                             return error;
                         }
@@ -2974,29 +3001,44 @@ impl Context {
                         let incoming_old_value = incoming_old_value.to_nullable_string();
                         let incoming_new_value = incoming_new_value.to_nullable_string();
 
-                        properties.insert(i.to_str().to_string(), ConflictPropertyValue {
-                            base_value,
-                            working_value,
-                            incoming_old_value,
-                            incoming_new_value
-                        });
-
+                        properties.insert(
+                            i.to_str().to_string(),
+                            ConflictPropertyValue {
+                                base_value,
+                                working_value,
+                                incoming_old_value,
+                                incoming_new_value,
+                            },
+                        );
                     }
                     let mut description: *const c_char = std::ptr::null_mut();
-                    let error = ffi::svn_client_conflict_prop_get_description(description.pointer_mut(), conflict, scratch_pool, scratch_pool);
+                    let error = ffi::svn_client_conflict_prop_get_description(
+                        description.pointer_mut(),
+                        conflict,
+                        scratch_pool,
+                        scratch_pool,
+                    );
                     if !error.is_null() {
                         return error;
                     }
 
                     let description = description.to_nullable_string();
 
-                    inner.conflicts.push(Conflict::Property { properties, description, info });
-
-
+                    inner.conflicts.push(Conflict::Property {
+                        properties,
+                        description,
+                        info,
+                    });
                 } else if is_tree != 0 {
-                    let victim_node_kind = ffi::svn_client_conflict_tree_get_victim_node_kind(conflict).try_into().unwrap();
+                    let victim_node_kind =
+                        ffi::svn_client_conflict_tree_get_victim_node_kind(conflict)
+                            .try_into()
+                            .unwrap();
 
-                    inner.conflicts.push(Conflict::Tree { info, victim_node_kind });
+                    inner.conflicts.push(Conflict::Tree {
+                        info,
+                        victim_node_kind,
+                    });
                 }
             }
             svn_no_error()
@@ -3015,7 +3057,25 @@ impl Context {
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         };
 
-        Ok(ConflictWalkResult { conflicts: std::mem::take(&mut self.inner.conflicts) })
+        Ok(ConflictWalkResult {
+            conflicts: std::mem::take(&mut self.inner.conflicts),
+        })
+    }
+
+    pub fn default_wc_version(&mut self) -> error::Result<Version> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let mut version: *const ffi::svn_version_t = std::ptr::null();
+            let error = ffi::svn_client_default_wc_version(
+                version.pointer_mut(),
+                self.ctx_mut(),
+                pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            Ok(Version::from(version))
+        }
     }
 
     fn create(opts: CreateContextOptions) -> error::Result<Self> {

@@ -2,8 +2,34 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:u="https://irihi.tech/ursa"
-    xmlns:iri="https://irihi.tech/shared">
+    xmlns:iri="https://irihi.tech/shared"
+    xmlns:components="clr-namespace:SVNexus.Components"
+    xmlns:converters="clr-namespace:Semi.Avalonia.Converters;assembly=Semi.Avalonia">
     
+    <ControlTheme
+        x:Key="{x:Type components:AdvancedTreeViewItem}"
+        TargetType="components:AdvancedTreeViewItem"
+        BasedOn="{StaticResource {x:Type TreeViewItem}}">
+
+        <Style Selector="^[HasChild=True] /template/ ToggleButton#PART_ExpandCollapseChevron">
+            <Setter Property="IsHitTestVisible" Value="True"></Setter>
+            <Setter Property="Opacity" Value="1"></Setter>
+        </Style>
+        
+        <Style Selector="^[IsLoading=True] /template/ ToggleButton#PART_ExpandCollapseChevron">
+            <Setter Property="Theme" Value="{x:Null}"></Setter>
+            <Setter Property="Template">
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border Padding="{TemplateBinding Padding}">
+                        <u:LoadingIcon />
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Setter Property="IsHitTestVisible" Value="False"></Setter>
+            <Setter Property="Opacity" Value="1"></Setter>
+        </Style>
+        
+    </ControlTheme>
     <ControlTheme x:Key="{x:Type u:DefaultDialogControl}" TargetType="u:DefaultDialogControl">
         <Setter Property="MinWidth" Value="{DynamicResource DialogMinWidth}" />
         <Setter Property="MinHeight" Value="{DynamicResource DialogMinHeight}" />

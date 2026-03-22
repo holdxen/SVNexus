@@ -6,36 +6,24 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia.Markup.Xaml;
+using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Generated;
+using SVNexus.Messages;
 using SVNexus.ViewModels;
 using SVNexus.Views;
 using MainWindowViewModel = SVNexus.ViewModels.MainWindowViewModel;
 
 namespace SVNexus;
 
-public partial class App : Application
+public partial class App : Application, IRecipient<OnSetThemeVariant>
 {
-    // public static IServiceProvider Services { get; private set; }
-    //
-    // static App()
-    // {
-    //     Services = Configure();
-    // }
-    //
-    // private static ServiceProvider Configure()
-    // {
-    //     var services = new ServiceCollection();
-    //
-    //     services.AddSingleton<IAppState, AppState>();
-    //     
-    //     services.AddTransient<MainWindowViewModel>();
-    //
-    //     return services.BuildServiceProvider();
-    // }
+    public App()
+    {
+        Manager.Default.RegisterAllMessages(this, Manager.AppToken);
+    }
 
     public override void Initialize()
     {
-        // Engine.Engine.Instance.Proxies = new Proxies(new Proxy("127.0.0.1", 7890, null, null), null, null);
         AvaloniaXamlLoader.Load(this);
         EngineMethods.SetupSvg(Program.BuiltinFonts());
     }
@@ -68,5 +56,10 @@ public partial class App : Application
         {
             BindingPlugins.DataValidators.Remove(plugin);
         }
+    }
+
+    public void Receive(OnSetThemeVariant message)
+    {
+        RequestedThemeVariant = message.Value;
     }
 }

@@ -24,6 +24,9 @@
         <Style Selector="DataGridCell:current /template/ Rectangle#CurrencyVisual">
             <Setter Property="IsVisible" Value="False" />
         </Style>
+        <Style Selector="TextBlock.Cell">
+            <Setter Property="Margin" Value="6 0"></Setter>
+        </Style>
     </UserControl.Styles>
     <UserControl.Resources>
         <converters:EqualsConverter x:Key="EqualsConverter"/>
@@ -48,7 +51,7 @@
                             <DataTemplate DataType="remote:RemoteViewModel+CommitItemViewModel">
                                 <TextBlock HorizontalAlignment="Left"
                                            VerticalAlignment="Center"
-                                           Padding="2"
+                                           Classes="Cell"
                                            Text="{Binding DisplayMessage}">
                                 </TextBlock>
                             </DataTemplate>
@@ -57,14 +60,18 @@
                     <DataGridTemplateColumn Header="Author" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate DataType="remote:RemoteViewModel+CommitItemViewModel">
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Author}"></TextBlock>
+                                <TextBlock VerticalAlignment="Center" 
+                                           Classes="Cell"
+                                           Text="{Binding Author}"></TextBlock>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Time" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock VerticalAlignment="Center" Text="{Binding DateTimeText}">
+                                <TextBlock VerticalAlignment="Center" 
+                                           Classes="Cell"
+                                           Text="{Binding DateTimeText}">
                                 </TextBlock>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -72,7 +79,9 @@
                     <DataGridTemplateColumn Header="Revision" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Revision}"></TextBlock>
+                                <TextBlock VerticalAlignment="Center" 
+                                           Classes="Cell"
+                                           Text="{Binding Revision}"></TextBlock>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -86,7 +95,8 @@
 
         <GridSplitter Grid.Row="1"></GridSplitter>
         <Grid Grid.Row="2" RowDefinitions="Auto, *">
-            <TabStrip SelectedIndex="{Binding SelectedViewIndex, Mode=TwoWay}" Grid.Row="0">
+            <TabStrip SelectedIndex="{Binding SelectedViewIndex, Mode=TwoWay}" 
+                      Grid.Row="0">
                 <TabStripItem Content="Detail"></TabStripItem>
                 <TabStripItem Content="Changes"></TabStripItem>
                 <TabStripItem Content="Snapshot"></TabStripItem>

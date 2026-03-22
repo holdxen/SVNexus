@@ -34,6 +34,8 @@ public static class Manager
     public static WeakReferenceMessenger Default { get; } = new();
     
     public static Guid MainWindowToken { get; } = Guid.NewGuid();
+    
+    public static Guid AppToken { get; } = Guid.NewGuid();
 
     extension(WeakReferenceMessenger messenger)
     {
@@ -57,6 +59,7 @@ public static class Manager
             (target as IRecipient<OnSelectedItemChanged>)?.Register(messenger, token);
             (target as IRecipient<OnShowToast>)?.Register(messenger, token);
             (target as IRecipient<OnRefreshWorkingCopy>)?.Register(messenger, token);
+            (target as IRecipient<OnSetThemeVariant>)?.Register(messenger, token);
         }
         
         public void UnregisterAllMessages(object target)
@@ -76,6 +79,7 @@ public static class Manager
             (target as IRecipient<OnSelectedItemChanged>)?.Unregister(messenger);
             (target as IRecipient<OnShowToast>)?.Unregister(messenger);
             (target as IRecipient<OnRefreshWorkingCopy>)?.Unregister(messenger);
+            (target as IRecipient<OnSetThemeVariant>)?.Unregister(messenger);
         }
     }
 

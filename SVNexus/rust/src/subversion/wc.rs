@@ -1,13 +1,107 @@
 use derive_new::new;
+use snafu::ResultExt;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 use super::context;
 use super::ffi;
+use crate::apr;
+use crate::error;
+use crate::error::builder;
+use crate::utils::Pointer;
 use crate::utils::{CStringer, SubversionStringer, PointerMapper};
 use super::SVNError;
+use super::version::Version;
 
 pub struct WorkingCopyContext {
-    context: *mut ffi::svn_wc_context_t,
+    ptr: *mut ffi::svn_wc_context_t,
+    pool: apr::Pool,
+}
+unsafe impl Send for WorkingCopyContext {}
+
+#[derive(uniffi::Record, Debug)]
+pub struct CheckRootResult {
+    is_wc_root: bool,
+    is_switched: bool,
+    kind: context::NodeKind,
+}
+
+
+#[derive(uniffi::Object, Clone)]
+pub enum AsyncWorkingCopyContext {
+    Context(Arc<parking_lot::Mutex<context::Context>>),
+    Raw(Arc<parking_lot::Mutex<WorkingCopyContext>>)
+}
+#[uniffi::export(async_runtime = "tokio")]
+impl AsyncWorkingCopyContext {
+    pub async fn check_root(&self, path: String) -> error::Result<CheckRootResult> {
+        self.call_async(move |ctx| unsafe {
+            let mut pool = apr::Pool::create();
+            let path = pool.string(path)?;
+
+            let mut is_wc_root: ffi::svn_boolean_t = 0;
+            let mut is_switched: ffi::svn_boolean_t = 0;
+            let mut kind: ffi::svn_node_kind_t = ffi::svn_node_kind_t_svn_node_unknown;
+            let error = ffi::svn_wc_check_root(is_wc_root.pointer_mut(), is_switched.pointer_mut(), kind.pointer_mut(), ctx, path, pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let is_wc_root = is_wc_root != 0;
+            let is_switched = is_switched != 0;
+            let kind = context::NodeKind::try_from(kind).unwrap();
+            Ok(CheckRootResult { is_wc_root, is_switched, kind })
+        }).await
+    }
+
+    pub async fn wc_version(&self, path: String) -> error::Result<Version> {
+        self.call_async(move |ctx| unsafe {
+            let mut pool = apr::Pool::create();
+            let path = pool.string(path)?;
+
+            let mut format: std::ffi::c_int = 0;
+
+            let error = ffi::svn_wc_check_wc2(format.pointer_mut(), ctx, path, pool.as_mut_ptr());
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let version = ffi::svn_client_wc_version_from_format(format, pool.as_mut_ptr());
+
+            Ok(Version::from(version))
+
+            // Ok(version)
+        }).await
+    }
+}
+
+impl AsyncWorkingCopyContext {
+    fn call<T>(&self, f: impl FnOnce(*mut ffi::svn_wc_context_t) -> error::Result<T>) -> error::Result<T> {
+        match self {
+            AsyncWorkingCopyContext::Context(mutex) => {
+                let mut lock = mutex.lock();
+                let ctx = lock.ctx_mut().wc_ctx;
+                f(ctx)
+            },
+            AsyncWorkingCopyContext::Raw(mutex) => {
+                let lock = mutex.lock();
+                f(lock.ptr)
+            },
+        }
+    }
+
+    async fn call_async<F, R>(&self, call: F) -> error::Result<R>
+    where
+        F: (FnOnce(*mut ffi::svn_wc_context_t)-> error::Result<R>) + Send + 'static,
+        R: Send + 'static,
+    {
+        let context = self.clone();
+        let result = tokio::task::spawn_blocking(move || {
+            context.call(call)
+        })
+        .await
+        .context(builder::Runtime)??;
+
+        Ok(result)
+    }
+
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_conflict_kind_t)]

@@ -4,28 +4,64 @@ use std::ffi::CStr;
 
 use super::ffi;
 
-#[derive(new)]
+#[derive(new, uniffi::Record)]
 pub struct Version {
     major: i32,
     minor: i32,
     patch: i32,
-    tag: String,
+    tag: Option<String>,
 }
 
-#[derive(new)]
+#[uniffi::export]
+impl Version {
+    pub fn compare(&self, other: &Self) -> i32 {
+        if self.major > other.major {
+            return 1;
+        } else if self.major < other.major {
+            return -1;
+        }
+        if self.minor > other.minor {
+            return 1;
+        } else if self.minor < other.minor {
+            return -1;
+        }
+        if self.patch > other.patch {
+            return 1;
+        } else if self.patch < other.patch {
+            return -1;
+        }
+        0
+    }
+}
+
+impl From<*const ffi::svn_version_t> for Version {
+    fn from(value: *const ffi::svn_version_t) -> Self {
+        unsafe {
+            let value = value.as_ref().unwrap();
+            Self {
+                major: value.major.try_into().unwrap(),
+                minor: value.minor.try_into().unwrap(),
+                patch: value.patch.try_into().unwrap(),
+                tag: value.tag.to_nullable_string()
+            }
+        }
+    }
+}
+
+#[derive(new, uniffi::Record)]
 pub struct LinkedLibrary {
     name: String,
     compiled_version: String,
     runtime_versino: Option<String>,
 }
 
-#[derive(new)]
+#[derive(new, uniffi::Record)]
 pub struct LoadedLibrary {
     name: String,
     version: String,
 }
 
-#[derive(new)]
+#[derive(new, uniffi::Record)]
 pub struct ExtendedVersion {
     build_date: String,
     build_time: String,
@@ -45,7 +81,7 @@ pub fn version() -> Version {
             v.major,
             v.minor,
             v.patch,
-            v.tag.to_str().to_string()
+            v.tag.to_nullable_string()
         )
     }
 }

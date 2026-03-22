@@ -121,6 +121,13 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
     public List<TreeItemViewModel> DisplayItems { get; set; } = [];
 
 
+    
+    [RelayCommand]
+    private void Deselect()
+    {
+        SelectedItem = null;
+    }
+
     [RelayCommand]
     private void ToggleSearchMode()
     {

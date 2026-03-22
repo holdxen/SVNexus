@@ -119,7 +119,7 @@
                     <!--         </MultiBinding> -->
                     <!--     </u:Divider.IsVisible> -->
                     <!-- </u:Divider> -->
-                    <Grid Grid.Row="3">
+                    <Grid Grid.Row="3" Margin="0 2">
                         <ContentControl IsVisible="{Binding IsTreeView}"
                                         Content="{Binding LocalTreeViewModel}">
                         </ContentControl>
