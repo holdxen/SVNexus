@@ -16,9 +16,9 @@ using SVNexus.Messages;
 using Exception = System.Exception;
 using Notification = Ursa.Controls.Notification;
 
-namespace SVNexus.ViewModels.WorkingCopy.Remote;
+namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class RemoteViewModel: ViewModelBase
+public partial class HistoryViewModel: ViewModelBase
 {
     
     public const int DetailViewIndex = 0;
@@ -77,14 +77,14 @@ public partial class RemoteViewModel: ViewModelBase
     private uint? _startRevision;
     
     [ObservableProperty]
-    public partial RemoteDetailViewModel? DetailViewModel { get; set; }
+    public partial HistoryDetailViewModel? DetailViewModel { get; set; }
     
     
     [ObservableProperty]
-    public partial RemoteSnapshotViewModel? SnapshotViewModel { get; set; }
+    public partial HistorySnapshotViewModel? SnapshotViewModel { get; set; }
     
     [ObservableProperty]
-    public partial RemoteChangesViewModel? ChangesViewModel { get; set; }
+    public partial HistoryChangesViewModel? ChangesViewModel { get; set; }
     
     public InfoEntry? ThisEntry { get; set; }
 
@@ -93,12 +93,12 @@ public partial class RemoteViewModel: ViewModelBase
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
         var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
         var commitItem = CommitItems[value];
-        DetailViewModel = new RemoteDetailViewModel
+        DetailViewModel = new HistoryDetailViewModel
         {
             Entry = commitItem.Entry,
             RelateToRoot = relateToRoot
         };
-        SnapshotViewModel = new RemoteSnapshotViewModel()
+        SnapshotViewModel = new HistorySnapshotViewModel()
         {
             // Messenger = Messenger,
             Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
@@ -129,7 +129,7 @@ public partial class RemoteViewModel: ViewModelBase
                         return;
                     }
                     
-                    ChangesViewModel = new RemoteChangesViewModel
+                    ChangesViewModel = new HistoryChangesViewModel
                     {
                         CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
                         CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
@@ -148,7 +148,7 @@ public partial class RemoteViewModel: ViewModelBase
                     return;
                 }
                     
-                ChangesViewModel = new RemoteChangesViewModel
+                ChangesViewModel = new HistoryChangesViewModel
                 {
                     CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
                     CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),

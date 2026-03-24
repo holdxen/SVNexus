@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:inject="clr-namespace:SVNexus.Inject"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             x:DataType="viewModels:CommitDialogModel"
+             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
+             IsEnabled="{Binding !IsCommitting}"
+             x:Class="SVNexus.Views.CommitDialog">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <UserControl.Resources>
+        <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="ListBoxItem">
+            <Setter Property="CornerRadius" Value="5"></Setter>
+            <Setter Property="Padding" Value="0"></Setter>
+        </Style>
+    </UserControl.Styles>
+    <Grid RowDefinitions="*, Auto">
+        <u:Form>
+            <u:FormItem Label="To be committed:">
+                <Grid>
+                    <Border Theme="{StaticResource CardBorder}" Padding="5">
+                        <ListBox MinHeight="80" ItemsSource="{Binding ToBeCommittedItems}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="viewModels:CommitDialogModel+ToBeCommittedItem">
+                                    <Grid ColumnDefinitions="Auto, *, Auto" 
+                                          Margin="0 3"
+                                          inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}">
+                                        <components:SvgRender Source="{Binding NodeKindIcon}" Size="20" Grid.Column="0"></components:SvgRender>
+                                        <Grid Grid.Column="1" ColumnDefinitions="Auto, *">
+                                            <TextBlock Grid.Column="0"
+                                                       MaxLines="1"
+                                                       x:Name="ListItemText"
+                                                       Text="{Binding Name}"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center">
+                                            </TextBlock>
+                                            <TextBlock Margin="5 0 0 0" 
+                                                       Grid.Column="1"
+                                                       Classes="Quaternary VCenter"
+                                                       FontSize="12"
+                                            >
+                                            </TextBlock>
+                                        </Grid>
+                                        <components:SvgRender Size="20" Source="{Binding NodeStatusIcon}" Grid.Column="2"></components:SvgRender>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                    <u:LoadingIcon Margin="0 0 10 10" 
+                                   HorizontalAlignment="Right" 
+                                   VerticalAlignment="Bottom"
+                                   IsVisible="{Binding IsLoading}" />
+                </Grid>
+            </u:FormItem>
+            <u:FormItem Label="Depth:">
+                <u:EnumSelector HorizontalAlignment="Stretch"
+                                Value="{Binding Depth}"
+                                EnumType="{x:Static viewModels:CommitDialogModel.DepthType}">
+                </u:EnumSelector>
+            </u:FormItem>
+            <u:FormItem Label="Options:">
+                <Grid RowDefinitions="*, *" ColumnDefinitions="*, *">
+                    <CheckBox Grid.Row="0" Grid.Column="0" Content="Delete missing file" IsChecked="{Binding DeleteMissing}"></CheckBox>
+                    <CheckBox Grid.Row="0" Grid.Column="1" Content="Add unversioned file" IsChecked="{Binding AddUnversioned}"></CheckBox>
+                    <CheckBox Grid.Row="1" Grid.Column="0" Content="No lock" IsChecked="{Binding NoLock}"></CheckBox>
+                    <CheckBox Grid.Row="1" Grid.Column="1" Content="Include externals" IsChecked="{Binding IncludeExternals}"></CheckBox>
+                </Grid>
+            </u:FormItem>
+            <u:FormItem Label="Commit Message:">
+                <TextBox AcceptsReturn="True" Text="{Binding CommitMessage}"></TextBox>
+            </u:FormItem>
+        </u:Form>
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">
+            <Border Grid.Column="0"></Border>
+            <Button Grid.Column="1" Content="取消" Command="{Binding CloseCommand}"></Button>
+            <Border Grid.Column="2" Width="4"></Border>
+            <Button Grid.Column="3"
+                    Classes="Primary"
+                    Theme="{StaticResource SolidButton}"
+                    Content="确定">
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

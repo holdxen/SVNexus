@@ -2,14 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.History"
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:u="https://irihi.tech/ursa"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="remote:RemoteChangesViewModel"
-             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteChangesView">
+             x:DataType="remote:HistoryChangesViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.History.HistoryChangesView">
     <UserControl.DataTemplates>
-        <DataTemplate DataType="remote:RemoteChangesViewModel+ListViewModel">
+        <DataTemplate DataType="remote:HistoryChangesViewModel+ListViewModel">
             <ListBox ItemsSource="{Binding Items}">
                 <ListBox.Styles>
                     <Style Selector="ListBoxItem">
@@ -29,7 +29,7 @@
                 </ListBox.Styles>
             </ListBox>
         </DataTemplate>
-        <DataTemplate DataType="remote:RemoteChangesViewModel+ListItemViewModel">
+        <DataTemplate DataType="remote:HistoryChangesViewModel+ListItemViewModel">
             <Grid x:Name="ItemRoot"
                   Margin="2 4"
                   Background="Transparent"

@@ -125,8 +125,9 @@ pub impl<T> T {
     }
 }
 
+
 #[easy_ext::ext(PointerMapper)]
-pub impl<T: Sized> *const T {
+pub impl<T> *const T {
     fn map<V>(self, f: impl FnOnce(*const T) -> V) -> Option<V> {
         if self.is_null() {
             None
@@ -136,6 +137,16 @@ pub impl<T: Sized> *const T {
     }
 }
 
+#[easy_ext::ext(PointerMutMapper)]
+pub impl<T> *mut T {
+    fn map_mut<V>(self, f: impl FnOnce(*mut T) -> V) -> Option<V> {
+        if self.is_null() {
+            None
+        } else {
+            Some(f(self))
+        }
+    }
+}
 
 
 thread_local! {

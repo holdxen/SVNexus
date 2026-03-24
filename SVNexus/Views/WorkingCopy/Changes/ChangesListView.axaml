@@ -3,8 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
-             x:DataType="local:LocalListViewModel"
+             xmlns:changes="clr-namespace:SVNexus.ViewModels.WorkingCopy.Changes"
+             x:DataType="changes:ChangesListViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
@@ -12,7 +12,7 @@
              xmlns:converters="clr-namespace:SVNexus.Converters"
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
-             x:Class="SVNexus.Views.WorkingCopy.Local.LocalListView">
+             x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesListView">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
             <InvokeCommandAction Command="{Binding LoadedCommand}">
@@ -20,7 +20,7 @@
         </EventTriggerBehavior>
     </Interaction.Behaviors>
     <UserControl.DataTemplates>
-        <DataTemplate DataType="local:LocalListViewModel+MenuIconViewModel">
+        <DataTemplate DataType="changes:ChangesListViewModel+MenuIconViewModel">
             <components:SvgRender Classes.Themable="{Binding Themable}"
                                   Source="{Binding Source, Converter={x:Static converters:StaticResourceConverter.Default}}"></components:SvgRender>
         </DataTemplate>
@@ -28,7 +28,7 @@
     <ListBox
         x:Name="ListBox"
         SelectedItem="{Binding SelectedItem}"
-        SelectionMode="Multiple"
+        SelectionMode="Single"
         ItemsSource="{Binding Items}">
         <ListBox.Styles>
             <Style Selector="ListBoxItem">
@@ -47,7 +47,7 @@
             </Style>
         </ListBox.Styles>
         <ListBox.ItemTemplate>
-            <DataTemplate DataType="local:LocalListViewModel+ListItemViewModel">
+            <DataTemplate DataType="changes:ChangesListViewModel+ListItemViewModel">
                 <Grid x:Name="ItemRoot" 
                       Margin="2 4"
                       Background="Transparent"

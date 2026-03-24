@@ -58,64 +58,68 @@
             </TabStrip>   
             <u:Divider Grid.Column="1" Orientation="Vertical"></u:Divider>
             <Grid Grid.Column="2">
-                <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsLocalView}">
+                <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsChangesView}">
                     <StackPanel 
                         Orientation="Horizontal" 
                         Spacing="5">
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Update"
                                               Source="{StaticResource Icons.OperationUpdate}"
-                                              Command="{Binding LocalViewModel.UpdateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.UpdateCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Refresh"
                                               Source="{StaticResource Icons.Refresh}"
-                                              Command="{Binding LocalViewModel.StatusCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.StatusCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Revert"
                                               Source="{StaticResource Icons.OperationRevert}"
-                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Diff and export"
                                               Source="{StaticResource Icons.OperationDiff}"
-                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Apply patch"
                                               Source="{StaticResource Icons.OperationPatch}"
-                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Lock"
                                               Source="{StaticResource Icons.OperationLock}"
-                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Unlock"
                                               Source="{StaticResource Icons.OperationUnlock}"
-                                              Command="{Binding LocalViewModel.RevertCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Relocate"
                                               Source="{StaticResource Icons.OperationDelete}"
-                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Relocate"
                                               Source="{StaticResource Icons.OperationMkdir}"
-                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Relocate"
                                               Source="{StaticResource Icons.OperationSwitch}"
-                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Relocate"
                                               Source="{StaticResource Icons.OperationMerge}"
-                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.CommitCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Commit"
+                                              Source="{StaticResource Icons.OperationCommit}"
+                                              Command="{Binding ChangesViewModel.CommitCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Relocate"
                                               Source="{StaticResource Icons.OperationUpgrade}"
-                                              IsVisible="{Binding LocalViewModel.Upgradable}"
-                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                                              IsVisible="{Binding ChangesViewModel.Upgradable}"
+                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Relocate"
-                                              IsVisible="{Binding LocalViewModel.IsWcRoot}"
+                                              IsVisible="{Binding ChangesViewModel.IsWcRoot}"
                                               Source="{StaticResource Icons.OperationRelocate}"
-                                              Command="{Binding LocalViewModel.RelocateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
                     <StackPanel 
@@ -128,14 +132,14 @@
                                               Command="{Binding UpdateCommand}"></components:SvgButton>
                     </StackPanel>
                 </Grid>
-                <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsRemoteView}">
+                <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsHistoryView}">
                     <StackPanel 
                         Orientation="Horizontal" 
                         Spacing="5">
                         <components:SvgButton Classes="ToolButton"
                                               ToolTip.Tip="Load more revisions"
                                               Source="{StaticResource Icons.LoadMoreList}"
-                                              Command="{Binding RemoteViewModel.LoadedCommand}" />
+                                              Command="{Binding HistoryViewModel.LoadedCommand}" />
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
                     <StackPanel 
@@ -231,13 +235,16 @@
         <!--                     IsVisible="{Binding IsRemoteView}"  -->
         <!--                     Content="{Binding RemoteViewModel}" /> -->
         <!-- </Grid> -->
+        <ContentControl Grid.Row="2" 
+                        IsVisible="{Binding IsLocalView}"
+                        Content="{Binding LocalViewModel}"></ContentControl>
         <ContentControl 
             Grid.Row="2"
-            IsVisible="{Binding IsLocalView}" 
-            Content="{Binding LocalViewModel}" />
+            IsVisible="{Binding IsChangesView}" 
+            Content="{Binding ChangesViewModel}" />
         <ContentControl 
             Grid.Row="2"
-            IsVisible="{Binding IsRemoteView}" 
-            Content="{Binding RemoteViewModel}" />
+            IsVisible="{Binding IsHistoryView}" 
+            Content="{Binding HistoryViewModel}" />
     </Grid>
 </UserControl>

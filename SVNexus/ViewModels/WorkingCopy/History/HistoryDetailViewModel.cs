@@ -7,9 +7,9 @@ using SVNexus.Generated;
 
 using SystemPath = System.IO.Path;
 
-namespace SVNexus.ViewModels.WorkingCopy.Remote;
+namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class RemoteDetailViewModel: ViewModelBase
+public partial class HistoryDetailViewModel: ViewModelBase
 {
     [ObservableProperty]
     public required partial LogEntry Entry { get; set; }

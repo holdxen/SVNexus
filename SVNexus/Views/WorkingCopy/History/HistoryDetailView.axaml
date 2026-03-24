@@ -3,12 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:u="https://irihi.tech/ursa"
-             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.History"
              xmlns:components="clr-namespace:SVNexus.Components"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="remote:RemoteDetailViewModel"
+             x:DataType="remote:HistoryDetailViewModel"
              Padding="20 5"
-             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteDetailView">
+             x:Class="SVNexus.Views.WorkingCopy.History.HistoryDetailView">
     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="10">
             <u:Descriptions HorizontalAlignment="Left">
@@ -32,7 +32,7 @@
             <u:Divider Orientation="Horizontal"></u:Divider>
             <u:SelectionList ItemsSource="{Binding ChangeItems}">
                 <u:SelectionList.ItemTemplate>
-                    <DataTemplate DataType="remote:RemoteDetailViewModel+ChangeItemViewModel">
+                    <DataTemplate DataType="remote:HistoryDetailViewModel+ChangeItemViewModel">
                         <Grid ColumnDefinitions="Auto, *">
                             <components:SvgRender Grid.Column="0" 
                                                   Margin="4 0" 

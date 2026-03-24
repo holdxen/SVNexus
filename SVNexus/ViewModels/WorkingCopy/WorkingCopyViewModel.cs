@@ -11,8 +11,9 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels;
+using SVNexus.ViewModels.WorkingCopy.Changes;
+using SVNexus.ViewModels.WorkingCopy.History;
 using SVNexus.ViewModels.WorkingCopy.Local;
-using SVNexus.ViewModels.WorkingCopy.Remote;
 using SVNexus.Views;
 using Tmds.DBus.Protocol;
 using Ursa.Controls;
@@ -26,12 +27,16 @@ public partial class WorkingCopyViewModel : ViewModelBase,
 {
 
     public const int LocalViewIndex = 0;
-    public const int RemoteViewIndex = 1;
+    public const int ChangesViewIndex = 1;
+    public const int HistoryViewIndex = 2;
+    public const int RemoteViewIndex = 3;
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsLocalView))]
     [NotifyPropertyChangedFor(nameof(IsRemoteView))]
-    public partial int SelectedViewIndex { get; set; } = LocalViewIndex;
+    [NotifyPropertyChangedFor(nameof(IsChangesView))]
+    [NotifyPropertyChangedFor(nameof(IsHistoryView))]
+    public partial int SelectedViewIndex { get; set; } = ChangesViewIndex;
 
     [ObservableProperty]
     public required partial string WorkingCopyPath { get; set; }
@@ -40,12 +45,20 @@ public partial class WorkingCopyViewModel : ViewModelBase,
 
     public bool IsRemoteView => SelectedViewIndex == RemoteViewIndex;
     
+    public bool IsHistoryView => SelectedViewIndex == HistoryViewIndex;
     
-    [ObservableProperty]
-    public partial LocalViewModel LocalViewModel { get; set; } = new();
+    public bool IsChangesView => SelectedViewIndex == ChangesViewIndex;
+    
+    
+    public ChangesViewModel ChangesViewModel { get; } = new();
 
-
-    [ObservableProperty] public partial RemoteViewModel RemoteViewModel { get; set; } = new();
+    public HistoryViewModel HistoryViewModel { get; } = new();
+    
+    
+    public LocalViewModel  LocalViewModel { get; } = new();
+    
+    
+    
 
     
 
@@ -238,7 +251,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
             await OverlayDialog.ShowModal<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
             if (importProcessDialogModel.Error is null)
             {
-                await LocalViewModel.Status();
+                await ChangesViewModel.Status();
             }
         });
 

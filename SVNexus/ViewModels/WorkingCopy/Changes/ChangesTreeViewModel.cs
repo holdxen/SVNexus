@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,16 +13,16 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 
-namespace SVNexus.ViewModels.WorkingCopy.Local;
+namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
+public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
 {
     
     public partial class TreeItemViewModel: ViewModelBase
     {
         
-        public LocalTreeViewModel? Root { get; set; }
-
+        public ChangesTreeViewModel? Root { get; set; }
+        
         [ObservableProperty]
         public partial bool IsExpanded { get; set; }
         
@@ -29,7 +30,10 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
     
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsReal))]
+        [NotifyPropertyChangedFor(nameof(HasChild))]
         public required partial StatusEntry? StatusEntry { get; set; }
+        
+        public bool HasChild => StatusEntry?.NodeKind is NodeKind.Directory;
 
 
         public string PathSvgIcon => StatusEntry?.NodeKind.NodeKindIcon() ?? NodeKind.Directory.NodeKindIcon();
@@ -119,9 +123,48 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
     
     
     public List<TreeItemViewModel> DisplayItems { get; set; } = [];
-
+    
+    [ObservableProperty]
+    public partial bool ShowRoot { get; set; }
 
     
+    private TreeItemViewModel? _root;
+
+
+    partial void OnShowRootChanged(bool value)
+    {
+        if (_root is null)
+        {
+            return;
+        }
+
+        Items.Clear();
+        if (value)
+        {
+            Items.Add(_root);
+            if (_root.StatusEntry is not null)
+            {
+                if (_root.IsChecked)
+                {
+                    CheckedItems[_root.StatusEntry.Path] = _root.StatusEntry;
+                }
+
+                ItemCount++;
+            }
+        }
+        else
+        {
+            Items.AddRange(_root.Children);
+            if (_root.StatusEntry is not null)
+            {
+                CheckedItems.Remove(_root.StatusEntry.Path);
+                ItemCount--;
+            }
+        }
+        UpdateAllChecked();
+    }
+
+
     [RelayCommand]
     private void Deselect()
     {
@@ -342,7 +385,14 @@ public partial class LocalTreeViewModel: ViewModelBase//, IRecipient<LocalTreeVi
             }
 
             root.Root = this;
-            Items.AddRange(root.Children);
+            if (_root is null)
+            {
+                root.IsExpanded = true;
+            }
+            _root = root;
+            
+            
+            OnShowRootChanged(ShowRoot);
 
             CheckedItems = cleanCheckedItems;
             ExpandedItems = cleanExpandedItems;

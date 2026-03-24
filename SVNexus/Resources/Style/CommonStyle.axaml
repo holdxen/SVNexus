@@ -17,11 +17,17 @@
         </Style>
         
         <Style Selector="^[IsLoading=True] /template/ ToggleButton#PART_ExpandCollapseChevron">
-            <Setter Property="Theme" Value="{x:Null}"></Setter>
             <Setter Property="Template">
                 <ControlTemplate TargetType="ToggleButton">
                     <Border Padding="{TemplateBinding Padding}">
-                        <u:LoadingIcon />
+                        <Border.Styles>
+                            <Style Selector="u|LoadingIcon.VerySmall /template/ Arc#PART_Arc">
+                                <Setter Property="Width" Value="12" />
+                                <Setter Property="Height" Value="12" />
+                                <Setter Property="StrokeThickness" Value="2" />
+                            </Style>
+                        </Border.Styles>
+                        <u:LoadingIcon Classes="VerySmall" />
                     </Border>
                 </ControlTemplate>
             </Setter>

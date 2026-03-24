@@ -77,7 +77,7 @@ impl AsyncWorkingCopyContext {
         match self {
             AsyncWorkingCopyContext::Context(mutex) => {
                 let mut lock = mutex.lock();
-                let ctx = lock.ctx_mut().wc_ctx;
+                let ctx = unsafe { lock.ctx().as_mut().unwrap().wc_ctx };
                 f(ctx)
             },
             AsyncWorkingCopyContext::Raw(mutex) => {

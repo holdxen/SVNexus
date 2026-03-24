@@ -16,9 +16,9 @@ using SVNexus.Generated;
 using SVNexus.Messages;
 using Ursa.Controls;
 
-namespace SVNexus.ViewModels.WorkingCopy.Local;
+namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListViewModel.OnLocalListItemSelected>
+public partial class ChangesListViewModel: ViewModelBase//, IRecipient<LocalListViewModel.OnLocalListItemSelected>
 {
     // private WeakReferenceMessenger Messenger { get; } = new();
 
@@ -36,7 +36,7 @@ public partial class LocalListViewModel: ViewModelBase//, IRecipient<LocalListVi
     public partial class ListItemViewModel : ViewModelLite
     {
         
-        public LocalListViewModel? Parent { get; set; }
+        public ChangesListViewModel? Parent { get; set; }
         
         
         [ObservableProperty]

@@ -4,13 +4,13 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.VisualTree;
-using SVNexus.ViewModels.WorkingCopy.Remote;
+using SVNexus.ViewModels.WorkingCopy.History;
 
-namespace SVNexus.Views.WorkingCopy.Remote;
+namespace SVNexus.Views.WorkingCopy.History;
 
-public partial class RemoteView : UserControl
+public partial class HistoryView : UserControl
 {
-    public RemoteView()
+    public HistoryView()
     {
         InitializeComponent();
     }
@@ -24,7 +24,7 @@ public partial class RemoteView : UserControl
             if (control is not ScrollBar scrollBar || control.Name != "PART_VerticalScrollbar") continue;
             scrollBar.ValueChanged += (o, args) =>
             {
-                if (DataContext is RemoteViewModel vm)
+                if (DataContext is HistoryViewModel vm)
                 {
                     vm.OnDataGridVerticalScrollValueChanged(args.NewValue, scrollBar.Maximum);
                 }

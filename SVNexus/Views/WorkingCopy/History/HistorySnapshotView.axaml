@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.History"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:edit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              xmlns:components="clr-namespace:SVNexus.Components"
@@ -10,8 +10,8 @@
              xmlns:u="https://irihi.tech/ursa"
              xmlns:inject="clr-namespace:SVNexus.Inject"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
-             x:DataType="remote:RemoteSnapshotViewModel"
-             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteSnapshotView">
+             x:DataType="remote:HistorySnapshotViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.History.HistorySnapshotView">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
             <InvokeCommandAction Command="{Binding LoadedCommand}">
@@ -27,7 +27,7 @@
                       AutoScrollToSelectedItem="False"
                       ItemsSource="{Binding Files}">
                 <TreeView.DataTemplates>
-                    <TreeDataTemplate x:DataType="remote:RemoteSnapshotViewModel+FileItemViewModel" 
+                    <TreeDataTemplate x:DataType="remote:HistorySnapshotViewModel+FileItemViewModel" 
                                       ItemsSource="{Binding Children}">
                         <Grid ColumnDefinitions="Auto, *">
                             <components:SvgRender Grid.Column="0" 
@@ -76,14 +76,14 @@
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Header="Property" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate DataType="remote:RemoteSnapshotViewModel+PropertyItemViewModel">
+                                        <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel">
                                             <TextBlock Classes="VCenter" Text="{Binding Name}"></TextBlock>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn CanUserResize="True" CanUserReorder="False" Width="*" Header="Value">
                                     <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate DataType="remote:RemoteSnapshotViewModel+PropertyItemViewModel">
+                                        <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel">
                                             <TextBlock Classes="VCenter" Text="{Binding Value}"></TextBlock>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

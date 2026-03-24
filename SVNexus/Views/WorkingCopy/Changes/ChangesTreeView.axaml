@@ -3,22 +3,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
-             x:DataType="local:LocalTreeViewModel"
+             xmlns:changes="clr-namespace:SVNexus.ViewModels.WorkingCopy.Changes"
+             x:DataType="changes:ChangesTreeViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="True"
              xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:u="https://irihi.tech/ursa"
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
-             x:Class="SVNexus.Views.WorkingCopy.Local.LocalTreeView">
+             x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesTreeView">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
             <InvokeCommandAction Command="{Binding LoadedCommand}">
             </InvokeCommandAction>
         </EventTriggerBehavior>
     </Interaction.Behaviors>
-    <TreeView SelectionMode="Multiple"
+    <components:AdvancedTreeView SelectionMode="Single"
               Margin="0"
               Padding="0"
               AutoScrollToSelectedItem="False"
@@ -31,53 +32,35 @@
             </EventTriggerBehavior>
         </Interaction.Behaviors>
         <TreeView.Styles>
-            <Style Selector="TreeViewItem"
-                   x:DataType="local:LocalTreeViewModel+TreeItemViewModel">
+            <Style Selector="components|AdvancedTreeViewItem"
+                   x:DataType="changes:ChangesTreeViewModel+TreeItemViewModel">
                 <Setter
                     Property="IsExpanded"
                     Value="{Binding IsExpanded, Mode=TwoWay}" />
+                <Setter Property="HasChild" Value="{Binding HasChild}"></Setter>
             </Style>
         </TreeView.Styles>
         <TreeView.Resources>
             <Thickness x:Key="TreeViewItemIconMargin">6 0</Thickness>
         </TreeView.Resources>
         <TreeView.DataTemplates>
-            <TreeDataTemplate x:DataType="local:LocalTreeViewModel+TreeItemViewModel" 
+            <TreeDataTemplate x:DataType="changes:ChangesTreeViewModel+TreeItemViewModel" 
                               ItemsSource="{Binding Children}">
                 <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto, Auto"
                       IsHitTestVisible="True"
                       Background="Transparent">
-                    <!-- <Grid.Styles> -->
-                    <!--     <Style Selector="MenuItem" x:DataType="m:ContextMenuItemModel"> -->
-                    <!--         <Setter Property="Header" Value="{Binding Header}"></Setter> -->
-                    <!--         <Setter Property="Command" Value="{Binding Command}"></Setter> -->
-                    <!--         <Setter Property="ItemsSource" Value="{Binding Children}"></Setter> -->
-                    <!--         <Setter Property="IsEnabled" Value="{Binding IsEnable}"></Setter> -->
-                    <!--     </Style> -->
-                    <!-- </Grid.Styles> -->
                     <Grid.ContextMenu>
                         <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}">
                             <Interaction.Behaviors>
                                 <behaviors:ContextMenuBehavior AllowToOpen="False"/>
                             </Interaction.Behaviors>
                         </ContextMenu>
-                        <!-- <ContextMenu> -->
-                        <!--     <MenuItem Header="Test" Command="{Binding TestMenuClickCommand}"></MenuItem> -->
-                        <!-- </ContextMenu> -->
                     </Grid.ContextMenu>
 
                     <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
                               IsChecked="{Binding IsChecked}"
                               IsEnabled="{Binding IsReal}" Grid.Column="0">
                     </CheckBox>
-                    <!-- <PathIcon Margin="8, 0" Grid.Column="1" Classes="Normal" -->
-                    <!--           Data="{Binding PathIcon, Mode=OneWay}"> -->
-                    <!-- </PathIcon> -->
-                    <!-- <svg:Svg Grid.Column="1" -->
-                    <!--          Width="{Binding #TreeItemText.Bounds.Height}" -->
-                    <!--          Height="{Binding #TreeItemText.Bounds.Height}" -->
-                    <!--          Margin="8 0" -->
-                    <!--          Source="{Binding PathSvgIcon, Mode=OneWay}"></svg:Svg> -->
                     <components:SvgRender Grid.Column="1"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -112,5 +95,5 @@
                 </Grid>
             </TreeDataTemplate>
         </TreeView.DataTemplates>
-    </TreeView>
+    </components:AdvancedTreeView>
 </UserControl>

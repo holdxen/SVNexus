@@ -2,15 +2,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.Remote"
+             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.History"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:converters="clr-namespace:SVNexus.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="remote:RemoteViewModel"
+             x:DataType="remote:HistoryViewModel"
              xmlns:inject="clr-namespace:SVNexus.Inject"
              inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
-             x:Class="SVNexus.Views.WorkingCopy.Remote.RemoteView">
+             x:Class="SVNexus.Views.WorkingCopy.History.HistoryView">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
             <InvokeCommandAction Command="{Binding LoadedCommand}">
@@ -48,7 +48,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate DataType="remote:RemoteViewModel+CommitItemViewModel">
+                            <DataTemplate DataType="remote:HistoryViewModel+CommitItemViewModel">
                                 <TextBlock HorizontalAlignment="Left"
                                            VerticalAlignment="Center"
                                            Classes="Cell"
@@ -59,7 +59,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Author" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate DataType="remote:RemoteViewModel+CommitItemViewModel">
+                            <DataTemplate DataType="remote:HistoryViewModel+CommitItemViewModel">
                                 <TextBlock VerticalAlignment="Center" 
                                            Classes="Cell"
                                            Text="{Binding Author}"></TextBlock>
@@ -103,13 +103,13 @@
             </TabStrip>   
             <ContentControl Grid.Row="1" 
                             Content="{Binding DetailViewModel}"
-                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.DetailViewIndex}}"></ContentControl>
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:HistoryViewModel.DetailViewIndex}}"></ContentControl>
             <ContentControl Grid.Row="1" 
                             Content="{Binding ChangesViewModel}"
-                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.ChangesViewIndex}}"></ContentControl>
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:HistoryViewModel.ChangesViewIndex}}"></ContentControl>
             <ContentControl Grid.Row="1" 
                             Content="{Binding SnapshotViewModel}"
-                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:RemoteViewModel.SnapshotViewIndex}}"></ContentControl>
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:HistoryViewModel.SnapshotViewIndex}}"></ContentControl>
         </Grid>
     </Grid>
 </UserControl>

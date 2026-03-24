@@ -744,6 +744,10 @@ static class _UniFFILib {
     public delegate void UniffiCallbackInterfaceLogReceiverMethod0(
         ulong @uniffiHandle,RustBuffer @logEntry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceStatusReceiverMethod0(
+        ulong @uniffiHandle,RustBuffer @entry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceContextNotifier
     {
@@ -776,6 +780,24 @@ static class _UniFFILib {
         public IntPtr @uniffiClone;
         public IntPtr @onLogEntry;
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct UniffiVTableCallbackInterfaceStatusReceiver
+    {
+        public IntPtr @uniffiFree;
+        public IntPtr @uniffiClone;
+        public IntPtr @onStatusEntry;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -1650,6 +1672,7 @@ static class _UniFFILib {
         UniffiCallbackInterfaceContextNotifier.Register();
         UniffiCallbackInterfaceInitializeRepositoryNotifier.Register();
         UniffiCallbackInterfaceLogReceiver.Register();
+        UniffiCallbackInterfaceStatusReceiver.Register();
         }
 
     #if NET8_0_OR_GREATER
@@ -5818,6 +5841,50 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_clone_statusreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_free_statusreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_init_callback_vtable_statusreceiver(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceStatusReceiver*/ @vtable
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_method_statusreceiver_on_status_entry(ulong @ptr,RustBuffer @entry,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_clone_asynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
@@ -6016,6 +6083,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_property_list(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_revert(ulong @ptr,RustBuffer @opts
     );
 
@@ -6027,7 +6105,29 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_revision_property_list(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_status(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asynccontext_status_next(ulong @ptr,RustBuffer @opts,ulong @receiver
     );
 
     #if NET8_0_OR_GREATER
@@ -10911,6 +11011,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_statusreceiver_on_status_entry(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_add(
     );
 
@@ -11076,6 +11187,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_property_list(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_revert(
     );
 
@@ -11087,7 +11209,29 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_revision_property_list(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_status(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_asynccontext_status_next(
     );
 
     #if NET8_0_OR_GREATER
@@ -13426,6 +13570,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_statusreceiver_on_status_entry();
+            if (checksum != 6927) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_statusreceiver_on_status_entry` checksum `6927`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_add();
             if (checksum != 59598) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_add` checksum `59598`, library returned `{checksum}`");
@@ -13516,15 +13666,33 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_property_list();
+            if (checksum != 33424) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_property_list` checksum `33424`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_revert();
             if (checksum != 42347) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_revert` checksum `42347`, library returned `{checksum}`");
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_revision_property_list();
+            if (checksum != 21145) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_revision_property_list` checksum `21145`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_status();
             if (checksum != 41477) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status` checksum `41477`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_status_next();
+            if (checksum != 51381) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status_next` checksum `51381`, library returned `{checksum}`");
             }
         }
         {
@@ -13861,9 +14029,15 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task LogNext(LogOptions @opts, LogReceiver @receiver);
     /// <exception cref="Exception"></exception>
+    Task<PropertyListResult> PropertyList(PropertyListOptions @opts);
+    /// <exception cref="Exception"></exception>
     Task Revert(RevertOptions @opts);
     /// <exception cref="Exception"></exception>
+    Task<RevisionPropertyListResult> RevisionPropertyList(RevisionPropertyListOptions @opts);
+    /// <exception cref="Exception"></exception>
     Task<StatusResult> Status(StatusOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task StatusNext(StatusOptions @opts, StatusReceiver @receiver);
     /// <exception cref="Exception"></exception>
     Task<uint[]> Update(UpdateOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -14274,6 +14448,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
+    public async Task<PropertyListResult> PropertyList(PropertyListOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_property_list(thisPtr, FfiConverterTypePropertyListOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypePropertyListResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
     public async Task Revert(RevertOptions @opts) {await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
@@ -14286,6 +14482,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
         },
         // Free
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<RevisionPropertyListResult> RevisionPropertyList(RevisionPropertyListOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_revision_property_list(thisPtr, FfiConverterTypeRevisionPropertyListOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeRevisionPropertyListResult.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -14308,6 +14526,24 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeStatusResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task StatusNext(StatusOptions @opts, StatusReceiver @receiver) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_status_next(thisPtr, FfiConverterTypeStatusOptions.INSTANCE.Lower(@opts), FfiConverterTypeStatusReceiver.INSTANCE.Lower(@receiver));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -15592,6 +15828,197 @@ class FfiConverterTypeLogReceiver: FfiConverter<LogReceiver, ulong> {
     }
 
     public override void Write(LogReceiver value, BigEndianStream stream) {
+        stream.WriteULong(Lower(value));
+    }
+}
+
+
+
+public interface StatusReceiver {
+    void OnStatusEntry(StatusEntry @entry);
+}
+public class StatusReceiverImpl : StatusReceiver, IDisposable {
+    protected ulong pointer;
+    private int _wasDestroyed = 0;
+    private long _callCounter = 1;
+
+    public StatusReceiverImpl(ulong pointer) {
+        this.pointer = pointer;
+    }
+
+    ~StatusReceiverImpl() {
+        Destroy();
+    }
+
+    protected void FreeRustArcPtr() {
+        _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            _UniFFILib.uniffi_engine_fn_free_statusreceiver(this.pointer, ref status);
+        });
+    }
+
+    protected ulong CloneRustArcPtr() {
+        return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            return _UniFFILib.uniffi_engine_fn_clone_statusreceiver(this.pointer, ref status);
+        });
+    }
+
+    public void Destroy()
+    {
+        // Only allow a single call to this method.
+        if (Interlocked.CompareExchange(ref _wasDestroyed, 1, 0) == 0)
+        {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (Interlocked.Decrement(ref _callCounter) == 0)
+            {
+                FreeRustArcPtr();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        Destroy();
+        GC.SuppressFinalize(this); // Suppress finalization to avoid unnecessary GC overhead.
+    }
+
+    private void IncrementCallCounter() 
+    {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        long count;
+        do
+        {
+            count = Interlocked.Read(ref _callCounter);
+            if (count == 0L) throw new System.ObjectDisposedException(string.Format("'{0}' object has already been destroyed", this.GetType().Name));
+            if (count == long.MaxValue) throw new System.OverflowException(string.Format("'{0}' call counter would overflow", this.GetType().Name));
+
+        } while (Interlocked.CompareExchange(ref _callCounter, count + 1, count) != count);
+    }
+
+    private void DecrementCallCounter() 
+    {
+        // This decrement always matches the increment we performed above.
+        if (Interlocked.Decrement(ref _callCounter) == 0) {
+            FreeRustArcPtr();
+        }
+    }
+
+    internal void CallWithPointer(Action<ulong> action)
+    {
+        IncrementCallCounter();
+        try {
+            action(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    internal T CallWithPointer<T>(Func<ulong, T> func)
+    {   
+        IncrementCallCounter();
+        try {
+            return func(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    
+    public void OnStatusEntry(StatusEntry @entry) {
+        CallWithPointer(thisPtr =>
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_statusreceiver_on_status_entry(thisPtr, FfiConverterTypeStatusEntry.INSTANCE.Lower(@entry), ref _status)
+));
+    }
+    
+    
+    
+
+    
+}
+class UniffiCallbackInterfaceStatusReceiver {
+    static void OnStatusEntry(ulong @uniffiHandle,RustBuffer @entry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeStatusReceiver.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            uniffiObject.OnStatusEntry(
+                FfiConverterTypeStatusEntry.INSTANCE.Lift(@entry));
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+
+    static void UniffiFree(ulong @handle) {
+        FfiConverterTypeStatusReceiver.INSTANCE.handleMap.Remove(@handle);
+    }
+    static _UniFFILib.UniffiCallbackInterfaceStatusReceiverMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceStatusReceiverMethod0(OnStatusEntry);
+    static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
+
+    public static void Register() {
+        _UniFFILib.UniffiVTableCallbackInterfaceStatusReceiver _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceStatusReceiver {
+            @onStatusEntry = Marshal.GetFunctionPointerForDelegate(_m0),
+            @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free)
+        };
+
+        // Pin vtable to ensure GC does not move the vtable across the heap
+        _UniFFILib.uniffi_engine_fn_init_callback_vtable_statusreceiver(GCHandle.Alloc(_vtable, GCHandleType.Pinned).AddrOfPinnedObject());
+    }
+}
+
+
+
+
+class FfiConverterTypeStatusReceiver: FfiConverter<StatusReceiver, ulong> {
+    public ConcurrentHandleMap<StatusReceiver> handleMap = new ConcurrentHandleMap<StatusReceiver>();
+    
+    public static FfiConverterTypeStatusReceiver INSTANCE = new FfiConverterTypeStatusReceiver();
+
+
+    public override ulong Lower(StatusReceiver value) {
+        if (value is StatusReceiverImpl rustObj) {
+            // Rust-implemented object. Clone the handle and return it.
+            return rustObj.CallWithPointer(thisPtr => thisPtr);
+        } else {
+            // C# object, generate a new handle map entry and return it.
+            return handleMap.Insert(value);
+        }
+    }
+
+    public override StatusReceiver Lift(ulong value) {
+        if ((value & 1UL) == 0UL) {
+            // Rust-generated handle, construct a new wrapper.
+            return new StatusReceiverImpl(value);
+        } else {
+            // C#-generated handle, retrieve and remove from the handle map.
+            if (handleMap.Remove(value, out var obj)) {
+                return obj;
+            } else {
+                throw new InternalException($"No callback in handlemap '{value}'");
+            }
+        }
+    }
+
+    public override StatusReceiver Read(BigEndianStream stream) {
+        return Lift(stream.ReadULong());
+    }
+
+    public override int AllocationSize(StatusReceiver value) {
+        return 8;
+    }
+
+    public override void Write(StatusReceiver value, BigEndianStream stream) {
         stream.WriteULong(Lower(value));
     }
 }
@@ -19328,8 +19755,8 @@ public record CommitOptions (
     bool CommitAsOperations, 
     bool IncludeFileExternals, 
     bool IncludeDirExternals, 
-    string[] Changelists, 
-    Dictionary<string, string> RevisionPropertyTable, 
+    string[]? Changelists, 
+    Dictionary<string, string>? RevisionPropertyTable, 
     string CommitMessage
 ) {
 }
@@ -19346,8 +19773,8 @@ class FfiConverterTypeCommitOptions: FfiConverterRustBuffer<CommitOptions> {
             CommitAsOperations: FfiConverterBoolean.INSTANCE.Read(stream),
             IncludeFileExternals: FfiConverterBoolean.INSTANCE.Read(stream),
             IncludeDirExternals: FfiConverterBoolean.INSTANCE.Read(stream),
-            Changelists: FfiConverterSequenceString.INSTANCE.Read(stream),
-            RevisionPropertyTable: FfiConverterDictionaryStringString.INSTANCE.Read(stream),
+            Changelists: FfiConverterOptionalSequenceString.INSTANCE.Read(stream),
+            RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
             CommitMessage: FfiConverterString.INSTANCE.Read(stream)
         );
     }
@@ -19361,8 +19788,8 @@ class FfiConverterTypeCommitOptions: FfiConverterRustBuffer<CommitOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.CommitAsOperations)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeFileExternals)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeDirExternals)
-            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Changelists)
-            + FfiConverterDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Changelists)
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
             + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
     }
 
@@ -19374,8 +19801,8 @@ class FfiConverterTypeCommitOptions: FfiConverterRustBuffer<CommitOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.CommitAsOperations, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IncludeFileExternals, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IncludeDirExternals, stream);
-            FfiConverterSequenceString.INSTANCE.Write(value.Changelists, stream);
-            FfiConverterDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Changelists, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
             FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
     }
 }
@@ -20211,6 +20638,36 @@ class FfiConverterTypeInfoResult: FfiConverterRustBuffer<InfoResult> {
 
 
 
+public record InheritedProperty (
+    string Path, 
+    Dictionary<string, string> Properties
+) {
+}
+
+class FfiConverterTypeInheritedProperty: FfiConverterRustBuffer<InheritedProperty> {
+    public static FfiConverterTypeInheritedProperty INSTANCE = new FfiConverterTypeInheritedProperty();
+
+    public override InheritedProperty Read(BigEndianStream stream) {
+        return new InheritedProperty(
+            Path: FfiConverterString.INSTANCE.Read(stream),
+            Properties: FfiConverterDictionaryStringString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(InheritedProperty value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Path)
+            + FfiConverterDictionaryStringString.INSTANCE.AllocationSize(value.Properties);
+    }
+
+    public override void Write(InheritedProperty value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Path, stream);
+            FfiConverterDictionaryStringString.INSTANCE.Write(value.Properties, stream);
+    }
+}
+
+
+
 public record InitializeRepositoryOptions (
     string Local, 
     string Remote, 
@@ -20819,6 +21276,112 @@ class FfiConverterTypePropertyGetResult: FfiConverterRustBuffer<PropertyGetResul
 
 
 
+public record PropertyListEntry (
+    string Path, 
+    Dictionary<string, string>? Properties, 
+    InheritedProperty[]? InheritedProperties
+) {
+}
+
+class FfiConverterTypePropertyListEntry: FfiConverterRustBuffer<PropertyListEntry> {
+    public static FfiConverterTypePropertyListEntry INSTANCE = new FfiConverterTypePropertyListEntry();
+
+    public override PropertyListEntry Read(BigEndianStream stream) {
+        return new PropertyListEntry(
+            Path: FfiConverterString.INSTANCE.Read(stream),
+            Properties: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
+            InheritedProperties: FfiConverterOptionalSequenceTypeInheritedProperty.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PropertyListEntry value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Path)
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.Properties)
+            + FfiConverterOptionalSequenceTypeInheritedProperty.INSTANCE.AllocationSize(value.InheritedProperties);
+    }
+
+    public override void Write(PropertyListEntry value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Path, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.Properties, stream);
+            FfiConverterOptionalSequenceTypeInheritedProperty.INSTANCE.Write(value.InheritedProperties, stream);
+    }
+}
+
+
+
+public record PropertyListOptions (
+    string Target, 
+    Revision PegRevision, 
+    Revision Revision, 
+    Depth Depth, 
+    string[]? Changelists, 
+    bool Inerited
+) {
+}
+
+class FfiConverterTypePropertyListOptions: FfiConverterRustBuffer<PropertyListOptions> {
+    public static FfiConverterTypePropertyListOptions INSTANCE = new FfiConverterTypePropertyListOptions();
+
+    public override PropertyListOptions Read(BigEndianStream stream) {
+        return new PropertyListOptions(
+            Target: FfiConverterString.INSTANCE.Read(stream),
+            PegRevision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
+            Changelists: FfiConverterOptionalSequenceString.INSTANCE.Read(stream),
+            Inerited: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PropertyListOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Target)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.PegRevision)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Changelists)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Inerited);
+    }
+
+    public override void Write(PropertyListOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Target, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.PegRevision, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
+            FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Changelists, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Inerited, stream);
+    }
+}
+
+
+
+public record PropertyListResult (
+    PropertyListEntry[] Entries
+) {
+}
+
+class FfiConverterTypePropertyListResult: FfiConverterRustBuffer<PropertyListResult> {
+    public static FfiConverterTypePropertyListResult INSTANCE = new FfiConverterTypePropertyListResult();
+
+    public override PropertyListResult Read(BigEndianStream stream) {
+        return new PropertyListResult(
+            Entries: FfiConverterSequenceTypePropertyListEntry.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(PropertyListResult value) {
+        return 0
+            + FfiConverterSequenceTypePropertyListEntry.INSTANCE.AllocationSize(value.Entries);
+    }
+
+    public override void Write(PropertyListResult value, BigEndianStream stream) {
+            FfiConverterSequenceTypePropertyListEntry.INSTANCE.Write(value.Entries, stream);
+    }
+}
+
+
+
 public record Proxies (
     Proxy? Http, 
     Proxy? Https, 
@@ -20970,6 +21533,66 @@ class FfiConverterTypeRevertOptions: FfiConverterRustBuffer<RevertOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.ClearChangelists, stream);
             FfiConverterBoolean.INSTANCE.Write(value.MetadataOnly, stream);
             FfiConverterBoolean.INSTANCE.Write(value.AddedKeepLocal, stream);
+    }
+}
+
+
+
+public record RevisionPropertyListOptions (
+    string Url, 
+    Revision Revision
+) {
+}
+
+class FfiConverterTypeRevisionPropertyListOptions: FfiConverterRustBuffer<RevisionPropertyListOptions> {
+    public static FfiConverterTypeRevisionPropertyListOptions INSTANCE = new FfiConverterTypeRevisionPropertyListOptions();
+
+    public override RevisionPropertyListOptions Read(BigEndianStream stream) {
+        return new RevisionPropertyListOptions(
+            Url: FfiConverterString.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RevisionPropertyListOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Url)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision);
+    }
+
+    public override void Write(RevisionPropertyListOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Url, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
+    }
+}
+
+
+
+public record RevisionPropertyListResult (
+    Dictionary<string, string> Properties, 
+    uint Revison
+) {
+}
+
+class FfiConverterTypeRevisionPropertyListResult: FfiConverterRustBuffer<RevisionPropertyListResult> {
+    public static FfiConverterTypeRevisionPropertyListResult INSTANCE = new FfiConverterTypeRevisionPropertyListResult();
+
+    public override RevisionPropertyListResult Read(BigEndianStream stream) {
+        return new RevisionPropertyListResult(
+            Properties: FfiConverterDictionaryStringString.INSTANCE.Read(stream),
+            Revison: FfiConverterUInt32.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RevisionPropertyListResult value) {
+        return 0
+            + FfiConverterDictionaryStringString.INSTANCE.AllocationSize(value.Properties)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Revison);
+    }
+
+    public override void Write(RevisionPropertyListResult value, BigEndianStream stream) {
+            FfiConverterDictionaryStringString.INSTANCE.Write(value.Properties, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.Revison, stream);
     }
 }
 
@@ -21249,7 +21872,7 @@ public record StatusOptions (
     bool NoIgnore, 
     bool IgnoreExternals, 
     bool DepthAsSticky, 
-    string[] Changelist
+    string[]? Changelist
 ) {
 }
 
@@ -21267,7 +21890,7 @@ class FfiConverterTypeStatusOptions: FfiConverterRustBuffer<StatusOptions> {
             NoIgnore: FfiConverterBoolean.INSTANCE.Read(stream),
             IgnoreExternals: FfiConverterBoolean.INSTANCE.Read(stream),
             DepthAsSticky: FfiConverterBoolean.INSTANCE.Read(stream),
-            Changelist: FfiConverterSequenceString.INSTANCE.Read(stream)
+            Changelist: FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
         );
     }
 
@@ -21282,7 +21905,7 @@ class FfiConverterTypeStatusOptions: FfiConverterRustBuffer<StatusOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoIgnore)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreExternals)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.DepthAsSticky)
-            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Changelist);
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Changelist);
     }
 
     public override void Write(StatusOptions value, BigEndianStream stream) {
@@ -21295,7 +21918,7 @@ class FfiConverterTypeStatusOptions: FfiConverterRustBuffer<StatusOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.NoIgnore, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
             FfiConverterBoolean.INSTANCE.Write(value.DepthAsSticky, stream);
-            FfiConverterSequenceString.INSTANCE.Write(value.Changelist, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Changelist, stream);
     }
 }
 
@@ -22210,7 +22833,7 @@ public enum Depth: int {
     Exclude,
     Empty,
     Files,
-    Immediate,
+    Immediates,
     Infinity
 }
 
@@ -23679,6 +24302,37 @@ class FfiConverterOptionalSequenceString: FfiConverterRustBuffer<string[]?> {
 
 
 
+class FfiConverterOptionalSequenceTypeInheritedProperty: FfiConverterRustBuffer<InheritedProperty[]?> {
+    public static FfiConverterOptionalSequenceTypeInheritedProperty INSTANCE = new FfiConverterOptionalSequenceTypeInheritedProperty();
+
+    public override InheritedProperty[]? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterSequenceTypeInheritedProperty.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(InheritedProperty[]? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterSequenceTypeInheritedProperty.INSTANCE.AllocationSize((InheritedProperty[])value);
+        }
+    }
+
+    public override void Write(InheritedProperty[]? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterSequenceTypeInheritedProperty.INSTANCE.Write((InheritedProperty[])value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalDictionaryStringString: FfiConverterRustBuffer<Dictionary<string, string>?> {
     public static FfiConverterOptionalDictionaryStringString INSTANCE = new FfiConverterOptionalDictionaryStringString();
 
@@ -23970,6 +24624,58 @@ class FfiConverterSequenceTypeErrorInfo: FfiConverterRustBuffer<ErrorInfo[]> {
 
 
 
+class FfiConverterSequenceTypeInheritedProperty: FfiConverterRustBuffer<InheritedProperty[]> {
+    public static FfiConverterSequenceTypeInheritedProperty INSTANCE = new FfiConverterSequenceTypeInheritedProperty();
+
+    public override InheritedProperty[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<InheritedProperty>(length);
+        var readFn = FfiConverterTypeInheritedProperty.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(InheritedProperty[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeInheritedProperty.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(InheritedProperty[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeInheritedProperty.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
 class FfiConverterSequenceTypeLinkedLibrary: FfiConverterRustBuffer<LinkedLibrary[]> {
     public static FfiConverterSequenceTypeLinkedLibrary INSTANCE = new FfiConverterSequenceTypeLinkedLibrary();
 
@@ -24171,6 +24877,58 @@ class FfiConverterSequenceTypeLogEntry: FfiConverterRustBuffer<LogEntry[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeLogEntry.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypePropertyListEntry: FfiConverterRustBuffer<PropertyListEntry[]> {
+    public static FfiConverterSequenceTypePropertyListEntry INSTANCE = new FfiConverterSequenceTypePropertyListEntry();
+
+    public override PropertyListEntry[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<PropertyListEntry>(length);
+        var readFn = FfiConverterTypePropertyListEntry.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(PropertyListEntry[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypePropertyListEntry.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(PropertyListEntry[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypePropertyListEntry.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

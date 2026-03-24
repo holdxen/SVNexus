@@ -11,6 +11,9 @@
              inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              MinWidth="500"
              x:Class="SVNexus.Views.CheckoutOrExportDialog">
+    <UserControl.Resources>
+        <Thickness x:Key="RadioButtonContentMargin">2 0 4 0</Thickness>
+    </UserControl.Resources>
     <Grid RowDefinitions="*, Auto">
 
         <u:Form Grid.Row="0" HorizontalAlignment="Stretch" LabelPosition="Top">
@@ -33,7 +36,15 @@
                 <Border BorderThickness="1" Padding="4" CornerRadius="4">
                     <Grid RowDefinitions="Auto, Auto, Auto, Auto">
                         <Grid ColumnDefinitions="*, *, *, *, *">
-                            <RadioButton Grid.Column="0" IsChecked="{Binding IsHead}" GroupName="Revision"
+                            <Grid.Styles>
+                                <Style Selector="RadioButton">
+                                    <Setter Property="Margin" Value="3 0"></Setter>
+                                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"></Setter>
+                                </Style>
+                            </Grid.Styles>
+                            <RadioButton Grid.Column="0" 
+                                         IsChecked="{Binding IsHead}" GroupName="Revision"
                                          Content="Head">
                             </RadioButton>
                             <RadioButton Grid.Column="1" IsChecked="{Binding IsNumber}" GroupName="Revision"
@@ -55,6 +66,7 @@
                         </Border>
                         <Border Grid.Row="3" IsVisible="{Binding IsDate}">
                             <u:DateTimePicker
+                                HorizontalAlignment="Stretch"
                                 SelectedDate="{Binding DateTime}"
                                 Classes="ClearButton" />
                         </Border>
@@ -63,7 +75,8 @@
             </u:FormItem>
             <u:FormItem Label="Settings">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <u:EnumSelector Width="200" Value="{Binding Depth}" EnumType="{Binding DepthType}"
+                    <u:EnumSelector Width="200" Value="{Binding Depth}" 
+                                    EnumType="{Binding DepthType}"
                                     DisplayDescription="True">
                     </u:EnumSelector>
                     <CheckBox VerticalAlignment="Center" Content="Ignore External" IsChecked="{Binding IgnoreExternal}"></CheckBox>

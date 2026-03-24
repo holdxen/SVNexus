@@ -18,10 +18,10 @@ using SVNexus.Utils;
 using Exception = System.Exception;
 using Notification = Ursa.Controls.Notification;
 
-namespace SVNexus.ViewModels.WorkingCopy.Remote;
+namespace SVNexus.ViewModels.WorkingCopy.History;
 
 // TODO: allow see inherit property
-public partial class RemoteSnapshotViewModel: ViewModelBase
+public partial class HistorySnapshotViewModel: ViewModelBase
 {
     
     public partial class FileItemViewModel: ViewModelLite

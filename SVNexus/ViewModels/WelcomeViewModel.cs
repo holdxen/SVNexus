@@ -12,7 +12,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
-using SVNexus.ViewModels.WorkingCopy.Local;
+using SVNexus.ViewModels.WorkingCopy.Changes;
 using SVNexus.Views;
 using SVNexus.Views.WorkingCopy;
 using Ursa.Controls;

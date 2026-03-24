@@ -36,6 +36,14 @@ impl AsyncContext {
         wc::AsyncWorkingCopyContext::Context(self.context.clone())
     }
 
+    pub async fn revision_property_list(&self, opts: RevisionPropertyListOptions) -> error::Result<RevisionPropertyListResult> {
+        self.call_async(|mut context| context.revision_property_list(opts)).await
+    }
+
+    pub async fn property_list(&self, opts: PropertyListOptions) -> error::Result<PropertyListResult> {
+        self.call_async(|mut context| context.property_list(opts)).await
+    }
+
     pub async fn default_wc_version(&self) -> error::Result<Version> {
         self.call_async(|mut context| context.default_wc_version())
             .await
@@ -60,6 +68,10 @@ impl AsyncContext {
 
     pub async fn checkout(&self, opts: CheckoutOptions) -> error::Result<RevisionNumber> {
         self.call_async(|mut context| context.checkout(opts)).await
+    }
+
+    pub async fn status_next(&self, opts: StatusOptions, receiver: Arc<dyn StatusReceiver>) -> error::Result<()> {
+        self.call_async(|mut context| context.status_next(opts, receiver)).await
     }
 
     pub async fn status(&self, opts: StatusOptions) -> error::Result<StatusResult> {

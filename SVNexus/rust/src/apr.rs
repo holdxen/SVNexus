@@ -1,10 +1,11 @@
-use crate::subversion;
+use crate::{subversion, utils::CStringer, utils::SubversionStringer};
 
 use super::error::builder;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
-    ffi::{CStr, CString, c_char, c_int},
+    ffi::{CStr, CString, c_char, c_int, c_void},
+    hash::Hash,
     marker::PhantomData,
     sync::OnceLock,
 };
@@ -238,8 +239,8 @@ pub enum ErrorCode {
     EEXIST = ffi::APR_EEXIST,
     ENAMETOOLONG = ffi::APR_ENAMETOOLONG,
     ENOENT = ffi::APR_ENOENT,
-    ENOTDIR = ffi::APR_ENOTDIR ,
-    ENOSPC = ffi::APR_ENOSPC ,
+    ENOTDIR = ffi::APR_ENOTDIR,
+    ENOSPC = ffi::APR_ENOSPC,
     ENOMEM = ffi::APR_ENOMEM,
     EMFILE = ffi::APR_EMFILE,
     ENFILE = ffi::APR_ENFILE,
@@ -261,7 +262,7 @@ pub enum ErrorCode {
     EXDEV = ffi::APR_EXDEV,
     ENOTEMPTY = ffi::APR_ENOTEMPTY,
     EAFNOSUPPORT = ffi::APR_EAFNOSUPPORT,
-    EOPNOTSUPP = ffi::APR_EOPNOTSUPP ,
+    EOPNOTSUPP = ffi::APR_EOPNOTSUPP,
     ERANGE = ffi::APR_ERANGE,
 }
 
@@ -339,50 +340,11 @@ impl Drop for Pool {
 }
 
 impl Pool {
-    pub unsafe fn apr_hash_to_hash_map(
+    pub unsafe fn convert_to_hash_map(
         &mut self,
         hash: *mut ffi::apr_hash_t,
     ) -> HashMap<String, String> {
-        let mut map = HashMap::new();
-
-        unsafe {
-            let mut it = ffi::apr_hash_first(self.ptr, hash);
-
-            while !it.is_null() {
-                let mut key = std::ptr::null();
-
-                let mut value = std::ptr::null_mut();
-
-                ffi::apr_hash_this(
-                    it,
-                    &mut key as *mut _,
-                    std::ptr::null_mut(),
-                    &mut value as *mut _,
-                );
-
-                let key = CStr::from_ptr(key as *const c_char)
-                    .to_str()
-                    .unwrap()
-                    .to_string();
-
-                let value = &*(value as *mut subversion::ffi::svn_string_t);
-
-                let value = std::slice::from_raw_parts(
-                    value.data as *const u8,
-                    value.len.try_into().expect("Invalid length"),
-                );
-
-                let value = String::from_utf8(value.to_vec()).expect("Invalid UTF-8");
-
-                map.insert(key, value);
-
-                // ffi::apr_hash_this(it, key, klen, val);
-
-                it = ffi::apr_hash_next(it);
-            }
-        }
-
-        map
+        unsafe { self.ptr.convert_to_hash_map(hash) }
     }
 
     pub unsafe fn create() -> Self {
@@ -420,28 +382,11 @@ impl Pool {
     }
 
     pub unsafe fn malloc<T: Sized>(&mut self) -> *mut T {
-        let size = size_of::<T>();
-
-        unsafe { ffi::apr_palloc(self.as_mut_ptr(), size.try_into().unwrap()) as *mut T }
+        unsafe { self.as_mut_ptr().malloc() }
     }
 
-    pub unsafe fn string<T: AsRef<[u8]>>(&mut self, string: T) -> error::Result<*mut c_char> {
-        if string.as_ref().contains(&0) {
-            return builder::InvalidArgument {
-                detail: "Invalid string",
-            }
-            .fail();
-        }
-
-        let string = unsafe {
-            ffi::apr_pstrndup(
-                self.as_mut_ptr(),
-                string.as_ref().as_ptr() as _,
-                string.as_ref().len(),
-            )
-        };
-
-        Ok(string)
+    pub unsafe fn string<T: AsRef<[u8]>>(&mut self, value: T) -> error::Result<*mut c_char> {
+        unsafe { self.ptr.string(value) }
     }
 
     pub unsafe fn string_hash_map<T, K, V>(&mut self, map: T) -> error::Result<*mut ffi::apr_hash_t>
@@ -506,14 +451,85 @@ impl Pool {
     }
 }
 
+#[easy_ext::ext(AprPool)]
+pub impl *mut ffi::apr_pool_t {
+    unsafe fn convert_to_hash_map(self, hash: *mut ffi::apr_hash_t) -> HashMap<String, String> {
+        unsafe {
+            self.hash_map(hash, |(k, v)| {
+                (
+                    (k as *const c_char).to_str().to_string(),
+                    (v as *mut subversion::ffi::svn_string_t)
+                        .to_str()
+                        .to_string(),
+                )
+            })
+        }
+    }
 
+    unsafe fn hash_map<K: Eq + Hash, V>(
+        self,
+        hash: *mut ffi::apr_hash_t,
+        f: impl Fn((*const c_void, *mut c_void)) -> (K, V),
+    ) -> HashMap<K, V> {
+        let mut map = HashMap::new();
+
+        unsafe {
+            let mut it = ffi::apr_hash_first(self, hash);
+
+            while !it.is_null() {
+                let mut key = std::ptr::null();
+
+                let mut value = std::ptr::null_mut();
+
+                ffi::apr_hash_this(
+                    it,
+                    &mut key as *mut _,
+                    std::ptr::null_mut(),
+                    &mut value as *mut _,
+                );
+
+                // let key = (key as *const c_char).to_str().to_string();
+
+                // let value = (value as *mut subversion::ffi::svn_string_t).to_str().to_string();
+                //
+
+                let (key, value) = f((key, value));
+
+                map.insert(key, value);
+
+                it = ffi::apr_hash_next(it);
+            }
+        }
+
+        map
+    }
+
+    unsafe fn string<T: AsRef<[u8]>>(self, string: T) -> error::Result<*mut c_char> {
+        if string.as_ref().contains(&0) {
+            return builder::InvalidArgument {
+                detail: "Invalid string",
+            }
+            .fail();
+        }
+
+        let string = unsafe {
+            ffi::apr_pstrndup(self, string.as_ref().as_ptr() as _, string.as_ref().len())
+        };
+
+        Ok(string)
+    }
+
+    unsafe fn malloc<T: Sized>(self) -> *mut T {
+        let size = size_of::<T>();
+
+        unsafe { ffi::apr_palloc(self, size.try_into().unwrap()) as *mut T }
+    }
+}
 
 #[easy_ext::ext(AprArray)]
 pub impl *const ffi::apr_array_header_t {
     fn len(self) -> usize {
-        unsafe {
-            self.as_ref().unwrap().nelts.try_into().unwrap()
-        }
+        unsafe { self.as_ref().unwrap().nelts.try_into().unwrap() }
     }
     fn to_vec<T: Sized>(self, read: impl Fn(*const c_char) -> T) -> Vec<T> {
         let mut vec = Vec::with_capacity(self.len());

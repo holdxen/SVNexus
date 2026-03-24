@@ -2,11 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace SVNexus.Views.WorkingCopy.Local;
+namespace SVNexus.Views;
 
-public partial class LocalView : UserControl
+public partial class CommitDialog : UserControl
 {
-    public LocalView()
+    public CommitDialog()
     {
         InitializeComponent();
     }

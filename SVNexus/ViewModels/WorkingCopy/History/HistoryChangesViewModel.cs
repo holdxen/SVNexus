@@ -7,9 +7,9 @@ using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
 using SVNexus.Generated;
 
-namespace SVNexus.ViewModels.WorkingCopy.Remote;
+namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class RemoteChangesViewModel : ViewModelBase
+public partial class HistoryChangesViewModel : ViewModelBase
 {
 
     public partial class ListViewModel : ViewModelBase

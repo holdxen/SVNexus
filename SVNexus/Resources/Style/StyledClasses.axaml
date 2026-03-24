@@ -36,20 +36,4 @@
     <Style Selector="components|SvgRender.Themable">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
     </Style>
-    
-    <Style Selector="TreeViewItem:hasChild /template/ ToggleButton#PART_ExpandCollapseChevron">
-        <Setter Property="IsHitTestVisible" Value="True"></Setter>
-        <Setter Property="Opacity" Value="1"></Setter>
-    </Style>
-    
-    <Style Selector="components|AdvancedTreeViewItem:loading /template/ ToggleButton#PART_ExpandCollapseChevron">
-        <Setter Property="Theme" Value="{x:Null}"></Setter>
-        <Setter Property="Template">
-            <ControlTemplate TargetType="ToggleButton">
-                <u:LoadingIcon/>
-            </ControlTemplate>
-        </Setter>
-        <Setter Property="IsHitTestVisible" Value="True"></Setter>
-        <Setter Property="Opacity" Value="1"></Setter>
-    </Style>
 </Styles>

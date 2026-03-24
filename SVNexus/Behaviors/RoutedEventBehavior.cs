@@ -82,7 +82,6 @@ public class RoutedEventBehavior : Behavior<Interactive>
 
     private void OnRoutedEvent(object? sender, RoutedEventArgs e)
     {
-        Console.WriteLine("Show Flyout: {0}, sender={1}", ShowFlyout, sender);
         if (ShowFlyout && sender is Control control)
         {
             FlyoutBase.ShowAttachedFlyout(control);
