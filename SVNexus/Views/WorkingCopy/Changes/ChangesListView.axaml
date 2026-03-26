@@ -10,15 +10,7 @@
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              xmlns:vm="clr-namespace:SVNexus.ViewModels"
              xmlns:converters="clr-namespace:SVNexus.Converters"
-             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesListView">
-    <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding LoadedCommand}">
-            </InvokeCommandAction>
-        </EventTriggerBehavior>
-    </Interaction.Behaviors>
     <UserControl.DataTemplates>
         <DataTemplate DataType="changes:ChangesListViewModel+MenuIconViewModel">
             <components:SvgRender Classes.Themable="{Binding Themable}"

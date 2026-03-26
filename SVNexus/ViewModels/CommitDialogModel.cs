@@ -11,8 +11,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HarfBuzzSharp;
 using Irihi.Avalonia.Shared.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
 using SVNexus.Views;
@@ -84,6 +86,12 @@ public partial class CommitDialogModel: ViewModelBase, IDialogContext
 
     [ObservableProperty]
     public partial bool IsCommitting { get; set; }
+
+    private Services.ITabService _tabService;
+    public CommitDialogModel(IServiceProvider serviceProvider)
+    {
+        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    }
 
     partial void OnDepthChanged(Depth value)
     {
@@ -157,7 +165,7 @@ public partial class CommitDialogModel: ViewModelBase, IDialogContext
         IsLoading = true;
         var depth = Depth;
         var commitPaths = Targets.ToList();
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token);
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token);
 
         try
         {
@@ -221,9 +229,10 @@ public partial class CommitDialogModel: ViewModelBase, IDialogContext
     }
 
 
-    protected override async Task OnLoaded()
+   
+    [RelayCommand]
+    private async Task OnLoaded()
     {
-        await base.OnLoaded();
         await _singleTaskQueue.Run(LoadCommitItems);
     }
 

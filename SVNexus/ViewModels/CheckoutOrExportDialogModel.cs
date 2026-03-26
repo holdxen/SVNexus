@@ -84,6 +84,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
 
     [ObservableProperty] private string _url = string.Empty;
 
+    public CheckoutOptions? Options { get; set; }
 
     [RelayCommand]
     private void Confirm()
@@ -141,7 +142,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         }
 
 
-        var checkoutOptions = new CheckoutOptions(
+        Options = new CheckoutOptions(
             url,
             path,
             revision,
@@ -154,7 +155,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         
         
         
-        Manager.Default.Send(new OnCheckout(checkoutOptions), Token);
+        // Manager.Default.Send(new OnCheckout(checkoutOptions), Token);
 
         Close();
 

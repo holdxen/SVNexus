@@ -2310,6 +2310,13 @@ impl Context {
                 .transpose()?
                 .unwrap_or_default();
 
+            let is_absolute = ffi::svn_dirent_is_absolute(path) != 0;
+            if is_absolute {
+                return builder::InvalidArgument {
+                    detail: "path must be absolute",
+                }.fail();
+            }
+
             let error = ffi::svn_client_status6(
                 &mut result_revision as *mut _,
                 self.ptr,

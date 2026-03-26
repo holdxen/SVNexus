@@ -9,22 +9,37 @@ using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
-using Ursa.Controls;
-using Exception = SVNexus.Generated.Exception;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalViewModel: ViewModelBase
+public partial class LocalViewModel: ViewModelLite
 {
-    public partial class TreeItemViewModel: ViewModelBase, IRecipient<OnSetChecked>
+    
+    public partial class TreeItemViewModel: ViewModelLite, IRecipient<OnSetChecked>, IRecipient<OnSetExpanded>
     {
-        [ObservableProperty]
-        public partial string WorkingCopyPath { get; set; } = string.Empty;
+
+        private readonly IServiceProvider _serviceProvider;
+        
+        private readonly Services.ITabService _tabService;
+        
+
+        private readonly Services.TypeService _typeService;
+
+        public TreeItemViewModel(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+            _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+            _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+            
+            Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+        }
         
         [ObservableProperty]
         public partial bool HasLoaded { get; set; }
@@ -32,7 +47,8 @@ public partial class LocalViewModel: ViewModelBase
         [ObservableProperty]
         public partial bool IsExpanded { get; set; }
 
-        public ObservableCollection<TreeItemViewModel> Children { get; set; } = [];
+        [ObservableProperty]
+        public partial ObservableCollection<TreeItemViewModel> Children { get; set; } = [];
         
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; } = [];
 
@@ -76,56 +92,66 @@ public partial class LocalViewModel: ViewModelBase
                 return;
             }
             IsLoading = true;
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
-            
-            var context = Engine.Engine.Instance.SimpleContext(hostId);
-
-            var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true, true, true, false, false, false, null);
-
-            var children = new List<TreeItemViewModel>();
-            var receiver = new StatusReceiverDelegate()
+            try
             {
-                OnStatusEntryAction = entry =>
-                {
-                    try
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            if (entry.Path == StatusEntry.Path)
-                            {
-                                return;
-                            }
 
-                            var index = Children.FindIndex(i => i.StatusEntry.Path == entry.Path);
-                            if (index >= 0)
-                            {
-                                Children[index].StatusEntry = entry;
-                                children.Add(Children[index]);
-                            }
-                            else
-                            {
-                                children.Add(new TreeItemViewModel()
-                                {
-                                   StatusEntry = entry,
-                                   Token = Token
-                                });
-                            }
-                            
-                            Children.Clear();
-                            Children.AddRange(children);
-                        });
-                    }
-                    catch (System.Exception e)
+                var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+
+                var context = Engine.Engine.Instance.SimpleContext(hostId);
+
+                var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true,
+                    true, true, false, false, false, null);
+
+                var children = new List<TreeItemViewModel>();
+                var receiver = new StatusReceiverDelegate()
+                {
+                    OnStatusEntryAction = entry =>
                     {
-                        Console.WriteLine(e);
+                        try
+                        {
+                            Dispatcher.UIThread.Invoke(() =>
+                            {
+                                if (entry.Path == StatusEntry.Path)
+                                {
+                                    return;
+                                }
+
+                                var index = Children.FindIndex(i => i.StatusEntry.Path == entry.Path);
+                                if (index >= 0)
+                                {
+                                    Children[index].StatusEntry = entry;
+                                    children.Add(Children[index]);
+                                }
+                                else
+                                {
+                                    children.Add(new TreeItemViewModel(_serviceProvider)
+                                    {
+                                        StatusEntry = entry,
+                                    });
+                                }
+
+                                Children = new ObservableCollection<TreeItemViewModel>(children);
+                            });
+                        }
+                        catch (System.Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
                     }
-                }
-            };
+                };
+
+                await context.StatusNext(statusOptions, receiver);
+                HasLoaded = true;
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
             
-            await context.StatusNext(statusOptions, receiver);
-            
-            IsLoading = true;
-            HasLoaded = true;
         }
 
 
@@ -136,11 +162,11 @@ public partial class LocalViewModel: ViewModelBase
                 return;
             }
             IsLoading = true;
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
             
             var context = Engine.Engine.Instance.SimpleContext(hostId);
 
-            var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true, true, true, false, false, false, null);
+            var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true, false, false, false, false, false, null);
 
             var receiver = new StatusReceiverDelegate()
             {
@@ -156,10 +182,9 @@ public partial class LocalViewModel: ViewModelBase
                             }
                 
                 
-                            Children.Add(new TreeItemViewModel()
+                            Children.Add(new TreeItemViewModel(_serviceProvider)
                             {
                                 StatusEntry = entry,
-                                Token = Token
                             });
                         });
                     }
@@ -180,10 +205,15 @@ public partial class LocalViewModel: ViewModelBase
         {
             IsChecked = message.Value;
         }
+
+        public void Receive(OnSetExpanded message)
+        {
+            IsExpanded = message.Value;
+        }
     }
 
-    [ObservableProperty]
-    public partial string WorkingCopyPath { get; set; } = string.Empty;
+    // [ObservableProperty]
+    // public partial string WorkingCopyPath { get; set; } = string.Empty;
     
     public ObservableCollection<TreeItemViewModel> TreeItems { get; set; } = [];
     
@@ -200,17 +230,49 @@ public partial class LocalViewModel: ViewModelBase
     
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
+    private readonly Services.ITabService _tabService;
+    
+    private readonly Services.WorkingCopyViewService _workingCopyViewService;
+    
+    private readonly IServiceProvider _serviceProvider;
+    
+    private readonly Services.TypeService _typeService;
+
+    public LocalViewModel(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+        _workingCopyViewService = serviceProvider.GetRequiredService<Services.WorkingCopyViewService>();
+        
+        
+
+        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+        
+        Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
+    }
+
+    [RelayCommand]
+    private void CollapseAll()
+    {
+        Manager.Default.Send(new OnSetExpanded(false), _typeService.Get<TreeItemViewModel>());
+    }
+
+    [RelayCommand]
+    private void ExpandAll()
+    {
+        Manager.Default.Send(new OnSetExpanded(true), _typeService.Get<TreeItemViewModel>());
+    }
 
     [RelayCommand]
     private void CheckAll()
     {
-        Manager.Default.Send(new OnSetChecked(true), Token);
+        Manager.Default.Send(new OnSetChecked(true), _typeService.Get<TreeItemViewModel>());
     }
     
     [RelayCommand]
     private void ClearAll()
     {
-        Manager.Default.Send(new OnSetChecked(false), Token);
+        Manager.Default.Send(new OnSetChecked(false), _typeService.Get<TreeItemViewModel>());
     }
 
     partial void OnShowRootChanged(bool value)
@@ -274,7 +336,6 @@ public partial class LocalViewModel: ViewModelBase
 
         foreach (var child in item.Children)
         {
-            child.Token = Token;
             _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 await LoadAllChildren(child);
@@ -308,17 +369,17 @@ public partial class LocalViewModel: ViewModelBase
         IsLoading = true;
         try
         {
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
 
             var context = Engine.Engine.Instance.SimpleContext(hostId);
 
             var statusOptions = new StatusOptions(
-                WorkingCopyPath,
+                _workingCopyViewService.WorkingCopyPath,
                 new Revision.Working(),
                 Depth.Immediates,
                 true,
-                true,
-                true,
+                false,
+                false,
                 false,
                 true,
                 false,
@@ -330,20 +391,18 @@ public partial class LocalViewModel: ViewModelBase
 
             foreach (var entry in result.Entries)
             {
-                if (entry.Path == WorkingCopyPath)
+                if (entry.Path == _workingCopyViewService.WorkingCopyPath)
                 {
-                    _root = new TreeItemViewModel()
+                    _root = new TreeItemViewModel(_serviceProvider)
                     {
                         StatusEntry = entry,
-                        Token = Token
                     };
                 }
                 else
                 {
-                    children.Add(new TreeItemViewModel()
+                    children.Add(new TreeItemViewModel(_serviceProvider)
                     {
                         StatusEntry = entry,
-                        Token = Token
                     });
                 }
             }
@@ -367,9 +426,9 @@ public partial class LocalViewModel: ViewModelBase
         }
     }
 
-    protected override async Task OnLoaded()
+    [RelayCommand]
+    private async Task OnLoaded()
     {
-        await base.OnLoaded();
         await _singleTaskQueue.Run(async token => await LoadRoot());
     }
 }

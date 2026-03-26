@@ -3,4 +3,4 @@ using SVNexus.Generated;
 
 namespace SVNexus.Messages;
 
-public class OnCheckout(CheckoutOptions value) : ValueChangedMessage<CheckoutOptions>(value);
+// public class OnCheckout(CheckoutOptions value) : ValueChangedMessage<CheckoutOptions>(value);

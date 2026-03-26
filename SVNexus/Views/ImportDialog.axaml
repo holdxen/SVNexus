@@ -8,7 +8,6 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              MinWidth="500"
              xmlns:inject="clr-namespace:SVNexus.Inject"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.ImportDialog">
     <Grid RowDefinitions="*, Auto">
         <u:Form HorizontalAlignment="Stretch" LabelPosition="Top">

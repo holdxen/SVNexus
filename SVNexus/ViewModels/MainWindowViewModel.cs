@@ -8,17 +8,20 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
+using Tabalonia.Events;
 
 namespace SVNexus.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>//, IRecipient<OnRemoveTabByLocalViewModel>, IRecipient<OnRemoveTabByContent>
 {
     
-    public partial class TabItemViewViewModel: ViewModelLite
+    public partial class TabItemViewModel: ViewModelLite
     {
         [ObservableProperty]
         public partial Guid Id { get; set; } = Guid.NewGuid();
@@ -40,6 +43,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
         [ObservableProperty]
         public partial bool IsSelected { get; set; }
+        
+        public IServiceScope? Scope { get; set; }
     
     
     }
@@ -47,41 +52,14 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     public MainWindowViewModel()
     {
         AddTab();
+        Manager.Default.RegisterAllMessages(this, Manager.MainWindowToken);
     }
-    
-    // private readonly IAppState _appState;
 
-
-    // [ObservableProperty]
-    // private Rect _tabRect;
-
-
-    // partial void OnTabRectChanged(Rect value)
-    // {
-    // }
-
-    // public int TabIndex { get => _appState.TabIndex; set => _appState.TabIndex = value; }
-    
-    
-    // public ObservableCollection<TabItemModel> Tabs { get => _appState.Tabs; set => _appState.Tabs = value; }
-    
     [ObservableProperty]
-    private int _selectedIndex = -1;
+    public partial int SelectedIndex { get; set; } = -1;
+    
+    public ObservableCollection<TabItemViewModel> Tabs { get; set; } = [];
 
-    public ObservableCollection<TabItemViewViewModel> Tabs { get; set; } = [];
-
-    // public MainWindowViewModel(IAppState appState)
-    // {
-    //     _appState = appState;
-    //     for (var i = 0; i < 5; i++)
-    //     {
-    //         Tabs.Add(new TabItemModel()
-    //         {
-    //             Text = "Welcome to Avalonia!",
-    //         });
-    //     }
-    // }
-    //
 
     partial void OnSelectedIndexChanged(int value)
     {
@@ -97,16 +75,20 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     public Func<object> NewItemFactory => NewTab;
 
 
-    private TabItemViewViewModel NewTab()
+    private TabItemViewModel NewTab()
     {
-        return new TabItemViewViewModel
+        var scope = InjectionProvider.Provider.CreateScope();
+        var tabService = scope.ServiceProvider.GetRequiredService<Services.ITabService>();
+        return new TabItemViewModel
         {
+            Id =  tabService.Token,
             Text = "Welcome",
-            Content = new WelcomeViewModel()
+            Content = scope.ServiceProvider.GetRequiredService<WelcomeViewModel>(),
+            Scope = scope,
         };
     }
 
-    private void AddTab(TabItemViewViewModel tab)
+    private void AddTab(TabItemViewModel tab)
     {
         Tabs.Add(tab);
         SelectedIndex = Tabs.Count - 1;
@@ -115,25 +97,28 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     [RelayCommand]
     private void AddTab()
     {
-        var tab = new TabItemViewViewModel
+        var scope = InjectionProvider.Provider.CreateScope();
+        var tabService = scope.ServiceProvider.GetRequiredService<Services.ITabService>();
+        var tab = new TabItemViewModel
         {
+            Id =  tabService.Token,
             Text = "Welcome",
-            Content = new WelcomeViewModel()
+            Content = scope.ServiceProvider.GetRequiredService<WelcomeViewModel>(),
+            Scope = scope,
         };
         
         AddTab(tab);
        
     }
 
-    public void Receive(OnRemoveTab message)
+    private void RemoveIndexItem(int index)
     {
-        var index = Tabs.FindIndex(e => e.Id == message.Value);
-        
         if (index == -1 || SelectedIndex != index)
         {
             return;
         }
 
+        var tab = Tabs[index];
         Tabs.RemoveAt(index);
         
         if (index != 0)
@@ -141,6 +126,22 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
             index--;
         }
         SelectedIndex = index;
+        tab.Scope?.Dispose();
+    }
+
+    [RelayCommand]
+    private void RemovedItem(TabClosedEventArgs args)
+    {
+        if (args.Item is TabItemViewModel tab)
+        {
+            tab.Scope?.Dispose();
+        }
+    }
+
+    public void Receive(OnRemoveTab message)
+    {
+        var index = Tabs.FindIndex(e => e.Id == message.Value);
+        RemoveIndexItem(index);
     }
 
     private void ReleaseUnmanagedResources()
@@ -156,16 +157,23 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public void Receive(OnOpenRepository message)
     {
-        var workingCopyView = new WorkingCopyViewModel
-        {
-            WorkingCopyPath = message.Value,
-        };
+        // var workingCopyView = new WorkingCopyViewModel
+        // {
+        //     WorkingCopyPath = message.Value,
+        // };
 
-        var tab = new TabItemViewViewModel()
+        var scope = InjectionProvider.Provider.CreateScope();
+
+        scope.ServiceProvider.GetRequiredService<Services.WorkingCopyViewService>().WorkingCopyPath = message.Value;
+        
+        var content = scope.ServiceProvider.GetRequiredService<WorkingCopyViewModel>();
+        var tabService = scope.ServiceProvider.GetRequiredService<Services.TabService>();
+
+        var tab = new TabItemViewModel()
         {
+            Id = tabService.Token,
             Closable = true,
-            Content = workingCopyView,
-            // Text = Path.GetFileName(message.Value.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+            Content = content,
             Text = message.Value.GetFileName()
         };
         

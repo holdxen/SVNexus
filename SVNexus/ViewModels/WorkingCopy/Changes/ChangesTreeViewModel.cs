@@ -9,13 +9,15 @@ using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
+public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
 {
     
     public partial class TreeItemViewModel: ViewModelBase
@@ -101,8 +103,8 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedItem { get; set; }
 
-    [ObservableProperty]
-    public partial string WorkingCopyPath { get; set; } = string.Empty;
+    // [ObservableProperty]
+    // public partial string WorkingCopyPath { get; set; } = string.Empty;
 
     public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
     
@@ -130,6 +132,15 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
     
     private TreeItemViewModel? _root;
 
+    private readonly Services.TypeService _typeService;
+    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    public ChangesTreeViewModel(IServiceProvider serviceProvider)
+    {
+        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+        
+        Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+    }
 
     partial void OnShowRootChanged(bool value)
     {
@@ -241,7 +252,7 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
 
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
-        Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), Token);
+        Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
     }
 
 
@@ -279,19 +290,17 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
         
         UpdateAllChecked();
     }
-
+    
     public void Update(StatusEntry[] statusEntries)
     {
-        InvokeLoadedAction(() =>
-        {
             Items.Clear();
             var root = new TreeItemViewModel
             {
                 StatusEntry = null,
-                WorkingCopyPath = WorkingCopyPath,
-                Text = WorkingCopyPath.GetFileName(),
-                IsExpanded = ExpandedItems.Contains(WorkingCopyPath),
-                Path = WorkingCopyPath,
+                WorkingCopyPath = _workingCopyViewService.WorkingCopyPath,
+                Text = _workingCopyViewService.WorkingCopyPath.GetFileName(),
+                IsExpanded = ExpandedItems.Contains(_workingCopyViewService.WorkingCopyPath),
+                Path = _workingCopyViewService.WorkingCopyPath,
                 IsChecked = false,
             };
         
@@ -305,7 +314,7 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
 
             foreach (var statusEntry in statusEntries)
             {
-                if (statusEntry.Path == WorkingCopyPath)
+                if (statusEntry.Path == _workingCopyViewService.WorkingCopyPath)
                 {
                     root.StatusEntry = statusEntry;
                     root.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
@@ -316,7 +325,7 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
 
                     continue;
                 }
-                var path = statusEntry.Path.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar();
+                var path = statusEntry.Path.TrimStartString(_workingCopyViewService.WorkingCopyPath).TrimStartPathSeparatorChar();
 
                 var parentItem = root;
             
@@ -331,10 +340,10 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
                     if (first is null)
                     {
                         // var itemPath = WorkingCopyPath + parentPath + "/" + part;
-                        var itemPath = $"{WorkingCopyPath}/{parentPath}/{part}";
+                        var itemPath = $"{_workingCopyViewService.WorkingCopyPath}/{parentPath}/{part}";
                         var item = new TreeItemViewModel
                         {
-                            WorkingCopyPath = WorkingCopyPath,
+                            WorkingCopyPath = _workingCopyViewService.WorkingCopyPath,
                             // Messenger = Messenger,
                             Text = part,
                             StatusEntry = null,
@@ -400,9 +409,131 @@ public partial class ChangesTreeViewModel: ViewModelBase//, IRecipient<LocalTree
             ItemCount = statusEntries.Length;
         
             UpdateAllChecked();
-        });
-
     }
+
+    // public void Update(StatusEntry[] statusEntries)
+    // {
+    //     InvokeLoadedAction(() =>
+    //     {
+    //         Items.Clear();
+    //         var root = new TreeItemViewModel
+    //         {
+    //             StatusEntry = null,
+    //             WorkingCopyPath = WorkingCopyPath,
+    //             Text = WorkingCopyPath.GetFileName(),
+    //             IsExpanded = ExpandedItems.Contains(WorkingCopyPath),
+    //             Path = WorkingCopyPath,
+    //             IsChecked = false,
+    //         };
+    //     
+    //         var cleanExpandedItems = new List<string>();
+    //         var cleanCheckedItems = new Dictionary<string, StatusEntry>();
+    //     
+    //         if (root.IsExpanded)
+    //         {
+    //             cleanExpandedItems.Add(root.Path);    
+    //         }
+    //
+    //         foreach (var statusEntry in statusEntries)
+    //         {
+    //             if (statusEntry.Path == WorkingCopyPath)
+    //             {
+    //                 root.StatusEntry = statusEntry;
+    //                 root.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
+    //                 if (root.IsChecked)
+    //                 {
+    //                     cleanCheckedItems.Add(statusEntry.Path, statusEntry);
+    //                 }
+    //
+    //                 continue;
+    //             }
+    //             var path = statusEntry.Path.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar();
+    //
+    //             var parentItem = root;
+    //         
+    //             var parts = path.Split('/');
+    //
+    //             var index = 0;
+    //             var parentPath = string.Empty;
+    //         
+    //             foreach (var part in parts)
+    //             {       
+    //                 var first = parentItem.Children.FirstOrDefault(e=> e.Text == part);
+    //                 if (first is null)
+    //                 {
+    //                     // var itemPath = WorkingCopyPath + parentPath + "/" + part;
+    //                     var itemPath = $"{WorkingCopyPath}/{parentPath}/{part}";
+    //                     var item = new TreeItemViewModel
+    //                     {
+    //                         WorkingCopyPath = WorkingCopyPath,
+    //                         // Messenger = Messenger,
+    //                         Text = part,
+    //                         StatusEntry = null,
+    //                         IsChecked = false,
+    //                         Path = itemPath,
+    //                         IsExpanded = ExpandedItems.Contains(itemPath),
+    //                     };
+    //                     if (item.IsExpanded)
+    //                     {
+    //                         cleanExpandedItems.Add(itemPath);
+    //                     }
+    //                     parentItem.Children.Add(item);
+    //                     parentItem = item;
+    //                     if (index == parts.Length - 1)
+    //                     {
+    //                         item.StatusEntry = statusEntry;
+    //                         item.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
+    //                         if (item.IsChecked)
+    //                         {
+    //                             cleanCheckedItems.Add(statusEntry.Path, statusEntry);
+    //                         }
+    //
+    //                     }
+    //
+    //                     item.Root = this;
+    //                 }
+    //                 else
+    //                 {
+    //                     if (index == parts.Length - 1)
+    //                     {
+    //                         first.StatusEntry = statusEntry;
+    //                         first.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
+    //                         if (first.IsChecked)
+    //                         {
+    //                             cleanCheckedItems.Add(statusEntry.Path, statusEntry);
+    //                         }
+    //                         first.IsExpanded = ExpandedItems.Contains(statusEntry.Path);
+    //                         break;
+    //                     }
+    //
+    //                     parentItem = first;
+    //                 }
+    //
+    //                 index++;
+    //                 parentPath += "/" + part;
+    //             }
+    //
+    //         }
+    //
+    //         root.Root = this;
+    //         if (_root is null)
+    //         {
+    //             root.IsExpanded = true;
+    //         }
+    //         _root = root;
+    //         
+    //         
+    //         OnShowRootChanged(ShowRoot);
+    //
+    //         CheckedItems = cleanCheckedItems;
+    //         ExpandedItems = cleanExpandedItems;
+    //
+    //         ItemCount = statusEntries.Length;
+    //     
+    //         UpdateAllChecked();
+    //     });
+    //
+    // }
 
     // public void Receive(OnLocalTreeItemExpanded message)
     // {

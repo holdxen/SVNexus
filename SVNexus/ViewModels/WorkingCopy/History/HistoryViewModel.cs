@@ -9,18 +9,20 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using ExCSS;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using Exception = System.Exception;
 using Notification = Ursa.Controls.Notification;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryViewModel: ViewModelBase
+public partial class HistoryViewModel: ViewModelLite
 {
-    
+
     public const int DetailViewIndex = 0;
     public const int ChangesViewIndex = 1;
     public const int SnapshotViewIndex = 2;
@@ -67,7 +69,7 @@ public partial class HistoryViewModel: ViewModelBase
     
     // public string? Url { get; set; }
 
-    [ObservableProperty] public partial string WorkingCopyPath { get; set; } = string.Empty;
+    // [ObservableProperty] public partial string WorkingCopyPath { get; set; } = string.Empty;
     
     // public required WeakReferenceMessenger Messenger { get; set; }
 
@@ -88,9 +90,30 @@ public partial class HistoryViewModel: ViewModelBase
     
     public InfoEntry? ThisEntry { get; set; }
 
+    private readonly Services.ITabService _tabService;
+    
+    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    
+    private readonly IServiceProvider _serviceProvider;
+    private readonly Services.TypeService _typeService;
+    
+    // private IServiceScope? _previousScope;
+
+    public HistoryViewModel(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+        
+        
+        Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
+    }
+
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
+        
         var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
         var commitItem = CommitItems[value];
         DetailViewModel = new HistoryDetailViewModel
@@ -98,12 +121,18 @@ public partial class HistoryViewModel: ViewModelBase
             Entry = commitItem.Entry,
             RelateToRoot = relateToRoot
         };
-        SnapshotViewModel = new HistorySnapshotViewModel()
-        {
-            // Messenger = Messenger,
-            Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
-            Url = ThisEntry.Url
-        };
+        Revision revision = commitItem.Revision is null
+            ? new Revision.Head()
+            : new Revision.Number(commitItem.Revision.GetValueOrDefault());
+        
+        var url = ThisEntry.Url;
+
+        SnapshotViewModel = new HistorySnapshotViewModel(_serviceProvider, url, revision);
+        // {
+        //     // Messenger = Messenger,
+        //     Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
+        //     Url = ThisEntry.Url
+        // };
         if (commitItem.Revision is not null)
         {
             if (value == CommitItems.Count - 1)
@@ -198,7 +227,7 @@ public partial class HistoryViewModel: ViewModelBase
         var handled = e.Handle(svnExceptionHandler: error =>
         {
             if (!ExceptionExtension.SvnErrnoConstants.IsWcNotWorkingCopy(error.Code)) return false;
-            Manager.Default.Send(new OnNotWorkingCopy(WorkingCopyPath), Token);
+            Manager.Default.Send(new OnNotWorkingCopy(_workingCopyViewService.WorkingCopyPath), _typeService.Get(this));
             return true;
         });
         if (!handled)
@@ -220,14 +249,14 @@ public partial class HistoryViewModel: ViewModelBase
         {
             return true;
         }
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
 
         try
         {
             var opts = new InfoOptions(
-                Path: WorkingCopyPath,
+                Path: _workingCopyViewService.WorkingCopyPath,
                 PegRevision: new Revision.Working(),
                 Revision: new Revision.Head(),
                 Depth: Depth.Empty,
@@ -275,7 +304,7 @@ public partial class HistoryViewModel: ViewModelBase
                 return;
             }
 
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
 
             context = Engine.Engine.Instance.SimpleContext(hostId);
 
@@ -359,9 +388,9 @@ public partial class HistoryViewModel: ViewModelBase
 
     }
 
-    protected override async Task OnLoaded()
+    [RelayCommand]
+    private async Task OnLoaded()
     {
-        await base.OnLoaded();
         await Log(20);
     }
 

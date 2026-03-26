@@ -4,5 +4,5 @@ using SVNexus.ViewModels;
 
 namespace SVNexus.Messages;
 
-public class OnAddTab(MainWindowViewModel.TabItemViewViewModel value)
-    : ValueChangedMessage<MainWindowViewModel.TabItemViewViewModel>(value);
+public class OnAddTab(MainWindowViewModel.TabItemViewModel value)
+    : ValueChangedMessage<MainWindowViewModel.TabItemViewModel>(value);

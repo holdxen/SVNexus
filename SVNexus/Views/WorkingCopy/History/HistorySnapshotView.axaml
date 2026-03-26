@@ -8,8 +8,6 @@
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              xmlns:u="https://irihi.tech/ursa"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:DataType="remote:HistorySnapshotViewModel"
              x:Class="SVNexus.Views.WorkingCopy.History.HistorySnapshotView">
     <Interaction.Behaviors>

@@ -9,12 +9,20 @@
     
     <Style Selector="components|SvgButton.Button">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
+        <Style Selector="^[IsEnabled=False]">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
+            <Setter Property="Opacity" Value="0.35"></Setter>
+        </Style>
     </Style>
     
     <Style Selector="components|SvgButton.ToolButton">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
         <Setter Property="Size" Value="20"></Setter>
         <Setter Property="Spacing" Value="2"></Setter>
+        <Style Selector="^[IsEnabled=False]">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
+            <Setter Property="Opacity" Value="0.35"></Setter>
+        </Style>
     </Style>
 
     <Style Selector="components|SvgButton">
@@ -49,6 +57,7 @@
                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
                         CornerRadius="{TemplateBinding CornerRadius}"
                         Background="{TemplateBinding Background}"
+                        IsEnabled="{TemplateBinding IsEnabled}"
                         Classes="Clickable" 
                         ClipToBounds="{TemplateBinding ClipToBounds}"
                         Padding="{TemplateBinding Spacing}">

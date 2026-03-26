@@ -8,7 +8,6 @@
              x:DataType="viewModels:WelcomeViewModel"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
              xmlns:inject="clr-namespace:SVNexus.Inject"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WelcomeView">
     <Design.DataContext>
         <viewModels:WelcomeViewModel />

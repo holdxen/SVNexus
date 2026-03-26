@@ -91,6 +91,8 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
     }
 
     public event EventHandler<object?>? RequestClose;
+    
+    public ExportOptions? Options { get; set; }
 
     [RelayCommand]
     private void Confirm()
@@ -147,7 +149,7 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
             return;
         }
 
-        var options = new ExportOptions(
+        Options = new ExportOptions(
             FromPathOrUrl: url,
             ToPath: path,
             PegRevision: revision,
@@ -158,7 +160,7 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
             Depth: Depth,
             NativeEol: NativeEol);
         
-        Manager.Default.Send(new OnExport(options), Token);
+        // Manager.Default.Send(new OnExport(options), Token);
         
         Close();
     }

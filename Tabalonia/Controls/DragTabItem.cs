@@ -130,12 +130,10 @@ public class DragTabItem : TabItem
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == IsSelectedProperty)
+        if (change.Property != IsSelectedProperty) return;
+        if (change.NewValue is true)
         {
-            if (change.NewValue is true)
-            {
-                ZIndex = ZIndexes.Selected;
-            }
+            ZIndex = ZIndexes.Selected;
         }
     }
 
@@ -158,13 +156,11 @@ public class DragTabItem : TabItem
         RaiseEvent(previewEventArgs);
         // if (previewEventArgs.Cancel)
         //     _thumb.CancelDrag();
-        if (!previewEventArgs.Handled)
-        {
-            var eventArgs = new DragTabDragDeltaEventArgs(DragDelta, this, e);
-            RaiseEvent(eventArgs);
-            //if (eventArgs.Cancel)
-            //    thumb.CancelDrag();
-        }
+        if (previewEventArgs.Handled) return;
+        var eventArgs = new DragTabDragDeltaEventArgs(DragDelta, this, e);
+        RaiseEvent(eventArgs);
+        //if (eventArgs.Cancel)
+        //    thumb.CancelDrag();
     }
 
     

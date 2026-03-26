@@ -8,7 +8,6 @@
              xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:components="clr-namespace:SVNexus.Components"
              x:DataType="viewModels:CommitDialogModel"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              IsEnabled="{Binding !IsCommitting}"
              x:Class="SVNexus.Views.CommitDialog">
     <Interaction.Behaviors>

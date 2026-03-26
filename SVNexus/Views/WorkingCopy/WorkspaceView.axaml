@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:wk="clr-namespace:SVNexus.ViewModels.WorkingCopy"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:u="https://irihi.tech/ursa"
+             x:DataType="wk:WorkspaceViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.WorkspaceView">
+    <Grid RowDefinitions="Auto, Auto, *">
+
+        <Grid ColumnDefinitions="Auto, *, Auto">
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="5">
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Update"
+                                      IsEnabled="False"
+                                      Source="{StaticResource Icons.OperationUpdate}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Refresh"
+                                      Source="{StaticResource Icons.Refresh}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Revert"
+                                      Source="{StaticResource Icons.OperationRevert}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Diff and export"
+                                      Source="{StaticResource Icons.OperationDiff}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Apply patch"
+                                      Source="{StaticResource Icons.OperationPatch}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Lock"
+                                      Source="{StaticResource Icons.OperationLock}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Unlock"
+                                      Source="{StaticResource Icons.OperationUnlock}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Relocate"
+                                      Source="{StaticResource Icons.OperationDelete}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Relocate"
+                                      Source="{StaticResource Icons.OperationMkdir}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Relocate"
+                                      Source="{StaticResource Icons.OperationSwitch}">
+                </components:SvgButton>
+            </StackPanel>
+            <Border Grid.Column="1"></Border>
+            <StackPanel
+                Grid.Column="2"
+                Orientation="Horizontal"
+                Spacing="5">
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Open terminal"
+                                      Source="{StaticResource Icons.Terminal}">
+                </components:SvgButton>
+            </StackPanel>
+        </Grid>
+        <u:Divider Grid.Row="1"/>
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, 4*">
+            <ContentControl Grid.Column="0"></ContentControl>
+            <GridSplitter Grid.Column="1"></GridSplitter>
+            <ContentControl Content="{Binding WorkingCopyViewModel}" Grid.Column="2"></ContentControl>
+        </Grid>
+    </Grid>
+</UserControl>

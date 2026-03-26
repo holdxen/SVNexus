@@ -3,4 +3,4 @@ using SVNexus.Generated;
 
 namespace SVNexus.Messages;
 
-public class OnInitializeRepository(InitializeRepositoryOptions value) : ValueChangedMessage<InitializeRepositoryOptions>(value);
+// public class OnInitializeRepository(InitializeRepositoryOptions value) : ValueChangedMessage<InitializeRepositoryOptions>(value);

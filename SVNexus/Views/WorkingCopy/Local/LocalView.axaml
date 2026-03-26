@@ -6,11 +6,8 @@
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="local:LocalViewModel"
-             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
@@ -61,10 +58,12 @@
                     </components:SvgButton>
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Expand"
+                                          Command="{Binding ExpandAllCommand}"
                                           Source="{StaticResource Icons.TreeExpand}">
                     </components:SvgButton>
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Collapse"
+                                          Command="{Binding CollapseAllCommand}"
                                           Source="{StaticResource Icons.TreeCollapse}">
                     </components:SvgButton>
                 </StackPanel>
@@ -94,15 +93,8 @@
                         <TreeDataTemplate x:DataType="local:LocalViewModel+TreeItemViewModel"
                                           ItemsSource="{Binding Children}">
                             <Grid ColumnDefinitions="Auto, Auto, *, Auto"
-                                  inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
                                   IsHitTestVisible="True"
                                   Background="Transparent">
-                                <Interaction.Behaviors>
-                                    <EventTriggerBehavior EventName="Loaded">
-                                        <InvokeCommandAction Command="{Binding LoadedCommand}">
-                                        </InvokeCommandAction>
-                                    </EventTriggerBehavior>
-                                </Interaction.Behaviors>
                                 <Grid.ContextMenu>
                                     <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}">
                                         <Interaction.Behaviors>

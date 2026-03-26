@@ -9,9 +9,11 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
 using SVNexus.Views;
@@ -19,10 +21,11 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemChanged>, IRecipient<OnRefreshWorkingCopy>
+public partial class ChangesViewModel: ViewModelLite, IRecipient<OnSelectedItemChanged>, IRecipient<OnRefreshWorkingCopy>
 {
+    private readonly IServiceProvider _serviceProvider;
 
-    class DifferencesCat
+    private class DifferencesCat
     {
         public required CatResult Original { get; set; }
         public required CatResult Modified { get; set; }
@@ -45,17 +48,17 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
 
     public bool IsListView => SelectedViewIndex == ListViewIndex;
 
-    public ChangesListViewModel ChangesListViewModel { get; set; } = new();
+    public ChangesListViewModel ChangesListViewModel { get; }
 
-    public ChangesTreeViewModel ChangesTreeViewModel { get; set; } = new();
+    public ChangesTreeViewModel ChangesTreeViewModel { get; }
 
 
     [ObservableProperty]
     public partial string CommitMessage { get; set; } = string.Empty;
 
-
-    [ObservableProperty]
-    public partial string WorkingCopyPath { get; set; } = string.Empty;
+    //
+    // [ObservableProperty]
+    // public partial string WorkingCopyPath { get; set; } = string.Empty;
     
 
     [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
@@ -81,6 +84,22 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     [ObservableProperty]
     public partial bool Upgradable { get; set; }
 
+    private readonly Services.ITabService _tabService;
+    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    private readonly Services.TypeService _typeService;
+    public ChangesViewModel(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+        
+        ChangesTreeViewModel = serviceProvider.GetRequiredService<ChangesTreeViewModel>();
+        ChangesListViewModel = serviceProvider.GetRequiredService<ChangesListViewModel>();
+        
+        Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+    }
+
     [RelayCommand]
     private void SwitchToListView()
     {
@@ -93,9 +112,9 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         SelectedViewIndex = TreeViewIndex;
     }
 
-    protected override async Task OnLoaded()
+    [RelayCommand]
+    private async Task OnLoaded()
     {
-        await base.OnLoaded();
         await CheckWorkingCopyVersion();
         await CheckWorkingCopyRoot();
         await Status();
@@ -124,10 +143,10 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
 
     private async Task CheckWorkingCopyVersion()
     {
-        using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token));
+        using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token));
         using var wc = context.WorkingCopyContext();
         
-        var current = await wc.WcVersion(WorkingCopyPath);
+        var current = await wc.WcVersion(_workingCopyViewService.WorkingCopyPath);
         
         var recommended = await context.DefaultWcVersion();
 
@@ -139,9 +158,9 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     {
         try
         {
-            using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token).Response);
+            using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response);
             using var wc = context.WorkingCopyContext();
-            var result = await wc.CheckRoot(WorkingCopyPath);
+            var result = await wc.CheckRoot(_workingCopyViewService.WorkingCopyPath);
             IsWcRoot = result.IsWcRoot;
         }
         catch (System.Exception e)
@@ -201,13 +220,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         }
         
         var message = unversioned.Count > 0 ?
-            $"The following files will be reverted:\n{string.Join(Environment.NewLine, versioned.Select(e => e.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()))}\n\nThe following files will be skipped:\n{string.Join(Environment.NewLine, unversioned.Select(e => e.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()))}" 
-            : $"The following files will be reverted:\n{string.Join(Environment.NewLine, versioned.Select(e => e.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()))}";
+            $"The following files will be reverted:\n{string.Join(Environment.NewLine, versioned.Select(e => e.TrimStartString(_workingCopyViewService.WorkingCopyPath).TrimStartPathSeparatorChar()))}\n\nThe following files will be skipped:\n{string.Join(Environment.NewLine, unversioned.Select(e => e.TrimStartString(_workingCopyViewService.WorkingCopyPath).TrimStartPathSeparatorChar()))}" 
+            : $"The following files will be reverted:\n{string.Join(Environment.NewLine, versioned.Select(e => e.TrimStartString(_workingCopyViewService.WorkingCopyPath).TrimStartPathSeparatorChar()))}";
         
         
         
         
-        var hostId =  Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId =  Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var result = await MessageBox.ShowOverlayAsync(message,
             "Warning",
             hostId,
@@ -259,10 +278,10 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         try
         {
 
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
 
             var statusOptions = new StatusOptions(
-                Path: WorkingCopyPath,
+                Path: _workingCopyViewService.WorkingCopyPath,
                 Revision: new Revision.Working(),
                 Depth: Depth.Infinity,
                 GetAll: false,
@@ -287,7 +306,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 if (boxResult == MessageBoxResult.Yes)
                 {
                     var cleanupOptions = new CleanupOptions(
-                        Path: WorkingCopyPath,
+                        Path: _workingCopyViewService.WorkingCopyPath,
                         BreakLocks: true,
                         FixRecordedTimestamps: true,
                         ClearDavCache: true,
@@ -300,7 +319,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 }
                 else
                 {
-                    Manager.Default.Send(new OnRemoveTab(Token), Manager.MainWindowToken);
+                    Manager.Default.Send(new OnRemoveTab(_tabService.Token), Manager.MainWindowToken);
                     return;
                 }
             }
@@ -320,7 +339,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 }
                 else
                 {
-                    Manager.Default.Send(new OnRemoveTab(Token), Manager.MainWindowToken);
+                    Manager.Default.Send(new OnRemoveTab(_tabService.Token), Manager.MainWindowToken);
                     return;
                 }
             }
@@ -333,7 +352,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
             {
                 var errorNumber = new SvnErrnoConstants();
                 if (!errorNumber.IsWcNotDirectory(error.Code)) return false;
-                Manager.Default.Send(new OnNotWorkingCopy(WorkingCopyPath), Token);
+                Manager.Default.Send(new OnNotWorkingCopy(_workingCopyViewService.WorkingCopyPath), _tabService.Token);
                 return true;
             });
             if (!handled)
@@ -357,7 +376,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     [RelayCommand]
     public async Task Status()
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
         
@@ -369,10 +388,10 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     {
         try
         {
-            using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token).Response);
+            using var context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response);
             
             var opts = new UpdateOptions(
-                Paths: [WorkingCopyPath], 
+                Paths: [_workingCopyViewService.WorkingCopyPath], 
                 Revision: new Revision.Head(), 
                 Depth: Depth.Infinity, 
                 DepthIsSticky: false, 
@@ -411,12 +430,12 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     [RelayCommand]
     private async Task Commit()
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         
         var items = IsTreeView ? ChangesTreeViewModel.CheckedItems : ChangesListViewModel.CheckedItems;
 
 
-        var model = new CommitDialogModel()
+        var model = new CommitDialogModel(_serviceProvider)
         {
             Targets = items.Keys.ToArray()
         };
@@ -575,7 +594,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
             AsyncContext? context = null;
             try
             {
-                context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), Token).Response);
+                context = Engine.Engine.Instance.SimpleContext(Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response);
                 
                 // var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
                 //     Revision: new Revision.Working(), ExpandKeywords: true);

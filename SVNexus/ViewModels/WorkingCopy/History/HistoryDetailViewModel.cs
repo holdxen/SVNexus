@@ -9,7 +9,7 @@ using SystemPath = System.IO.Path;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryDetailViewModel: ViewModelBase
+public partial class HistoryDetailViewModel: ViewModelLite
 {
     [ObservableProperty]
     public required partial LogEntry Entry { get; set; }

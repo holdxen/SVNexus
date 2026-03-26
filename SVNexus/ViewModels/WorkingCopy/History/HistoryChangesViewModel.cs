@@ -9,7 +9,7 @@ using SVNexus.Generated;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryChangesViewModel : ViewModelBase
+public partial class HistoryChangesViewModel : ViewModelLite
 {
 
     public partial class ListViewModel : ViewModelBase

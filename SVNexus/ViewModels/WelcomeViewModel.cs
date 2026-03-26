@@ -7,9 +7,11 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
 using SVNexus.ViewModels.WorkingCopy.Changes;
@@ -19,8 +21,14 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
-public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IRecipient<OnExport>
+public partial class WelcomeViewModel: ViewModelBase//, IRecipient<OnCheckout>, IRecipient<OnExport>
 {
+
+    private readonly Services.ITabService _tabService;
+    public WelcomeViewModel(IServiceProvider serviceProvider)
+    {
+        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    }
 
     [RelayCommand]
     private async Task ShowCheckoutDialog()
@@ -32,9 +40,15 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             Buttons = DialogButton.None
         };
 
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+
+        var model = new CheckoutOrExportDialogModel();
         
-        await OverlayDialog.ShowModal<Views.CheckoutOrExportDialog, CheckoutOrExportDialogModel>(new CheckoutOrExportDialogModel(), hostId, options: options);
+        await OverlayDialog.ShowModal<CheckoutOrExportDialog, CheckoutOrExportDialogModel>(model, hostId, options: options);
+        if (model.Options is not null)
+        {
+            Receive(model.Options);
+        }
     }
 
 
@@ -52,28 +66,36 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
         if (result.Count == 1)
         {
 
-            var workingCopyView = new WorkingCopyViewModel
+            var scope = InjectionProvider.Provider.CreateScope();
+            scope.ServiceProvider.GetRequiredService<Services.WorkingCopyViewService>().WorkingCopyPath = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar();
+            
+            var content = scope.ServiceProvider.GetRequiredService<WorkspaceViewModel>();
+            var tab = scope.ServiceProvider.GetRequiredService<Services.ITabService>();
+
+            // var workingCopyView = new WorkingCopyViewModel
+            // {
+            //     WorkingCopyPath = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar(),
+            // };
+            // Console.WriteLine("Send Add tab: {0} {1}", workingCopyView.WorkingCopyPath, Manager.MainWindowToken);
+            Manager.Default.Send(new OnAddTab(new MainWindowViewModel.TabItemViewModel()
             {
-                WorkingCopyPath = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar(),
-            };
-            Console.WriteLine("Send Add tab: {0} {1}", workingCopyView.WorkingCopyPath, Manager.MainWindowToken);
-            Manager.Default.Send(new OnAddTab(new MainWindowViewModel.TabItemViewViewModel()
-            {
+                Id = tab.Token,
                 Closable = true,
-                Content = workingCopyView,
+                Content = content,
                 Text = result[0].Name,
+                Scope = scope
             }), Manager.MainWindowToken);
         }
     }
 
-    public void Receive(OnCheckout message)
+    public void Receive(CheckoutOptions message)
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {
-            Url = message.Value.Url,
-            Path = message.Value.Path,
+            Url = message.Url,
+            Path = message.Path,
             Messenger = messenger
         };
         
@@ -85,7 +107,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             {
                 Dispatcher.UIThread.Invoke(() =>
                 {
-                    var path = notify.Path.TrimStart(message.Value.Path).ToString();
+                    var path = notify.Path.TrimStart(message.Path).ToString();
                     model.ProcessLogItems.Add(new CheckoutOrExportProcessDialogModel.ProcessLogItemViewModel()
                     {
                         Action = notify.Action.ToString(),
@@ -134,7 +156,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             {
         
                 Console.WriteLine("Checkout now");
-                await context.Checkout(message.Value);
+                await context.Checkout(message);
                 Console.WriteLine("Checkout now finished");
                 Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
             }
@@ -167,20 +189,25 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             Buttons = DialogButton.None
         };
         
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         
         await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options, hostId: hostId);
+        if (exportDialogModel.Options is not null)
+        {
+            Receive(exportDialogModel.Options);
+        }
+        
     }
 
-    public void Receive(OnExport message)
+    public void Receive(ExportOptions message)
     {
         
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
+        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {
-            Url = message.Value.FromPathOrUrl,
-            Path = message.Value.ToPath,
+            Url = message.FromPathOrUrl,
+            Path = message.ToPath,
             Messenger = messenger
         };
         
@@ -192,7 +219,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
             {
                 Dispatcher.UIThread.Invoke(() =>
                 {
-                    var path = notify.Path.TrimStart(message.Value.ToPath).ToString();
+                    var path = notify.Path.TrimStart(message.ToPath).ToString();
                     model.ProcessLogItems.Add(new CheckoutOrExportProcessDialogModel.ProcessLogItemViewModel()
                     {
                         Action = notify.Action.ToString(),
@@ -239,7 +266,7 @@ public partial class WelcomeViewModel: ViewModelBase, IRecipient<OnCheckout>, IR
         {
             try
             {
-                await context.Export(message.Value);
+                await context.Export(message);
                 Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
             }
             catch (System.Exception e)

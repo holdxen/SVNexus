@@ -9,16 +9,7 @@
              x:CompileBindings="True"
              xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
-             xmlns:u="https://irihi.tech/ursa"
-             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesTreeView">
-    <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding LoadedCommand}">
-            </InvokeCommandAction>
-        </EventTriggerBehavior>
-    </Interaction.Behaviors>
     <components:AdvancedTreeView SelectionMode="Single"
               Margin="0"
               Padding="0"

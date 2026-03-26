@@ -9,8 +9,6 @@
              xmlns:workingCopyView="clr-namespace:SVNexus.ViewModels.WorkingCopy.Changes"
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:inject="clr-namespace:SVNexus.Inject"
-             inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}"
-             inject:Ambient.Guid="{Binding Token, Mode=OneWayToSource}"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesView">
     <UserControl.Styles>
         <Style Selector="components|SvgButton.Selected">

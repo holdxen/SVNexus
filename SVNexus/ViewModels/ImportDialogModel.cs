@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Irihi.Avalonia.Shared.Contracts;
 using SVNexus.Generated;
+using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Views;
 
@@ -21,10 +22,9 @@ public partial class ImportDialogModel: ViewModelBase, IDialogContext
     [ObservableProperty] public partial bool Backup { get; set; } = true;
     
     
-    // public required WeakReferenceMessenger Messenger { get; init; }
-    
     public string Path { get; set; } = string.Empty;
     
+    public InitializeRepositoryOptions? Options { get; set; }
 
     [RelayCommand]
     public void Close()
@@ -39,9 +39,8 @@ public partial class ImportDialogModel: ViewModelBase, IDialogContext
     [RelayCommand]
     private void Confirm()
     {
-        var options = new InitializeRepositoryOptions(Backup: Backup, Local: Path, Remote: Url);
+        Options = new InitializeRepositoryOptions(Backup: Backup, Local: Path, Remote: Url);
         
-        Manager.Default.Send(new OnInitializeRepository(options), Token);
         
         Close();
     }

@@ -17,7 +17,44 @@ pub struct WorkingCopyContext {
     ptr: *mut ffi::svn_wc_context_t,
     pool: apr::Pool,
 }
+impl Drop for WorkingCopyContext {
+    fn drop(&mut self) {
+        unsafe {
+            let error = ffi::svn_wc_context_destroy(self.ptr);
+            if !error.is_null() {
+                tracing::info!("Failed to destroy wc context: {:?}", SVNError::from_nullable_ptr(error))
+            }
+
+        }
+    }
+}
 unsafe impl Send for WorkingCopyContext {}
+
+#[derive(uniffi::Record, Debug)]
+pub struct WorkingCopyCreateContextOptions {
+
+}
+
+impl WorkingCopyContext {
+    fn create(_: WorkingCopyCreateContextOptions) -> error::Result<Self> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let mut ptr: *mut ffi::svn_wc_context_t = std::ptr::null_mut();
+            let error = ffi::svn_wc_context_create(ptr.pointer_mut(), std::ptr::null_mut(), pool.as_mut_ptr(), pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            assert!(!ptr.is_null(), "wc context ptr should not be null");
+
+            Ok(Self {
+                ptr,
+                pool
+            })
+
+
+        }
+    }
+}
 
 #[derive(uniffi::Record, Debug)]
 pub struct CheckRootResult {
@@ -26,14 +63,30 @@ pub struct CheckRootResult {
     kind: context::NodeKind,
 }
 
+pub struct WorkingCopyWalkStatusOptions {
+    local_absolute_path: String,
+    depth: context::Depth,
+    get_all: bool,
+    no_ignore: bool,
+    ignore_text_modified: bool,
+
+}
+
 
 #[derive(uniffi::Object, Clone)]
 pub enum AsyncWorkingCopyContext {
     Context(Arc<parking_lot::Mutex<context::Context>>),
     Raw(Arc<parking_lot::Mutex<WorkingCopyContext>>)
 }
+
 #[uniffi::export(async_runtime = "tokio")]
 impl AsyncWorkingCopyContext {
+
+    #[uniffi::constructor]
+    pub fn create(opts: WorkingCopyCreateContextOptions) -> error::Result<Self> {
+        Ok(Self::Raw(Arc::new(parking_lot::Mutex::new(WorkingCopyContext::create(opts)?))))
+    }
+
     pub async fn check_root(&self, path: String) -> error::Result<CheckRootResult> {
         self.call_async(move |ctx| unsafe {
             let mut pool = apr::Pool::create();
