@@ -56,7 +56,7 @@
                     <DataTemplate>
                         <Grid inject:Ambient.Guid="{Binding Id}" IsVisible="{Binding IsSelected}">
                             <ContentControl Content="{Binding Content}"/>
-                            <components:UniqueOverlayDialogHost></components:UniqueOverlayDialogHost>
+                            <components:UniqueOverlayDialogHost DialogHostId="{Binding DialogHostId}"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

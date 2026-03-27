@@ -9,7 +9,6 @@ using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
@@ -17,7 +16,7 @@ using SVNexus.Messages;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
+public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewModelBase(parent)//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
 {
     
     public partial class TreeItemViewModel: ViewModelBase
@@ -43,7 +42,7 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
 
         public string Text
         {
-            get => StatusEntry is not null ? System.IO.Path.GetFileName(StatusEntry.Path) : field;
+            get => StatusEntry is not null ? StatusEntry.Path.GetFileName() : field;
             set;
         } = string.Empty;
         
@@ -132,15 +131,15 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
     
     private TreeItemViewModel? _root;
 
-    private readonly Services.TypeService _typeService;
-    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    public ChangesTreeViewModel(IServiceProvider serviceProvider)
-    {
-        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        
-        Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-    }
+    // private readonly Services.TypeService _typeService;
+    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    // public ChangesTreeViewModel(IServiceProvider serviceProvider)
+    // {
+    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+    //     
+    //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+    // }
 
     partial void OnShowRootChanged(bool value)
     {
@@ -252,7 +251,8 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
 
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
-        Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
+        // Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
+        SendMessage(new OnSelectedItemChanged(value?.StatusEntry));
     }
 
 
@@ -293,14 +293,15 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
     
     public void Update(StatusEntry[] statusEntries)
     {
+        var workingCopyPath = SendMessage(new OnGetWorkingCopyPath()).Response;
             Items.Clear();
             var root = new TreeItemViewModel
             {
                 StatusEntry = null,
-                WorkingCopyPath = _workingCopyViewService.WorkingCopyPath,
-                Text = _workingCopyViewService.WorkingCopyPath.GetFileName(),
-                IsExpanded = ExpandedItems.Contains(_workingCopyViewService.WorkingCopyPath),
-                Path = _workingCopyViewService.WorkingCopyPath,
+                WorkingCopyPath = workingCopyPath,
+                Text = workingCopyPath.GetFileName(),
+                IsExpanded = ExpandedItems.Contains(workingCopyPath),
+                Path = workingCopyPath,
                 IsChecked = false,
             };
         
@@ -314,7 +315,7 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
 
             foreach (var statusEntry in statusEntries)
             {
-                if (statusEntry.Path == _workingCopyViewService.WorkingCopyPath)
+                if (statusEntry.Path == workingCopyPath)
                 {
                     root.StatusEntry = statusEntry;
                     root.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
@@ -325,7 +326,7 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
 
                     continue;
                 }
-                var path = statusEntry.Path.TrimStartString(_workingCopyViewService.WorkingCopyPath).TrimStartPathSeparatorChar();
+                var path = statusEntry.Path.TrimStartString(workingCopyPath).TrimStartPathSeparatorChar();
 
                 var parentItem = root;
             
@@ -340,10 +341,10 @@ public partial class ChangesTreeViewModel: ViewModelLite//, IRecipient<LocalTree
                     if (first is null)
                     {
                         // var itemPath = WorkingCopyPath + parentPath + "/" + part;
-                        var itemPath = $"{_workingCopyViewService.WorkingCopyPath}/{parentPath}/{part}";
+                        var itemPath = $"{workingCopyPath}/{parentPath}/{part}";
                         var item = new TreeItemViewModel
                         {
-                            WorkingCopyPath = _workingCopyViewService.WorkingCopyPath,
+                            WorkingCopyPath = workingCopyPath,
                             // Messenger = Messenger,
                             Text = part,
                             StatusEntry = null,

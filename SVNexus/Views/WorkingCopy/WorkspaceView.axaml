@@ -8,8 +8,13 @@
              xmlns:u="https://irihi.tech/ursa"
              x:DataType="wk:WorkspaceViewModel"
              x:Class="SVNexus.Views.WorkingCopy.WorkspaceView">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <Grid RowDefinitions="Auto, Auto, *">
-
         <Grid ColumnDefinitions="Auto, *, Auto">
             <StackPanel
                 Orientation="Horizontal"
@@ -69,7 +74,36 @@
         </Grid>
         <u:Divider Grid.Row="1"/>
         <Grid Grid.Row="2" ColumnDefinitions="*, Auto, 4*">
-            <ContentControl Grid.Column="0"></ContentControl>
+            <Grid Grid.Column="0" RowDefinitions="Auto, *">
+                <Grid Grid.Row="0"></Grid>
+                <components:AdvancedTreeView Grid.Row="1" 
+                                             Margin="0 5"
+                                             ItemsSource="{Binding TreeItems}"
+                                             SelectedItem="{Binding SelectedTreeItem}"
+                                             SelectionMode="Single">
+                    <components:AdvancedTreeView.Styles>
+                        <Style Selector="components|AdvancedTreeViewItem" x:DataType="wk:WorkspaceViewModel+TreeItemViewModel">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded}"></Setter>
+                            <Setter Property="HasChild" Value="{Binding HasChild}"></Setter>
+                        </Style>
+                    </components:AdvancedTreeView.Styles>
+                    <components:AdvancedTreeView.DataTemplates>
+                        <TreeDataTemplate ItemsSource="{Binding Children}" 
+                                          x:DataType="wk:WorkspaceViewModel+TreeItemViewModel">
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+                                <components:SvgRender Grid.Column="0" 
+                                                      Source="{Binding NodeKindIcon}"
+                                                      Size="14"></components:SvgRender>
+                                <TextBlock Grid.Column="1" Text="{Binding Name}"></TextBlock>
+                                <components:SvgRender Grid.Column="2"
+                                                      Source="{Binding NodeStatusIcon}"
+                                                      Size="14"
+                                                      ></components:SvgRender>
+                            </Grid>
+                        </TreeDataTemplate>
+                    </components:AdvancedTreeView.DataTemplates>     
+                </components:AdvancedTreeView>
+            </Grid>
             <GridSplitter Grid.Column="1"></GridSplitter>
             <ContentControl Content="{Binding WorkingCopyViewModel}" Grid.Column="2"></ContentControl>
         </Grid>

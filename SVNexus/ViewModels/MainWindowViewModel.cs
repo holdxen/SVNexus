@@ -8,7 +8,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Inject;
@@ -21,32 +20,39 @@ namespace SVNexus.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>//, IRecipient<OnRemoveTabByLocalViewModel>, IRecipient<OnRemoveTabByContent>
 {
     
-    public partial class TabItemViewModel: ViewModelLite
+    public partial class TabItemViewModel(ViewModelBase parent): ViewModelBase(parent), IRecipient<OnGetDialogHostId>, IRecipient<OnRemoveTabModel>
     {
         [ObservableProperty]
         public partial Guid Id { get; set; } = Guid.NewGuid();
+        
+        [ObservableProperty]
+        public partial string? DialogHostId { get; set; }
 
         [ObservableProperty]
         public partial bool Closable { get; set; } = true;
 
         [ObservableProperty]
-        public partial string Text { get; set; } = "";
-
-        [RelayCommand]
-        private async Task OnClose()
-        {
-        }
-
+        public partial string Text { get; set; } = string.Empty;
 
         [ObservableProperty]
         public partial object? Content { get; set; }
 
         [ObservableProperty]
         public partial bool IsSelected { get; set; }
-        
-        public IServiceScope? Scope { get; set; }
-    
-    
+
+
+        public void Receive(OnGetDialogHostId message)
+        {
+            message.Reply(DialogHostId);
+        }
+
+        public void Receive(OnRemoveTabModel message)
+        {
+            if (Parent is MainWindowViewModel mainWindowViewModel)
+            {
+                mainWindowViewModel.RemoveTab(this);
+            }
+        }
     }
 
     public MainWindowViewModel()
@@ -77,15 +83,13 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     private TabItemViewModel NewTab()
     {
-        var scope = InjectionProvider.Provider.CreateScope();
-        var tabService = scope.ServiceProvider.GetRequiredService<Services.ITabService>();
-        return new TabItemViewModel
+        return new TabItemViewModel(this)
         {
-            Id =  tabService.Token,
             Text = "Welcome",
-            Content = scope.ServiceProvider.GetRequiredService<WelcomeViewModel>(),
-            Scope = scope,
-        };
+        }.Apply(item =>
+        {
+            item.Content = new WelcomeViewModel(item);
+        });
     }
 
     private void AddTab(TabItemViewModel tab)
@@ -97,15 +101,13 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     [RelayCommand]
     private void AddTab()
     {
-        var scope = InjectionProvider.Provider.CreateScope();
-        var tabService = scope.ServiceProvider.GetRequiredService<Services.ITabService>();
-        var tab = new TabItemViewModel
+        var tab = new TabItemViewModel(this)
         {
-            Id =  tabService.Token,
             Text = "Welcome",
-            Content = scope.ServiceProvider.GetRequiredService<WelcomeViewModel>(),
-            Scope = scope,
-        };
+        }.Apply(item =>
+        {
+            item.Content = new WelcomeViewModel(item);
+        });
         
         AddTab(tab);
        
@@ -118,7 +120,6 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
             return;
         }
 
-        var tab = Tabs[index];
         Tabs.RemoveAt(index);
         
         if (index != 0)
@@ -126,21 +127,22 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
             index--;
         }
         SelectedIndex = index;
-        tab.Scope?.Dispose();
     }
 
     [RelayCommand]
     private void RemovedItem(TabClosedEventArgs args)
     {
-        if (args.Item is TabItemViewModel tab)
-        {
-            tab.Scope?.Dispose();
-        }
     }
 
     public void Receive(OnRemoveTab message)
     {
         var index = Tabs.FindIndex(e => e.Id == message.Value);
+        RemoveIndexItem(index);
+    }
+
+    public void RemoveTab(TabItemViewModel tab)
+    {
+        var index = Tabs.FindIndex(e => e == tab);
         RemoveIndexItem(index);
     }
 
@@ -157,32 +159,23 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
 
     public void Receive(OnOpenRepository message)
     {
-        // var workingCopyView = new WorkingCopyViewModel
-        // {
-        //     WorkingCopyPath = message.Value,
-        // };
 
-        var scope = InjectionProvider.Provider.CreateScope();
-
-        scope.ServiceProvider.GetRequiredService<Services.WorkingCopyViewService>().WorkingCopyPath = message.Value;
-        
-        var content = scope.ServiceProvider.GetRequiredService<WorkingCopyViewModel>();
-        var tabService = scope.ServiceProvider.GetRequiredService<Services.TabService>();
-
-        var tab = new TabItemViewModel()
+        var tab = new TabItemViewModel(this)
         {
-            Id = tabService.Token,
             Closable = true,
-            Content = content,
-            Text = message.Value.GetFileName()
-        };
+            Text = message.Value.GetFileName(),
+        }.Apply(item =>
+        {
+            item.Content = new WorkspaceViewModel(message.Value, item);
+        });
+        
         
         AddTab(tab);
     }
 
     public void Receive(OnAddTab message)
     {
-        Console.WriteLine("On AddTab");
+        message.Value.Parent = this;
         Tabs.Add(message.Value);
         SelectedIndex = Tabs.Count - 1;
     }

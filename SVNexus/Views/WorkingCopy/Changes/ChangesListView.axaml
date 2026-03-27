@@ -43,7 +43,6 @@
                 <Grid x:Name="ItemRoot" 
                       Margin="2 4"
                       Background="Transparent"
-                      inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}" 
                       ColumnDefinitions="Auto, Auto, *, Auto" >
 
                     <CheckBox Grid.Column="0"

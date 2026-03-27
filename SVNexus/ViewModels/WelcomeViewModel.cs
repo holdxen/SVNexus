@@ -1,35 +1,22 @@
 using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
-using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
-using SVNexus.ViewModels.WorkingCopy.Changes;
 using SVNexus.Views;
-using SVNexus.Views.WorkingCopy;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
-public partial class WelcomeViewModel: ViewModelBase//, IRecipient<OnCheckout>, IRecipient<OnExport>
+public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(parent)//, IRecipient<OnCheckout>, IRecipient<OnExport>
 {
-
-    private readonly Services.ITabService _tabService;
-    public WelcomeViewModel(IServiceProvider serviceProvider)
-    {
-        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-    }
-
     [RelayCommand]
     private async Task ShowCheckoutDialog()
     {
@@ -40,7 +27,7 @@ public partial class WelcomeViewModel: ViewModelBase//, IRecipient<OnCheckout>, 
             Buttons = DialogButton.None
         };
 
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
 
         var model = new CheckoutOrExportDialogModel();
         
@@ -65,32 +52,27 @@ public partial class WelcomeViewModel: ViewModelBase//, IRecipient<OnCheckout>, 
         var result = await Manager.Default.Send(new OnFolderPickerOpen(options), Manager.MainWindowToken);
         if (result.Count == 1)
         {
-
-            var scope = InjectionProvider.Provider.CreateScope();
-            scope.ServiceProvider.GetRequiredService<Services.WorkingCopyViewService>().WorkingCopyPath = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar();
             
-            var content = scope.ServiceProvider.GetRequiredService<WorkspaceViewModel>();
-            var tab = scope.ServiceProvider.GetRequiredService<Services.ITabService>();
+            var path = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar();
 
-            // var workingCopyView = new WorkingCopyViewModel
-            // {
-            //     WorkingCopyPath = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar(),
-            // };
-            // Console.WriteLine("Send Add tab: {0} {1}", workingCopyView.WorkingCopyPath, Manager.MainWindowToken);
-            Manager.Default.Send(new OnAddTab(new MainWindowViewModel.TabItemViewModel()
+
+            var tab = new MainWindowViewModel.TabItemViewModel(GetParent<MainWindowViewModel>()!)
             {
-                Id = tab.Token,
                 Closable = true,
-                Content = content,
-                Text = result[0].Name,
-                Scope = scope
-            }), Manager.MainWindowToken);
+                Text = result[0].Name
+            };
+            
+            var content = new WorkspaceViewModel(path, tab);
+            tab.Content = content;
+
+            SendMessage(new OnAddTab(tab));
         }
     }
 
     public void Receive(CheckoutOptions message)
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
         var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {
@@ -189,7 +171,8 @@ public partial class WelcomeViewModel: ViewModelBase//, IRecipient<OnCheckout>, 
             Buttons = DialogButton.None
         };
         
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
         
         await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options, hostId: hostId);
         if (exportDialogModel.Options is not null)
@@ -202,7 +185,8 @@ public partial class WelcomeViewModel: ViewModelBase//, IRecipient<OnCheckout>, 
     public void Receive(ExportOptions message)
     {
         
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
         var messenger = new WeakReferenceMessenger();
         var model = new CheckoutOrExportProcessDialogModel
         {

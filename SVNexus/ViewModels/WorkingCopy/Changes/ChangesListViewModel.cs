@@ -10,7 +10,6 @@ using Avalonia.Controls.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
@@ -20,13 +19,9 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalListViewModel.OnLocalListItemSelected>
+public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewModelBase(parent), IRecipient<ChangesListViewModel.OnItemCheckStateChanged>
 {
-    private readonly IServiceProvider _serviceProvider;
-    // private WeakReferenceMessenger Messenger { get; } = new();
-
-    // [ObservableProperty] public partial string WorkingCopyPath { get; set; } = string.Empty;
-    
+    // private readonly IServiceProvider _serviceProvider;
     public partial class MenuIconViewModel: ViewModelBase
     {
         [ObservableProperty]
@@ -35,17 +30,32 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
         [ObservableProperty] public partial bool Themable { get; set; } = true;
     }
 
-
-    public partial class ListItemViewModel : ViewModelLite
+    public class OnItemCheckStateChanged
     {
-        
-        public ChangesListViewModel? Parent { get; set; }
-        
+        public required ListItemViewModel Item { get; set; }
+        public required bool Checked { get; set; }
+    }
+
+    public partial class ListItemViewModel : ViewModelBase
+    {
         [ObservableProperty]
         public partial bool IsChecked { get; set; }
 
 
-        public string? ContainsDirectory => StatusEntry.Path.GetDirectoryName()?.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar();
+        public string? ContainsDirectory
+        {
+            get
+            {
+                var path = SendMessage(new OnGetWorkingCopyPath());
+                if (path == StatusEntry.Path)
+                {
+                    return null;
+                }
+                var contain = StatusEntry.Path.TrimStartString(path)
+                    .TrimStartPathSeparatorChar().GetDirectoryName();
+                return string.IsNullOrEmpty(contain) ? "/" : contain;
+            }
+        }
 
         public string Name => StatusEntry.Path.GetFileName();
     
@@ -70,10 +80,10 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
         public required partial StatusEntry StatusEntry { get; set; }
 
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(Name))]
-        [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
-        public partial string WorkingCopyPath { get; set; } = string.Empty;
+        // [ObservableProperty]
+        // [NotifyPropertyChangedFor(nameof(Name))]
+        // [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
+        // public partial string WorkingCopyPath { get; set; } = string.Empty;
 
 
         public List<MenuItemViewModel>? MenuItems
@@ -177,21 +187,25 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
             }
         }
 
-        private readonly Services.ITabService _tabService;
-        private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-        private readonly Services.TypeService _typeService;
-        public ListItemViewModel(IServiceProvider serviceProvider)
-        {
-            _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-            _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-            _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-            
-            Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-        }
+        // private readonly Services.ITabService _tabService;
+        // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+        // private readonly Services.TypeService _typeService;
+        // public ListItemViewModel(IServiceProvider serviceProvider)
+        // {
+        //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+        //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+        //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+        //     
+        //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+        // }
 
         partial void OnIsCheckedChanged(bool value)
         {
-            Parent?.OnItemCheckStateChanged(this, value);
+            SendMessage(new OnItemCheckStateChanged()
+            {
+                Item = this,
+                Checked = value
+            });
         }
 
 
@@ -202,10 +216,8 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
             {
                 return;
             }
-
             
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
-
+            var hostId = SendMessage(new OnGetDialogHostId()).Response;
 
             try
             {
@@ -214,7 +226,7 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
                 var addOptions = new AddOptions(AbsolutePath, Depth.Empty, false, false, false, false);
                 
                 await context.Add(addOptions);
-                Manager.Default.Send(new OnRefreshWorkingCopy(), _typeService.Get<WorkingCopyViewModel>());
+                SendMessage(new OnRefreshWorkingCopy());
             }
             catch (System.Exception e)
             {
@@ -242,8 +254,8 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
                 return;
             }
 
-            
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            var hostId = SendMessage(new OnGetDialogHostId()).Response;
+            var path = SendMessage(new OnGetWorkingCopyPath()).Response;
             
             if (StatusEntry.NodeStatus == NodeStatus.Unversioned)
             {
@@ -257,7 +269,7 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
                 return;
             }
 
-            var result = await MessageBox.ShowOverlayAsync(message: $"Whether to revert:\n{AbsolutePath.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()}", 
+            var result = await MessageBox.ShowOverlayAsync(message: $"Whether to revert:\n{AbsolutePath.TrimStartString(path).TrimStartPathSeparatorChar()}", 
                 title: "Question", hostId: hostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)
             {
@@ -275,7 +287,8 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
                     AddedKeepLocal: true);
             
                 await context.Revert(revertOptions);
-                Manager.Default.Send(new OnRefreshWorkingCopy(), _typeService.Get<WorkingCopyViewModel>());
+                // Manager.Default.Send(new OnRefreshWorkingCopy(), _typeService.Get<WorkingCopyViewModel>());
+                SendMessage(new OnRefreshWorkingCopy());
             }
             catch (System.Exception e)
             {
@@ -309,23 +322,21 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
     [ObservableProperty]
     public partial string SearchText { get; set; } = string.Empty;
 
-
-    
     [ObservableProperty]
     public partial bool? AllChecked { get; set; }
 
     private bool BlockSignal { get; set; }
 
-    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    private readonly Services.TypeService _typeService;
-    public ChangesListViewModel(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        
-        Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-    }
+    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    // private readonly Services.TypeService _typeService;
+    // public ChangesListViewModel(IServiceProvider serviceProvider)
+    // {
+    //     _serviceProvider = serviceProvider;
+    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+    //     
+    //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+    // }
 
     partial void OnAllCheckedChanged(bool? value)
     {
@@ -359,7 +370,8 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
 
     partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
-        Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
+        // Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
+        SendMessage(new OnSelectedItemChanged(value?.StatusEntry));
     }
 
     // public void Receive(OnLocalListItemSelected message)
@@ -381,7 +393,7 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
         ListItemViewModel? selectedItem = null;
         foreach (var entry in entries)
         {
-            var item = new ListItemViewModel(_serviceProvider)
+            var item = new ListItemViewModel
             {
                 StatusEntry = entry,
                 IsChecked = CheckedItems.ContainsKey(entry.Path),
@@ -403,21 +415,20 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
     
         UpdateAllChecked();
     }
-
-    private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)
-    {
-        if (check)
-        {
-            CheckedItems.Add(itemModel.StatusEntry.Path, itemModel.StatusEntry);
-        }
-        else
-        {
-            // CheckedItems.RemoveAll(model => itemModel.StatusEntry.Path == model);
-            CheckedItems.Remove(itemModel.StatusEntry.Path);
-        }
-        
-        UpdateAllChecked();
-    }
+    //
+    // private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)
+    // {
+    //     if (check)
+    //     {
+    //         CheckedItems.Add(itemModel.StatusEntry.Path, itemModel.StatusEntry);
+    //     }
+    //     else
+    //     {
+    //         CheckedItems.Remove(itemModel.StatusEntry.Path);
+    //     }
+    //     
+    //     UpdateAllChecked();
+    // }
     
     private void UpdateAllChecked()
     {
@@ -444,5 +455,19 @@ public partial class ChangesListViewModel: ViewModelLite//, IRecipient<LocalList
         }
         BlockSignal = false;
         Console.Write("Set All checked: {0}, Checked={1} Item={2}", AllChecked, CheckedItems.Count, Items.Count);
+    }
+
+    public void Receive(OnItemCheckStateChanged message)
+    {
+        if (message.Checked)
+        {
+            CheckedItems.Add(message.Item.StatusEntry.Path, message.Item.StatusEntry);
+        }
+        else
+        {
+            CheckedItems.Remove(message.Item.StatusEntry.Path);
+        }
+        
+        UpdateAllChecked();
     }
 }

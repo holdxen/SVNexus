@@ -6,25 +6,23 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Messages;
-using SVNexus.ViewModels;
 using SVNexus.ViewModels.WorkingCopy.Changes;
 using SVNexus.ViewModels.WorkingCopy.History;
 using SVNexus.ViewModels.WorkingCopy.Local;
 using SVNexus.Views;
-using Tmds.DBus.Protocol;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy;
 
-public partial class WorkingCopyViewModel : ViewModelLite,
+public partial class WorkingCopyViewModel : ViewModelBase,
     IRecipient<OnWorkingCopyViewEnabled>, 
-    IRecipient<OnNotWorkingCopy>
+    IRecipient<OnNotWorkingCopy>,
+    IRecipient<OnGetWorkingCopyPath>
 {
 
     public const int LocalViewIndex = 0;
@@ -58,18 +56,21 @@ public partial class WorkingCopyViewModel : ViewModelLite,
     
     public LocalViewModel LocalViewModel { get; } 
     
+    public string Path { get; }
+    
     [ObservableProperty] public partial bool IsEnabled { get; set; } = true;
 
 
     [RelayCommand]
     private async Task Update()
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _typeService.Get(this));
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _typeService.Get(this));
+        var hostId = SendMessage(new OnGetDialogHostId());
         try
         {
             using var context = Engine.Engine.Instance.SimpleContext(hostId);
             
-            var opts = new UpdateOptions(Paths: [_workingCopyViewService.WorkingCopyPath], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAdModification: false, MakeParents: true);
+            var opts = new UpdateOptions(Paths: [Path], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAdModification: false, MakeParents: true);
             
             await context.Update(opts);
         }
@@ -83,23 +84,33 @@ public partial class WorkingCopyViewModel : ViewModelLite,
         }
     }
 
-    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    private readonly Services.ITabService  _tabService;
-    private readonly Services.TypeService _typeService;
+    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    // private readonly Services.ITabService  _tabService;
+    // private readonly Services.TypeService _typeService;
+    //
+    // public WorkingCopyViewModel(IServiceProvider serviceProvider)
+    // {
+    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+    //     
+    //     // LocalViewModel = serviceProvider.GetRequiredService<LocalViewModel>();
+    //     LocalViewModel = new LocalViewModel(this);
+    //     
+    //     // ChangesViewModel = serviceProvider.GetRequiredService<ChangesViewModel>();
+    //     ChangesViewModel = new ChangesViewModel(this);
+    //     
+    //     HistoryViewModel = serviceProvider.GetRequiredService<HistoryViewModel>();
+    //     
+    //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+    // }
 
-    public WorkingCopyViewModel(IServiceProvider serviceProvider)
+    public WorkingCopyViewModel(ViewModelBase parent, string path): base(parent)
     {
-        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        
-        LocalViewModel = serviceProvider.GetRequiredService<LocalViewModel>();
-        
-        ChangesViewModel = serviceProvider.GetRequiredService<ChangesViewModel>();
-        
-        HistoryViewModel = serviceProvider.GetRequiredService<HistoryViewModel>();
-        
-        Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+        Path = path;
+        ChangesViewModel = new ChangesViewModel(this);
+        HistoryViewModel = new HistoryViewModel(this);
+        LocalViewModel = new LocalViewModel(this);
     }
 
     public void Receive(OnWorkingCopyViewEnabled message)
@@ -109,7 +120,8 @@ public partial class WorkingCopyViewModel : ViewModelLite,
 
     public void Receive(InitializeRepositoryOptions message)
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
         var contextNotifierDelegate = new ContextNotifierDelegate
         {
             DialogHostId = hostId,
@@ -255,14 +267,16 @@ public partial class WorkingCopyViewModel : ViewModelLite,
 
     public void Receive(OnNotWorkingCopy message)
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var result = await MessageBox.ShowOverlayAsync(title: "Error", hostId: hostId, message: "Not a working copy, initialize now", button: MessageBoxButton.YesNo);
             if (result is MessageBoxResult.No)
             {
                 // Manager.MainWindow.Send(new OnRemoveTabByLocalViewModel(this));
-                Manager.Default.Send(new OnRemoveTab(_tabService.Token), Manager.MainWindowToken);
+                // Manager.Default.Send(new OnRemoveTab(_tabService.Token), Manager.MainWindowToken);
+                SendMessage(new OnRemoveTabModel());
             }
             else
             {
@@ -274,7 +288,7 @@ public partial class WorkingCopyViewModel : ViewModelLite,
                 };
                 var importDialogModel = new ImportDialogModel()
                 {
-                    Path = _workingCopyViewService.WorkingCopyPath,
+                    Path = Path,
                 };
                 await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
                 if (importDialogModel.Options is not null)
@@ -284,5 +298,10 @@ public partial class WorkingCopyViewModel : ViewModelLite,
             }
 
         });
+    }
+
+    public void Receive(OnGetWorkingCopyPath message)
+    {
+        message.Reply(Path);
     }
 }

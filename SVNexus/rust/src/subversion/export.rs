@@ -19,12 +19,18 @@ impl AsyncContext {
         R: Send + 'static,
     {
         let context = self.context.clone();
-        let result = tokio::task::spawn_blocking(move || {
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        tokio::task::spawn_blocking(move || {
             let context = context.lock();
-            call(context)
-        })
-        .await
-        .context(builder::Runtime)??;
+            tracing::info!("call now");
+            let r = call(context);
+            tracing::info!("Return now");
+            tx.send(r).ok().expect("Failed to send result");
+        });
+        // .await
+        // .context(builder::Runtime)??;
+        //
+        let result = rx.await.expect("Failed to receive result")?;
 
         Ok(result)
     }
@@ -34,6 +40,10 @@ impl AsyncContext {
 impl AsyncContext {
     pub fn working_copy_context(&self) -> wc::AsyncWorkingCopyContext {
         wc::AsyncWorkingCopyContext::Context(self.context.clone())
+    }
+
+    pub async fn get_wc_root(&self, path: String) -> error::Result<String> {
+        self.call_async(|mut context| context.get_wc_root(path)).await
     }
 
     pub async fn revision_property_list(&self, opts: RevisionPropertyListOptions) -> error::Result<RevisionPropertyListResult> {
@@ -63,7 +73,16 @@ impl AsyncContext {
     }
 
     pub async fn info(&self, opts: InfoOptions) -> error::Result<InfoResult> {
-        self.call_async(|mut context| context.info(opts)).await
+        let id = uuid::Uuid::new_v4();
+        tracing::info!("DEBUG block: {}", id);
+        let r = self.call_async(move |mut context| {
+            tracing::info!("DEBUG block: {}", id);
+            let s = context.info(opts);
+            tracing::info!("DEBUG block: {}", id);
+            s
+        }).await;
+        tracing::info!("DEBUG block: {}", id);
+        r
     }
 
     pub async fn checkout(&self, opts: CheckoutOptions) -> error::Result<RevisionNumber> {
@@ -75,7 +94,16 @@ impl AsyncContext {
     }
 
     pub async fn status(&self, opts: StatusOptions) -> error::Result<StatusResult> {
-        self.call_async(|mut context| context.status(opts)).await
+        let id = uuid::Uuid::new_v4();
+        tracing::info!("DEBUG block: {}", id);
+        let r = self.call_async(move |mut context| {
+            tracing::info!("DEBUG block: {}", id);
+            let s = context.status(opts);
+            tracing::info!("DEBUG block: {}", id);
+            s
+        }).await;
+        tracing::info!("DEBUG block: {}", id);
+        r
     }
 
     pub async fn add(&self, opts: AddOptions) -> error::Result<()> {

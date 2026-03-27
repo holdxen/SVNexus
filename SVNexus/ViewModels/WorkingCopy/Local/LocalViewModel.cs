@@ -8,38 +8,37 @@ using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
-using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalViewModel: ViewModelLite
+public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
 {
     
-    public partial class TreeItemViewModel: ViewModelLite, IRecipient<OnSetChecked>, IRecipient<OnSetExpanded>
+    
+    
+    public partial class TreeItemViewModel(ViewModelBase? parent): ViewModelBase(parent)//, IRecipient<OnSetChecked>, IRecipient<OnSetExpanded>
     {
 
-        private readonly IServiceProvider _serviceProvider;
-        
-        private readonly Services.ITabService _tabService;
+        // private readonly IServiceProvider _serviceProvider;
+        //
+        // private readonly Services.ITabService _tabService;
         
 
-        private readonly Services.TypeService _typeService;
-
-        public TreeItemViewModel(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-            _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-            _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-            
-            Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-        }
+        // private readonly Services.TypeService _typeService;
+        //
+        // public TreeItemViewModel(IServiceProvider serviceProvider)
+        // {
+        //     _serviceProvider = serviceProvider;
+        //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+        //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+        //     
+        //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
+        // }
         
         [ObservableProperty]
         public partial bool HasLoaded { get; set; }
@@ -95,7 +94,8 @@ public partial class LocalViewModel: ViewModelLite
             try
             {
 
-                var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+                // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+                var hostId = SendMessage(new OnGetDialogHostId());
 
                 var context = Engine.Engine.Instance.SimpleContext(hostId);
 
@@ -124,7 +124,7 @@ public partial class LocalViewModel: ViewModelLite
                                 }
                                 else
                                 {
-                                    children.Add(new TreeItemViewModel(_serviceProvider)
+                                    children.Add(new TreeItemViewModel(Parent)
                                     {
                                         StatusEntry = entry,
                                     });
@@ -162,7 +162,9 @@ public partial class LocalViewModel: ViewModelLite
                 return;
             }
             IsLoading = true;
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            
+            var hostId = SendMessage(new OnGetDialogHostId());
             
             var context = Engine.Engine.Instance.SimpleContext(hostId);
 
@@ -182,7 +184,7 @@ public partial class LocalViewModel: ViewModelLite
                             }
                 
                 
-                            Children.Add(new TreeItemViewModel(_serviceProvider)
+                            Children.Add(new TreeItemViewModel(Parent)
                             {
                                 StatusEntry = entry,
                             });
@@ -214,6 +216,8 @@ public partial class LocalViewModel: ViewModelLite
 
     // [ObservableProperty]
     // public partial string WorkingCopyPath { get; set; } = string.Empty;
+
+    private readonly List<WeakReference<TreeItemViewModel>> _weakTreeItems = [];
     
     public ObservableCollection<TreeItemViewModel> TreeItems { get; set; } = [];
     
@@ -230,49 +234,68 @@ public partial class LocalViewModel: ViewModelLite
     
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
-    private readonly Services.ITabService _tabService;
-    
-    private readonly Services.WorkingCopyViewService _workingCopyViewService;
-    
-    private readonly IServiceProvider _serviceProvider;
-    
-    private readonly Services.TypeService _typeService;
+    // private readonly Services.ITabService _tabService;
+    //
+    // private readonly Services.WorkingCopyViewService _workingCopyViewService;
+    //
+    // private readonly IServiceProvider _serviceProvider;
+    //
+    // private readonly Services.TypeService _typeService;
 
-    public LocalViewModel(IServiceProvider serviceProvider)
+    // public LocalViewModel(IServiceProvider serviceProvider)
+    // {
+    //     _serviceProvider = serviceProvider;
+    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.WorkingCopyViewService>();
+    //     
+    //     
+    //
+    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+    //     
+    //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
+    // }
+
+    private void ForEachWeakTreeItem(Action<TreeItemViewModel> action)
     {
-        _serviceProvider = serviceProvider;
-        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        _workingCopyViewService = serviceProvider.GetRequiredService<Services.WorkingCopyViewService>();
-        
-        
-
-        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        
-        Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
+        for (var i = _weakTreeItems.Count - 1; i >= 0; i++)
+        {
+            if (_weakTreeItems[i].TryGetTarget(out var item))
+            {
+                action(item);
+            }
+            else
+            {
+                _weakTreeItems.RemoveAt(i);
+            }
+        }
     }
 
     [RelayCommand]
     private void CollapseAll()
     {
-        Manager.Default.Send(new OnSetExpanded(false), _typeService.Get<TreeItemViewModel>());
+        // Manager.Default.Send(new OnSetExpanded(false), _typeService.Get<TreeItemViewModel>());
+        ForEachWeakTreeItem(item => item.IsExpanded = false);
     }
 
     [RelayCommand]
     private void ExpandAll()
     {
-        Manager.Default.Send(new OnSetExpanded(true), _typeService.Get<TreeItemViewModel>());
+        // Manager.Default.Send(new OnSetExpanded(true), _typeService.Get<TreeItemViewModel>());
+        ForEachWeakTreeItem(item => item.IsExpanded = true);
     }
 
     [RelayCommand]
     private void CheckAll()
     {
-        Manager.Default.Send(new OnSetChecked(true), _typeService.Get<TreeItemViewModel>());
+        // Manager.Default.Send(new OnSetChecked(true), _typeService.Get<TreeItemViewModel>());
+        ForEachWeakTreeItem(item => item.IsChecked = true);
     }
     
     [RelayCommand]
     private void ClearAll()
     {
-        Manager.Default.Send(new OnSetChecked(false), _typeService.Get<TreeItemViewModel>());
+        // Manager.Default.Send(new OnSetChecked(false), _typeService.Get<TreeItemViewModel>());
+        ForEachWeakTreeItem(item => item.IsChecked = true);
     }
 
     partial void OnShowRootChanged(bool value)
@@ -369,12 +392,14 @@ public partial class LocalViewModel: ViewModelLite
         IsLoading = true;
         try
         {
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            var hostId = SendMessage(new OnGetDialogHostId());
+            var path = SendMessage(new OnGetWorkingCopyPath());
 
             var context = Engine.Engine.Instance.SimpleContext(hostId);
 
             var statusOptions = new StatusOptions(
-                _workingCopyViewService.WorkingCopyPath,
+                path,
                 new Revision.Working(),
                 Depth.Immediates,
                 true,
@@ -391,16 +416,16 @@ public partial class LocalViewModel: ViewModelLite
 
             foreach (var entry in result.Entries)
             {
-                if (entry.Path == _workingCopyViewService.WorkingCopyPath)
+                if (entry.Path == path)
                 {
-                    _root = new TreeItemViewModel(_serviceProvider)
+                    _root = new TreeItemViewModel(this)
                     {
                         StatusEntry = entry,
                     };
                 }
                 else
                 {
-                    children.Add(new TreeItemViewModel(_serviceProvider)
+                    children.Add(new TreeItemViewModel(this)
                     {
                         StatusEntry = entry,
                     });

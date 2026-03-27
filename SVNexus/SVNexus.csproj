@@ -27,7 +27,6 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Irihi.Ursa.Themes.Semi" Version="1.14.1" />
         <PackageReference Include="Lucide.Avalonia" Version="0.1.55" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
         <PackageReference Include="Semi.Avalonia" Version="11.3.7.2" />
         <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
         <PackageReference Include="Semi.Avalonia.ColorPicker" Version="11.3.7.2" />

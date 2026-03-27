@@ -10,3 +10,5 @@ namespace SVNexus.Messages;
 // public class OnRemoveTabByContent(object value) : ValueChangedMessage<object>(value);
 
 public class OnRemoveTab(Guid guid): ValueChangedMessage<Guid>(guid);
+
+public class OnRemoveTabModel;

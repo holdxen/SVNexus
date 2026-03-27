@@ -11,7 +11,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HarfBuzzSharp;
 using Irihi.Avalonia.Shared.Contracts;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
@@ -21,7 +20,7 @@ using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
-public partial class CommitDialogModel: ViewModelBase, IDialogContext
+public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelBase(parent), IDialogContext
 {
     public partial class ToBeCommittedItem: ViewModelBase
     {
@@ -87,12 +86,12 @@ public partial class CommitDialogModel: ViewModelBase, IDialogContext
     [ObservableProperty]
     public partial bool IsCommitting { get; set; }
 
-    private Services.ITabService _tabService;
-    public CommitDialogModel(IServiceProvider serviceProvider)
-    {
-        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-    }
-
+    // private Services.ITabService _tabService;
+    // public CommitDialogModel(IServiceProvider serviceProvider)
+    // {
+    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    // }
+    //
     partial void OnDepthChanged(Depth value)
     {
         _singleTaskQueue.Run(LoadCommitItems);
@@ -165,7 +164,8 @@ public partial class CommitDialogModel: ViewModelBase, IDialogContext
         IsLoading = true;
         var depth = Depth;
         var commitPaths = Targets.ToList();
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token);
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token);
+        var hostId = SendMessage(new OnGetDialogHostId()).Response;
 
         try
         {

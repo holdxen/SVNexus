@@ -1,23 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SVNexus.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace SVNexus.ViewModels;
 
 
-public abstract class ViewModelInherit(ViewModelInherit? parent = null) : ObservableObject
+
+public abstract class ViewModelBase (ViewModelBase? parent = null) : ObservableObject
 {
-    public ViewModelInherit? Parent { get; set; } = parent;
+    public virtual Type? ViewType { get; set; }
+    
+    public ViewModelBase? Parent { get; set; } = parent;
+    
+    protected ViewModelBase? Sender { get; set; }
+    
+    private const int MaxLevel = 200;
 
     public T? GetParent<T>()
-        where T: ViewModelInherit
+        where T: ViewModelBase
     {
         var parent = Parent;
+        var times = 0;
         while (parent is not null)
         {
             if (parent is T p)
@@ -25,12 +30,17 @@ public abstract class ViewModelInherit(ViewModelInherit? parent = null) : Observ
                 return p;
             }
             parent = parent.Parent;
+            if (times++ > MaxLevel)
+            {
+                throw new InvalidOperationException("Too many levels for relationship");
+            }
         }
         return null;
     }
 
-    public ViewModelInherit? GetRoot()
+    public ViewModelBase? GetRoot()
     {
+        var times = 0;
         var parent = Parent;
         while (parent is not null)
         {
@@ -40,15 +50,36 @@ public abstract class ViewModelInherit(ViewModelInherit? parent = null) : Observ
             }
             
             parent = parent.Parent;
+            if (times++ > MaxLevel)
+            {
+                throw new InvalidOperationException("Too many levels for relationship");
+            }
         }
 
         return null;
     }
-}
 
-public abstract partial class ViewModelBase : ObservableObject
-{
-    public virtual Type? ViewType { get; set; }
+    public T SendMessage<T>(T message)
+        where T: class
+    {
+        var times = 0;
+        var parent = Parent;
+        while (parent is not null)
+        {
+            if (parent is IRecipient<T> recipient)
+            {
+                parent.Sender = this;
+                recipient.Receive(message);
+                parent.Sender = null;
+            }
+            parent = parent.Parent;
+            if (times++ > MaxLevel)
+            {
+                throw new InvalidOperationException("Too many levels for relationship");
+            }
+        }
+        return message;
+    }
 
     //
     // [ObservableProperty]
@@ -130,4 +161,32 @@ public abstract partial class ViewModelBase : ObservableObject
     //         await LoadedActionChannel.Writer.WriteAsync(action);
     //     }
     // }
+}
+
+public abstract partial class ViewModelMore(ViewModelBase? parent = null) : ViewModelBase(parent)
+{
+
+    public bool IsLoaded { get; private set; }
+
+    [RelayCommand]
+    private async Task OnLoaded()
+    {
+        if (IsLoaded)
+        {
+            return;
+        }
+        try
+        {
+            await LoadOnce();
+        }
+        finally
+        {
+            IsLoaded = true;
+        }
+    }
+
+    protected virtual Task LoadOnce()
+    {
+        return Task.CompletedTask;
+    }
 }

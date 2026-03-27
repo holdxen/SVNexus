@@ -2311,9 +2311,9 @@ impl Context {
                 .unwrap_or_default();
 
             let is_absolute = ffi::svn_dirent_is_absolute(path) != 0;
-            if is_absolute {
+            if !is_absolute {
                 return builder::InvalidArgument {
-                    detail: "path must be absolute",
+                    detail: format!("path is not absolute: {}", opts.path),
                 }.fail();
             }
 
@@ -2854,6 +2854,7 @@ impl Context {
     }
 
     pub fn info(&mut self, opts: InfoOptions) -> error::Result<InfoResult> {
+        tracing::info!("DEBUG block");
         unsafe extern "C" fn info_receiver(
             baton: *mut c_void,
             path: *const c_char,
@@ -2873,11 +2874,14 @@ impl Context {
 
             svn_no_error()
         }
+        tracing::info!("DEBUG block");
         unsafe {
             let mut pool = apr::Pool::create();
 
+            tracing::info!("DEBUG block");
             let path = pool.string(opts.path.as_str())?;
 
+            tracing::info!("DEBUG block");
             let peg_revision = opts.peg_revision.to_opt_revision();
 
             let revision = opts.revision.to_opt_revision();
@@ -2892,6 +2896,7 @@ impl Context {
 
             let changelists = pool.string_array(opts.changelists.len(), opts.changelists.iter())?;
 
+            tracing::info!("DEBUG block");
             let error = ffi::svn_client_info4(
                 path,
                 peg_revision.pointer(),
@@ -2906,11 +2911,15 @@ impl Context {
                 self.ctx(),
                 pool.as_mut_ptr(),
             );
+            tracing::info!("DEBUG block");
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+            tracing::info!("DEBUG block");
         }
 
+        tracing::info!("DEBUG block");
         let entries = std::mem::take(&mut self.inner.info_entries);
+        tracing::info!("DEBUG block");
 
         Ok(InfoResult { entries })
     }
@@ -3311,6 +3320,19 @@ impl Context {
         }
     }
 
+    pub fn get_wc_root(&mut self, path: String) -> error::Result<String> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let path = pool.string(path)?;
+            let mut root: *const c_char = std::ptr::null_mut();
+            let error = ffi::svn_client_get_wc_root(root.pointer_mut(), path, self.ctx(), pool.as_mut_ptr(), pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let root = root.to_str().to_string();
+            Ok(root)
+        }
+    }
+
     fn create(opts: CreateContextOptions) -> error::Result<Self> {
         let mut pool = unsafe { apr::Pool::create() };
 
@@ -3323,7 +3345,7 @@ impl Context {
         unsafe {
             let error = ffi::svn_client_create_context2(
                 &mut ptr as *mut _,
-                std::ptr::null_mut(),
+                config,
                 pool.as_mut_ptr(),
             );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;

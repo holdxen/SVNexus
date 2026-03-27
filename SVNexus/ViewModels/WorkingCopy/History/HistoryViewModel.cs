@@ -9,18 +9,18 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using ExCSS;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Messages;
+using SVNexus.Utils;
 using Exception = System.Exception;
 using Notification = Ursa.Controls.Notification;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryViewModel: ViewModelLite
+public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(parent)
 {
 
     public const int DetailViewIndex = 0;
@@ -90,25 +90,25 @@ public partial class HistoryViewModel: ViewModelLite
     
     public InfoEntry? ThisEntry { get; set; }
 
-    private readonly Services.ITabService _tabService;
-    
-    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    
-    private readonly IServiceProvider _serviceProvider;
-    private readonly Services.TypeService _typeService;
-    
+    // private readonly Services.ITabService _tabService;
+    //
+    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    //
+    // private readonly IServiceProvider _serviceProvider;
+    // private readonly Services.TypeService _typeService;
+    //
     // private IServiceScope? _previousScope;
 
-    public HistoryViewModel(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        
-        
-        Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
-    }
+    // public HistoryViewModel(IServiceProvider serviceProvider)
+    // {
+    //     _serviceProvider = serviceProvider;
+    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+    //     
+    //     
+    //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
+    // }
 
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
@@ -127,7 +127,11 @@ public partial class HistoryViewModel: ViewModelLite
         
         var url = ThisEntry.Url;
 
-        SnapshotViewModel = new HistorySnapshotViewModel(_serviceProvider, url, revision);
+        SnapshotViewModel = new HistorySnapshotViewModel(this)
+        {
+            Url = url,
+            Revision = revision,
+        };
         // {
         //     // Messenger = Messenger,
         //     Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
@@ -226,8 +230,10 @@ public partial class HistoryViewModel: ViewModelLite
     {
         var handled = e.Handle(svnExceptionHandler: error =>
         {
+            // var path = SendMessage(new OnGetWorkingCopyPath());
             if (!ExceptionExtension.SvnErrnoConstants.IsWcNotWorkingCopy(error.Code)) return false;
-            Manager.Default.Send(new OnNotWorkingCopy(_workingCopyViewService.WorkingCopyPath), _typeService.Get(this));
+            SendMessage(new OnNotWorkingCopy());
+            // Manager.Default.Send(new OnNotWorkingCopy(path), _typeService.Get(this));
             return true;
         });
         if (!handled)
@@ -245,18 +251,27 @@ public partial class HistoryViewModel: ViewModelLite
 
     private async Task<bool> CheckUrl()
     {
+        Utils.Log.Info("DEBUG block");
         if (ThisEntry is not null)
         {
+            Utils.Log.Info("DEBUG block");
             return true;
         }
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        Utils.Log.Info("DEBUG block");
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
+        Utils.Log.Info("DEBUG block");
+        var path = SendMessage(new OnGetWorkingCopyPath());
+        Utils.Log.Info("DEBUG block");
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
+        Utils.Log.Info("DEBUG block");
 
         try
         {
+            Utils.Log.Info("DEBUG block");
             var opts = new InfoOptions(
-                Path: _workingCopyViewService.WorkingCopyPath,
+                Path: path,
                 PegRevision: new Revision.Working(),
                 Revision: new Revision.Head(),
                 Depth: Depth.Empty,
@@ -265,19 +280,25 @@ public partial class HistoryViewModel: ViewModelLite
                 IncludeExternals: false,
                 Changelists: []
             );
+            Utils.Log.Info("DEBUG block");
             var result = await context.Info(opts);
+            Utils.Log.Info("DEBUG block");
             if (result.Entries.Count != 1)
             {
                 throw new Exception("Failed to query information");
             }
+            Utils.Log.Info("DEBUG block");
 
             ThisEntry = result.Entries.First().Value;
+            Utils.Log.Info("DEBUG block");
 
             return true;
         }
         catch (Exception e)
         {
+            Utils.Log.Info("DEBUG block");
             HandleException(e);
+            Utils.Log.Info("DEBUG block");
             return false;
         }
 
@@ -291,22 +312,33 @@ public partial class HistoryViewModel: ViewModelLite
     private async Task Log(uint limit)
     {
 
+        Utils.Log.Info("DEBUG block");
         AsyncContext? context = null;
+        Utils.Log.Info("DEBUG block");
         try
         {
+            Utils.Log.Info("DEBUG block");
             IsLoading = true;
+            Utils.Log.Info("DEBUG block");
             if (_startRevision is 1)
             {
+                Utils.Log.Info("DEBUG block");
                 return;
             }
+            Utils.Log.Info("DEBUG block");
             if (!await CheckUrl())
             {
+                Utils.Log.Info("DEBUG block");
                 return;
             }
+            Utils.Log.Info("DEBUG block");
 
-            var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+            var hostId = SendMessage(new OnGetDialogHostId());
 
+            Utils.Log.Info("DEBUG block");
             context = Engine.Engine.Instance.SimpleContext(hostId);
+            Utils.Log.Info("DEBUG block");
 
 
             var logOptions = new LogOptions(
@@ -326,16 +358,20 @@ public partial class HistoryViewModel: ViewModelLite
                 RevisionsProperties: ["svn:author", "svn:log", "svn:date"]);
 
 
+            Utils.Log.Info("DEBUG block");
             // var result = await context.Log(logOptions);
             // Console.WriteLine(result.LogEntries.Length);
 
 
+            Utils.Log.Info("DEBUG block");
             await context.LogNext(logOptions, new LogReceiverDelegate()
             {
                 OnLogEntryAction = entry =>
                 {
+                    Utils.Log.Info("DEBUG block");
                     Dispatcher.UIThread.Invoke(() =>
                     {
+                        Utils.Log.Info("DEBUG block");
                         if (entry.Revision is null)
                         {
                             _parent = null;
@@ -368,30 +404,38 @@ public partial class HistoryViewModel: ViewModelLite
                         {
                             _startRevision = entry.Revision;
                         }
+                        Utils.Log.Info("DEBUG block");
                     });
+                    Utils.Log.Info("DEBUG block");
                 }
             });
 
+            Utils.Log.Info("DEBUG block");
             Console.WriteLine("Log next finished");
         }
         catch (Exception e)
         {
+            Utils.Log.Info("DEBUG block");
             HandleException(e);
+            Utils.Log.Info("DEBUG block");
         }
         finally
         {
+            Utils.Log.Info("DEBUG block");
             IsLoading = false;
             context?.Dispose();
+            Utils.Log.Info("DEBUG block");
         }
 
 
 
     }
 
-    [RelayCommand]
-    private async Task OnLoaded()
+    protected override async Task LoadOnce()
     {
+        Utils.Log.Info("Load ing history...");
         await Log(20);
+        Utils.Log.Info("Load completed");
     }
 
 }

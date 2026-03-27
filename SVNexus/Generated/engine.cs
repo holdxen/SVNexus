@@ -1664,6 +1664,10 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -6017,6 +6021,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_get_wc_root(ulong @ptr,RustBuffer @path
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_import(ulong @ptr,RustBuffer @opts
     );
 
@@ -6183,6 +6198,17 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_engine_fn_free_asyncworkingcopycontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_constructor_asyncworkingcopycontext_create(RustBuffer @opts,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -11121,6 +11147,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_get_wc_root(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_import(
     );
 
@@ -11309,6 +11346,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_constructor_asynccontext_create(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_constructor_asyncworkingcopycontext_create(
     );
 
     #if NET8_0_OR_GREATER
@@ -13630,6 +13678,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_get_wc_root();
+            if (checksum != 57023) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_get_wc_root` checksum `57023`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_import();
             if (checksum != 5374) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `5374`, library returned `{checksum}`");
@@ -13735,6 +13789,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_constructor_asynccontext_create();
             if (checksum != 26799) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_constructor_asynccontext_create` checksum `26799`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_constructor_asyncworkingcopycontext_create();
+            if (checksum != 58435) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_constructor_asyncworkingcopycontext_create` checksum `58435`, library returned `{checksum}`");
             }
         }
     }
@@ -14016,6 +14076,8 @@ public interface IAsyncContext {
     Task<DeleteResult> Delete(DeleteOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<uint> Export(ExportOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task<string> GetWcRoot(string @path);
     /// <exception cref="Exception"></exception>
     Task<ImportResult> Import(ImportOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -14318,6 +14380,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u32(future),
         // Lift
         (result) => FfiConverterUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<string> GetWcRoot(string @path) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_get_wc_root(thisPtr, FfiConverterString.INSTANCE.Lower(@path));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterString.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -14780,6 +14864,15 @@ public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
     }
     
 
+    
+    /// <exception cref="Exception"></exception>
+    public static AsyncWorkingCopyContext Create(WorkingCopyCreateContextOptions @opts) {
+        return new AsyncWorkingCopyContext(
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_constructor_asyncworkingcopycontext_create(FfiConverterTypeWorkingCopyCreateContextOptions.INSTANCE.Lower(@opts), ref _status)
+));
+    }
+    
     
 }
 class FfiConverterTypeAsyncWorkingCopyContext: FfiConverter<AsyncWorkingCopyContext, ulong> {
@@ -22366,6 +22459,28 @@ class FfiConverterTypeWorkingCopyConflictVersion: FfiConverterRustBuffer<Working
             FfiConverterString.INSTANCE.Write(value.PathInRepository, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.NodeKind, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.RepositoryUuid, stream);
+    }
+}
+
+
+
+public record WorkingCopyCreateContextOptions (
+) {
+}
+
+class FfiConverterTypeWorkingCopyCreateContextOptions: FfiConverterRustBuffer<WorkingCopyCreateContextOptions> {
+    public static FfiConverterTypeWorkingCopyCreateContextOptions INSTANCE = new FfiConverterTypeWorkingCopyCreateContextOptions();
+
+    public override WorkingCopyCreateContextOptions Read(BigEndianStream stream) {
+        return new WorkingCopyCreateContextOptions(
+        );
+    }
+
+    public override int AllocationSize(WorkingCopyCreateContextOptions value) {
+        return 0;
+    }
+
+    public override void Write(WorkingCopyCreateContextOptions value, BigEndianStream stream) {
     }
 }
 

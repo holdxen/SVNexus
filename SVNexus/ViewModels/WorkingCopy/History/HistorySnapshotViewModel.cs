@@ -9,8 +9,6 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
@@ -23,7 +21,7 @@ using Notification = Ursa.Controls.Notification;
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
 // TODO: allow see inherit property
-public partial class HistorySnapshotViewModel : ViewModelLite
+public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModelBase(parent)
 {
     
     public partial class FileItemViewModel: ViewModelLite
@@ -83,9 +81,9 @@ public partial class HistorySnapshotViewModel : ViewModelLite
     public partial LoadingOrErrorState TreeViewState { get; set; } = new LoadingOrErrorState.None();
     
     
-    public string Url { get; set; }
+    public required string Url { get; set; }
     
-    public Revision Revision { get; set; }
+    public required Revision Revision { get; set; }
     
     
     public ObservableCollection<FileItemViewModel> Files { get; set; } = [];
@@ -119,21 +117,21 @@ public partial class HistorySnapshotViewModel : ViewModelLite
         Limit = 20
     };
     
-    private readonly Services.ITabService _tabService;
-    private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    private readonly Services.TypeService _typeService;
-
-    public HistorySnapshotViewModel(IServiceProvider  serviceProvider, string url, Revision revision)
-    {
-        Url = url;
-        Revision = revision;
-        _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        
-        Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
-        
-    }
+    // private readonly Services.ITabService _tabService;
+    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
+    // private readonly Services.TypeService _typeService;
+    //
+    // public HistorySnapshotViewModel(IServiceProvider  serviceProvider, string url, Revision revision)
+    // {
+    //     Url = url;
+    //     Revision = revision;
+    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
+    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
+    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
+    //     
+    //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
+    //     
+    // }
 
     [RelayCommand]
     private void OnSelectTextView()
@@ -190,7 +188,8 @@ public partial class HistorySnapshotViewModel : ViewModelLite
             GetProperties: true
         );
             
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
         try
@@ -387,7 +386,8 @@ public partial class HistorySnapshotViewModel : ViewModelLite
     [RelayCommand]
     private async Task OnLoaded()
     {
-        var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
         
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
 

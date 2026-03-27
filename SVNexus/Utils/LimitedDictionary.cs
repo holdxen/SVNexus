@@ -19,15 +19,14 @@ public class LimitedDictionary<TKey, TValue> where TKey : notnull
             Dictionary.Clear();
             return null;
         }
-        if (Dictionary.Count >= Limit)
-        {
-            var first = Dictionary.First();
-            Dictionary.Remove(first.Key);
-            return first;
-        }
         Dictionary[key] = value;
 
-        return null;
+        if (Dictionary.Count < Limit) return null;
+        
+        var first = Dictionary.First();
+        Dictionary.Remove(first.Key);
+        return first;
+
     }
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)

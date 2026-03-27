@@ -107,5 +107,14 @@ public static class Services
     {
         public Guid Token { get; set; } = Guid.Empty;
     }
+
+    public class WorkspaceViewService(string path)
+    {
+        public string Path { get; } = path;
+    }
     
+    public class WcViewService(string path)
+    {
+        public string Path { get; } = path;
+    }
 }

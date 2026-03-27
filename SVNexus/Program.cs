@@ -46,7 +46,6 @@ internal static class Program
     public static void Main(string[] args)
     {
         EngineMethods.EngineInitialize();
-        InjectionProvider.Initialize();
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }
