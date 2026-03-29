@@ -20,7 +20,7 @@ using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
-public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelBase(parent), IDialogContext
+public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(parent), IDialogContext
 {
     public partial class ToBeCommittedItem: ViewModelBase
     {
@@ -43,7 +43,7 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
     
     public static readonly Type DepthType = typeof(Depth);
 
-    public required string[] Targets { get; init; }
+    public required StatusEntry[] Targets { get; init; }
 
     [ObservableProperty]
     public partial Depth Depth { get; set; } = Depth.Infinity;
@@ -53,11 +53,11 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
 
     public ObservableCollection<ToBeCommittedItem> ToBeCommittedItems { get; } = [];
 
-    [ObservableProperty] 
-    public partial bool DeleteMissing { get; set; } = true;
-
-    [ObservableProperty]
-    public partial bool AddUnversioned { get; set; } = true;
+    // [ObservableProperty] 
+    // public partial bool DeleteMissing { get; set; } = true;
+    //
+    // [ObservableProperty]
+    // public partial bool AddUnversioned { get; set; } = true;
 
     [ObservableProperty]
     public partial bool NoLock { get; set; }
@@ -71,17 +71,17 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
     [ObservableProperty] public partial string CommitMessage { get; set; } = string.Empty;
 
 
-    public bool Ready
-    {
-        get
-        {
-            if (!DeleteMissing && !AddUnversioned) return true;
-            return !IsLoading;
-        }
-    }
-    
+    // public bool Ready
+    // {
+    //     get
+    //     {
+    //         if (!DeleteMissing && !AddUnversioned) return true;
+    //         return !IsLoading;
+    //     }
+    // }
+    //
         
-    private Dictionary<string, StatusEntry> _entries = new();
+    private Dictionary<string, StatusEntry> _entries = [];
 
     [ObservableProperty]
     public partial bool IsCommitting { get; set; }
@@ -98,60 +98,97 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
     }
 
 
-    private async Task CommitDirectly(CancellationToken token)
-    {
-        
-    }
-
-    private async Task CommitDelay()
-    {
-        if (!Ready)
-        {
-            return;
-        }
-        
-        var context = Engine.Engine.Instance.SimpleContext();
-
-        var tobeDelete = new List<string>();
-        foreach (var entry in _entries.Values)
-        {
-            if (DeleteMissing && entry.NodeStatus == NodeStatus.Missing)
-            {
-                tobeDelete.Add(entry.Path);
-            }
-
-            if (!AddUnversioned || entry.NodeStatus != NodeStatus.Unversioned) continue;
-            var addOptions = new AddOptions(entry.Path, Depth, false, false, false, true);
-            await context.Add(addOptions);
-        }
-
-        await context.Delete(new DeleteOptions(tobeDelete.ToArray(), false, false, []));
-
-        var commitOptions = new CommitOptions(Targets.ToArray(), Depth, true, true, true, true, true, [], [], CommitMessage);
-        
-        await context.Commit(commitOptions);
-        
-        IsCommitting = false;
-    }
+    // private async Task CommitDirectly(CancellationToken token)
+    // {
+    //         
+    // }
+    //
+    // private async Task CommitDelay()
+    // {
+    //     if (IsLoading)
+    //     {
+    //         return;
+    //     }
+    //     
+    //     var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()));
+    //
+    //     var tobeDelete = new List<string>();
+    //     foreach (var entry in _entries.Values)
+    //     {
+    //         if (entry.NodeStatus == NodeStatus.Missing)
+    //         {
+    //             tobeDelete.Add(entry.Path);
+    //         }
+    //
+    //         var addOptions = new AddOptions(entry.Path, Depth.Infinity, false, false, false, true);
+    //         await context.Add(addOptions);
+    //     }
+    //
+    //     await context.Delete(new DeleteOptions(tobeDelete.ToArray(), false, false, []));
+    //
+    //     var commitOptions = new CommitOptions(Targets.ToArray(), Depth, true, true, true, true, true, [], [], CommitMessage);
+    //     
+    //     await context.Commit(commitOptions);
+    //     
+    //     IsCommitting = false;
+    // }
 
     [RelayCommand]
     private async Task Commit()
     {
-        if (!DeleteMissing && !AddUnversioned)
+        // if (IsLoading)
+        // {
+        //     IsCommitting = true;
+        //     _singleTaskQueue.QueueEmpty += CommitDelay;
+        // }
+        // else
+        // {
+        //     IsCommitting = true;
+        //     await _singleTaskQueue.Run(CommitDirectly);
+        // }
+        //
+
+        if (string.IsNullOrEmpty(CommitMessage))
         {
-            await _singleTaskQueue.Run(CommitDirectly);
+            return;
         }
-        else if (IsLoading)
+        
+        await _singleTaskQueue.Run(async token =>
         {
-            IsCommitting = true;
-            _singleTaskQueue.QueueEmpty += CommitDelay;
-        }
-        else
-        {
-            IsCommitting = true;
-            _singleTaskQueue.QueueEmpty -= CommitDelay;
-            await CommitDelay();
-        }
+            try
+            {
+
+                var hostId = SendMessage(new OnGetDialogHostId());
+            
+                var context = Engine.Engine.Instance.SimpleContext(hostId);
+
+                var commitOptions = new CommitOptions(Targets.Where(i => i.NodeStatus is not NodeStatus.Unversioned or NodeStatus.Missing).Select(i => i.Path).ToArray(),
+                    Depth,
+                    NoLock,
+                    false,
+                    true,
+                    IncludeExternals,
+                    IncludeExternals,
+                    null,
+                    null,
+                    CommitMessage
+                );
+
+
+                await context.Commit(commitOptions);
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                IsCommitting = false;
+            }
+
+
+        });
     }
 
 
@@ -164,8 +201,9 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
         IsLoading = true;
         var depth = Depth;
         var commitPaths = Targets.ToList();
+        var includeExternals = IncludeExternals;
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token);
-        var hostId = SendMessage(new OnGetDialogHostId()).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
 
         try
         {
@@ -185,8 +223,7 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
                     return;
                 }
 
-                var statusOptions = new StatusOptions(path, new Revision.Working(), depth, false, false, false, false,
-                    false, false, []);
+                var statusOptions = new StatusOptions(path.Path, new Revision.Working(), depth, false, false, false, false, includeExternals, false, null);
 
                 var result = await context.Status(statusOptions);
 
@@ -203,8 +240,14 @@ public partial class CommitDialogModel(ViewModelBase? parent = null): ViewModelB
 
             ToBeCommittedItems.Clear();
 
+            var containsUnavaliable = false;
             foreach (var entry in entries.Values)
             {
+                if (entry.NodeStatus is NodeStatus.Missing or NodeStatus.Unversioned)
+                {
+                    containsUnavaliable = true;
+                    continue;
+                }
                 ToBeCommittedItems.Add(new ToBeCommittedItem()
                 {
                     StatusEntry = entry,

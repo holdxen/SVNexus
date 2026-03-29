@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Avalonia.Media;
+using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,8 +14,8 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Utils;
-using SVNexus.ViewModels.WorkingCopy.Changes;
-using Exception = SVNexus.Generated.Exception;
+using SVNexus.Views;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy;
 
@@ -54,21 +54,15 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
         [ObservableProperty]
         public partial bool IsExpanded { get; set; }
         
-        [ObservableProperty]
-        public partial bool Ready { get; set; }
-        
         public ObservableCollection<TreeItemViewModel> Children { get; set; } = [];
 
         partial void OnIsExpandedChanged(bool value)
         {
-            if (Ready)
+            SendMessage(new OnItemIsExpandedChanged()
             {
-                SendMessage(new OnItemIsExpandedChanged()
-                {
-                    IsExpanded = value,
-                    Item = this
-                });
-            }
+                IsExpanded = value,
+                Item = this
+            });
         }
     }
 
@@ -86,6 +80,10 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
     
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedTreeItem { get; set; }
+
+    [ObservableProperty]
+    public partial ObservableCollection<TreeItemViewModel> SelectedTreeItems { get; set; } = [];
+    
     
 
     [ObservableProperty]
@@ -94,6 +92,33 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
     public ObservableCollection<TreeItemViewModel> TreeItems { get; set; } = [];
     
     private List<string> _expandedItems = [];
+
+    public bool IsAddButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry is not null && i.StatusEntry?.NodeStatus == NodeStatus.Unversioned);
+    
+    public bool IsUpdateButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+
+    public bool IsRefreshButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsRevertButtonEnable =>  SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsDiffButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsPatchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsDeleteButtonEnable => SelectedTreeItems.Count == 1 && 
+                                        SelectedTreeItems.First().StatusEntry?.NodeStatus is not (NodeStatus.Unversioned or NodeStatus.Added) &&
+                                        SelectedTreeItems.First().AbsolutePath != WorkspaceRoot;
+    
+    public bool IsMkdirButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != NodeStatus.Unversioned);
+    
+    public bool IsSwitchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsMergeButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    
+    public bool IsRelocateButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().AbsolutePath == WorkspaceRoot;
+    
 
     /// <inheritdoc/>
     public WorkspaceViewModel(string path, ViewModelBase parent) : base(parent)
@@ -106,20 +131,55 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
             var context = Engine.Engine.Instance.SimpleContext(hostId);
             return context;
         });
+
+        // Don't know why there is a warning about the reference may be null
+        SelectedTreeItems?.CollectionChanged += SelectTreeItemsCollectionChanged;
+    }
+
+
+    private void NotifyButtonState()
+    {
+        OnPropertyChanged(nameof(IsAddButtonEnable));
+        OnPropertyChanged(nameof(IsUpdateButtonEnable));
+        OnPropertyChanged(nameof(IsRefreshButtonEnable));
+        OnPropertyChanged(nameof(IsRevertButtonEnable));
+        OnPropertyChanged(nameof(IsDiffButtonEnable));
+        OnPropertyChanged(nameof(IsPatchButtonEnable));
+        OnPropertyChanged(nameof(IsDeleteButtonEnable));
+        OnPropertyChanged(nameof(IsMkdirButtonEnable));
+        OnPropertyChanged(nameof(IsCommitButtonEnable));
+        OnPropertyChanged(nameof(IsSwitchButtonEnable));
+        OnPropertyChanged(nameof(IsMergeButtonEnable));
+        OnPropertyChanged(nameof(IsRelocateButtonEnable));
+    }
+
+    partial void OnSelectedTreeItemsChanged(ObservableCollection<TreeItemViewModel> oldValue, ObservableCollection<TreeItemViewModel> newValue)
+    {
+        oldValue.CollectionChanged -= SelectTreeItemsCollectionChanged;
+        newValue.CollectionChanged += SelectTreeItemsCollectionChanged;
+        NotifyButtonState();
+    }
+
+    private void SelectTreeItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        NotifyButtonState();
     }
 
     partial void OnSelectedTreeItemChanged(TreeItemViewModel? value)
     {
-        if (value is null)
+        if (value is null || value.StatusEntry?.NodeStatus == NodeStatus.Unversioned)
         {
             WorkingCopyViewModel = null;
             return;
         }
 
 
-        if (_workingCopyViewModels.TryGetValue(value.Name, out var workingCopyViewModel))
+        if (_workingCopyViewModels.TryGetValue(value.AbsolutePath, out var workingCopyViewModel))
         {
-            WorkingCopyViewModel = workingCopyViewModel;
+            if (WorkingCopyViewModel != workingCopyViewModel)
+            {
+                WorkingCopyViewModel = workingCopyViewModel;
+            }
         }
         else
         {
@@ -143,14 +203,25 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
         
         var statusOptions = new StatusOptions(WorkspaceRoot, new Revision.Working(), Depth.Infinity, true, false, false, false, false, false, null);
 
+        var oldExpandedItems = _expandedItems;
+        _expandedItems = [];
+        
+        var oldSelectedTreeItems = SelectedTreeItems.Select(i => i.AbsolutePath).ToList();
+        List<TreeItemViewModel> newSelectedTreeItems = [];
+        
         var root = new TreeItemViewModel(this)
         {
             Name = WorkspaceRoot.GetFileName(),
             AbsolutePath = WorkspaceRoot,
+            IsExpanded = oldExpandedItems.Contains(WorkspaceRoot),
         };
 
+        if (oldSelectedTreeItems.Contains(WorkspaceRoot))
+        {
+            newSelectedTreeItems.Add(root);
+        }
 
-        List<string> newExpandedItems = [];
+
         
         TreeItemViewModel? selectedTreeItem = null;
 
@@ -184,7 +255,7 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
                             {
                                 var itemPath = string.IsNullOrEmpty(parentPath) ? $"{WorkspaceRoot}/{part}" : $"{WorkspaceRoot}{parentPath}/{part}";
                                 
-                                var isExpanded = _expandedItems.Contains(itemPath);
+                                var isExpanded = oldExpandedItems.Contains(itemPath);
 
                                 if (initialize && !isExpanded && WorkspacePath.StartsWith(itemPath))
                                 {
@@ -201,9 +272,10 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
                                 {
                                     selectedTreeItem = item;
                                 }
-                                if (item.IsExpanded)
+
+                                if (oldSelectedTreeItems.Contains(item.AbsolutePath))
                                 {
-                                    newExpandedItems.Add(item.AbsolutePath);
+                                    newSelectedTreeItems.Add(item);
                                 }
                                 
                                 
@@ -259,8 +331,128 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
 
             root.IsExpanded = true;
         }
+        else
+        {
+            SelectedTreeItems = new ObservableCollection<TreeItemViewModel>(newSelectedTreeItems);
+        }
 
-        _expandedItems = newExpandedItems;
+    }
+
+
+    [RelayCommand]
+    private async Task Mkdir()
+    {
+        if (!IsMkdirButtonEnable)
+        {
+            return;
+        }
+
+        var mkdirDialogModel = new MkdirDialogModel();
+
+        var dialogOptions = new OverlayDialogOptions()
+        {
+            IsCloseButtonVisible = false,
+            Buttons = DialogButton.None,
+            CanDragMove = true,
+            Mode = DialogMode.Question
+        };
+        
+        await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        
+        // var options = new MkdirOptions([SelectedTreeItems.First().AbsolutePath], true, null, string.Empty);
+        //
+        // await _context.Value.Mkdir(options);
+        //
+        // await RefreshTreeItems();
+    }
+
+    [RelayCommand]
+    private async Task Refresh()
+    {
+        await RefreshTreeItems();
+    }
+
+
+    [RelayCommand]
+    private async Task Revert()
+    {
+        try
+        {
+            if (!IsRevertButtonEnable)
+            {
+                return;
+            }
+
+            var revertOptions = new RevertOptions(
+                [SelectedTreeItems.First().AbsolutePath],
+                Depth.Infinity,
+                [],
+                false,
+                false,
+                true
+            );
+        
+        
+            await _context.Value.Revert(revertOptions);
+
+            await RefreshTreeItems();
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to revert {SelectedTreeItems.First().AbsolutePath}:\n{e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
+        }
+    }
+
+    [RelayCommand]
+    private async Task Delete()
+    {
+        if (!IsDeleteButtonEnable)
+        {
+            return;
+        }
+
+        var path = SelectedTreeItems.First().AbsolutePath;
+
+        var deleteOptions = new DeleteOptions([path], false, true, null);
+
+        await _context.Value.Delete(deleteOptions);
+        
+        await RefreshTreeItems();
+    }
+
+    [RelayCommand]
+    private async Task Add()
+    {
+        if (!IsAddButtonEnable)
+        {
+            return;
+        }
+
+        var addOptions = new AddOptions(SelectedTreeItems.First().AbsolutePath, Depth.Infinity, false, false, false, false);
+
+        await _context.Value.Add(addOptions);
+        await RefreshTreeItems();
+    }
+
+    [RelayCommand]
+    private async Task Commit()
+    {
+        if (!IsCommitButtonEnable)
+        {
+            return;
+        }
+
+        var commitDialogModel = new CommitDialogModel(this)
+        {
+            Targets = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToArray()
+        };
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId);
     }
     
     [RelayCommand]
@@ -268,6 +460,51 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
     {
         WorkspaceRoot = await _context.Value.GetWcRoot(WorkspacePath);
         await RefreshTreeItems(true);
+    }
+
+    [RelayCommand]
+    private async Task Update()
+    {
+        try
+        {
+            if (SelectedTreeItem is null)
+            {
+                Manager.Default.Send(new OnShowToast()
+                {
+                    Type = NotificationType.Warning,
+                    Content = "No selected item to update"
+                }, Manager.MainWindowToken);
+                return;
+            }
+
+            var updateOptions = new UpdateOptions(
+                [SelectedTreeItem.AbsolutePath],
+                new Revision.Head(),
+                Depth.Infinity,
+                false,
+                false,
+                true,
+                true,
+                true
+            );
+        
+            var revision = (await _context.Value.Update(updateOptions)).FirstOrDefault();
+
+            Manager.Default.Send(new OnShowToast()
+            {
+                Type =  NotificationType.Success,
+                Content = $"Updated Successfully to r{revision}"
+            }, Manager.MainWindowToken);
+
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = "Failed to update the workspace.",
+                Type =  NotificationType.Error,
+            }, Manager.MainWindowToken);
+        }
     }
 
     public void Receive(OnItemIsExpandedChanged message)

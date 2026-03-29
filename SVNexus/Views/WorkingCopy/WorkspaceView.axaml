@@ -19,46 +19,77 @@
             <StackPanel
                 Orientation="Horizontal"
                 Spacing="5">
-                <components:SvgButton Classes="ToolButton"
+                <components:LoadingSvgButton Classes="ToolButton"
                                       ToolTip.Tip="Update"
-                                      IsEnabled="False"
+                                      Command="{Binding UpdateCommand}"
+                                      IsLoading="{Binding UpdateCommand.IsRunning}"
+                                      IsEnabled="{Binding IsUpdateButtonEnable}"
                                       Source="{StaticResource Icons.OperationUpdate}">
-                </components:SvgButton>
-                <components:SvgButton Classes="ToolButton"
+                </components:LoadingSvgButton>
+                <components:LoadingSvgButton Classes="ToolButton"
                                       ToolTip.Tip="Refresh"
+                                      IsEnabled="{Binding IsRefreshButtonEnable}"
+                                      Command="{Binding RefreshCommand}"
+                                      IsLoading="{Binding RefreshCommand.IsRunning}"
                                       Source="{StaticResource Icons.Refresh}">
-                </components:SvgButton>
-                <components:SvgButton Classes="ToolButton"
+                </components:LoadingSvgButton>
+                <components:LoadingSvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Add"
+                                      IsEnabled="{Binding IsAddButtonEnable}"
+                                      Command="{Binding AddCommand}"
+                                      IsLoading="{Binding AddCommand.IsRunning}"
+                                      Source="{StaticResource Icons.OperationAdd}">
+                </components:LoadingSvgButton>
+                <components:LoadingSvgButton Classes="ToolButton"
                                       ToolTip.Tip="Revert"
+                                      IsEnabled="{Binding IsRevertButtonEnable}"
+                                      Command="{Binding RevertCommand}"
+                                      IsLoading="{Binding RevertCommand.IsRunning}"
                                       Source="{StaticResource Icons.OperationRevert}">
-                </components:SvgButton>
+                </components:LoadingSvgButton>
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Diff and export"
+                                      IsEnabled="{Binding IsDiffButtonEnable}"
                                       Source="{StaticResource Icons.OperationDiff}">
                 </components:SvgButton>
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Apply patch"
+                                      IsEnabled="{Binding IsPatchButtonEnable}"
                                       Source="{StaticResource Icons.OperationPatch}">
                 </components:SvgButton>
-                <components:SvgButton Classes="ToolButton"
-                                      ToolTip.Tip="Lock"
-                                      Source="{StaticResource Icons.OperationLock}">
-                </components:SvgButton>
-                <components:SvgButton Classes="ToolButton"
-                                      ToolTip.Tip="Unlock"
-                                      Source="{StaticResource Icons.OperationUnlock}">
-                </components:SvgButton>
-                <components:SvgButton Classes="ToolButton"
-                                      ToolTip.Tip="Relocate"
+                <components:LoadingSvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Delete"
+                                      IsEnabled="{Binding IsDeleteButtonEnable}"
+                                      IsLoading="{Binding DeleteCommand.IsRunning}"
+                                      Command="{Binding DeleteCommand}"
                                       Source="{StaticResource Icons.OperationDelete}">
-                </components:SvgButton>
+                </components:LoadingSvgButton>
                 <components:SvgButton Classes="ToolButton"
-                                      ToolTip.Tip="Relocate"
+                                      ToolTip.Tip="Mkdir"
+                                      IsEnabled="{Binding IsMkdirButtonEnable}"
+                                      Command="{Binding MkdirCommand}"
                                       Source="{StaticResource Icons.OperationMkdir}">
                 </components:SvgButton>
                 <components:SvgButton Classes="ToolButton"
-                                      ToolTip.Tip="Relocate"
+                                      ToolTip.Tip="Commit"
+                                      Command="{Binding CommitCommand}"
+                                      IsEnabled="{Binding IsCommitButtonEnable}"
+                                      Source="{StaticResource Icons.OperationCommit}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Switch"
+                                      IsEnabled="{Binding IsSwitchButtonEnable}"
                                       Source="{StaticResource Icons.OperationSwitch}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Merge"
+                                      IsEnabled="{Binding IsMergeButtonEnable}"
+                                      Source="{StaticResource Icons.OperationMerge}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Relocate"
+                                      IsEnabled="{Binding IsRelocateButtonEnable}"
+                                      Source="{StaticResource Icons.OperationRelocate}">
                 </components:SvgButton>
             </StackPanel>
             <Border Grid.Column="1"></Border>
@@ -80,7 +111,8 @@
                                              Margin="0 5"
                                              ItemsSource="{Binding TreeItems}"
                                              SelectedItem="{Binding SelectedTreeItem}"
-                                             SelectionMode="Single">
+                                             SelectedItems="{Binding  SelectedTreeItems}"
+                                             SelectionMode="Multiple">
                     <components:AdvancedTreeView.Styles>
                         <Style Selector="components|AdvancedTreeViewItem" x:DataType="wk:WorkspaceViewModel+TreeItemViewModel">
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded}"></Setter>

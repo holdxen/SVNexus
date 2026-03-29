@@ -8,6 +8,7 @@
              xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:components="clr-namespace:SVNexus.Components"
              x:DataType="viewModels:CommitDialogModel"
+             Width="800"
              IsEnabled="{Binding !IsCommitting}"
              x:Class="SVNexus.Views.CommitDialog">
     <Interaction.Behaviors>
@@ -26,16 +27,15 @@
         </Style>
     </UserControl.Styles>
     <Grid RowDefinitions="*, Auto">
-        <u:Form>
+        <u:Form HorizontalAlignment="Stretch">
             <u:FormItem Label="To be committed:">
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
-                        <ListBox MinHeight="80" ItemsSource="{Binding ToBeCommittedItems}">
+                        <ListBox MaxHeight="200" MinHeight="50" ItemsSource="{Binding ToBeCommittedItems}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="viewModels:CommitDialogModel+ToBeCommittedItem">
                                     <Grid ColumnDefinitions="Auto, *, Auto" 
-                                          Margin="0 3"
-                                          inject:Ambient.WorkingCopyPath="{Binding WorkingCopyPath, Mode=OneWayToSource}">
+                                          Margin="0 3">
                                         <components:SvgRender Source="{Binding NodeKindIcon}" Size="20" Grid.Column="0"></components:SvgRender>
                                         <Grid Grid.Column="1" ColumnDefinitions="Auto, *">
                                             <TextBlock Grid.Column="0"
@@ -71,11 +71,9 @@
                 </u:EnumSelector>
             </u:FormItem>
             <u:FormItem Label="Options:">
-                <Grid RowDefinitions="*, *" ColumnDefinitions="*, *">
-                    <CheckBox Grid.Row="0" Grid.Column="0" Content="Delete missing file" IsChecked="{Binding DeleteMissing}"></CheckBox>
-                    <CheckBox Grid.Row="0" Grid.Column="1" Content="Add unversioned file" IsChecked="{Binding AddUnversioned}"></CheckBox>
-                    <CheckBox Grid.Row="1" Grid.Column="0" Content="No lock" IsChecked="{Binding NoLock}"></CheckBox>
-                    <CheckBox Grid.Row="1" Grid.Column="1" Content="Include externals" IsChecked="{Binding IncludeExternals}"></CheckBox>
+                <Grid ColumnDefinitions="*, *">
+                    <CheckBox Grid.Column="0" Content="No lock" IsChecked="{Binding NoLock}"></CheckBox>
+                    <CheckBox Grid.Column="1" Content="Include externals" IsChecked="{Binding IncludeExternals}"></CheckBox>
                 </Grid>
             </u:FormItem>
             <u:FormItem Label="Commit Message:">
@@ -89,6 +87,7 @@
             <Button Grid.Column="3"
                     Classes="Primary"
                     Theme="{StaticResource SolidButton}"
+                    Command="{Binding CommitCommand}"
                     Content="确定">
             </Button>
         </Grid>

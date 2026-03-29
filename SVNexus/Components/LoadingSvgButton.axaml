@@ -1,0 +1,54 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="using:SVNexus.Components"
+        xmlns:u="https://irihi.tech/ursa">
+    <Design.PreviewWith>
+        <components:LoadingSvgButton />
+    </Design.PreviewWith>
+    <Style Selector="components|LoadingSvgButton.ToolButton">
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
+        <Setter Property="Size" Value="20"></Setter>
+        <Setter Property="Spacing" Value="2"></Setter>
+        <Style Selector="^[IsEnabled=False]">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
+            <Setter Property="Opacity" Value="0.35"></Setter>
+        </Style>
+    </Style>
+
+    <Style Selector="components|LoadingSvgButton">
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border
+                    IsEnabled="{TemplateBinding IsEnabled}">
+                    <Grid>
+                        <components:SvgButton Size="{TemplateBinding Size}" 
+                                              Foreground="{TemplateBinding Foreground}"
+                                              Spacing="{TemplateBinding Spacing}"
+                                              IsEnabled="{TemplateBinding IsEnabled}"
+                                              IsVisible="{TemplateBinding IsLoading, Converter={x:Static BoolConverters.Not}}"
+                                              Source="{TemplateBinding Source}"
+                                              EnableFlyout="{TemplateBinding EnableFlyout}"
+                                              Flyout="{TemplateBinding Flyout}"
+                                              CommandParameter="{TemplateBinding CommandParameter}"
+                                              Command="{TemplateBinding Command}">
+                        </components:SvgButton>
+                        <Border Padding="{TemplateBinding Spacing}"
+                                Background="Transparent"
+                                IsVisible="{TemplateBinding IsLoading}">
+                            <Border.Styles>
+                                <Style Selector="u|LoadingIcon /template/ Arc#PART_Arc">
+                                    <Setter Property="Width" Value="{Binding $parent[components:LoadingSvgButton].Size}" />
+                                    <Setter Property="Height" Value="{Binding $parent[components:LoadingSvgButton].Size}" />
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                </Style>
+                            </Border.Styles>
+                            <u:LoadingIcon 
+                                           />
+                        </Border>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

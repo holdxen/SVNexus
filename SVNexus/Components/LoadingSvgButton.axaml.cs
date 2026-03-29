@@ -1,30 +1,35 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
-using Avalonia.Media;
 
 namespace SVNexus.Components;
 
-
-[PseudoClasses(":pressed")]
-public class SvgButton : TemplatedControl
+public class LoadingSvgButton : TemplatedControl
 {
-    public static readonly StyledProperty<string?> SourceProperty =
-        AvaloniaProperty.Register<SvgButton, string?>(nameof(Source));
+    public static readonly StyledProperty<bool> IsLoadingProperty = AvaloniaProperty.Register<LoadingSvgButton, bool>(
+        nameof(IsLoading));
+
+    public bool IsLoading
+    {
+        get => GetValue(IsLoadingProperty);
+        set => SetValue(IsLoadingProperty, value);
+    }
+    
+    
+        public static readonly StyledProperty<string?> SourceProperty =
+        AvaloniaProperty.Register<LoadingSvgButton, string?>(nameof(Source));
 
     public static readonly StyledProperty<ICommand?> CommandProperty =
-        AvaloniaProperty.Register<SvgButton, ICommand?>(nameof(Command));
+        AvaloniaProperty.Register<LoadingSvgButton, ICommand?>(nameof(Command));
 
     public static readonly StyledProperty<object?> CommandParameterProperty =
-        AvaloniaProperty.Register<SvgButton, object?>(nameof(CommandParameter));
+        AvaloniaProperty.Register<LoadingSvgButton, object?>(nameof(CommandParameter));
 
-    public static readonly StyledProperty<FlyoutBase?> FlyoutProperty = AvaloniaProperty.Register<SvgButton, FlyoutBase?>(
+    public static readonly StyledProperty<FlyoutBase?> FlyoutProperty = AvaloniaProperty.Register<LoadingSvgButton, FlyoutBase?>(
         nameof(Flyout));
 
-    public static readonly StyledProperty<bool> EnableFlyoutProperty = AvaloniaProperty.Register<SvgButton, bool>(
+    public static readonly StyledProperty<bool> EnableFlyoutProperty = AvaloniaProperty.Register<LoadingSvgButton, bool>(
         nameof(EnableFlyout));
 
     public bool EnableFlyout
@@ -58,7 +63,7 @@ public class SvgButton : TemplatedControl
     }
     
     
-    public static readonly StyledProperty<Thickness> SpacingProperty = AvaloniaProperty.Register<SvgButton, Thickness>(
+    public static readonly StyledProperty<Thickness> SpacingProperty = AvaloniaProperty.Register<LoadingSvgButton, Thickness>(
         nameof(Spacing), defaultValue: new  Thickness(2));
 
     public Thickness Spacing
@@ -76,22 +81,5 @@ public class SvgButton : TemplatedControl
         set => SetValue(SizeProperty, value);
     }
 
-    
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-        PseudoClasses.Set(":pressed", true);
-    }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
-        base.OnPointerReleased(e);
-        PseudoClasses.Set(":pressed", false);
-    }
-
-    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
-    {
-        base.OnPointerCaptureLost(e);
-        PseudoClasses.Set(":pressed", false);
-    }
 }

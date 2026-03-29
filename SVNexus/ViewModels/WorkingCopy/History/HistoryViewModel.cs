@@ -251,25 +251,17 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
     private async Task<bool> CheckUrl()
     {
-        Utils.Log.Info("DEBUG block");
         if (ThisEntry is not null)
         {
-            Utils.Log.Info("DEBUG block");
             return true;
         }
-        Utils.Log.Info("DEBUG block");
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId());
-        Utils.Log.Info("DEBUG block");
         var path = SendMessage(new OnGetWorkingCopyPath());
-        Utils.Log.Info("DEBUG block");
 
         using var context = Engine.Engine.Instance.SimpleContext(hostId);
-        Utils.Log.Info("DEBUG block");
 
         try
         {
-            Utils.Log.Info("DEBUG block");
             var opts = new InfoOptions(
                 Path: path,
                 PegRevision: new Revision.Working(),
@@ -280,25 +272,22 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                 IncludeExternals: false,
                 Changelists: []
             );
-            Utils.Log.Info("DEBUG block");
             var result = await context.Info(opts);
-            Utils.Log.Info("DEBUG block");
-            if (result.Entries.Count != 1)
+            Dispatcher.UIThread.Invoke(() =>
             {
-                throw new Exception("Failed to query information");
-            }
-            Utils.Log.Info("DEBUG block");
+                if (result.Entries.Count != 1)
+                {
+                    throw new Exception("Failed to query information");
+                }
 
-            ThisEntry = result.Entries.First().Value;
-            Utils.Log.Info("DEBUG block");
+                ThisEntry = result.Entries.First().Value;
+            });
 
             return true;
         }
         catch (Exception e)
         {
-            Utils.Log.Info("DEBUG block");
             HandleException(e);
-            Utils.Log.Info("DEBUG block");
             return false;
         }
 
@@ -312,33 +301,23 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     private async Task Log(uint limit)
     {
 
-        Utils.Log.Info("DEBUG block");
         AsyncContext? context = null;
-        Utils.Log.Info("DEBUG block");
         try
         {
-            Utils.Log.Info("DEBUG block");
             IsLoading = true;
-            Utils.Log.Info("DEBUG block");
             if (_startRevision is 1)
             {
-                Utils.Log.Info("DEBUG block");
                 return;
             }
-            Utils.Log.Info("DEBUG block");
             if (!await CheckUrl())
             {
-                Utils.Log.Info("DEBUG block");
                 return;
             }
-            Utils.Log.Info("DEBUG block");
 
             // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
             var hostId = SendMessage(new OnGetDialogHostId());
 
-            Utils.Log.Info("DEBUG block");
             context = Engine.Engine.Instance.SimpleContext(hostId);
-            Utils.Log.Info("DEBUG block");
 
 
             var logOptions = new LogOptions(
@@ -358,20 +337,12 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                 RevisionsProperties: ["svn:author", "svn:log", "svn:date"]);
 
 
-            Utils.Log.Info("DEBUG block");
-            // var result = await context.Log(logOptions);
-            // Console.WriteLine(result.LogEntries.Length);
-
-
-            Utils.Log.Info("DEBUG block");
             await context.LogNext(logOptions, new LogReceiverDelegate()
             {
                 OnLogEntryAction = entry =>
                 {
-                    Utils.Log.Info("DEBUG block");
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        Utils.Log.Info("DEBUG block");
                         if (entry.Revision is null)
                         {
                             _parent = null;
@@ -404,27 +375,18 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                         {
                             _startRevision = entry.Revision;
                         }
-                        Utils.Log.Info("DEBUG block");
                     });
-                    Utils.Log.Info("DEBUG block");
                 }
             });
-
-            Utils.Log.Info("DEBUG block");
-            Console.WriteLine("Log next finished");
         }
         catch (Exception e)
         {
-            Utils.Log.Info("DEBUG block");
             HandleException(e);
-            Utils.Log.Info("DEBUG block");
         }
         finally
         {
-            Utils.Log.Info("DEBUG block");
             IsLoading = false;
             context?.Dispose();
-            Utils.Log.Info("DEBUG block");
         }
 
 
@@ -433,9 +395,9 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
     protected override async Task LoadOnce()
     {
-        Utils.Log.Info("Load ing history...");
+        Logger.Info("Load ing history...");
         await Log(20);
-        Utils.Log.Info("Load completed");
+        Logger.Info("Load completed");
     }
 
 }

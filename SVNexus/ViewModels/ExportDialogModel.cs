@@ -125,13 +125,13 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
 
         if (string.IsNullOrEmpty(url))
         {
-            Manager.Default.Send(new OnNotification(new Notification()
+            Manager.Default.Send(new OnNotification
             {
                 Title = "错误",
                 Content = "Url must be specified.",
                 Type = NotificationType.Error,
                 ShowIcon = true,
-            }), Manager.MainWindowToken);
+            }, Manager.MainWindowToken);
             return;
         }
 
@@ -139,13 +139,13 @@ public partial class ExportDialogModel: ViewModelBase, IDialogContext
         
         if (string.IsNullOrEmpty(path))
         {
-            Manager.Default.Send(new OnNotification(new Notification
+            Manager.Default.Send(new OnNotification
             {
                 Title = "错误",
                 Content = "Url must be specified.",
                 Type = NotificationType.Error,
                 ShowIcon = true,
-            }), Manager.MainWindowToken);
+            }, Manager.MainWindowToken);
             return;
         }
 

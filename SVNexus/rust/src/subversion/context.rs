@@ -10,6 +10,7 @@ use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
 use crate::utils::{Pointer, PointerMapper};
 use core::panic;
+use std::collections::HashSet;
 use derive_new::new;
 use snafu::ResultExt;
 use std::collections::HashMap;
@@ -309,6 +310,26 @@ pub struct StatusEntry {
     moved_to_absolute_path: Option<String>,
 }
 
+impl StatusEntry {
+    fn fix_node_kind(&mut self) -> error::Result<()> {
+        if self.node_status != NodeStatus::Unversioned {
+            return Ok(())
+        }
+
+        let metadata = std::fs::metadata(self.path.as_str())?;
+
+        if metadata.is_symlink() {
+            self.node_kind = NodeKind::Symlink;
+        } else if metadata.is_dir() {
+            self.node_kind = NodeKind::Directory
+        } else if metadata.is_file() {
+            self.node_kind = NodeKind::File;
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(uniffi::Record, Debug)]
 pub struct CommitOptions {
     targets: Vec<String>,
@@ -335,7 +356,7 @@ pub struct CommitInfo {
 // #[repr(u32)]
 // #[derive(Debug, TryFromPrimitive)]
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_status_kind)]
-#[derive(Debug, uniffi::Enum)]
+#[derive(Debug, uniffi::Enum, PartialEq, Eq, Hash)]
 pub enum NodeStatus {
     None = ffi::svn_wc_status_kind_svn_wc_status_none,
     Unversioned = ffi::svn_wc_status_kind_svn_wc_status_unversioned,
@@ -375,7 +396,7 @@ pub struct DeleteOptions {
     path: Vec<String>,
     force: bool,
     keep_local: bool,
-    revprop_table: HashMap<String, String>,
+    revision_property_table: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -494,8 +515,8 @@ impl Revision {
     }
 }
 
-impl CommitInfo {
-    unsafe fn from_ptr(info: *const ffi::svn_commit_info_t) -> Self {
+impl From<*const ffi::svn_commit_info_t> for CommitInfo {
+    fn from(info: *const ffi::svn_commit_info_t) -> Self {
         unsafe {
             let info = info.as_ref().unwrap();
             Self {
@@ -519,9 +540,9 @@ unsafe extern "C" fn commit_callback(
         if !error.is_null() {
             return error;
         }
-        let commit_info = CommitInfo::from_ptr(commit_info);
+        let commit_info = CommitInfo::from(commit_info);
 
-        let this = &mut *(baton as *mut ContextInner);
+        let this = (baton as *mut ContextInner).as_mut().unwrap();
 
         this.commit_info = Some(commit_info);
 
@@ -1388,6 +1409,19 @@ impl apr::Pool {
     }
 }
 
+#[derive(uniffi::Record, Debug)]
+pub struct MkdirOptions {
+    paths: Vec<String>,
+    make_parents: bool,
+    revision_property_table: Option<HashMap<String, String>>,
+    commit_message: String,
+}
+
+#[derive(uniffi::Record, Debug)]
+pub struct MkdirResult {
+    commit_info: Option<CommitInfo>,
+}
+
 #[derive(Debug, new, uniffi::Record)]
 pub struct CatOptions {
     path: String,
@@ -1417,7 +1451,7 @@ pub struct InfoOptions {
 
 #[derive(Debug, uniffi::Record)]
 pub struct InfoResult {
-    entries: HashMap<String, InfoEntry>,
+    pub entries: HashMap<String, InfoEntry>,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -2043,6 +2077,34 @@ impl Context {
         }
     }
 
+    pub fn mkdir(&mut self, opts: MkdirOptions) -> error::Result<MkdirResult> {
+
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let paths = pool.string_array(opts.paths.len(), opts.paths.iter())?;
+
+            let table = opts.revision_property_table.map(|p| pool.string_hash_map(p.iter())).transpose()?.unwrap_or_default();
+
+            let mut error = ffi::svn_client_mkdir4(
+                paths,
+                opts.make_parents.into(),
+                table,
+                Some(commit_callback),
+                self.inner.inner_void_pointer_mut(),
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            Ok(MkdirResult {
+                commit_info: self.inner.commit_info.take(),
+            })
+        }
+
+    }
+
     pub fn revision_property_list(
         &mut self,
         opts: RevisionPropertyListOptions,
@@ -2211,7 +2273,12 @@ impl Context {
 
                 let this = (baton as *mut ContextInner).as_mut().unwrap();
 
-                let entry = StatusEntry::from_path_and_ptr(path, status);
+                let mut entry = StatusEntry::from_path_and_ptr(path, status);
+
+                let result = entry.fix_node_kind();
+                if let Err(err) = result {
+                    tracing::warn!("Failed to detect node kind of {}:{}", entry.path, err);
+                }
 
                 this.status_receiver.as_ref().expect("status receiver must be set").on_status_entry(entry);
             }
@@ -2280,7 +2347,12 @@ impl Context {
 
                 let this = (baton as *mut ContextInner).as_mut().unwrap();
 
-                let entry = StatusEntry::from_path_and_ptr(path, status);
+                let mut entry = StatusEntry::from_path_and_ptr(path, status);
+
+                let result = entry.fix_node_kind();
+                if let Err(err) = result {
+                    tracing::warn!("Failed to detect node kind of {}:{}", entry.path, err);
+                }
 
                 this.status_entries.push(entry);
             }
@@ -2601,7 +2673,7 @@ impl Context {
 
             let path = pool.string_array(opts.path.len(), opts.path.iter())?;
 
-            let table = pool.string_hash_map(opts.revprop_table.iter())?;
+            let table = opts.revision_property_table.map(|p| pool.string_hash_map(p.iter())).transpose()?.unwrap_or_default();
 
             let error = ffi::svn_client_delete4(
                 path,

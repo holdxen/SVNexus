@@ -36,9 +36,16 @@
                             Spacing="2"
                             IsVisible="{Binding IsListView}"
                             Orientation="Horizontal">
-                    <CheckBox IsChecked="{Binding ChangesListViewModel.AllChecked}"
-                              Content="All">
-                    </CheckBox>
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Load all"
+                                          Command="{Binding ChangesListViewModel.CheckAllCommand}"
+                                          Source="{StaticResource Icons.CheckAll}">
+                    </components:SvgButton>
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Load all"
+                                          Command="{Binding ChangesListViewModel.ClearAllCommand}"
+                                          Source="{StaticResource Icons.ClearAll}">
+                    </components:SvgButton>
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Search"
                                           Source="{StaticResource Icons.Search}">
@@ -48,8 +55,15 @@
                             Spacing="2"
                             IsVisible="{Binding IsTreeView}"
                             Orientation="Horizontal">
-                    <CheckBox Content="All" IsChecked="{Binding ChangesTreeViewModel.AllChecked}"></CheckBox>
                     <CheckBox Content="Root" IsChecked="{Binding ChangesTreeViewModel.ShowRoot}"></CheckBox>
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Load all"
+                                          Source="{StaticResource Icons.CheckAll}">
+                    </components:SvgButton>
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Load all"
+                                          Source="{StaticResource Icons.ClearAll}">
+                    </components:SvgButton>
                     <components:SvgButton Classes="ToolButton"
                                           Classes.Selected="{Binding ChangesTreeViewModel.SearchMode}"
                                           ToolTip.Tip="Search"
@@ -68,11 +82,13 @@
                 <Border Grid.Column="1"></Border>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
                     <components:SvgButton
+                        Size="20"
                         Command="{Binding SwitchToListViewCommand}"
                         Classes.Selected="{Binding IsListView}"
                         Source="{StaticResource Icons.List}">
                     </components:SvgButton>
                     <components:SvgButton
+                        Size="20"
                         Command="{Binding SwitchToTreeViewCommand}"
                         Classes.Selected="{Binding IsTreeView}"
                         Source="{StaticResource Icons.FolderTree}">

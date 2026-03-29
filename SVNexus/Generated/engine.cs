@@ -1668,6 +1668,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -6088,6 +6090,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asynccontext_log_next(ulong @ptr,RustBuffer @opts,ulong @receiver
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asynccontext_mkdir(ulong @ptr,RustBuffer @opts
     );
 
     #if NET8_0_OR_GREATER
@@ -11224,6 +11237,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_mkdir(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_property_list(
     );
 
@@ -13720,6 +13744,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_mkdir();
+            if (checksum != 27977) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_mkdir` checksum `27977`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_property_list();
             if (checksum != 33424) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_property_list` checksum `33424`, library returned `{checksum}`");
@@ -13775,8 +13805,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asyncworkingcopycontext_wc_version();
-            if (checksum != 30174) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_wc_version` checksum `30174`, library returned `{checksum}`");
+            if (checksum != 49602) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_wc_version` checksum `49602`, library returned `{checksum}`");
             }
         }
         {
@@ -14090,6 +14120,8 @@ public interface IAsyncContext {
     Task<LogResult> Log(LogOptions @opts);
     /// <exception cref="Exception"></exception>
     Task LogNext(LogOptions @opts, LogReceiver @receiver);
+    /// <exception cref="Exception"></exception>
+    Task<MkdirResult> Mkdir(MkdirOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<PropertyListResult> PropertyList(PropertyListOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -14532,6 +14564,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
+    public async Task<MkdirResult> Mkdir(MkdirOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_mkdir(thisPtr, FfiConverterTypeMkdirOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeMkdirResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
     public async Task<PropertyListResult> PropertyList(PropertyListOptions @opts) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
@@ -14728,7 +14782,7 @@ public interface IAsyncWorkingCopyContext {
     /// <exception cref="Exception"></exception>
     Task<CheckRootResult> CheckRoot(string @path);
     /// <exception cref="Exception"></exception>
-    Task<Version> WcVersion(string @path);
+    Task<Version?> WcVersion(string @path);
 }
 public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
     protected ulong pointer;
@@ -14842,7 +14896,7 @@ public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
-    public async Task<Version> WcVersion(string @path) {
+    public async Task<Version?> WcVersion(string @path) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
@@ -14857,7 +14911,7 @@ public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
         // Free
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
-        (result) => FfiConverterTypeVersion.INSTANCE.Lift(result),
+        (result) => FfiConverterOptionalTypeVersion.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -20148,7 +20202,7 @@ public record DeleteOptions (
     string[] Path, 
     bool Force, 
     bool KeepLocal, 
-    Dictionary<string, string> RevpropTable
+    Dictionary<string, string>? RevisionPropertyTable
 ) {
 }
 
@@ -20160,7 +20214,7 @@ class FfiConverterTypeDeleteOptions: FfiConverterRustBuffer<DeleteOptions> {
             Path: FfiConverterSequenceString.INSTANCE.Read(stream),
             Force: FfiConverterBoolean.INSTANCE.Read(stream),
             KeepLocal: FfiConverterBoolean.INSTANCE.Read(stream),
-            RevpropTable: FfiConverterDictionaryStringString.INSTANCE.Read(stream)
+            RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream)
         );
     }
 
@@ -20169,14 +20223,14 @@ class FfiConverterTypeDeleteOptions: FfiConverterRustBuffer<DeleteOptions> {
             + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Path)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Force)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.KeepLocal)
-            + FfiConverterDictionaryStringString.INSTANCE.AllocationSize(value.RevpropTable);
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable);
     }
 
     public override void Write(DeleteOptions value, BigEndianStream stream) {
             FfiConverterSequenceString.INSTANCE.Write(value.Path, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Force, stream);
             FfiConverterBoolean.INSTANCE.Write(value.KeepLocal, stream);
-            FfiConverterDictionaryStringString.INSTANCE.Write(value.RevpropTable, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
     }
 }
 
@@ -21284,6 +21338,70 @@ class FfiConverterTypeMergeRange: FfiConverterRustBuffer<MergeRange> {
             FfiConverterInt64.INSTANCE.Write(value.Start, stream);
             FfiConverterInt64.INSTANCE.Write(value.End, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Inheritable, stream);
+    }
+}
+
+
+
+public record MkdirOptions (
+    string[] Paths, 
+    bool MakeParents, 
+    Dictionary<string, string>? RevisionPropertyTable, 
+    string CommitMessage
+) {
+}
+
+class FfiConverterTypeMkdirOptions: FfiConverterRustBuffer<MkdirOptions> {
+    public static FfiConverterTypeMkdirOptions INSTANCE = new FfiConverterTypeMkdirOptions();
+
+    public override MkdirOptions Read(BigEndianStream stream) {
+        return new MkdirOptions(
+            Paths: FfiConverterSequenceString.INSTANCE.Read(stream),
+            MakeParents: FfiConverterBoolean.INSTANCE.Read(stream),
+            RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
+            CommitMessage: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(MkdirOptions value) {
+        return 0
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Paths)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MakeParents)
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
+    }
+
+    public override void Write(MkdirOptions value, BigEndianStream stream) {
+            FfiConverterSequenceString.INSTANCE.Write(value.Paths, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.MakeParents, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
+            FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
+    }
+}
+
+
+
+public record MkdirResult (
+    CommitInfo? CommitInfo
+) {
+}
+
+class FfiConverterTypeMkdirResult: FfiConverterRustBuffer<MkdirResult> {
+    public static FfiConverterTypeMkdirResult INSTANCE = new FfiConverterTypeMkdirResult();
+
+    public override MkdirResult Read(BigEndianStream stream) {
+        return new MkdirResult(
+            CommitInfo: FfiConverterOptionalTypeCommitInfo.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(MkdirResult value) {
+        return 0
+            + FfiConverterOptionalTypeCommitInfo.INSTANCE.AllocationSize(value.CommitInfo);
+    }
+
+    public override void Write(MkdirResult value, BigEndianStream stream) {
+            FfiConverterOptionalTypeCommitInfo.INSTANCE.Write(value.CommitInfo, stream);
     }
 }
 
@@ -24324,6 +24442,37 @@ class FfiConverterOptionalTypeTrustServer: FfiConverterRustBuffer<TrustServer?> 
 
 
 
+class FfiConverterOptionalTypeVersion: FfiConverterRustBuffer<Version?> {
+    public static FfiConverterOptionalTypeVersion INSTANCE = new FfiConverterOptionalTypeVersion();
+
+    public override Version? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeVersion.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(Version? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeVersion.INSTANCE.AllocationSize((Version)value);
+        }
+    }
+
+    public override void Write(Version? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeVersion.INSTANCE.Write((Version)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeWorkingCopyInfo: FfiConverterRustBuffer<WorkingCopyInfo?> {
     public static FfiConverterOptionalTypeWorkingCopyInfo INSTANCE = new FfiConverterOptionalTypeWorkingCopyInfo();
 
@@ -25481,7 +25630,7 @@ internal static class _UniFFIAsync {
 
         public static void Callback(IntPtr continuationHandle, byte pollResult)
         {
-            if (_async_handle_map.Remove((ulong)continuationHandle.ToInt64(), out TaskCompletionSource<byte> task))
+            if (_async_handle_map.Remove((ulong)continuationHandle.ToInt64(), out var task))
             {
                 task.SetResult(pollResult);
             }
@@ -25498,7 +25647,7 @@ internal static class _UniFFIAsync {
 
         public static void Callback(ulong handle)
         {
-            if (_foreign_futures_map.Remove(handle, out CancellationTokenSource task))
+            if (_foreign_futures_map.Remove(handle, out var task))
             {
                 task.Cancel();
             }

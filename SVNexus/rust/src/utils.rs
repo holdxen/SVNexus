@@ -246,9 +246,6 @@ impl SvgRenderOptions {
             ..Default::default()
         };
 
-
-        tracing::info!("Render svg with color={:?}", self.color);
-
         let tree = Tree::from_str(&self.svg, &options).context(builder::Svg)?;
 
         let mut pixmap = Pixmap::new(self.width, self.height).expect("Unexpected zero size");

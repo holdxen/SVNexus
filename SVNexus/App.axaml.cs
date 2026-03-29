@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
@@ -6,6 +8,7 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Generated;
 using SVNexus.Messages;
@@ -22,10 +25,27 @@ public partial class App : Application, IRecipient<OnSetThemeVariant>
         Manager.Default.RegisterAllMessages(this, Manager.AppToken);
     }
 
+    private static byte[][] BuiltinFonts()
+    {
+        var folderUri = new Uri("avares://SVNexus/Assets/Fonts/");
+
+        // baseUri 对于绝对 uri 可以传 null
+        var asserts = new List<byte[]>();
+        foreach (var uri in AssetLoader.GetAssets(folderUri, baseUri: null))
+        {
+            using var stream = AssetLoader.Open(uri);
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            var bytes = ms.ToArray();
+            asserts.Add(bytes);
+        }
+        return asserts.ToArray();
+    }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        EngineMethods.SetupSvg(Program.BuiltinFonts());
+        EngineMethods.SetupSvg(BuiltinFonts());
     }
 
     public override void OnFrameworkInitializationCompleted()

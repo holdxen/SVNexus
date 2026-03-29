@@ -19,7 +19,6 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
     {
         InitializeComponent();
         
-        Ambient.SetGuid(this, Manager.MainWindowToken);
         Manager.Default.RegisterAllMessages(this, Manager.MainWindowToken);
         
         _notificationManager = new WindowNotificationManager(this);
@@ -44,7 +43,7 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
 
     public void Receive(OnNotification message)
     {
-        _notificationManager.Show(message.Value);
+        _notificationManager.Show(message);
     }
 
     public void Receive(OnShowToast message)

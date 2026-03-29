@@ -443,10 +443,19 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         
         var items = IsTreeView ? ChangesTreeViewModel.CheckedItems : ChangesListViewModel.CheckedItems;
 
+        if (items.Count == 0)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = "No files or folders checked.",
+                Type =  NotificationType.Warning,
+            }, Manager.MainWindowToken);
+            return;
+        }
 
         var model = new CommitDialogModel(this)
         {
-            Targets = items.Keys.ToArray()
+            Targets = items.Values.ToArray()
         };
 
         var dialogOptions = new OverlayDialogOptions()
@@ -591,7 +600,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
             if (difference is null) return;
         }
         
-        Log.Info($"Selected Entry: {statusEntry}");
+        Logger.Info($"Selected Entry: {statusEntry}");
             
         _differences[statusEntry.Path] = null;
         EditorState = LoadingOrErrorState.MakeLoading();

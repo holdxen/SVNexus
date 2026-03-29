@@ -80,12 +80,6 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
         public required partial StatusEntry StatusEntry { get; set; }
 
 
-        // [ObservableProperty]
-        // [NotifyPropertyChangedFor(nameof(Name))]
-        // [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
-        // public partial string WorkingCopyPath { get; set; } = string.Empty;
-
-
         public List<MenuItemViewModel>? MenuItems
         {
             get
@@ -186,18 +180,6 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
                 return menuItems.Count == 0 ? null : menuItems;
             }
         }
-
-        // private readonly Services.ITabService _tabService;
-        // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-        // private readonly Services.TypeService _typeService;
-        // public ListItemViewModel(IServiceProvider serviceProvider)
-        // {
-        //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        //     
-        //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-        // }
 
         partial void OnIsCheckedChanged(bool value)
         {
@@ -322,9 +304,6 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
     [ObservableProperty]
     public partial string SearchText { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial bool? AllChecked { get; set; }
-
     private bool BlockSignal { get; set; }
 
     // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
@@ -334,39 +313,25 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
     //     _serviceProvider = serviceProvider;
     //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
     //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-    //     
-    //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-    // }
-
-    partial void OnAllCheckedChanged(bool? value)
+    
+    
+    [RelayCommand]
+    private void CheckAll()
     {
-        if (BlockSignal)
-        {
-            return;
-        }
-
-        if (value is null)
-        {
-            return;
-            
-        }
-
-        BlockSignal = true;
-
         foreach (var item in Items)
         {
-            item.IsChecked = value.GetValueOrDefault();
+            item.IsChecked = true;
         }
-
-        BlockSignal = false;
-
     }
 
-    
-
-    
-    
-    
+    [RelayCommand]
+    private void ClearAll()
+    {
+        foreach (var item in Items)
+        {
+            item.IsChecked = false;
+        }
+    }
 
     partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
@@ -413,48 +378,6 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
     
         CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
     
-        UpdateAllChecked();
-    }
-    //
-    // private void OnItemCheckStateChanged(ListItemViewModel itemModel, bool check)
-    // {
-    //     if (check)
-    //     {
-    //         CheckedItems.Add(itemModel.StatusEntry.Path, itemModel.StatusEntry);
-    //     }
-    //     else
-    //     {
-    //         CheckedItems.Remove(itemModel.StatusEntry.Path);
-    //     }
-    //     
-    //     UpdateAllChecked();
-    // }
-    
-    private void UpdateAllChecked()
-    {
-        if (BlockSignal)
-        {
-            return;
-        }
-        BlockSignal = true;
-        if (Items.Count == 0)
-        {
-            AllChecked = false;
-        }
-        else if (CheckedItems.Count == Items.Count)
-        {
-            AllChecked = true;
-        }
-        else if (CheckedItems.Count == 0)
-        {
-            AllChecked = false;
-        }
-        else
-        {
-            AllChecked = null;
-        }
-        BlockSignal = false;
-        Console.Write("Set All checked: {0}, Checked={1} Item={2}", AllChecked, CheckedItems.Count, Items.Count);
     }
 
     public void Receive(OnItemCheckStateChanged message)
@@ -467,7 +390,5 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
         {
             CheckedItems.Remove(message.Item.StatusEntry.Path);
         }
-        
-        UpdateAllChecked();
     }
 }

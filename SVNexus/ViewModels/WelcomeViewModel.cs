@@ -60,11 +60,11 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             {
                 Closable = true,
                 Text = result[0].Name
-            };
+            }.Apply(item =>
+            {
+                item.Content = new WorkspaceViewModel(path, item);
+            });
             
-            var content = new WorkspaceViewModel(path, tab);
-            tab.Content = content;
-
             SendMessage(new OnAddTab(tab));
         }
     }

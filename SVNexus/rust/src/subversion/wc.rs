@@ -105,7 +105,7 @@ impl AsyncWorkingCopyContext {
         }).await
     }
 
-    pub async fn wc_version(&self, path: String) -> error::Result<Version> {
+    pub async fn wc_version(&self, path: String) -> error::Result<Option<Version>> {
         self.call_async(move |ctx| unsafe {
             let mut pool = apr::Pool::create();
             let path = pool.string(path)?;
@@ -118,7 +118,9 @@ impl AsyncWorkingCopyContext {
 
             let version = ffi::svn_client_wc_version_from_format(format, pool.as_mut_ptr());
 
-            Ok(Version::from(version))
+            let v = version.map(|v| Version::from(v));
+
+            Ok(v)
 
             // Ok(version)
         }).await

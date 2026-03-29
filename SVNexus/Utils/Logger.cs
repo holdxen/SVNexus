@@ -3,7 +3,7 @@ using SVNexus.Generated;
 
 namespace SVNexus.Utils;
 
-public static class Log
+public static class Logger
 {
     public static void Trace(string message,
         [CallerMemberName] string memberName = "",

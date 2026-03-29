@@ -331,12 +331,12 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
     
     private void HandleException(Exception e)
     {
-        Manager.Default.Send(new OnNotification(new Notification
+        Manager.Default.Send(new OnNotification
         {
             Title = "Error",
             Content = $"Failed to query: {e.HumanReadableMessage}",
             Type = NotificationType.Error,
-        }), Manager.MainWindowToken);
+        }, Manager.MainWindowToken);
     }
 
     public void BuildFileTree(ListEntry[] entries)

@@ -6,7 +6,10 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace SVNexus.ViewModels;
 
-
+public interface IRelativeViewModel
+{
+    
+}
 
 public abstract class ViewModelBase (ViewModelBase? parent = null) : ObservableObject
 {
