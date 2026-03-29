@@ -165,8 +165,10 @@ impl AsyncContext {
 
     #[uniffi::constructor]
     pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
+        tracing::info!("Before creating context");
         let context = ContextFactory::instance()?.create_context(opts)?;
         let context = Arc::new(parking_lot::Mutex::new(context));
+        tracing::info!("Finished creating context");
         Ok(AsyncContext { context })
     }
 }

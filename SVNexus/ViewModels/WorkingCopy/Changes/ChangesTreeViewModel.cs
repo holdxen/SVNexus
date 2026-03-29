@@ -9,6 +9,7 @@ using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
@@ -16,13 +17,27 @@ using SVNexus.Messages;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewModelBase(parent)//, IRecipient<LocalTreeViewModel.OnLocalTreeItemChecked>, IRecipient<LocalTreeViewModel.OnLocalTreeItemExpanded>
+public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewModelBase(parent), 
+    IRecipient<ChangesTreeViewModel.OnItemIsExpandedChanged>,
+    IRecipient<ChangesTreeViewModel.OnItemIsCheckedChanged>
 {
+
+    public class OnItemIsExpandedChanged
+    {
+        public required TreeItemViewModel Item { get; init; }
+        public required bool IsExpanded { get; init; }
+    }
+
+    public class OnItemIsCheckedChanged
+    {
+        public required TreeItemViewModel Item { get; init; }
+        public required bool IsChecked { get; init; }
+    }
     
-    public partial class TreeItemViewModel: ViewModelBase
+    public partial class TreeItemViewModel(ViewModelBase parent): ViewModelBase(parent)
     {
         
-        public ChangesTreeViewModel? Root { get; set; }
+        // public ChangesTreeViewModel? Root { get; set; }
         
         [ObservableProperty]
         public partial bool IsExpanded { get; set; }
@@ -88,12 +103,22 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
             //     IsChecked = value,
             //     ItemModel = this
             // });
-            Root?.OnItemChecked(this, value);
+            // Root?.OnItemChecked(this, value);
+            SendMessage(new OnItemIsCheckedChanged()
+            {
+                Item = this,
+                IsChecked = value
+            });
         }
 
         partial void OnIsExpandedChanged(bool value)
         {
-            Root?.OnItemExpanded(this, value);
+            // Root?.OnItemExpanded(this, value);
+            SendMessage(new OnItemIsExpandedChanged()
+            {
+                Item = this,
+                IsExpanded = value
+            });
         }
     }
     
@@ -108,11 +133,6 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
     
     public List<string> ExpandedItems { get; set; } = [];
-
-    [ObservableProperty]
-    public partial bool? AllChecked { get; set; }
-    
-    private bool BlockSignal { get; set; }
 
     private int ItemCount { get; set; }
 
@@ -171,7 +191,6 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
                 ItemCount--;
             }
         }
-        UpdateAllChecked();
     }
 
 
@@ -189,64 +208,19 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     }
     
 
-    partial void OnAllCheckedChanged(bool? value)
-    {
-        if (BlockSignal)
-        {
-            return;
-        }
 
-        if (value is null)
-        {
-            return;
-        }
+    // private void SetItemChecked(TreeItemViewModel item, bool value)
+    // {
+    //     if (item.IsReal)
+    //     {
+    //         item.IsChecked = value;
+    //     }
+    //     foreach (var child in item.Children)
+    //     {
+    //         SetItemChecked(child, value);
+    //     }
+    // }
 
-        BlockSignal = true;
-        foreach (var item in Items)
-        {
-            SetItemChecked(item, value.GetValueOrDefault());
-        }
-        BlockSignal = false;
-    }
-
-    private void SetItemChecked(TreeItemViewModel item, bool value)
-    {
-        if (item.IsReal)
-        {
-            item.IsChecked = value;
-        }
-        foreach (var child in item.Children)
-        {
-            SetItemChecked(child, value);
-        }
-    }
-
-    private void UpdateAllChecked()
-    {
-        if (BlockSignal)
-        {
-            return;
-        }
-        BlockSignal = true;
-        if (ItemCount == 0)
-        {
-            AllChecked = false;
-        }
-        else if (CheckedItems.Count == ItemCount)
-        {
-            AllChecked = true;
-        }
-        else if (CheckedItems.Count == 0)
-        {
-            AllChecked = false;
-        }
-        else
-        {
-            AllChecked = null;
-        }
-        BlockSignal = false;
-    }
-    
     
 
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
@@ -272,281 +246,131 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     //     }
     // }
 
-    public void OnItemChecked(TreeItemViewModel item, bool check)
-    {
-        if (item.StatusEntry is null)
-        {
-            return;
-        }
-        if (check)
-        {
-            CheckedItems.Add(item.StatusEntry.Path, item.StatusEntry);
-        }
-        else
-        {
-            // CheckedItems.RemoveAll((e) => e == item.StatusEntry.Path);
-            CheckedItems.Remove(item.StatusEntry.Path);
-        }
-        
-        UpdateAllChecked();
-    }
+    // public void OnItemChecked(TreeItemViewModel item, bool check)
+    // {
+    //     if (item.StatusEntry is null)
+    //     {
+    //         return;
+    //     }
+    //     if (check)
+    //     {
+    //         CheckedItems.Add(item.StatusEntry.Path, item.StatusEntry);
+    //     }
+    //     else
+    //     {
+    //         // CheckedItems.RemoveAll((e) => e == item.StatusEntry.Path);
+    //         CheckedItems.Remove(item.StatusEntry.Path);
+    //     }
+    //     
+    // }
     
     public void Update(StatusEntry[] statusEntries)
     {
         var workingCopyPath = SendMessage(new OnGetWorkingCopyPath()).Response;
-            Items.Clear();
-            var root = new TreeItemViewModel
-            {
-                StatusEntry = null,
-                WorkingCopyPath = workingCopyPath,
-                Text = workingCopyPath.GetFileName(),
-                IsExpanded = ExpandedItems.Contains(workingCopyPath),
-                Path = workingCopyPath,
-                IsChecked = false,
-            };
-        
-            var cleanExpandedItems = new List<string>();
-            var cleanCheckedItems = new Dictionary<string, StatusEntry>();
-        
-            if (root.IsExpanded)
-            {
-                cleanExpandedItems.Add(root.Path);    
-            }
+        Items.Clear();
+        var oldExpandedItems = ExpandedItems;
+        var oldCheckedItems = CheckedItems;
 
-            foreach (var statusEntry in statusEntries)
+        ExpandedItems = [];
+        CheckedItems = [];
+        
+        var root = new TreeItemViewModel(this)
+        {
+            StatusEntry = null,
+            WorkingCopyPath = workingCopyPath,
+            Text = workingCopyPath.GetFileName(),
+            IsExpanded = oldExpandedItems.Contains(workingCopyPath),
+            Path = workingCopyPath,
+            IsChecked = false,
+        };
+        
+        // var cleanExpandedItems = new List<string>();
+        // var cleanCheckedItems = new Dictionary<string, StatusEntry>();
+        
+        
+        
+        // if (root.IsExpanded)
+        // {
+        //     cleanExpandedItems.Add(root.Path);    
+        // }
+
+        foreach (var statusEntry in statusEntries)
+        {
+            if (statusEntry.Path == workingCopyPath)
             {
-                if (statusEntry.Path == workingCopyPath)
+                root.StatusEntry = statusEntry;
+                root.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+
+                continue;
+            }
+            var path = statusEntry.Path.TrimStartString(workingCopyPath).TrimStartPathSeparatorChar();
+
+            var parentItem = root;
+            
+            var parts = path.Split('/');
+
+            var index = 0;
+            var parentPath = string.Empty;
+            
+            foreach (var part in parts)
+            {       
+                var first = parentItem.Children.FirstOrDefault(e=> e.Text == part);
+                if (first is null)
                 {
-                    root.StatusEntry = statusEntry;
-                    root.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
-                    if (root.IsChecked)
+                    // var itemPath = WorkingCopyPath + parentPath + "/" + part;
+                    var itemPath = $"{workingCopyPath}/{parentPath}/{part}";
+                    var item = new TreeItemViewModel(this)
                     {
-                        cleanCheckedItems.Add(statusEntry.Path, statusEntry);
+                        WorkingCopyPath = workingCopyPath,
+                        // Messenger = Messenger,
+                        Text = part,
+                        StatusEntry = null,
+                        IsChecked = false,
+                        Path = itemPath,
+                        IsExpanded = oldExpandedItems.Contains(itemPath),
+                    };
+                    parentItem.Children.Add(item);
+                    parentItem = item;
+                    if (index == parts.Length - 1)
+                    {
+                        item.StatusEntry = statusEntry;
+                        item.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+
                     }
 
-                    continue;
                 }
-                var path = statusEntry.Path.TrimStartString(workingCopyPath).TrimStartPathSeparatorChar();
-
-                var parentItem = root;
-            
-                var parts = path.Split('/');
-
-                var index = 0;
-                var parentPath = string.Empty;
-            
-                foreach (var part in parts)
-                {       
-                    var first = parentItem.Children.FirstOrDefault(e=> e.Text == part);
-                    if (first is null)
+                else
+                {
+                    if (index == parts.Length - 1)
                     {
-                        // var itemPath = WorkingCopyPath + parentPath + "/" + part;
-                        var itemPath = $"{workingCopyPath}/{parentPath}/{part}";
-                        var item = new TreeItemViewModel
-                        {
-                            WorkingCopyPath = workingCopyPath,
-                            // Messenger = Messenger,
-                            Text = part,
-                            StatusEntry = null,
-                            IsChecked = false,
-                            Path = itemPath,
-                            IsExpanded = ExpandedItems.Contains(itemPath),
-                        };
-                        if (item.IsExpanded)
-                        {
-                            cleanExpandedItems.Add(itemPath);
-                        }
-                        parentItem.Children.Add(item);
-                        parentItem = item;
-                        if (index == parts.Length - 1)
-                        {
-                            item.StatusEntry = statusEntry;
-                            item.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
-                            if (item.IsChecked)
-                            {
-                                cleanCheckedItems.Add(statusEntry.Path, statusEntry);
-                            }
-
-                        }
-
-                        item.Root = this;
-                    }
-                    else
-                    {
-                        if (index == parts.Length - 1)
-                        {
-                            first.StatusEntry = statusEntry;
-                            first.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
-                            if (first.IsChecked)
-                            {
-                                cleanCheckedItems.Add(statusEntry.Path, statusEntry);
-                            }
-                            first.IsExpanded = ExpandedItems.Contains(statusEntry.Path);
-                            break;
-                        }
-
-                        parentItem = first;
+                        first.StatusEntry = statusEntry;
+                        first.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+                        first.IsExpanded = oldExpandedItems.Contains(statusEntry.Path);
+                        break;
                     }
 
-                    index++;
-                    parentPath += "/" + part;
+                    parentItem = first;
                 }
 
+                index++;
+                parentPath += "/" + part;
             }
 
-            root.Root = this;
-            if (_root is null)
-            {
-                root.IsExpanded = true;
-            }
-            _root = root;
+        }
+
+        if (_root is null)
+        {
+            root.IsExpanded = true;
+        }
+        _root = root;
             
             
-            OnShowRootChanged(ShowRoot);
+        OnShowRootChanged(ShowRoot);
 
-            CheckedItems = cleanCheckedItems;
-            ExpandedItems = cleanExpandedItems;
-
-            ItemCount = statusEntries.Length;
+        ItemCount = statusEntries.Length;
         
-            UpdateAllChecked();
     }
 
-    // public void Update(StatusEntry[] statusEntries)
-    // {
-    //     InvokeLoadedAction(() =>
-    //     {
-    //         Items.Clear();
-    //         var root = new TreeItemViewModel
-    //         {
-    //             StatusEntry = null,
-    //             WorkingCopyPath = WorkingCopyPath,
-    //             Text = WorkingCopyPath.GetFileName(),
-    //             IsExpanded = ExpandedItems.Contains(WorkingCopyPath),
-    //             Path = WorkingCopyPath,
-    //             IsChecked = false,
-    //         };
-    //     
-    //         var cleanExpandedItems = new List<string>();
-    //         var cleanCheckedItems = new Dictionary<string, StatusEntry>();
-    //     
-    //         if (root.IsExpanded)
-    //         {
-    //             cleanExpandedItems.Add(root.Path);    
-    //         }
-    //
-    //         foreach (var statusEntry in statusEntries)
-    //         {
-    //             if (statusEntry.Path == WorkingCopyPath)
-    //             {
-    //                 root.StatusEntry = statusEntry;
-    //                 root.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
-    //                 if (root.IsChecked)
-    //                 {
-    //                     cleanCheckedItems.Add(statusEntry.Path, statusEntry);
-    //                 }
-    //
-    //                 continue;
-    //             }
-    //             var path = statusEntry.Path.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar();
-    //
-    //             var parentItem = root;
-    //         
-    //             var parts = path.Split('/');
-    //
-    //             var index = 0;
-    //             var parentPath = string.Empty;
-    //         
-    //             foreach (var part in parts)
-    //             {       
-    //                 var first = parentItem.Children.FirstOrDefault(e=> e.Text == part);
-    //                 if (first is null)
-    //                 {
-    //                     // var itemPath = WorkingCopyPath + parentPath + "/" + part;
-    //                     var itemPath = $"{WorkingCopyPath}/{parentPath}/{part}";
-    //                     var item = new TreeItemViewModel
-    //                     {
-    //                         WorkingCopyPath = WorkingCopyPath,
-    //                         // Messenger = Messenger,
-    //                         Text = part,
-    //                         StatusEntry = null,
-    //                         IsChecked = false,
-    //                         Path = itemPath,
-    //                         IsExpanded = ExpandedItems.Contains(itemPath),
-    //                     };
-    //                     if (item.IsExpanded)
-    //                     {
-    //                         cleanExpandedItems.Add(itemPath);
-    //                     }
-    //                     parentItem.Children.Add(item);
-    //                     parentItem = item;
-    //                     if (index == parts.Length - 1)
-    //                     {
-    //                         item.StatusEntry = statusEntry;
-    //                         item.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
-    //                         if (item.IsChecked)
-    //                         {
-    //                             cleanCheckedItems.Add(statusEntry.Path, statusEntry);
-    //                         }
-    //
-    //                     }
-    //
-    //                     item.Root = this;
-    //                 }
-    //                 else
-    //                 {
-    //                     if (index == parts.Length - 1)
-    //                     {
-    //                         first.StatusEntry = statusEntry;
-    //                         first.IsChecked = CheckedItems.ContainsKey(statusEntry.Path);
-    //                         if (first.IsChecked)
-    //                         {
-    //                             cleanCheckedItems.Add(statusEntry.Path, statusEntry);
-    //                         }
-    //                         first.IsExpanded = ExpandedItems.Contains(statusEntry.Path);
-    //                         break;
-    //                     }
-    //
-    //                     parentItem = first;
-    //                 }
-    //
-    //                 index++;
-    //                 parentPath += "/" + part;
-    //             }
-    //
-    //         }
-    //
-    //         root.Root = this;
-    //         if (_root is null)
-    //         {
-    //             root.IsExpanded = true;
-    //         }
-    //         _root = root;
-    //         
-    //         
-    //         OnShowRootChanged(ShowRoot);
-    //
-    //         CheckedItems = cleanCheckedItems;
-    //         ExpandedItems = cleanExpandedItems;
-    //
-    //         ItemCount = statusEntries.Length;
-    //     
-    //         UpdateAllChecked();
-    //     });
-    //
-    // }
-
-    // public void Receive(OnLocalTreeItemExpanded message)
-    // {
-    //     if (message.IsExpanded)
-    //     {
-    //         ExpandedItems.Add(message.ItemModel.Path);
-    //     }
-    //     else
-    //     {
-    //         ExpandedItems.RemoveAll((e) => e == message.ItemModel.Path);
-    //     }
-    // }
 
     public void OnItemExpanded(TreeItemViewModel item, bool expanded)
     {
@@ -557,6 +381,35 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         else
         {
             ExpandedItems.RemoveAll(e => e == item.Path);
+        }
+    }
+
+    public void Receive(OnItemIsExpandedChanged message)
+    {
+        if (message.IsExpanded)
+        {
+            ExpandedItems.Add(message.Item.Path);
+        }
+        else
+        {
+            ExpandedItems.RemoveAll(e => e == message.Item.Path);
+        }
+    }
+
+    public void Receive(OnItemIsCheckedChanged message)
+    {
+        if (message.Item.StatusEntry is null)
+        {
+            return;
+        }
+        if (message.IsChecked)
+        {
+            CheckedItems.Add(message.Item.StatusEntry.Path, message.Item.StatusEntry);
+        }
+        else
+        {
+            // CheckedItems.RemoveAll((e) => e == item.StatusEntry.Path);
+            CheckedItems.Remove(message.Item.StatusEntry.Path);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,18 +10,11 @@ using SVNexus.Validation;
 
 namespace SVNexus.ViewModels;
 
-public partial class MkdirDialogModel: ObservableValidator, IDialogContext
+public partial class MkdirDialogModel: ViewModelBase, IDialogContext
 {
     [ObservableProperty] public partial string ParentDirectory { get; set; } = string.Empty;
 
-    // [ObservableProperty]
-    // [FolderNameValidation]
-    // [NotifyDataErrorInfo]
-    // [Required]
-    // public partial string Name { get; set; } = string.Empty;
-
-    [MinLength(10)]
-
+    [FolderNameValidation]
     public string Name
     {
         get => field;
@@ -32,6 +26,10 @@ public partial class MkdirDialogModel: ObservableValidator, IDialogContext
     [RelayCommand]
     private void Confirm()
     {
+        if (!ValidateAllProperty(out _))
+        {
+            return;
+        }
         RequestClose?.Invoke(this, null);
         Accept = true;
     }

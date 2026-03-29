@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 /// 综合考虑 Windows / Linux / macOS 的命名限制。
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
-public sealed class FolderNameValidationAttribute() : ValidationAttribute("'{0}' is not a valid folder name.")
+public sealed class FolderNameValidationAttribute() : ValidationAttribute("")
 {
     // Windows 文件系统禁止的字符
     private static readonly char[] WindowsInvalidChars =

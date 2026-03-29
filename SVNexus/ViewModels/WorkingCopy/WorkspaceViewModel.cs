@@ -19,7 +19,9 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy;
 
-public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceViewModel.OnItemIsExpandedChanged>
+public partial class WorkspaceViewModel : ViewModelBase, 
+    IRecipient<WorkspaceViewModel.OnItemIsExpandedChanged>,
+    IRecipient<OnGetContext>
 {
 
     public class OnItemIsExpandedChanged()
@@ -347,23 +349,37 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
             return;
         }
 
-        var mkdirDialogModel = new MkdirDialogModel();
-
-        var dialogOptions = new OverlayDialogOptions()
+        try
         {
-            IsCloseButtonVisible = false,
-            Buttons = DialogButton.None,
-            CanDragMove = true,
-            Mode = DialogMode.Question
-        };
+            var mkdirDialogModel = new MkdirDialogModel()
+            {
+                ParentDirectory = SelectedTreeItems.First().AbsolutePath,
+            };
+
+            var dialogOptions = new OverlayDialogOptions()
+            {
+                IsCloseButtonVisible = false,
+                Buttons = DialogButton.None,
+                CanDragMove = true,
+                Mode = DialogMode.Question
+            };
         
-        await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+            await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
         
-        // var options = new MkdirOptions([SelectedTreeItems.First().AbsolutePath], true, null, string.Empty);
-        //
-        // await _context.Value.Mkdir(options);
-        //
-        // await RefreshTreeItems();
+            var path = mkdirDialogModel.ParentDirectory + "/" + mkdirDialogModel.Name;
+        
+            var options = new MkdirOptions([path], true, null, string.Empty);
+            await _context.Value.Mkdir(options);
+            await RefreshTreeItems();
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to create directory:\n{e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            });
+        }
     }
 
     [RelayCommand]
@@ -517,5 +533,10 @@ public partial class WorkspaceViewModel : ViewModelBase, IRecipient<WorkspaceVie
         {
             _expandedItems.Remove(message.Item.AbsolutePath);
         }
+    }
+
+    public void Receive(OnGetContext message)
+    {
+        message.Reply(_context.Value);
     }
 }

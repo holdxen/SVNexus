@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +22,19 @@ public abstract class ViewModelBase (ViewModelBase? parent = null) : ObservableO
     protected ViewModelBase? Sender { get; set; }
     
     private const int MaxLevel = 200;
+    
+    
+    public bool ValidateAllProperty(out List<ValidationResult> results)
+    {
+        results = [];
+        var context = new ValidationContext(this);
+
+        return Validator.TryValidateObject(
+            this,
+            context,
+            results,
+            validateAllProperties: true);
+    }
 
     public T? GetParent<T>()
         where T: ViewModelBase

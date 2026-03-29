@@ -116,8 +116,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     [RelayCommand]
     private async Task OnLoaded()
     {
-        await CheckWorkingCopyVersion();
-        await CheckWorkingCopyRoot();
+        // await CheckWorkingCopyRoot();
         await Status();
     }
 
@@ -142,36 +141,36 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     }
 
 
-    private async Task CheckWorkingCopyVersion()
-    {
-        var path = SendMessage(new OnGetWorkingCopyPath());
-        using var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()));
-        using var wc = context.WorkingCopyContext();
-        
-        var current = await wc.WcVersion(path);
-        
-        var recommended = await context.DefaultWcVersion();
-
-        Upgradable = recommended.Compare(current) > 0;
-    }
+    // private async Task CheckWorkingCopyVersion()
+    // {
+    //     var path = SendMessage(new OnGetWorkingCopyPath());
+    //     var context = SendMessage(new OnGetContext()).Response;
+    //     using var wc = context.WorkingCopyContext();
+    //     
+    //     var current = await wc.WcVersion(path);
+    //     
+    //     var recommended = await context.DefaultWcVersion();
+    //
+    //     Upgradable = recommended.Compare(current) > 0;
+    // }
     
 
-    private async Task CheckWorkingCopyRoot()
-    {
-        try
-        {
-            var path = SendMessage(new OnGetWorkingCopyPath());
-            using var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
-            using var wc = context.WorkingCopyContext();
-            var result = await wc.CheckRoot(path);
-            IsWcRoot = result.IsWcRoot;
-        }
-        catch (System.Exception e)
-        {
-            IsWcRoot = false;
-        }
-        
-    }
+    // private async Task CheckWorkingCopyRoot()
+    // {
+    //     try
+    //     {
+    //         var path = SendMessage(new OnGetWorkingCopyPath());
+    //         using var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
+    //         using var wc = context.WorkingCopyContext();
+    //         var result = await wc.CheckRoot(path);
+    //         IsWcRoot = result.IsWcRoot;
+    //     }
+    //     catch (System.Exception e)
+    //     {
+    //         IsWcRoot = false;
+    //     }
+    //     
+    // }
 
 
     [RelayCommand]
@@ -254,12 +253,14 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
             );
         
 
-        using var context = Engine.Engine.Instance.SimpleContext(hostId);
+        // using var context = Engine.Engine.Instance.SimpleContext(hostId);
+
+        var context = SendMessage(new OnGetContext()).Response;
 
         try
         {
             await context.Revert(revertOptions);
-            await Status(context);
+            await Status();
         }
         catch (System.Exception e)
         {
@@ -277,10 +278,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     }
 
     
-    private async Task Status(AsyncContext context, bool dispose = false)
+    [RelayCommand]
+    public async Task Status()
     {
         try
         {
+
+            var context = SendMessage(new OnGetContext()).Response;
 
             var hostId = SendMessage(new OnGetDialogHostId()).Response;
             var path = SendMessage(new OnGetWorkingCopyPath());
@@ -294,7 +298,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 CheckWorkingCopy: false,
                 NoIgnore: false,
                 IgnoreExternals: true,
-                DepthAsSticky: false, Changelist: []);
+                DepthAsSticky: false, Changelist: null);
 
 
             var result = await context.Status(statusOptions);
@@ -370,32 +374,25 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 }, Manager.MainWindowToken);
             }
         }
-        finally
-        {
-            if (dispose)
-            {
-                context.Dispose();
-            }
-        }
     }
-
-    [RelayCommand]
-    public async Task Status()
-    {
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
-        var hostId = SendMessage(new OnGetDialogHostId()).Response;
-
-        using var context = Engine.Engine.Instance.SimpleContext(hostId);
-        
-        await Status(context);
-    }
-
+    //
+    // [RelayCommand]
+    // public async Task Status()
+    // {
+    //     // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+    //     // var hostId = SendMessage(new OnGetDialogHostId()).Response;
+    //
+    //     // using var context = Engine.Engine.Instance.SimpleContext(hostId);
+    //     
+    //     await Status(context);
+    // }
+    //
     [RelayCommand]
     private async Task Update()
     {
         try
         {
-            using var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
+            var context = SendMessage(new OnGetContext()).Response;
             var path = SendMessage(new OnGetWorkingCopyPath());
             
             var opts = new UpdateOptions(
@@ -609,10 +606,11 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         {
 
             var success = false;
-            AsyncContext? context = null;
+            // AsyncContext? context = null;
             try
             {
-                context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
+                // context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
+                var context = SendMessage(new OnGetContext()).Response;
                 
                 // var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
                 //     Revision: new Revision.Working(), ExpandKeywords: true);
@@ -628,7 +626,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 Func<Task<CatResult>> catModified;
                 Func<Task<CatResult>> catOriginal;
 
-                var handle = context;
                 if (statusEntry.NodeStatus is NodeStatus.Missing or NodeStatus.Deleted)
                 {
                     catModified = () => Task.FromResult(new CatResult([], []));
@@ -636,7 +633,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                     {
                         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Base(),
                             Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
-                        return handle.Cat(catOptions);
+                        return context.Cat(catOptions);
                     };
                 }
                 else if (statusEntry.NodeStatus is NodeStatus.Unversioned or NodeStatus.Added)
@@ -655,13 +652,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                     {
                         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
                             Revision: new Revision.Working(), ExpandKeywords: true, GetProperties: false);
-                        return handle.Cat(catOptions);
+                        return context.Cat(catOptions);
                     };
                     catOriginal = () =>
                     {
                         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
                             Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
-                        return handle.Cat(catOptions);
+                        return context.Cat(catOptions);
                     };
                 }
 
@@ -853,7 +850,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 {
                     EditorState = LoadingOrErrorState.MakeNone();
                 }
-                context?.Dispose();
             }
         });
         
