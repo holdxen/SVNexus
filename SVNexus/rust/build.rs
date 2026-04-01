@@ -18,33 +18,41 @@ fn add_link_library(lib: &str) {
     println!("cargo:rustc-link-lib={}", lib);
 }
 
-#[allow(unreachable_code)]
+
+
 fn svn_path() -> String {
-    #[cfg(target_os = "windows")]
-    {
-        // #[cfg(target_pointer_width = "64")]
-        // {
-        //     return ".\\deps\\win-x64\\svn".to_string();
-        // }
-        //
-        #[cfg(target_arch = "x86_64")]
-        return ".\\deps\\win-x64\\svn".to_string();
+    use cfg_if::cfg_if;
+    cfg_if! {
+        if #[cfg(target_os = "windows")] {
+            cfg_if! {
+                if #[cfg(target_arch = "x86_64")] {
+                    ".\\deps\\win-x64\\svn".to_string()
+                } else {
+                    panic!("Unsupported Windows arch")
+                }
+            }
+        } else if #[cfg(target_os = "macos")] {
+            cfg_if! {
+                if #[cfg(target_arch = "aarch64")] {
+                    "./deps/macos-aarch64/svn".to_string()
+                } else {
+                    panic!("Unsupported macOS arch")
+                }
+            }
+        } else if #[cfg(target_os = "linux")] {
+            cfg_if! {
+                if #[cfg(target_arch = "x86_64")] {
+                    "./deps/linux-x64/svn".to_string()
+                } else {
+                    panic!("Unsupported Linux arch")
+                }
+            }
+        } else {
+            panic!("Unsupported os")
+        }
     }
-
-    #[cfg(target_os = "macos")]
-    {
-        #[cfg(target_arch = "aarch64")]
-        return "./deps/macos-aarch64/svn".to_string();
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        #[cfg(target_arch = "x86_64")]
-        return "./deps/linux-x64/svn".to_string();
-    }
-
-    panic!("Unsupported os")
 }
+
 
 
 #[derive(Serialize, Deserialize)]
