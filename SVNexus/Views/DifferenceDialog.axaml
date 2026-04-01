@@ -3,7 +3,133 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:DifferenceDialogModel"
              x:Class="SVNexus.Views.DifferenceDialog">
-    <components:LoadingOrError></components:LoadingOrError>
+    <Grid ColumnDefinitions="*, Auto">
+        <u:Form HorizontalAlignment="Stretch" Margin="3 0">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid RowDefinitions="Auto, *, Auto, Auto"></Grid>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Grid.Row="0" Label="Path:">
+                <TextBlock Text="{Binding Path}"></TextBlock>
+            </u:FormItem>
+            <u:FormItem Grid.Row="1" Classes="GridLayout" VerticalContentAlignment="Stretch">
+                <u:FormItem.Label>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Result:"></TextBlock>
+                        <components:SvgButton ToolTip.Tip="{Binding Err}" 
+                                              Size="16"
+                                              Source="{StaticResource Icons.ColorfulWarning}"
+                                              IsVisible="{Binding HasWarning}">
+                        </components:SvgButton>
+                    </StackPanel>
+                </u:FormItem.Label>
+                <!-- <u:FormItem.Template> -->
+                <!--     <ControlTemplate TargetType="u:FormItem"> -->
+                <!--         <Grid RowDefinitions="Auto, *"> -->
+                <!--             <StackPanel -->
+                <!--                 Grid.Row="0" -->
+                <!--                 Name="PART_LabelPanel" -->
+                <!--                 Margin="0,0,0,4" -->
+                <!--                 HorizontalAlignment="{TemplateBinding LabelAlignment}" -->
+                <!--                 Orientation="Horizontal"> -->
+                <!--                 <Label -->
+                <!--                     Name="PART_Label" -->
+                <!--                     Content="{TemplateBinding Label}" -->
+                <!--                     Background="Transparent" -->
+                <!--                     FontWeight="{DynamicResource TextBlockTitleFontWeight}" -->
+                <!--                     Target="{Binding #PART_ContentPresenter.Content}" /> -->
+                <!--                 <TextBlock -->
+                <!--                     Foreground="{DynamicResource FormAsteriskForeground}" -->
+                <!--                     IsVisible="{TemplateBinding IsRequired}" -->
+                <!--                     Text="*" /> -->
+                <!--             </StackPanel> -->
+                <!--             <ContentPresenter -->
+                <!--                 Grid.Row="1" -->
+                <!--                 Name="PART_ContentPresenter" -->
+                <!--                 ContentTemplate="{TemplateBinding ContentTemplate}" -->
+                <!--                 Content="{TemplateBinding Content}" /> -->
+                <!--         </Grid> -->
+                <!--     </ControlTemplate> -->
+                <!-- </u:FormItem.Template> -->
+                <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}"
+                                           CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                                           State="{Binding State}">
+                    <Border Theme="{DynamicResource CardBorder}">
+                        <Border.Resources>
+                            <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+                        </Border.Resources>
+                        <Grid>
+                            <avaloniaEdit:TextEditor VerticalAlignment="Stretch" ShowLineNumbers="True">
+                                <Interaction.Behaviors>
+                                    <behaviors:DocumentTextBindingBehavior Text="{Binding Out}"></behaviors:DocumentTextBindingBehavior>
+                                </Interaction.Behaviors>
+                            </avaloniaEdit:TextEditor>
+                        </Grid>
+                    </Border>
+                </components:LoadingOrError>
+            </u:FormItem>
+
+        </u:Form>
+        <u:Form Margin="3 0" Grid.Column="1" VerticalAlignment="Bottom">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel></StackPanel>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Grid.Row="0" Label="Depth:">
+                <StackPanel Spacing="5">
+                    <u:EnumSelector HorizontalAlignment="Stretch"
+                                    Value="{Binding Depth}"
+                                    EnumType="{x:Static viewModels:DifferenceDialogModel.DepthType}">
+                    </u:EnumSelector>
+                </StackPanel>
+            </u:FormItem>
+            <u:FormItem Label="Display:">
+                <u:EnumSelector HorizontalAlignment="Stretch"
+                                Value="{Binding Display}"
+                                EnumType="{x:Static viewModels:DifferenceDialogModel.DisplayContentType}">
+                </u:EnumSelector>
+            </u:FormItem>
+            <u:FormItem Grid.Row="1" Label="Settings:" >
+                <StackPanel>
+                    <CheckBox Content="Ignore ancestry"
+                              IsChecked="{Binding IgnoreAncestry}">
+                    </CheckBox>
+                    <CheckBox Content="No added" IsChecked="{Binding NoAdded}"></CheckBox>
+                    <CheckBox Content="No deleted" IsChecked="{Binding NoDeleted}"></CheckBox>
+                    <CheckBox Content="Show copies as adds"
+                              IsChecked="{Binding ShowCopiesAsAdds}">
+                    </CheckBox>
+                    <CheckBox Content="Ignore content type"
+                              IsChecked="{Binding IgnoreContentType}">
+                    </CheckBox>
+                    <CheckBox Content="Git format" IsChecked="{Binding GitFormat}"></CheckBox>
+                    <CheckBox Content="Pretty" IsChecked="{Binding Pretty}"></CheckBox>
+                    <CheckBox Content="Relate to root" IsChecked="{Binding RelateToRoot}"></CheckBox>
+                </StackPanel>
+            </u:FormItem>
+            <u:FormItem Grid.Row="2" Label="Action:">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Border Grid.Column="0"></Border>
+                    <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
+                        <Button Content="Close" Command="{Binding CloseCommand}"></Button>
+                        <Button Classes="Primary"
+                                Theme="{StaticResource SolidButton}"
+                                Content="Export"
+                                IsEnabled="{Binding CanExport}"
+                                Command="{Binding ExportCommand}">
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </u:FormItem>
+        </u:Form>
+    </Grid>
 </UserControl>

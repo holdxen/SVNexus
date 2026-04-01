@@ -5,7 +5,7 @@
              xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="workingCopy:WorkingCopyViewModel"
              IsEnabled="{Binding IsEnabled}"
@@ -138,7 +138,11 @@
                         <components:SvgButton Classes="ToolButton"
                                               ToolTip.Tip="Load more revisions"
                                               Source="{StaticResource Icons.LoadMoreList}"
-                                              Command="{Binding HistoryViewModel.LoadedCommand}" />
+                                              Command="{Binding HistoryViewModel.LogCommand}" >
+                            <components:SvgButton.CommandParameter>
+                                <system:UInt32>20</system:UInt32>
+                            </components:SvgButton.CommandParameter>
+                        </components:SvgButton>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
                     <StackPanel 

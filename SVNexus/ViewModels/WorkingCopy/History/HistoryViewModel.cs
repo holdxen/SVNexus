@@ -298,6 +298,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     private CommitItemViewModel? _parent;
 
 
+    [RelayCommand]
     private async Task Log(uint limit)
     {
 
@@ -395,9 +396,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
     protected override async Task LoadOnce()
     {
-        Logger.Info("Load ing history...");
-        await Log(20);
-        Logger.Info("Load completed");
+        await LogCommand.ExecuteAsync(20);
     }
 
 }

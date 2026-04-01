@@ -75,8 +75,8 @@ pub struct WorkingCopyWalkStatusOptions {
 
 #[derive(uniffi::Object, Clone)]
 pub enum AsyncWorkingCopyContext {
-    Context(Arc<parking_lot::Mutex<context::Context>>),
-    Raw(Arc<parking_lot::Mutex<WorkingCopyContext>>)
+    Context(Arc<parking_lot::FairMutex<context::Context>>),
+    Raw(Arc<parking_lot::FairMutex<WorkingCopyContext>>)
 }
 
 #[uniffi::export(async_runtime = "tokio")]
@@ -84,7 +84,7 @@ impl AsyncWorkingCopyContext {
 
     #[uniffi::constructor]
     pub fn create(opts: WorkingCopyCreateContextOptions) -> error::Result<Self> {
-        Ok(Self::Raw(Arc::new(parking_lot::Mutex::new(WorkingCopyContext::create(opts)?))))
+        Ok(Self::Raw(Arc::new(parking_lot::FairMutex::new(WorkingCopyContext::create(opts)?))))
     }
 
     pub async fn check_root(&self, path: String) -> error::Result<CheckRootResult> {

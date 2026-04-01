@@ -12,12 +12,20 @@ using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Inject;
 using SVNexus.Messages;
+using SVNexus.Utils;
 using SVNexus.ViewModels.WorkingCopy;
 using Tabalonia.Events;
 
 namespace SVNexus.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipient<OnRemoveTab>, IRecipient<OnOpenRepository>, IRecipient<OnAddTab>//, IRecipient<OnRemoveTabByLocalViewModel>, IRecipient<OnRemoveTabByContent>
+public partial class MainWindowViewModel : ViewModelBase, 
+    IDisposable, 
+    IRecipient<OnRemoveTab>, 
+    IRecipient<OnOpenRepository>, 
+    IRecipient<OnAddTab>, 
+    IRecipient<OnGetSingleTaskQueue>,
+    IRecipient<OnGetTabByWorkspaceRoot>,
+    IRecipient<OnSwitchTab>
 {
     
     public partial class TabItemViewModel(ViewModelBase parent): ViewModelBase(parent), IRecipient<OnGetDialogHostId>, IRecipient<OnRemoveTabModel>
@@ -65,6 +73,11 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     public partial int SelectedIndex { get; set; } = -1;
     
     public ObservableCollection<TabItemViewModel> Tabs { get; set; } = [];
+
+    private readonly SingleTaskQueue _singleTaskQueue = new()
+    {
+        Single = false
+    };
 
 
     partial void OnSelectedIndexChanged(int value)
@@ -207,6 +220,37 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable, IRecipien
     //         break;
     //     }
     // }
+
+    public void Receive(OnGetSingleTaskQueue message)
+    {
+        message.Reply(_singleTaskQueue);
+    }
+
+    public void Receive(OnGetTabByWorkspaceRoot message)
+    {
+        foreach (var tab in Tabs)
+        {
+            if (tab.Content is not WorkspaceViewModel workspaceViewModel) continue;
+            if (workspaceViewModel.WorkspaceRoot != message.Root) continue;
+            message.Reply(tab);
+            return;
+        }
+        message.Reply(null);
+    }
+
+    public void Receive(OnSwitchTab message)
+    {
+        var index = Tabs.IndexOf(message.Tab);
+        if (index < 0)
+        {
+            message.Reply(false);
+        }
+        else
+        {
+            SelectedIndex = index;
+            message.Reply(true);
+        }
+    }
 
     ~MainWindowViewModel()
     {

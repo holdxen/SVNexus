@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading;
@@ -68,7 +69,12 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
     [ObservableProperty]
     public partial bool IsLoading { get; set; }
 
-    [ObservableProperty] public partial string CommitMessage { get; set; } = string.Empty;
+    [Required]
+    public string CommitMessage
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = string.Empty;
 
 
     // public bool Ready
@@ -148,7 +154,7 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
         // }
         //
 
-        if (string.IsNullOrEmpty(CommitMessage))
+        if (!ValidateAllProperty(out _))
         {
             return;
         }
@@ -157,12 +163,13 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
         {
             try
             {
+                IsCommitting = true;
 
                 var hostId = SendMessage(new OnGetDialogHostId());
             
                 var context = Engine.Engine.Instance.SimpleContext(hostId);
 
-                var commitOptions = new CommitOptions(Targets.Where(i => i.NodeStatus is not NodeStatus.Unversioned or NodeStatus.Missing).Select(i => i.Path).ToArray(),
+                var commitOptions = new CommitOptions(Targets.Where(i => i.NodeStatus is not (NodeStatus.Unversioned or NodeStatus.Missing)).Select(i => i.Path).ToArray(),
                     Depth,
                     NoLock,
                     false,
@@ -179,8 +186,11 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
             }
             catch (System.Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                Manager.Default.Send(new OnShowToast()
+                {
+                    Content = $"Failed to commit: {e.HumanReadableMessage}",
+                    Type =  NotificationType.Error,
+                }, Manager.MainWindowToken);
             }
             finally
             {

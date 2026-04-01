@@ -64,11 +64,9 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     [RelayCommand]
     private async Task Update()
     {
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _typeService.Get(this));
-        var hostId = SendMessage(new OnGetDialogHostId());
         try
         {
-            using var context = Engine.Engine.Instance.SimpleContext(hostId);
+            var context = SendMessage(new OnGetContext()).Response;
             
             var opts = new UpdateOptions(Paths: [Path], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAdModification: false, MakeParents: true);
             

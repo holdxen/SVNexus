@@ -18,6 +18,7 @@ use serde::{Deserialize, Serialize};
 #[allow(dead_code)]
 #[allow(clippy::upper_case_acronyms)]
 #[allow(unnecessary_transmutes)]
+#[allow(unsafe_op_in_unsafe_fn)]
 pub mod ffi {
     pub use crate::apr::ffi::*;
     include!(concat!(env!("OUT_DIR"), "/subversion.rs"));

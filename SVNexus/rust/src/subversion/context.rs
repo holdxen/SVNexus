@@ -1,8 +1,9 @@
 use super::ffi;
+use super::stream::Stream;
 use super::wc::*;
 use super::{SVNError, svn_no_error};
-use crate::apr::{self, AprArray, AprPool};
-use crate::error::{self, builder};
+use crate::apr::{self, AprArray, AprPool, Pool};
+use crate::error::{self, Error, builder};
 use crate::subversion::utils;
 use crate::subversion::version::Version;
 use crate::utils::PointerMutMapper;
@@ -10,7 +11,6 @@ use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
 use crate::utils::{Pointer, PointerMapper};
 use core::panic;
-use std::collections::HashSet;
 use derive_new::new;
 use snafu::ResultExt;
 use std::collections::HashMap;
@@ -51,7 +51,6 @@ pub struct ContextInner {
     commit_info: Option<CommitInfo>,
     // #[new(default)]
     // cancel: Arc<Mutex<Option<String>>>,
-
     #[new(default)]
     status_receiver: Option<Arc<dyn StatusReceiver>>,
 
@@ -86,26 +85,6 @@ pub struct ContextInner {
     conflicts: Vec<Conflict>,
 }
 
-// impl Default for ContextInner {
-//     fn default() -> Self {
-//         Self {
-//             commit_message: Default::default(),
-//             commit_items: Default::default(),
-//             commit_info: Default::default(),
-//             // cancel: Default::default(),
-//             status_entries: Default::default(),
-//             on_may_save_password_as_plain_text: Box::new(|_| false),
-//             on_notify: Box::new(|_| ()),
-//             on_ssl_server_trust_prompt: Box::new(|_, _, _, _| Default::default()),
-//             on_cancel: Box::new(|| None),
-//             on_progress_notify: Box::new(|_, _| ()),
-//             on_authenticate: Box::new(|_, _, _| None),
-//             // revision_statck: Default::default(),
-//             log_entries: Default::default(),
-//         }
-//     }
-// }
-
 pub struct Context {
     ptr: *mut ffi::svn_client_ctx_t,
     config: *mut apr::ffi::apr_hash_t,
@@ -115,7 +94,6 @@ pub struct Context {
 
 unsafe impl Send for Context {}
 
-// #[derive(Default)]
 #[derive(uniffi::Record)]
 pub struct CreateContextOptions {
     pub name: Option<String>,
@@ -212,12 +190,36 @@ impl Proxies {
     }
 }
 
+#[derive(uniffi::Record, Debug)]
+pub struct PatchOptions {
+    patch_absolute_path: String,
+    wc_absolute_path: String,
+    dry_run: bool,
+    strip_count: u32,
+    reverse: bool,
+    ignore_whitespace: bool,
+    remove_tempfiles: bool,
+}
+
 #[derive(new, Debug, uniffi::Record)]
 pub struct Proxy {
     pub host: String,
     pub port: u16,
     pub username: Option<String>,
     pub password: Option<String>,
+}
+
+#[derive(new, Debug, uniffi::Record)]
+pub struct SwitchOptions {
+    path: String,
+    url: String,
+    peg_revision: Revision,
+    revision: Revision,
+    depth: Depth,
+    depth_is_sticky: bool,
+    ignore_externals: bool,
+    allow_unversioned_obstructions: bool,
+    ignore_ancestry: bool,
 }
 
 #[derive(new, uniffi::Record)]
@@ -238,7 +240,7 @@ pub enum NodeKind {
 
 #[derive(uniffi::Record, Debug)]
 pub struct CommitItem {
-    path: String,
+    path: Option<String>,
     kind: NodeKind,
     url: String,
     revision: Option<RevisionNumber>,
@@ -313,7 +315,7 @@ pub struct StatusEntry {
 impl StatusEntry {
     fn fix_node_kind(&mut self) -> error::Result<()> {
         if self.node_status != NodeStatus::Unversioned {
-            return Ok(())
+            return Ok(());
         }
 
         let metadata = std::fs::metadata(self.path.as_str())?;
@@ -474,6 +476,67 @@ impl Default for Revision {
     }
 }
 
+#[easy_ext::ext]
+pub impl apr::Pool {
+    unsafe fn revision(&mut self, value: Revision) -> *const ffi::svn_opt_revision_t {
+        unsafe { self.as_mut_ptr().revision(value) }
+    }
+
+    unsafe fn svn_string(&mut self, str: impl AsRef<str>) -> error::Result<*mut ffi::svn_string_t> {
+        unsafe { self.as_mut_ptr().svn_string(str) }
+    }
+}
+
+#[easy_ext::ext]
+pub impl *mut ffi::apr_pool_t {
+    unsafe fn svn_string(self, str: impl AsRef<str>) -> error::Result<*mut ffi::svn_string_t> {
+        unsafe {
+            let str = str.as_ref();
+            let len = str.len();
+            let r = ffi::svn_string_ncreate(str.as_ptr() as _, len.try_into().unwrap(), self);
+            Ok(r)
+        }
+    }
+
+    unsafe fn revision(self, value: Revision) -> *const ffi::svn_opt_revision_t {
+        unsafe {
+            let revision_ptr = self.malloc::<ffi::svn_opt_revision_t>();
+
+            let revision = revision_ptr.as_mut().unwrap();
+
+            match value {
+                Revision::Unspecified => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_unspecified;
+                }
+                Revision::Number(number) => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_number;
+                    *revision.value.number.as_mut() = number.try_into().unwrap();
+                }
+                Revision::Date(time) => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_date;
+                    *revision.value.date.as_mut() = time.try_into().unwrap();
+                }
+                Revision::Committed => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_committed;
+                }
+                Revision::Previous => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_previous;
+                }
+                Revision::Base => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_base;
+                }
+                Revision::Working => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_working;
+                }
+                Revision::Head => {
+                    revision.kind = ffi::svn_opt_revision_kind_svn_opt_revision_head;
+                }
+            }
+            revision_ptr
+        }
+    }
+}
+
 impl Revision {
     fn to_opt_revision(&self) -> ffi::svn_opt_revision_t {
         let mut revision = ffi::svn_opt_revision_t::default();
@@ -533,7 +596,7 @@ impl From<*const ffi::svn_commit_info_t> for CommitInfo {
 unsafe extern "C" fn commit_callback(
     commit_info: *const ffi::svn_commit_info_t,
     baton: *mut c_void,
-    pool: *mut ffi::apr_pool_t,
+    _pool: *mut ffi::apr_pool_t,
 ) -> *mut ffi::svn_error_t {
     unsafe {
         let error = on_cancel(baton);
@@ -753,7 +816,8 @@ impl CommitItem {
         unsafe {
             let item = item.as_ref().unwrap();
 
-            let path = item.path.to_str().to_string();
+            tracing::info!("item path={:?}", CStr::from_ptr(item.path));
+            let path = item.path.to_nullable_string();
 
             let kind = NodeKind::try_from(item.kind).unwrap();
 
@@ -892,21 +956,24 @@ unsafe extern "C" fn on_get_commit_message(
         return svn_no_error();
     }
 
+    tracing::info!("Enter on get commit message");
+
     unsafe {
         let error = on_cancel(baton);
-        if error.is_null() {
+        if !error.is_null() {
             return error;
         }
 
-        let this = &mut *(baton as *mut ContextInner);
+        let this = (baton as *mut ContextInner).as_mut().unwrap();
 
-        let mut pool = apr::Pool::from_raw(pool);
+        tracing::info!("Set commit message: {}", this.commit_message);
 
         *log_msg = pool
             .string(this.commit_message.as_str())
             .expect("Invalid message");
 
         this.commit_message.clear();
+
 
         *tmp_file = std::ptr::null();
 
@@ -915,8 +982,6 @@ unsafe extern "C" fn on_get_commit_message(
         // let items = CommitItem::from_items(commit_items);
 
         this.commit_items.extend(items);
-
-        std::mem::forget(pool);
     }
 
     svn_no_error()
@@ -925,7 +990,7 @@ unsafe extern "C" fn on_get_commit_message(
 unsafe extern "C" fn on_notify(
     baton: *mut c_void,
     notify: *const ffi::svn_wc_notify_t,
-    pool: *mut ffi::apr_pool_t,
+    _pool: *mut ffi::apr_pool_t,
 ) {
     unsafe {
         let this = (baton as *mut ContextInner).as_mut().unwrap();
@@ -952,12 +1017,12 @@ unsafe extern "C" fn may_save_password_as_plain_text(
     save: *mut ffi::svn_boolean_t,
     realm_string: *const c_char,
     baton: *mut c_void,
-    pool: *mut ffi::apr_pool_t,
+    _pool: *mut ffi::apr_pool_t,
 ) -> *mut ffi::svn_error_t {
     tracing::info!("may_save_password_as_plain_text");
-    let ctx = unsafe { &mut *(baton as *mut ContextInner) };
 
     unsafe {
+        let ctx = (baton as *mut ContextInner).as_mut().unwrap();
         let realm_string = realm_string.to_str();
         // *save = (ctx.on_may_save_password_as_plain_text)(realm_string).into();
         *save = ctx
@@ -1002,8 +1067,8 @@ bitflags::bitflags! {
 
 impl SslServerCertInfo {
     unsafe fn from_raw(info: *const ffi::svn_auth_ssl_server_cert_info_t) -> Self {
-        let info = unsafe { info.as_ref().unwrap() };
         unsafe {
+            let info = info.as_ref().unwrap();
             let hostname = info.hostname.to_str().to_string();
             let fingerprint = info.fingerprint.to_str().to_string();
             let valid_from = info.valid_from.to_str().to_string();
@@ -1056,7 +1121,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
             may_save
         );
 
-        let this = &mut *(baton as *mut ContextInner);
+        let this = (baton as *mut ContextInner).as_mut().unwrap();
 
         let trust = this.context_notifier.ssl_server_trust_prompt(
             realm.to_string(),
@@ -1160,7 +1225,7 @@ pub struct LogEntry {
 impl LogEntry {
     fn from_raw(ptr: *mut ffi::svn_log_entry_t) -> Self {
         unsafe {
-            let log_entry = &*ptr;
+            let log_entry = ptr.as_ref().unwrap();
 
             let mut author: *const c_char = std::ptr::null();
             let mut date: *const c_char = std::ptr::null();
@@ -1420,6 +1485,23 @@ pub struct MkdirOptions {
 #[derive(uniffi::Record, Debug)]
 pub struct MkdirResult {
     commit_info: Option<CommitInfo>,
+}
+
+#[derive(Debug, new, uniffi::Record)]
+pub struct MergeOptions {
+    source1: String,
+    revision1: Revision,
+    source2: String,
+    revision2: Revision,
+    target: String,
+    depth: Depth,
+    ignore_merge_info: bool,
+    ignore_ancestry: bool,
+    force_delete: bool,
+    record_only: bool,
+    dry_run: bool,
+    allow_mixed_revision: bool,
+    extra_merge_options: Option<Vec<String>>,
 }
 
 #[derive(Debug, new, uniffi::Record)]
@@ -1945,6 +2027,34 @@ impl DifferenceOptions {
 }
 
 #[derive(uniffi::Record, Debug)]
+pub struct ClientDifferenceOptions {
+    options: Option<Vec<String>>,
+    path1: String,
+    revision1: Revision,
+    path2: String,
+    revision2: Revision,
+    relate_to: Option<String>,
+    depth: Depth,
+    ignore_ancestry: bool,
+    no_added: bool,
+    no_deleted: bool,
+    show_copies_as_adds: bool,
+    ignore_content_type: bool,
+    ignore_properties: bool,
+    properties_only: bool,
+    use_git_format: bool,
+    pretty_print_merge_info: bool,
+    header_encoding: String,
+    changelists: Option<Vec<String>>,
+}
+
+#[derive(uniffi::Record, Debug)]
+pub struct ClientDifferenceResult {
+    out: Vec<u8>,
+    err: Vec<u8>,
+}
+
+#[derive(uniffi::Record, Debug)]
 pub struct TextPosition {
     pub pos: u64,
     pub len: u64,
@@ -2078,15 +2188,24 @@ impl Context {
     }
 
     pub fn mkdir(&mut self, opts: MkdirOptions) -> error::Result<MkdirResult> {
-
         unsafe {
             let mut pool = apr::Pool::create();
 
             let paths = pool.string_array(opts.paths.len(), opts.paths.iter())?;
 
-            let table = opts.revision_property_table.map(|p| pool.string_hash_map(p.iter())).transpose()?.unwrap_or_default();
+            let table = opts
+                .revision_property_table
+                .map(|e| {
+                    pool.string_hash_map(
+                        e.iter(),
+                        |p: &mut apr::Pool, k: &str| p.string(k).map(|o| o as _),
+                        |p: &mut apr::Pool, v: &str| p.svn_string(v).map(|o| o as _),
+                    )
+                })
+                .transpose()?
+                .unwrap_or_default();
 
-            let mut error = ffi::svn_client_mkdir4(
+            let error = ffi::svn_client_mkdir4(
                 paths,
                 opts.make_parents.into(),
                 table,
@@ -2102,7 +2221,6 @@ impl Context {
                 commit_info: self.inner.commit_info.take(),
             })
         }
-
     }
 
     pub fn revision_property_list(
@@ -2258,7 +2376,11 @@ impl Context {
         Ok(())
     }
 
-    pub fn status_next(&mut self, opts: StatusOptions, receiver: Arc<dyn StatusReceiver>) -> error::Result<()> {
+    pub fn status_next(
+        &mut self,
+        opts: StatusOptions,
+        receiver: Arc<dyn StatusReceiver>,
+    ) -> error::Result<()> {
         unsafe extern "C" fn status_receiver(
             baton: *mut c_void,
             path: *const c_char,
@@ -2280,7 +2402,10 @@ impl Context {
                     tracing::warn!("Failed to detect node kind of {}:{}", entry.path, err);
                 }
 
-                this.status_receiver.as_ref().expect("status receiver must be set").on_status_entry(entry);
+                this.status_receiver
+                    .as_ref()
+                    .expect("status receiver must be set")
+                    .on_status_entry(entry);
             }
             // tracing::info!("translated entry: {:#?}", entry);
 
@@ -2290,7 +2415,6 @@ impl Context {
         let mut result_revision: ffi::svn_revnum_t = 0;
 
         let revision = opts.revision.to_opt_revision();
-
 
         tracing::info!("status options={:#?}", opts);
 
@@ -2337,7 +2461,7 @@ impl Context {
             baton: *mut c_void,
             path: *const c_char,
             status: *const ffi::svn_client_status_t,
-            pool: *mut ffi::apr_pool_t,
+            _pool: *mut ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
                 let error = on_cancel(baton);
@@ -2386,7 +2510,8 @@ impl Context {
             if !is_absolute {
                 return builder::InvalidArgument {
                     detail: format!("path is not absolute: {}", opts.path),
-                }.fail();
+                }
+                .fail();
             }
 
             let error = ffi::svn_client_status6(
@@ -2570,6 +2695,7 @@ impl Context {
     }
 
     pub fn commit(&mut self, opts: CommitOptions) -> error::Result<CommitResult> {
+        tracing::info!("Commit optinos: {:#?}", opts);
         let result = unsafe {
             if opts.commit_message.as_bytes().contains(&b'\0') {
                 return builder::InvalidArgument {
@@ -2603,7 +2729,6 @@ impl Context {
 
             let changelists = opts
                 .changelists
-                .as_ref()
                 .map(|e| pool.string_array(e.len(), e.iter()))
                 .transpose()?
                 .unwrap_or_default();
@@ -2628,13 +2753,22 @@ impl Context {
             //         value.as_c_str().as_ptr() as _,
             //     );
             // }
+            //
 
             let revision_properties_table = opts
                 .revision_property_table
                 .as_ref()
-                .map(|e| pool.string_hash_map(e.iter()))
+                .map(|e| {
+                    pool.string_hash_map(
+                        e.iter(),
+                        |p, k| p.string(k).map(|o| o as _),
+                        |p, v| p.svn_string(v).map(|o| o as _),
+                    )
+                })
                 .transpose()?
                 .unwrap_or_default();
+
+            tracing::info!("Table is {:?}", revision_properties_table);
 
             self.inner.commit_items.clear();
             self.inner.commit_message = opts.commit_message;
@@ -2650,7 +2784,7 @@ impl Context {
                 changelists,
                 revision_properties_table,
                 Some(commit_callback),
-                &mut *self.inner as *mut _ as *mut c_void,
+                self.inner.inner_void_pointer_mut(),
                 self.ctx(),
                 pool.as_mut_ptr(),
             );
@@ -2673,7 +2807,17 @@ impl Context {
 
             let path = pool.string_array(opts.path.len(), opts.path.iter())?;
 
-            let table = opts.revision_property_table.map(|p| pool.string_hash_map(p.iter())).transpose()?.unwrap_or_default();
+            let table = opts
+                .revision_property_table
+                .map(|e| {
+                    pool.string_hash_map(
+                        e.iter(),
+                        |p: &mut apr::Pool, k: &str| p.string(k).map(|o| o as _),
+                        |p: &mut apr::Pool, v: &str| p.svn_string(v).map(|o| o as _),
+                    )
+                })
+                .transpose()?
+                .unwrap_or_default();
 
             let error = ffi::svn_client_delete4(
                 path,
@@ -2747,7 +2891,6 @@ impl Context {
             let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
-
 
             let revisions_properties = opts
                 .revisions_properties
@@ -2854,6 +2997,7 @@ impl Context {
                 .fail();
             }
             self.inner.commit_message = opts.commit_message;
+            self.inner.commit_items.clear();
 
             let error = ffi::svn_client_import5(
                 pool.string(opts.path)?,
@@ -2862,11 +3006,15 @@ impl Context {
                 opts.no_ignore.into(),
                 opts.no_autoprops.into(),
                 opts.ignore_unknown_node_types.into(),
-                pool.string_hash_map(opts.revision_property_table.iter())?,
+                pool.string_hash_map(
+                    opts.revision_property_table.iter(),
+                    |p, k| p.string(k).map(|o| o as _),
+                    |p, v| p.svn_string(v).map(|o| o as _),
+                )?,
                 Some(svn_client_import_filter),
-                &mut *self.inner as *mut _ as *mut c_void,
+                self.inner.inner_void_pointer_mut(),
                 Some(commit_callback),
-                &mut *self.inner as *mut _ as *mut c_void,
+                self.inner.inner_void_pointer_mut(),
                 self.ctx(),
                 pool.as_mut_ptr(),
             );
@@ -2885,7 +3033,7 @@ impl Context {
 
             let mut pool = apr::Pool::create();
 
-            let mut stream = super::stream::Stream::create(Default::default());
+            let mut stream = Stream::create(Default::default());
 
             let path = pool.string(opts.path.as_str())?;
 
@@ -2899,7 +3047,7 @@ impl Context {
                 } else {
                     std::ptr::null_mut()
                 },
-                stream.stream(),
+                stream.ptr(),
                 path,
                 &peg_revision as *const _,
                 &revision as *const _,
@@ -3039,8 +3187,8 @@ impl Context {
 
             use apr::AprArray;
 
-            Ok(revisions.to_vec(|ptr| {
-                (*((ptr as *const ffi::svn_revnum_t).as_ref().unwrap()))
+            Ok(revisions.to_value_vec(|ptr| {
+                (*(ptr as *const ffi::svn_revnum_t))
                     .try_into()
                     .expect("Failed to convert revision number to u32")
             }))
@@ -3397,11 +3545,218 @@ impl Context {
             let mut pool = apr::Pool::create();
             let path = pool.string(path)?;
             let mut root: *const c_char = std::ptr::null_mut();
-            let error = ffi::svn_client_get_wc_root(root.pointer_mut(), path, self.ctx(), pool.as_mut_ptr(), pool.as_mut_ptr());
+            let error = ffi::svn_client_get_wc_root(
+                root.pointer_mut(),
+                path,
+                self.ctx(),
+                pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let root = root.to_str().to_string();
             Ok(root)
+        }
+    }
+
+    pub fn switch(&mut self, opts: SwitchOptions) -> error::Result<RevisionNumber> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let path = pool.string(opts.path)?;
+            let url = pool.string(opts.url)?;
+            let peg_revision = opts.peg_revision.to_opt_revision();
+            let revision = opts.revision.to_opt_revision();
+            let depth = opts.depth.into();
+            let depth_is_sticky = opts.depth_is_sticky.into();
+            let ignore_externals = opts.ignore_externals.into();
+            let allow_unversioned_obstructions = opts.allow_unversioned_obstructions.into();
+            let ignore_ancestry = opts.ignore_ancestry.into();
+            let mut result: ffi::svn_revnum_t = 0;
+            let error = ffi::svn_client_switch3(
+                result.pointer_mut(),
+                path,
+                url,
+                peg_revision.pointer(),
+                revision.pointer(),
+                depth,
+                depth_is_sticky,
+                ignore_externals,
+                allow_unversioned_obstructions,
+                ignore_ancestry,
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            Ok(result.try_into().expect("Unexpected number"))
+        }
+    }
+
+    pub fn relocate(&mut self, opts: RelocateOptions) -> error::Result<()> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let root = pool.string(opts.wc_root_dir)?;
+            let from = pool.string(opts.from_prefix)?;
+            let to = pool.string(opts.to_prefix)?;
+            let error = ffi::svn_client_relocate2(
+                root,
+                from,
+                to,
+                opts.ignore_externals.into(),
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+            Ok(())
+        }
+    }
+
+    pub fn merge(&mut self, opts: MergeOptions) -> error::Result<()> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let source1 = pool.string(opts.source1)?;
+            let revision1 = opts.revision1.to_opt_revision();
+
+            let source2 = pool.string(opts.source2)?;
+            let revision2 = opts.revision2.to_opt_revision();
+
+            let target = pool.string(opts.target)?;
+
+            let merge_options = opts
+                .extra_merge_options
+                .map(|p| pool.string_array(p.len(), p.iter()))
+                .transpose()?
+                .unwrap_or_default();
+
+            let error = ffi::svn_client_merge5(
+                source1,
+                revision1.pointer(),
+                source2,
+                revision2.pointer(),
+                target,
+                opts.depth.into(),
+                opts.ignore_merge_info.into(),
+                opts.ignore_ancestry.into(),
+                opts.force_delete.into(),
+                opts.record_only.into(),
+                opts.dry_run.into(),
+                opts.allow_mixed_revision.into(),
+                merge_options,
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            Ok(())
+        }
+    }
+
+    pub fn difference(
+        &mut self,
+        opts: ClientDifferenceOptions,
+    ) -> error::Result<ClientDifferenceResult> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let options = opts
+                .options
+                .map(|p| pool.string_array(p.len(), p.iter()))
+                .transpose()?
+                .unwrap_or_default();
+            let path1 = pool.string(opts.path1)?;
+            let revision1 = pool.revision(opts.revision1);
+            let path2 = pool.string(opts.path2)?;
+            let revision2 = pool.revision(opts.revision2);
+
+            let relate_to = opts
+                .relate_to
+                .as_ref()
+                .map(|v| pool.string(v))
+                .transpose()?
+                .unwrap_or_default();
+
+            let header_encoding = pool.string(opts.header_encoding)?;
+
+            let changelists = opts
+                .changelists
+                .map(|p| pool.string_array(p.len(), p.iter()))
+                .transpose()?
+                .unwrap_or_default();
+
+            let mut out = Stream::create(Default::default());
+            let mut err = Stream::create(Default::default());
+
+            let error = ffi::svn_client_diff7(
+                options,
+                path1,
+                revision1,
+                path2,
+                revision2,
+                relate_to,
+                opts.depth.into(),
+                opts.ignore_ancestry.into(),
+                opts.no_added.into(),
+                opts.no_deleted.into(),
+                opts.show_copies_as_adds.into(),
+                opts.ignore_content_type.into(),
+                opts.ignore_properties.into(),
+                opts.properties_only.into(),
+                opts.use_git_format.into(),
+                opts.pretty_print_merge_info.into(),
+                header_encoding,
+                out.ptr(),
+                err.ptr(),
+                changelists,
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let out = out.take_write_buffer();
+            let err = err.take_write_buffer();
+
+            Ok(ClientDifferenceResult { out, err })
+        }
+    }
+
+    pub fn patch(&mut self, opts: PatchOptions) -> error::Result<()> {
+        unsafe extern "C" fn patch_filter(
+            baton: *mut c_void,
+            filtered: *mut ffi::svn_boolean_t,
+            canon_path_from_patchfile: *const c_char,
+            patch_abspath: *const c_char,
+            reject_abspath: *const c_char,
+            scratch_pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
+
+            svn_no_error()
+        }
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let patch = pool.string(opts.patch_absolute_path)?;
+
+            let wc = pool.string(opts.wc_absolute_path)?;
+
+            let error = ffi::svn_client_patch(
+                wc,
+                patch,
+                opts.dry_run.into(),
+                opts.strip_count.try_into().unwrap(),
+                opts.reverse.into(),
+                opts.ignore_whitespace.into(),
+                opts.remove_tempfiles.into(),
+                Some(patch_filter),
+                self.inner.inner_void_pointer_mut(),
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+            Ok(())
         }
     }
 
@@ -3415,11 +3770,8 @@ impl Context {
         unsafe { opts.config.apply(config, &mut pool)? };
 
         unsafe {
-            let error = ffi::svn_client_create_context2(
-                &mut ptr as *mut _,
-                config,
-                pool.as_mut_ptr(),
-            );
+            let error =
+                ffi::svn_client_create_context2(&mut ptr as *mut _, config, pool.as_mut_ptr());
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         }
 

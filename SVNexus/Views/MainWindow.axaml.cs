@@ -9,7 +9,12 @@ using Ursa.Controls;
 
 namespace SVNexus.Views;
 
-public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecipient<OnNotification>, IRecipient<OnShowToast>
+public partial class MainWindow : Window, 
+    IRecipient<OnFolderPickerOpen>, 
+    IRecipient<OnNotification>, 
+    IRecipient<OnShowToast>, 
+    IRecipient<OnFilePickerOpen>,
+    IRecipient<OnFilePickerSave>
 {
     
     private readonly WindowNotificationManager _notificationManager;
@@ -57,5 +62,27 @@ public partial class MainWindow : Window, IRecipient<OnFolderPickerOpen>, IRecip
             message.OnClick, 
             message.OnClose, 
             message.Classes);
+    }
+
+    public void Receive(OnFilePickerOpen message)
+    {
+        var top = GetTopLevel(this);
+        if (top == null)
+        {
+            return;
+        }
+        
+        message.Reply(top.StorageProvider.OpenFilePickerAsync(message.Options));
+    }
+
+    public void Receive(OnFilePickerSave message)
+    {
+        var top = GetTopLevel(this);
+        if (top == null)
+        {
+            return;
+        }
+        
+        message.Reply(top.StorageProvider.SaveFilePickerAsync(message.Options));
     }
 }

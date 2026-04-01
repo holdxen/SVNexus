@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:PatchDialogModel"
+             x:Class="SVNexus.Views.PatchDialog">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}"></InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <Grid ColumnDefinitions="*, Auto">
+        <u:Form HorizontalAlignment="Stretch" Margin="3 0">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid RowDefinitions="Auto, *, Auto, Auto"></Grid>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Grid.Row="0" Label="Patch file:">
+                <TextBlock Text="{Binding Path}"></TextBlock>
+            </u:FormItem>
+            <u:FormItem Grid.Row="1" Classes="GridLayout" VerticalContentAlignment="Stretch">
+                <u:FormItem.Label>
+                    <TextBlock Text="Result:"></TextBlock>
+                </u:FormItem.Label>
+                <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}"
+                                           CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+                                           State="{Binding State}">
+                    <Border Theme="{DynamicResource CardBorder}">
+                        <Border.Resources>
+                            <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+                        </Border.Resources>
+                        <Grid>
+                            <avaloniaEdit:TextEditor VerticalAlignment="Stretch" ShowLineNumbers="True">
+                                <Interaction.Behaviors>
+                                    <behaviors:DocumentTextBindingBehavior Text="{Binding PatchContent}"></behaviors:DocumentTextBindingBehavior>
+                                </Interaction.Behaviors>
+                            </avaloniaEdit:TextEditor>
+                        </Grid>
+                    </Border>
+                </components:LoadingOrError>
+            </u:FormItem>
+        </u:Form>
+        <u:Form Margin="3 0" Grid.Column="1" VerticalAlignment="Bottom">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel></StackPanel>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Label="Settings:">
+                <CheckBox Content="Ignore Whitespace"
+                          IsChecked="{Binding IgnoreWhitespace}">
+                </CheckBox>
+            </u:FormItem>
+            <u:FormItem Label="Strip:">
+                <u:NumericUIntUpDown Value="{Binding Strip}"></u:NumericUIntUpDown>
+            </u:FormItem>
+            <u:FormItem Label="Action:">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Border Grid.Column="0"></Border>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
+                        <Button Content="Close" Command="{Binding CloseCommand}"></Button>
+                        <u:IconButton Classes="Primary"
+                                      Theme="{StaticResource SolidIconButton}"
+                                      Content="Apply"
+                                      IsLoading="{Binding ApplyCommand.IsRunning}"
+                                      Command="{Binding ApplyCommand}">
+                        </u:IconButton>
+                    </StackPanel>
+                </Grid>
+            </u:FormItem>
+        </u:Form>
+    </Grid>
+</UserControl>

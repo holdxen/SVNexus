@@ -49,12 +49,14 @@
                 </components:LoadingSvgButton>
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Diff and export"
+                                      Command="{Binding DifferenceCommand}"
                                       IsEnabled="{Binding IsDiffButtonEnable}"
                                       Source="{StaticResource Icons.OperationDiff}">
                 </components:SvgButton>
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Apply patch"
                                       IsEnabled="{Binding IsPatchButtonEnable}"
+                                      Command="{Binding PatchCommand}"
                                       Source="{StaticResource Icons.OperationPatch}">
                 </components:SvgButton>
                 <components:LoadingSvgButton Classes="ToolButton"
@@ -100,6 +102,10 @@
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Open terminal"
                                       Source="{StaticResource Icons.Terminal}">
+                </components:SvgButton>
+                <components:SvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Notifications"
+                                      Source="{StaticResource Icons.NotificationListWarning}">
                 </components:SvgButton>
             </StackPanel>
         </Grid>

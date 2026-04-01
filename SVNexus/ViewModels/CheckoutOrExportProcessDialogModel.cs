@@ -17,41 +17,35 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
 
     public partial class ProcessLogItemViewModel: ViewModelBase
     {
-    
+
         [ObservableProperty]
-        private string _action = string.Empty;
-    
-    
+        public partial string Action { get; set; } = string.Empty;
+
         [ObservableProperty]
-        private string _path = string.Empty;
-    
-    
+        public partial string Path { get; set; } = string.Empty;
+
         [ObservableProperty]
-        private string _mimeType = string.Empty;
+        public partial string MimeType { get; set; } = string.Empty;
     }
-    
+
 
     [ObservableProperty]
-    private string _url = string.Empty;
-    
-    
-    [ObservableProperty]
-    private string _path = string.Empty;
-    
-    [ObservableProperty]
-    private string _revision = string.Empty;
-    
-    
-    [ObservableProperty]
-    private string _username = string.Empty;
-    
-    [ObservableProperty]
-    private string _startTime = string.Empty;
-    
-    
-    [ObservableProperty]
-    private string _currentFile = string.Empty;
+    public partial string Url { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    public partial string Path { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string Revision { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string Username { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string StartTime { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string CurrentFile { get; set; } = string.Empty;
 
     public ObservableCollection<ProcessLogItemViewModel> ProcessLogItems { get; set; } = [];
 
@@ -63,7 +57,7 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
     [NotifyPropertyChangedFor(nameof(IsIndeterminate))]
     [NotifyPropertyChangedFor(nameof(OpenButtonVisible))]
     [NotifyPropertyChangedFor(nameof(CancelButtonVisible))]
-    private bool _isCompleted;
+    public partial bool IsCompleted { get; set; }
 
     public bool Closable => IsCompleted || Error is not null;
     
@@ -101,16 +95,14 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
     [NotifyPropertyChangedFor(nameof(HandleText))]
     [NotifyPropertyChangedFor(nameof(Process))]
     [NotifyPropertyChangedFor(nameof(ProcessText))]
-    private long _total;
-    
+    public partial long Total { get; set; }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsIndeterminate))]
     [NotifyPropertyChangedFor(nameof(HandleText))]
     [NotifyPropertyChangedFor(nameof(Process))]
     [NotifyPropertyChangedFor(nameof(ProcessText))]
-    private long _downloaded;
-
-
+    public partial long Downloaded { get; set; }
 
     public bool IsIndeterminate => !IsCompleted && Error is null && (Total < 0 || Downloaded < 0);
     // {
@@ -190,7 +182,6 @@ public partial class CheckoutOrExportProcessDialogModel: ViewModelBase, IDialogC
         }
 
         Manager.Default.Send(new OnOpenRepository(Path), Manager.MainWindowToken);
-        
         
         
         Close();

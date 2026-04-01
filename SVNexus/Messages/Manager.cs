@@ -59,6 +59,8 @@ public static class Manager
             (target as IRecipient<OnSetThemeVariant>)?.Register(messenger, token);
             (target as IRecipient<OnSetExpanded>)?.Register(messenger, token);
             (target as IRecipient<OnSetChecked>)?.Register(messenger, token);
+            (target as IRecipient<OnFilePickerOpen>)?.Register(messenger, token);
+            (target as IRecipient<OnFilePickerSave>)?.Register(messenger, token);
         }
         
         public void UnregisterAllMessages(object target)
@@ -78,6 +80,8 @@ public static class Manager
             (target as IRecipient<OnSetThemeVariant>)?.Unregister(messenger);
             (target as IRecipient<OnSetExpanded>)?.Unregister(messenger);
             (target as IRecipient<OnSetChecked>)?.Unregister(messenger);
+            (target as IRecipient<OnFilePickerOpen>)?.Unregister(messenger);
+            (target as IRecipient<OnFilePickerSave>)?.Unregister(messenger);
         }
     }
 

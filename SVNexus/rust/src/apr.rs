@@ -19,6 +19,7 @@ use super::error;
 #[allow(dead_code)]
 #[allow(clippy::upper_case_acronyms)]
 #[allow(unnecessary_transmutes)]
+#[allow(unsafe_op_in_unsafe_fn)]
 pub mod ffi {
     include!(concat!(env!("OUT_DIR"), "/apr.rs"));
 }
@@ -46,112 +47,112 @@ pub unsafe fn char_array_to_string(ptr: *const c_char) -> Option<String> {
     }
 }
 
-pub struct Map {
-    ptr: *mut ffi::apr_hash_t,
-    pool: Pool,
-}
+// pub struct Map {
+//     ptr: *mut ffi::apr_hash_t,
+//     pool: Pool,
+// }
 
-impl Map {
-    fn new() -> Self {
-        let pool = PoolFactory::instance().create_pool();
-        let ptr = unsafe { ffi::apr_hash_make(pool.ptr) };
+// impl Map {
+//     fn new() -> Self {
+//         let pool = PoolFactory::instance().create_pool();
+//         let ptr = unsafe { ffi::apr_hash_make(pool.ptr) };
 
-        Self { ptr, pool }
-    }
-}
+//         Self { ptr, pool }
+//     }
+// }
 
-pub struct Array<T> {
-    ptr: *mut ffi::apr_array_header_t,
-    pool: Pool,
-    _p: PhantomData<T>,
-}
+// pub struct Array<T> {
+//     ptr: *mut ffi::apr_array_header_t,
+//     pool: Pool,
+//     _p: PhantomData<T>,
+// }
 
-impl Array<*const c_char> {
-    pub unsafe fn to_string_list(ptr: *const ffi::apr_array_header_t) -> Vec<String> {
-        let array = unsafe { ptr.as_ref().unwrap() };
+// impl Array<*const c_char> {
+//     pub unsafe fn to_string_list(ptr: *const ffi::apr_array_header_t) -> Vec<String> {
+//         let array = unsafe { ptr.as_ref().unwrap() };
 
-        let mut ret = Vec::with_capacity(array.nelts.try_into().unwrap());
+//         let mut ret = Vec::with_capacity(array.nelts.try_into().unwrap());
 
-        let elements = array.elts as *const *const c_char;
+//         let elements = array.elts as *const *const c_char;
 
-        for i in 0..array.nelts {
-            let element = unsafe { elements.offset(i.try_into().unwrap()).read() };
+//         for i in 0..array.nelts {
+//             let element = unsafe { elements.offset(i.try_into().unwrap()).read() };
 
-            let string = unsafe { CStr::from_ptr(element) }
-                .to_str()
-                .unwrap()
-                .to_owned();
+//             let string = unsafe { CStr::from_ptr(element) }
+//                 .to_str()
+//                 .unwrap()
+//                 .to_owned();
 
-            ret.push(string)
-        }
+//             ret.push(string)
+//         }
 
-        ret
-    }
+//         ret
+//     }
 
-    pub unsafe fn from_string_list<T, I>(len: usize, string_list: T) -> error::Result<Self>
-    where
-        T: IntoIterator<Item = I>,
-        I: AsRef<str>,
-    {
-        let mut this = Array::with_capacity(len);
+//     pub unsafe fn from_string_list<T, I>(len: usize, string_list: T) -> error::Result<Self>
+//     where
+//         T: IntoIterator<Item = I>,
+//         I: AsRef<str>,
+//     {
+//         let mut this = Array::with_capacity(len);
 
-        let array = unsafe {
-            ffi::apr_array_make(
-                this.pool.ptr,
-                len.try_into().unwrap(),
-                size_of::<usize>().try_into().unwrap(),
-            )
-        };
+//         let array = unsafe {
+//             ffi::apr_array_make(
+//                 this.pool.ptr,
+//                 len.try_into().unwrap(),
+//                 size_of::<usize>().try_into().unwrap(),
+//             )
+//         };
 
-        for i in string_list {
-            let string = unsafe { this.pool.string(i.as_ref())? };
+//         for i in string_list {
+//             let string = unsafe { this.pool.string(i.as_ref())? };
 
-            let array = unsafe { ffi::apr_array_push(array) } as *mut *const c_char;
+//             let array = unsafe { ffi::apr_array_push(array) } as *mut *const c_char;
 
-            unsafe {
-                std::ptr::copy(
-                    &string as _,
-                    array as _,
-                    size_of::<*const c_char>().try_into().unwrap(),
-                )
-            };
-        }
+//             unsafe {
+//                 std::ptr::copy(
+//                     &string as _,
+//                     array as _,
+//                     size_of::<*const c_char>().try_into().unwrap(),
+//                 )
+//             };
+//         }
 
-        Ok(this)
-    }
-}
+//         Ok(this)
+//     }
+// }
 
-impl<T> Array<T> {
-    pub fn with_capacity(len: usize) -> Self {
-        let pool = PoolFactory::instance().create_pool();
-        let ptr = unsafe {
-            let ptr = ffi::apr_array_make(
-                pool.ptr,
-                len.try_into().unwrap(),
-                size_of::<T>().try_into().unwrap(),
-            );
-            ptr
-        };
+// impl<T> Array<T> {
+//     pub fn with_capacity(len: usize) -> Self {
+//         let pool = PoolFactory::instance().create_pool();
+//         let ptr = unsafe {
+//             let ptr = ffi::apr_array_make(
+//                 pool.ptr,
+//                 len.try_into().unwrap(),
+//                 size_of::<T>().try_into().unwrap(),
+//             );
+//             ptr
+//         };
 
-        Self {
-            ptr,
-            pool,
-            _p: Default::default(),
-        }
-    }
+//         Self {
+//             ptr,
+//             pool,
+//             _p: Default::default(),
+//         }
+//     }
 
-    pub fn push(&mut self, value: T) {
-        let array = unsafe { ffi::apr_array_push(self.ptr) } as *mut T;
+//     pub fn push(&mut self, value: T) {
+//         let array = unsafe { ffi::apr_array_push(self.ptr) } as *mut T;
 
-        unsafe { std::ptr::copy(&value as _, array as _, size_of::<T>().try_into().unwrap()) };
+//         unsafe { std::ptr::copy(&value as _, array as _, size_of::<T>().try_into().unwrap()) };
 
-        std::mem::forget(value);
-    }
+//         std::mem::forget(value);
+//     }
 
-    pub fn as_mut_ptr(&mut self) -> *mut ffi::apr_array_header_t {
-        self.ptr
-    }
-}
+//     pub fn as_mut_ptr(&mut self) -> *mut ffi::apr_array_header_t {
+//         self.ptr
+//     }
+// }
 
 #[derive(Clone, Debug, Deserialize, Serialize, uniffi::Record)]
 pub struct AprError {
@@ -309,21 +310,6 @@ extern "C" fn on_pool_abort(code: std::ffi::c_int) -> std::ffi::c_int {
     panic!("Out of memory: {}", code);
 }
 
-pub struct Pooling<'a> {
-    ptr: *mut ffi::apr_pool_t,
-    _p: PhantomData<&'a ()>,
-}
-
-impl<'a> Pooling<'a> {
-    fn from_raw(ptr: *mut ffi::apr_pool_t) -> Self {
-        Self {
-            ptr,
-            _p: PhantomData,
-        }
-    }
-}
-
-unsafe impl<'a> Send for Pooling<'a> {}
 
 pub struct Pool {
     ptr: *mut ffi::apr_pool_t,
@@ -372,14 +358,14 @@ impl Pool {
         Self { ptr }
     }
 
-    pub fn create_child(&mut self) -> Pooling<'_> {
-        let ptr: *mut *mut ffi::apr_pool_t = std::ptr::null_mut();
-        let ptr = unsafe {
-            ffi::apr_pool_create_ex(ptr, self.ptr, Some(on_pool_abort), std::ptr::null_mut());
-            *ptr
-        };
-        Pooling::from_raw(ptr)
-    }
+    // pub fn create_child(&mut self) -> Pooling<'_> {
+    //     let ptr: *mut *mut ffi::apr_pool_t = std::ptr::null_mut();
+    //     let ptr = unsafe {
+    //         ffi::apr_pool_create_ex(ptr, self.ptr, Some(on_pool_abort), std::ptr::null_mut());
+    //         *ptr
+    //     };
+    //     Pooling::from_raw(ptr)
+    // }
 
     pub unsafe fn malloc<T: Sized>(&mut self) -> *mut T {
         unsafe { self.as_mut_ptr().malloc() }
@@ -389,19 +375,26 @@ impl Pool {
         unsafe { self.ptr.string(value) }
     }
 
-    pub unsafe fn string_hash_map<T, K, V>(&mut self, map: T) -> error::Result<*mut ffi::apr_hash_t>
+    pub unsafe fn string_hash_map<T, K, V, F1, F2>(
+        &mut self,
+        map: T,
+        key: F1,
+        value: F2,
+    ) -> error::Result<*mut ffi::apr_hash_t>
     where
         T: Iterator<Item = (K, V)>,
         K: AsRef<str>,
         V: AsRef<str>,
+        F1: Fn(&mut Pool, &str) -> error::Result<*const c_char>,
+        F2: Fn(&mut Pool, &str) -> error::Result<*const c_char>,
     {
         unsafe {
             let table = ffi::apr_hash_make(self.as_mut_ptr());
 
             for (k, v) in map {
-                let k = self.string(k.as_ref())?;
+                let k = key(self, k.as_ref())?;
 
-                let v = self.string(v.as_ref())?;
+                let v = value(self, v.as_ref())?;
 
                 ffi::apr_hash_set(
                     table,
@@ -526,6 +519,8 @@ pub impl *mut ffi::apr_pool_t {
     }
 }
 
+const POINTER_SIZE_BYTES: usize = std::mem::size_of::<usize>();
+
 #[easy_ext::ext(AprArray)]
 pub impl *const ffi::apr_array_header_t {
     fn len(self) -> usize {
@@ -536,7 +531,21 @@ pub impl *const ffi::apr_array_header_t {
         unsafe {
             let this = self.as_ref().unwrap();
             for i in 0..this.nelts {
-                let ptr = this.elts.offset(i as isize);
+                let ptr = this.elts.byte_add(usize::try_from(i).unwrap() * POINTER_SIZE_BYTES);
+                let value = read(std::ptr::read(ptr as _));
+                vec.push(value);
+            }
+        }
+        vec
+    }
+
+    fn to_value_vec<T: Sized>(self, read: impl Fn(*const c_char) -> T) -> Vec<T> {
+        let mut vec = Vec::with_capacity(self.len());
+        let element_size = std::mem::size_of::<T>();
+        unsafe {
+            let this = self.as_ref().unwrap();
+            for i in 0..this.nelts {
+                let ptr = this.elts.byte_add(usize::try_from(i).unwrap() * element_size);
                 let value = read(ptr);
                 vec.push(value);
             }

@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -21,7 +22,8 @@ namespace SVNexus.ViewModels.WorkingCopy;
 
 public partial class WorkspaceViewModel : ViewModelBase, 
     IRecipient<WorkspaceViewModel.OnItemIsExpandedChanged>,
-    IRecipient<OnGetContext>
+    IRecipient<OnGetContext>,
+    IRecipient<OnGetWorkingCopyRoot>
 {
 
     public class OnItemIsExpandedChanged()
@@ -342,6 +344,48 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
 
     [RelayCommand]
+    private async Task Patch()
+    {
+        if (!IsPatchButtonEnable)
+        {
+            return;
+        }
+
+
+        var file = await Manager.Default.Send(new OnFilePickerOpen()
+        {
+            Options = new FilePickerOpenOptions()
+            {
+                AllowMultiple = false,
+                Title = "Select a patch file"
+            }
+        }, Manager.MainWindowToken);
+
+        if (file.Count == 0)
+        {
+            return;
+        }
+
+        var patchDialogModel = new PatchDialogModel(this)
+        {
+            Target = SelectedTreeItems.First().AbsolutePath,
+            Path = file[0].Path.AbsolutePath
+        };
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        var dialogOptions = new OverlayDialogOptions
+        {
+            FullScreen = true,
+            Title = "Patch",
+            IsCloseButtonVisible = false,
+            StyleClass = "Fixed"
+        };
+        
+        await OverlayDialog.ShowModal<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, dialogOptions);
+    }
+
+    [RelayCommand]
     private async Task Mkdir()
     {
         if (!IsMkdirButtonEnable)
@@ -361,7 +405,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 IsCloseButtonVisible = false,
                 Buttons = DialogButton.None,
                 CanDragMove = true,
-                Mode = DialogMode.Question
+                Mode = DialogMode.Question,
+                Title = "Create a versioned directory",
             };
         
             await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
@@ -467,15 +512,110 @@ public partial class WorkspaceViewModel : ViewModelBase,
             Targets = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToArray()
         };
         var hostId = SendMessage(new OnGetDialogHostId());
+
+        var dialogOptions = new OverlayDialogOptions()
+        {
+            StyleClass = "Fixed",
+            IsCloseButtonVisible = false,
+            Buttons = DialogButton.None,
+            CanDragMove = true,
+        };
         
-        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId);
+        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
+    }
+
+
+    private async Task Prepare()
+    {
+        try
+        {
+            var root = await _context.Value.GetWcRoot(WorkspacePath);
+
+            var found = SendMessage(new OnGetTabByWorkspaceRoot()
+            {
+                Root = root
+            }).Response;
+            if (found is not null)
+            {
+                var hostId = SendMessage(new OnGetDialogHostId());
+                var result = await MessageBox.ShowOverlayAsync($"The root of {WorkspacePath} is already opened. Redirect to the specified page?", title: "Info", hostId: hostId, icon: MessageBoxIcon.Question, MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (!SendMessage(new OnSwitchTab()
+                        {
+                            Tab = found,
+                        }))
+                    {
+                        Manager.Default.Send(new OnShowToast()
+                        {
+                            Content = "Failed to redirect to the specified page,\nmaybe the page is closed",
+                            Type = NotificationType.Error
+                        }, Manager.MainWindowToken);
+                    }
+                }
+                SendMessage(new OnRemoveTabModel());
+            }
+
+            WorkspaceRoot = root;
+        }
+        catch (System.Exception e)
+        {
+            await e.HandleAsync(svnExceptionHandler: async error =>
+            {
+                var constant = new SvnErrnoConstants();
+                if (constant.IsWcNotWorkingCopy(error.Code))
+                {
+                    var hostId = SendMessage(new OnGetDialogHostId());
+
+                    var result = await MessageBox.ShowOverlayAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        
+                    }
+                    else
+                    {
+                        SendMessage(new OnRemoveTabModel());
+                    }
+
+                    return true;
+                }
+                return false;
+            });
+        }
+        finally
+        {
+            
+        }
     }
     
     [RelayCommand]
     private async Task OnLoaded()
     {
-        WorkspaceRoot = await _context.Value.GetWcRoot(WorkspacePath);
-        await RefreshTreeItems(true);
+        var queue = SendMessage(new OnGetSingleTaskQueue()).Response;
+        await queue.Run(async token =>
+        {
+            await Prepare();
+            await RefreshTreeItems(true);
+        });
+    }
+
+    [RelayCommand]
+    private async Task Difference()
+    {
+        var differenceDialogModel = new DifferenceDialogModel(this)
+        {
+            Path = SelectedTreeItems.First().AbsolutePath,
+        };
+
+        var dialogOptions = new OverlayDialogOptions
+        {
+            FullScreen = true,
+            Title = "Difference",
+            IsCloseButtonVisible = false,
+            StyleClass = "Fixed"
+        };
+
+        await OverlayDialog.ShowModal<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
     }
 
     [RelayCommand]
@@ -485,7 +625,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         {
             if (SelectedTreeItem is null)
             {
-                Manager.Default.Send(new OnShowToast()
+                Manager.Default.Send(new OnShowToast
                 {
                     Type = NotificationType.Warning,
                     Content = "No selected item to update"
@@ -515,7 +655,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         }
         catch (System.Exception e)
         {
-            Manager.Default.Send(new OnShowToast()
+            Manager.Default.Send(new OnShowToast
             {
                 Content = "Failed to update the workspace.",
                 Type =  NotificationType.Error,
@@ -538,5 +678,10 @@ public partial class WorkspaceViewModel : ViewModelBase,
     public void Receive(OnGetContext message)
     {
         message.Reply(_context.Value);
+    }
+
+    public void Receive(OnGetWorkingCopyRoot message)
+    {
+        message.Reply(WorkspaceRoot ?? string.Empty);
     }
 }

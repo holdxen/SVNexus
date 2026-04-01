@@ -11,13 +11,13 @@ use super::context::*;
 
 #[derive(uniffi::Object)]
 pub struct AsyncContext {
-    context: Arc<parking_lot::Mutex<Context>>,
+    context: Arc<parking_lot::FairMutex<Context>>,
 }
 
 impl AsyncContext {
     async fn call_async<F, R>(&self, call: F) -> error::Result<R>
     where
-        F: (FnOnce(parking_lot::MutexGuard<'_, Context>) -> error::Result<R>) + Send + 'static,
+        F: (FnOnce(parking_lot::FairMutexGuard<'_, Context>) -> error::Result<R>) + Send + 'static,
         R: Send + 'static,
     {
         let context = self.context.clone();
@@ -34,6 +34,31 @@ impl AsyncContext {
 impl AsyncContext {
     pub fn working_copy_context(&self) -> wc::AsyncWorkingCopyContext {
         wc::AsyncWorkingCopyContext::Context(self.context.clone())
+    }
+
+    pub async fn patch(&self, opts: PatchOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.patch(opts))
+            .await
+    }
+
+    pub async fn difference(&self, opts: ClientDifferenceOptions) -> error::Result<ClientDifferenceResult> {
+        self.call_async(|mut context| context.difference(opts))
+            .await
+    }
+
+    pub async fn merge(&self, opts: MergeOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.merge(opts))
+            .await
+    }
+
+    pub async fn switch(&self, opts: SwitchOptions) -> error::Result<RevisionNumber> {
+        self.call_async(|mut context| context.switch(opts))
+            .await
+    }
+
+    pub async fn relocate(&self, opts: RelocateOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.relocate(opts))
+            .await
     }
 
     pub async fn mkdir(&self, opts: MkdirOptions) -> error::Result<MkdirResult> {
@@ -167,7 +192,7 @@ impl AsyncContext {
     pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
         tracing::info!("Before creating context");
         let context = ContextFactory::instance()?.create_context(opts)?;
-        let context = Arc::new(parking_lot::Mutex::new(context));
+        let context = Arc::new(parking_lot::FairMutex::new(context));
         tracing::info!("Finished creating context");
         Ok(AsyncContext { context })
     }

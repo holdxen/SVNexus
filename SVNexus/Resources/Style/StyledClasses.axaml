@@ -36,4 +36,53 @@
     <Style Selector="components|SvgRender.Themable">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
     </Style>
+    
+    <Style Selector="u|FormItem.GridLayout">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="u:FormItem">
+                    <Grid RowDefinitions="Auto, *">
+                        <StackPanel
+                            Grid.Row="0"
+                            Name="PART_LabelPanel"
+                            Margin="0,0,0,4"
+                            HorizontalAlignment="{TemplateBinding LabelAlignment}"
+                            Orientation="Horizontal">
+                            <Label
+                                Name="PART_Label"
+                                Content="{TemplateBinding Label}"
+                                Background="Transparent"
+                                FontWeight="{DynamicResource TextBlockTitleFontWeight}"
+                                Target="{Binding #PART_ContentPresenter.Content}" />
+                            <TextBlock
+                                Foreground="{DynamicResource FormAsteriskForeground}"
+                                IsVisible="{TemplateBinding IsRequired}"
+                                Text="*" />
+                        </StackPanel>
+                        <ContentPresenter
+                            Grid.Row="1"
+                            Name="PART_ContentPresenter"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Content="{TemplateBinding Content}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="u|DefaultDialogControl.Fixed">
+        <Setter Property="(ScrollViewer.HorizontalScrollBarVisibility)" Value="Disabled"></Setter>
+        <Setter Property="(ScrollViewer.VerticalScrollBarVisibility)" Value="Disabled"></Setter>
+    </Style>
+    
+    <Style Selector="u|DefaultDialogControl.HStretch">
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+    </Style>
+    
+    <Style Selector="u|DefaultDialogControl.VStretch">
+        <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+    </Style>
+    <Style Selector="u|DefaultDialogControl.FixedTheme">
+        <Setter Property="Theme" Value="{StaticResource FixedControl}"></Setter>
+    </Style>
 </Styles>

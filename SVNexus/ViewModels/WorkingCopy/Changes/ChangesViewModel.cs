@@ -462,6 +462,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
             Buttons = DialogButton.None,
             CanDragMove = true,
             CanResize = true,
+            StyleClass = "Fixed"
         };
 
         await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(model, hostId, dialogOptions);

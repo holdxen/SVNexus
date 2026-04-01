@@ -15,7 +15,7 @@
                 <TextBlock Text="{Binding ParentDirectory}"></TextBlock>
             </u:FormItem>
             <u:FormItem Label="Directory:">
-                <TextBox Text="{Binding  Name, Mode=TwoWay}"></TextBox>
+                <TextBox x:Name="TextBox" Text="{Binding  Name, Mode=TwoWay}"></TextBox>
             </u:FormItem>
         </u:Form>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">

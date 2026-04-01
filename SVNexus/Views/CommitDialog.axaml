@@ -28,10 +28,15 @@
     </UserControl.Styles>
     <Grid RowDefinitions="*, Auto">
         <u:Form HorizontalAlignment="Stretch">
-            <u:FormItem Label="To be committed:">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid RowDefinitions="Auto, Auto, Auto, *"></Grid>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Grid.Row="0" Label="To be committed:">
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
-                        <ListBox MaxHeight="200" MinHeight="50" ItemsSource="{Binding ToBeCommittedItems}">
+                        <ListBox Height="150" ItemsSource="{Binding ToBeCommittedItems}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="viewModels:CommitDialogModel+ToBeCommittedItem">
                                     <Grid ColumnDefinitions="Auto, *, Auto" 
@@ -64,32 +69,35 @@
                                    IsVisible="{Binding IsLoading}" />
                 </Grid>
             </u:FormItem>
-            <u:FormItem Label="Depth:">
+            <u:FormItem Grid.Row="1" Label="Depth:">
                 <u:EnumSelector HorizontalAlignment="Stretch"
                                 Value="{Binding Depth}"
                                 EnumType="{x:Static viewModels:CommitDialogModel.DepthType}">
                 </u:EnumSelector>
             </u:FormItem>
-            <u:FormItem Label="Options:">
+            <u:FormItem Grid.Row="2" Label="Options:">
                 <Grid ColumnDefinitions="*, *">
                     <CheckBox Grid.Column="0" Content="No lock" IsChecked="{Binding NoLock}"></CheckBox>
                     <CheckBox Grid.Column="1" Content="Include externals" IsChecked="{Binding IncludeExternals}"></CheckBox>
                 </Grid>
             </u:FormItem>
-            <u:FormItem Label="Commit Message:">
-                <TextBox AcceptsReturn="True" Text="{Binding CommitMessage}"></TextBox>
+            <u:FormItem Classes="GridLayout" Grid.Row="3" Label="Commit Message:">
+                <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True" Text="{Binding CommitMessage}"></TextBox>
             </u:FormItem>
         </u:Form>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">
             <Border Grid.Column="0"></Border>
             <Button Grid.Column="1" Content="取消" Command="{Binding CloseCommand}"></Button>
             <Border Grid.Column="2" Width="4"></Border>
-            <Button Grid.Column="3"
+            <u:IconButton Grid.Column="3"
                     Classes="Primary"
-                    Theme="{StaticResource SolidButton}"
+                    Theme="{StaticResource SolidIconButton}"
+                    IsLoading="{Binding IsCommitting}"
                     Command="{Binding CommitCommand}"
                     Content="确定">
-            </Button>
+            </u:IconButton>
         </Grid>
     </Grid>
 </UserControl>

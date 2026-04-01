@@ -36,9 +36,19 @@ public sealed class SingleTaskQueue : IDisposable
     //         Start();
     //     }
     // }
+    
+    private static void VerifyAccess()
+    {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            throw new InvalidOperationException(
+                $"当前方法必须在 UI 线程上调用。当前线程: {Environment.CurrentManagedThreadId}");
+        }
+    }
 
     private async Task Add(object task, bool cancelOthers = true)
     {
+        VerifyAccess();
         if (TaskQueue is null)
         {
             TaskQueue = Channel.CreateUnbounded<TaskMessage>(new UnboundedChannelOptions()
@@ -135,14 +145,16 @@ public sealed class SingleTaskQueue : IDisposable
         // }, CancellationToken.None);
     }
 
-    public Task Push(Action<CancellationToken> task, bool cancelOthers = true)
+    public bool Single { get; set; } = true;
+
+    public Task Push(Action<CancellationToken> task, bool? cancelOthers = null)
     {
-        return Add(task, cancelOthers);
+        return Add(task, cancelOthers ?? Single);
     }
 
-    public Task Run(Func<CancellationToken, Task> task, bool cancelOthers = true)
+    public Task Run(Func<CancellationToken, Task> task, bool? cancelOthers = null)
     {
-        return Add(task, cancelOthers);
+        return Add(task, cancelOthers ?? Single);
     }
 
     // public void Start()
@@ -197,6 +209,11 @@ public sealed class SingleTaskQueue : IDisposable
     {
         TaskQueue?.Writer.Complete();
         TaskQueue = null;
+        foreach (var token in Tokens)
+        {
+            token.Dispose();
+        }
+        Tokens.Clear();
     }
 
     public void Dispose()

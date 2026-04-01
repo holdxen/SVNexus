@@ -87,7 +87,7 @@ unsafe extern "C" fn svn_read_fn(
 }
 
 impl Stream {
-    pub unsafe fn stream(&mut self) -> *mut ffi::svn_stream_t {
+    pub unsafe fn ptr(&mut self) -> *mut ffi::svn_stream_t {
         self.stream
     }
     pub fn base64(&mut self, break_lines: bool) -> Streamer<'_> {
