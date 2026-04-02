@@ -1680,6 +1680,10 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -6099,6 +6103,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_lock(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_log(ulong @ptr,RustBuffer @opts
     );
 
@@ -6221,6 +6236,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asynccontext_switch(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asynccontext_unlock(ulong @ptr,RustBuffer @opts
     );
 
     #if NET8_0_OR_GREATER
@@ -11291,6 +11317,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_lock(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_log(
     );
 
@@ -11413,6 +11450,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_method_asynccontext_switch(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_asynccontext_unlock(
     );
 
     #if NET8_0_OR_GREATER
@@ -13858,6 +13906,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_lock();
+            if (checksum != 57826) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_lock` checksum `57826`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log();
             if (checksum != 6151) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log` checksum `6151`, library returned `{checksum}`");
@@ -13927,6 +13981,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_switch();
             if (checksum != 46706) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_switch` checksum `46706`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_unlock();
+            if (checksum != 28291) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_unlock` checksum `28291`, library returned `{checksum}`");
             }
         }
         {
@@ -14269,6 +14329,8 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<ListResult> List(ListOptions @opts);
     /// <exception cref="Exception"></exception>
+    Task Lock(LockOptions @opts);
+    /// <exception cref="Exception"></exception>
     Task<LogResult> Log(LogOptions @opts);
     /// <exception cref="Exception"></exception>
     Task LogNext(LogOptions @opts, LogReceiver @receiver);
@@ -14292,6 +14354,8 @@ public interface IAsyncContext {
     Task StatusNext(StatusOptions @opts, StatusReceiver @receiver);
     /// <exception cref="Exception"></exception>
     Task<uint> Switch(SwitchOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task Unlock(UnlockOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<uint[]> Update(UpdateOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -14706,6 +14770,24 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
+    public async Task Lock(LockOptions @opts) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_lock(thisPtr, FfiConverterTypeLockOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
     public async Task<LogResult> Log(LogOptions @opts) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
@@ -14940,6 +15022,24 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u32(future),
         // Lift
         (result) => FfiConverterUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task Unlock(UnlockOptions @opts) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_unlock(thisPtr, FfiConverterTypeUnlockOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -21511,6 +21611,40 @@ class FfiConverterTypeLock: FfiConverterRustBuffer<Lock> {
 
 
 
+public record LockOptions (
+    string[] Targets, 
+    string? Comment, 
+    bool StealLock
+) {
+}
+
+class FfiConverterTypeLockOptions: FfiConverterRustBuffer<LockOptions> {
+    public static FfiConverterTypeLockOptions INSTANCE = new FfiConverterTypeLockOptions();
+
+    public override LockOptions Read(BigEndianStream stream) {
+        return new LockOptions(
+            Targets: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Comment: FfiConverterOptionalString.INSTANCE.Read(stream),
+            StealLock: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(LockOptions value) {
+        return 0
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Targets)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Comment)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.StealLock);
+    }
+
+    public override void Write(LockOptions value, BigEndianStream stream) {
+            FfiConverterSequenceString.INSTANCE.Write(value.Targets, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Comment, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.StealLock, stream);
+    }
+}
+
+
+
 public record LogChangedPathEntry (
     LogChangedPathAction Action, 
     string? CopyFromPath, 
@@ -22858,6 +22992,36 @@ class FfiConverterTypeTrustServer: FfiConverterRustBuffer<TrustServer> {
     public override void Write(TrustServer value, BigEndianStream stream) {
             FfiConverterUInt32.INSTANCE.Write(value.AcceptFailures, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Save, stream);
+    }
+}
+
+
+
+public record UnlockOptions (
+    string[] Targets, 
+    bool BreakLock
+) {
+}
+
+class FfiConverterTypeUnlockOptions: FfiConverterRustBuffer<UnlockOptions> {
+    public static FfiConverterTypeUnlockOptions INSTANCE = new FfiConverterTypeUnlockOptions();
+
+    public override UnlockOptions Read(BigEndianStream stream) {
+        return new UnlockOptions(
+            Targets: FfiConverterSequenceString.INSTANCE.Read(stream),
+            BreakLock: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(UnlockOptions value) {
+        return 0
+            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Targets)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.BreakLock);
+    }
+
+    public override void Write(UnlockOptions value, BigEndianStream stream) {
+            FfiConverterSequenceString.INSTANCE.Write(value.Targets, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.BreakLock, stream);
     }
 }
 

@@ -6,7 +6,6 @@ use std::{
     collections::HashMap,
     ffi::{CStr, CString, c_char, c_int, c_void},
     hash::Hash,
-    marker::PhantomData,
     sync::OnceLock,
 };
 

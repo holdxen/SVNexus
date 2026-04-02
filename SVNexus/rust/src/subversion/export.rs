@@ -36,6 +36,16 @@ impl AsyncContext {
         wc::AsyncWorkingCopyContext::Context(self.context.clone())
     }
 
+    pub async fn lock(&self, opts: LockOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.lock(opts))
+            .await
+    }
+
+    pub async fn unlock(&self, opts: UnlockOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.unlock(opts))
+            .await
+    }
+
     pub async fn patch(&self, opts: PatchOptions) -> error::Result<()> {
         self.call_async(|mut context| context.patch(opts))
             .await

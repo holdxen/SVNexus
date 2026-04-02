@@ -190,6 +190,19 @@ impl Proxies {
     }
 }
 
+#[derive(new, Debug, uniffi::Record)]
+pub struct LockOptions {
+    targets: Vec<String>,
+    comment: Option<String>,
+    steal_lock: bool,
+}
+
+#[derive(new, Debug, uniffi::Record)]
+pub struct UnlockOptions {
+    targets: Vec<String>,
+    break_lock: bool,
+}
+
 #[derive(uniffi::Record, Debug)]
 pub struct PatchOptions {
     patch_absolute_path: String,
@@ -3758,6 +3771,29 @@ impl Context {
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
             Ok(())
         }
+    }
+
+    pub fn lock(&mut self, opts: LockOptions) -> error::Result<()> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+
+            let comment = opts.comment.map(|v| pool.string(v)).transpose()?.unwrap_or_default();
+
+            let error = ffi::svn_client_lock(targets, comment, opts.steal_lock.into(), self.ctx(), pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+        }
+        Ok(())
+    }
+    pub fn unlock(&mut self, opts: UnlockOptions) -> error::Result<()> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+
+            let error = ffi::svn_client_unlock(targets, opts.break_lock.into(), self.ctx(), pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+        }
+        Ok(())
     }
 
     fn create(opts: CreateContextOptions) -> error::Result<Self> {
