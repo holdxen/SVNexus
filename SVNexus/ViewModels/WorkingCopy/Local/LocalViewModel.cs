@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
@@ -8,6 +9,8 @@ using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
@@ -16,9 +19,11 @@ using SVNexus.Utils;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
+public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent), IRecipient<LocalViewModel.OnCreatedItem>
 {
-    
+
+
+    public class OnCreatedItem(TreeItemViewModel value) : ValueChangedMessage<TreeItemViewModel>(value);
     
     
     public partial class TreeItemViewModel(ViewModelBase? parent): ViewModelBase(parent)//, IRecipient<OnSetChecked>, IRecipient<OnSetExpanded>
@@ -124,10 +129,13 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
                                 }
                                 else
                                 {
-                                    children.Add(new TreeItemViewModel(Parent)
+                                    var item = new TreeItemViewModel(parent)
                                     {
-                                        StatusEntry = entry,
-                                    });
+                                        StatusEntry = entry
+                                    };
+                                    children.Add(item);
+                                    
+                                    SendMessage(new OnCreatedItem(item));
                                 }
 
                                 Children = new ObservableCollection<TreeItemViewModel>(children);
@@ -182,12 +190,14 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
                             {
                                 return;
                             }
-                
-                
-                            Children.Add(new TreeItemViewModel(Parent)
+
+
+                            var item = new TreeItemViewModel(Parent)
                             {
                                 StatusEntry = entry,
-                            });
+                            };
+                            Children.Add(item);
+                            SendMessage(new OnCreatedItem(item));
                         });
                     }
                     catch (System.Exception e)
@@ -201,16 +211,6 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
 
             HasLoaded = true;
             IsLoading = false;
-        }
-
-        public void Receive(OnSetChecked message)
-        {
-            IsChecked = message.Value;
-        }
-
-        public void Receive(OnSetExpanded message)
-        {
-            IsExpanded = message.Value;
         }
     }
 
@@ -255,9 +255,14 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
     // }
 
+    private void CleanWeakTreeItems()
+    {
+        ForEachWeakTreeItem(item => {});
+    }
+
     private void ForEachWeakTreeItem(Action<TreeItemViewModel> action)
     {
-        for (var i = _weakTreeItems.Count - 1; i >= 0; i++)
+        for (var i = _weakTreeItems.Count - 1; i >= 0; i--)
         {
             if (_weakTreeItems[i].TryGetTarget(out var item))
             {
@@ -295,7 +300,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     private void ClearAll()
     {
         // Manager.Default.Send(new OnSetChecked(false), _typeService.Get<TreeItemViewModel>());
-        ForEachWeakTreeItem(item => item.IsChecked = true);
+        ForEachWeakTreeItem(item => item.IsChecked = false);
     }
 
     partial void OnShowRootChanged(bool value)
@@ -347,6 +352,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
             {
                 await RefreshItem(_root);
             }
+            CleanWeakTreeItems();
         });
     }
 
@@ -383,6 +389,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
             }
             token.ThrowIfCancellationRequested();
             await LoadAllChildren(_root);
+            CleanWeakTreeItems();
         }, false);
     }
 
@@ -422,6 +429,8 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
                     {
                         StatusEntry = entry,
                     };
+                    
+                    Receive(new OnCreatedItem(_root));
                 }
                 else
                 {
@@ -429,6 +438,8 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
                     {
                         StatusEntry = entry,
                     });
+                    
+                    Receive(new OnCreatedItem(children.Last()));
                 }
             }
 
@@ -455,5 +466,10 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     private async Task OnLoaded()
     {
         await _singleTaskQueue.Run(async token => await LoadRoot());
+    }
+
+    public void Receive(OnCreatedItem message)
+    {
+        _weakTreeItems.Add(new WeakReference<TreeItemViewModel>(message.Value));
     }
 }

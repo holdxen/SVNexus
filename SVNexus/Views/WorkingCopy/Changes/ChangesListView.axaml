@@ -20,7 +20,7 @@
     <ListBox
         x:Name="ListBox"
         SelectedItem="{Binding SelectedItem}"
-        SelectionMode="Single"
+        SelectionMode="Multiple"
         ItemsSource="{Binding Items}">
         <ListBox.Styles>
             <Style Selector="ListBoxItem">

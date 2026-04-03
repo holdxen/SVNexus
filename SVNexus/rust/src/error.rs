@@ -28,6 +28,12 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
+    #[snafu(display("{}", source))]
+    DatabaseError {
+        source: Box<dyn std::error::Error + Sync + Send>,
+        backtrace: Backtrace,
+    },
+
     #[snafu(display("Invalid argument: {detail} at {location}"))]
     InvalidArgument {
         detail: String,
@@ -77,5 +83,35 @@ impl From<io::Error> for Error {
 impl From<uuid::Error> for Error {
     fn from(source: uuid::Error) -> Self {
         builder::InvalidID {}.into_error(source)
+    }
+}
+
+impl From<redb::DatabaseError> for Error {
+    fn from(value: redb::DatabaseError) -> Self {
+        builder::Database {}.into_error(Box::new(value) as _)
+    }
+}
+
+impl From<redb::TransactionError> for Error {
+    fn from(value: redb::TransactionError) -> Self {
+        builder::Database {}.into_error(Box::new(value) as _)
+    }
+}
+
+impl From<redb::StorageError> for Error {
+    fn from(value: redb::StorageError) -> Self {
+        builder::Database {}.into_error(Box::new(value) as _)
+    }
+}
+
+impl From<redb::TableError> for Error {
+    fn from(value: redb::TableError) -> Self {
+        builder::Database {}.into_error(Box::new(value) as _)
+    }
+}
+
+impl From<apache_avro::Error> for Error {
+    fn from(value: apache_avro::Error) -> Self {
+        todo!()
     }
 }

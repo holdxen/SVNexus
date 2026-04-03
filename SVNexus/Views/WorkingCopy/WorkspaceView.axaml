@@ -119,6 +119,9 @@
                                              SelectedItem="{Binding SelectedTreeItem}"
                                              SelectedItems="{Binding  SelectedTreeItems}"
                                              SelectionMode="Multiple">
+                    <components:AdvancedTreeView.Resources>
+                        <SolidColorBrush x:Key="TreeViewItemSelectedBackground" Color="{DynamicResource SemiBlue3Color}"></SolidColorBrush>
+                    </components:AdvancedTreeView.Resources>
                     <components:AdvancedTreeView.Styles>
                         <Style Selector="components|AdvancedTreeViewItem" x:DataType="wk:WorkspaceViewModel+TreeItemViewModel">
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded}"></Setter>

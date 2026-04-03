@@ -3,6 +3,7 @@ mod error;
 mod subversion;
 mod tests;
 mod utils;
+mod db;
 
 uniffi::setup_scaffolding!();
 

@@ -1684,6 +1684,10 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -6335,6 +6339,50 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asyncworkingcopycontext_wc_version(ulong @ptr,RustBuffer @path
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_repository_history(RustBuffer @ptr,RustBuffer @name,uint @start,uint @end
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_repository_insert_history(RustBuffer @ptr,RustBuffer @name,RustBuffer @entries
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_repository_table(RustBuffer @ptr,RustBuffer @key
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_resgister_repository(RustBuffer @ptr,RustBuffer @key,RustBuffer @table
     );
 
     #if NET8_0_OR_GREATER
@@ -20680,6 +20728,105 @@ class FfiConverterTypeCreateContextOptions: FfiConverterRustBuffer<CreateContext
 
 
 
+public record DatabaseManager (
+) {
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<RelativeLogEntry[]> RepositoryHistory(string @name, uint @start, uint @end) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_repository_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@name), FfiConverterUInt32.INSTANCE.Lower(@start), FfiConverterUInt32.INSTANCE.Lower(@end)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterSequenceTypeRelativeLogEntry.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task RepositoryInsertHistory(string @name, LogEntry[] @entries) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_repository_insert_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@name), FfiConverterSequenceTypeLogEntry.INSTANCE.Lower(@entries)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<RepositoryTable?> RepositoryTable(string @key) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_repository_table(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@key)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterOptionalTypeRepositoryTable.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<RepositoryTable> ResgisterRepository(string @key, RepositoryTable? @table) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_resgister_repository(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@key), FfiConverterOptionalTypeRepositoryTable.INSTANCE.Lower(@table)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeRepositoryTable.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+}
+
+class FfiConverterTypeDatabaseManager: FfiConverterRustBuffer<DatabaseManager> {
+    public static FfiConverterTypeDatabaseManager INSTANCE = new FfiConverterTypeDatabaseManager();
+
+    public override DatabaseManager Read(BigEndianStream stream) {
+        return new DatabaseManager(
+        );
+    }
+
+    public override int AllocationSize(DatabaseManager value) {
+        return 0;
+    }
+
+    public override void Write(DatabaseManager value, BigEndianStream stream) {
+    }
+}
+
+
+
 public record DeleteOptions (
     string[] Path, 
     bool Force, 
@@ -21696,6 +21843,7 @@ public record LogEntry (
     long? Date, 
     string? Author, 
     string? Message, 
+    Dictionary<string, string>? RevisionProperties, 
     Dictionary<string, LogChangedPathEntry> ChangedPathEntries, 
     bool HasChildren, 
     bool NonInheritable, 
@@ -21712,6 +21860,7 @@ class FfiConverterTypeLogEntry: FfiConverterRustBuffer<LogEntry> {
             Date: FfiConverterOptionalInt64.INSTANCE.Read(stream),
             Author: FfiConverterOptionalString.INSTANCE.Read(stream),
             Message: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RevisionProperties: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
             ChangedPathEntries: FfiConverterDictionaryStringTypeLogChangedPathEntry.INSTANCE.Read(stream),
             HasChildren: FfiConverterBoolean.INSTANCE.Read(stream),
             NonInheritable: FfiConverterBoolean.INSTANCE.Read(stream),
@@ -21725,6 +21874,7 @@ class FfiConverterTypeLogEntry: FfiConverterRustBuffer<LogEntry> {
             + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.Date)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Author)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Message)
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionProperties)
             + FfiConverterDictionaryStringTypeLogChangedPathEntry.INSTANCE.AllocationSize(value.ChangedPathEntries)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.HasChildren)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.NonInheritable)
@@ -21736,6 +21886,7 @@ class FfiConverterTypeLogEntry: FfiConverterRustBuffer<LogEntry> {
             FfiConverterOptionalInt64.INSTANCE.Write(value.Date, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Author, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.Message, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionProperties, stream);
             FfiConverterDictionaryStringTypeLogChangedPathEntry.INSTANCE.Write(value.ChangedPathEntries, stream);
             FfiConverterBoolean.INSTANCE.Write(value.HasChildren, stream);
             FfiConverterBoolean.INSTANCE.Write(value.NonInheritable, stream);
@@ -22305,6 +22456,36 @@ class FfiConverterTypeProxy: FfiConverterRustBuffer<Proxy> {
 
 
 
+public record RelativeLogEntry (
+    LogEntry Entry, 
+    RelativeLogEntry[] Children
+) {
+}
+
+class FfiConverterTypeRelativeLogEntry: FfiConverterRustBuffer<RelativeLogEntry> {
+    public static FfiConverterTypeRelativeLogEntry INSTANCE = new FfiConverterTypeRelativeLogEntry();
+
+    public override RelativeLogEntry Read(BigEndianStream stream) {
+        return new RelativeLogEntry(
+            Entry: FfiConverterTypeLogEntry.INSTANCE.Read(stream),
+            Children: FfiConverterSequenceTypeRelativeLogEntry.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RelativeLogEntry value) {
+        return 0
+            + FfiConverterTypeLogEntry.INSTANCE.AllocationSize(value.Entry)
+            + FfiConverterSequenceTypeRelativeLogEntry.INSTANCE.AllocationSize(value.Children);
+    }
+
+    public override void Write(RelativeLogEntry value, BigEndianStream stream) {
+            FfiConverterTypeLogEntry.INSTANCE.Write(value.Entry, stream);
+            FfiConverterSequenceTypeRelativeLogEntry.INSTANCE.Write(value.Children, stream);
+    }
+}
+
+
+
 public record RelocateOptions (
     string WcRootDir, 
     string FromPrefix, 
@@ -22338,6 +22519,32 @@ class FfiConverterTypeRelocateOptions: FfiConverterRustBuffer<RelocateOptions> {
             FfiConverterString.INSTANCE.Write(value.FromPrefix, stream);
             FfiConverterString.INSTANCE.Write(value.ToPrefix, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
+    }
+}
+
+
+
+public record RepositoryTable (
+    string Revisions
+) {
+}
+
+class FfiConverterTypeRepositoryTable: FfiConverterRustBuffer<RepositoryTable> {
+    public static FfiConverterTypeRepositoryTable INSTANCE = new FfiConverterTypeRepositoryTable();
+
+    public override RepositoryTable Read(BigEndianStream stream) {
+        return new RepositoryTable(
+            Revisions: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(RepositoryTable value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Revisions);
+    }
+
+    public override void Write(RepositoryTable value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Revisions, stream);
     }
 }
 
@@ -23873,6 +24080,10 @@ public class Exception: UniffiException {
         public SvnException(string message): base(message) {}
     }
     
+    public class DatabaseException: Exception {
+        public DatabaseException(string message): base(message) {}
+    }
+    
     public class InvalidArgument: Exception {
         public InvalidArgument(string message): base(message) {}
     }
@@ -23911,13 +24122,14 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
         switch (value) {
             case 1: return new Exception.AprException(FfiConverterString.INSTANCE.Read(stream));
             case 2: return new Exception.SvnException(FfiConverterString.INSTANCE.Read(stream));
-            case 3: return new Exception.InvalidArgument(FfiConverterString.INSTANCE.Read(stream));
-            case 4: return new Exception.IoException(FfiConverterString.INSTANCE.Read(stream));
-            case 5: return new Exception.InvalidId(FfiConverterString.INSTANCE.Read(stream));
-            case 6: return new Exception.GeneralException(FfiConverterString.INSTANCE.Read(stream));
-            case 7: return new Exception.RuntimeException(FfiConverterString.INSTANCE.Read(stream));
-            case 8: return new Exception.Whatever(FfiConverterString.INSTANCE.Read(stream));
-            case 9: return new Exception.SvgException(FfiConverterString.INSTANCE.Read(stream));
+            case 3: return new Exception.DatabaseException(FfiConverterString.INSTANCE.Read(stream));
+            case 4: return new Exception.InvalidArgument(FfiConverterString.INSTANCE.Read(stream));
+            case 5: return new Exception.IoException(FfiConverterString.INSTANCE.Read(stream));
+            case 6: return new Exception.InvalidId(FfiConverterString.INSTANCE.Read(stream));
+            case 7: return new Exception.GeneralException(FfiConverterString.INSTANCE.Read(stream));
+            case 8: return new Exception.RuntimeException(FfiConverterString.INSTANCE.Read(stream));
+            case 9: return new Exception.Whatever(FfiConverterString.INSTANCE.Read(stream));
+            case 10: return new Exception.SvgException(FfiConverterString.INSTANCE.Read(stream));
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Read()", value));
         }
@@ -23935,26 +24147,29 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
             case Exception.SvnException:
                 stream.WriteInt(2);
                 break;
-            case Exception.InvalidArgument:
+            case Exception.DatabaseException:
                 stream.WriteInt(3);
                 break;
-            case Exception.IoException:
+            case Exception.InvalidArgument:
                 stream.WriteInt(4);
                 break;
-            case Exception.InvalidId:
+            case Exception.IoException:
                 stream.WriteInt(5);
                 break;
-            case Exception.GeneralException:
+            case Exception.InvalidId:
                 stream.WriteInt(6);
                 break;
-            case Exception.RuntimeException:
+            case Exception.GeneralException:
                 stream.WriteInt(7);
                 break;
-            case Exception.Whatever:
+            case Exception.RuntimeException:
                 stream.WriteInt(8);
                 break;
-            case Exception.SvgException:
+            case Exception.Whatever:
                 stream.WriteInt(9);
+                break;
+            case Exception.SvgException:
+                stream.WriteInt(10);
                 break;
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Write()", value));
@@ -25108,6 +25323,37 @@ class FfiConverterOptionalTypeProxy: FfiConverterRustBuffer<Proxy?> {
 
 
 
+class FfiConverterOptionalTypeRepositoryTable: FfiConverterRustBuffer<RepositoryTable?> {
+    public static FfiConverterOptionalTypeRepositoryTable INSTANCE = new FfiConverterOptionalTypeRepositoryTable();
+
+    public override RepositoryTable? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeRepositoryTable.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(RepositoryTable? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeRepositoryTable.INSTANCE.AllocationSize((RepositoryTable)value);
+        }
+    }
+
+    public override void Write(RepositoryTable? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeRepositoryTable.INSTANCE.Write((RepositoryTable)value, stream);
+        }
+    }
+}
+
+
+
+
 class FfiConverterOptionalTypeSVNError: FfiConverterRustBuffer<SvnError?> {
     public static FfiConverterOptionalTypeSVNError INSTANCE = new FfiConverterOptionalTypeSVNError();
 
@@ -25921,6 +26167,58 @@ class FfiConverterSequenceTypePropertyListEntry: FfiConverterRustBuffer<Property
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypePropertyListEntry.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeRelativeLogEntry: FfiConverterRustBuffer<RelativeLogEntry[]> {
+    public static FfiConverterSequenceTypeRelativeLogEntry INSTANCE = new FfiConverterSequenceTypeRelativeLogEntry();
+
+    public override RelativeLogEntry[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<RelativeLogEntry>(length);
+        var readFn = FfiConverterTypeRelativeLogEntry.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(RelativeLogEntry[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeRelativeLogEntry.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(RelativeLogEntry[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeRelativeLogEntry.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

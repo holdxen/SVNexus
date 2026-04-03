@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -295,7 +296,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
     }
 
-    private CommitItemViewModel? _parent;
+    private Stack<CommitItemViewModel> _parentStack = [];
 
 
     [RelayCommand]
@@ -346,7 +347,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                     {
                         if (entry.Revision is null)
                         {
-                            _parent = null;
+                            _parentStack.Pop();
                         } 
                         else if (entry.HasChildren)
                         {
@@ -354,12 +355,22 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                             {
                                 Entry = entry
                             };
-                            _parent = item;
-                            CommitItems.Add(item);
+                            var last = _parentStack.LastOrDefault();
+                            if (last is not null)
+                            {
+                                last.Children.Add(item);
+                            }
+                            else
+                            {
+                                CommitItems.Add(item);
+                            }
+                            _parentStack.Push(item);
+                            // _parent = item;
+                            // CommitItems.Add(item);
                         }
-                        else if (_parent is not null)
+                        else if (_parentStack.Count > 0)
                         {
-                            _parent.Children.Add(new CommitItemViewModel()
+                            _parentStack.Last().Children.Add(new CommitItemViewModel()
                             {
                                 Entry = entry,
                             });

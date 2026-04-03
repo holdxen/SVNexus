@@ -11,7 +11,9 @@ use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
 use crate::utils::{Pointer, PointerMapper};
 use core::panic;
+use apache_avro::AvroSchema;
 use derive_new::new;
+use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
 use std::collections::HashMap;
 use std::ffi::{CStr, c_char, c_void};
@@ -242,7 +244,7 @@ pub struct CommitResult {
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_node_kind_t)]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, AvroSchema, Serialize, Deserialize)]
 pub enum NodeKind {
     None = ffi::svn_node_kind_t_svn_node_none,
     File = ffi::svn_node_kind_t_svn_node_file,
@@ -1164,7 +1166,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
 // #[derive(TryFromPrimitive)]
 // #[repr(u8)]
 #[svnexus_macro::enum_converter(repr_type=u8)]
-#[derive(uniffi::Enum, Debug)]
+#[derive(uniffi::Enum, Debug, AvroSchema, Serialize, Deserialize)]
 enum LogChangedPathAction {
     Add = b'A',
     Delete = b'D',
@@ -1177,7 +1179,7 @@ impl LogChangedPathAction {
     }
 }
 
-#[derive(new, Debug, uniffi::Record)]
+#[derive(new, Debug, uniffi::Record, AvroSchema, Serialize, Deserialize)]
 pub struct LogChangedPathEntry {
     action: LogChangedPathAction,
     copy_from_path: Option<String>,
@@ -1223,16 +1225,17 @@ impl LogChangedPathEntry {
     }
 }
 
-#[derive(Default, new, Debug, uniffi::Record)]
+#[derive(Default, new, Debug, uniffi::Record, AvroSchema, Serialize, Deserialize)]
 pub struct LogEntry {
-    revision: Option<RevisionNumber>,
-    date: Option<i64>,
-    author: Option<String>,
-    message: Option<String>,
-    changed_path_entries: HashMap<String, LogChangedPathEntry>,
-    has_children: bool,
-    non_inheritable: bool,
-    subtractive_merge: bool, // merged_in_revsions: Vec<RevisionNumber>,
+    pub revision: Option<RevisionNumber>,
+    pub date: Option<i64>,
+    pub author: Option<String>,
+    pub message: Option<String>,
+    pub revision_properties: Option<HashMap<String, String>>,
+    pub changed_path_entries: HashMap<String, LogChangedPathEntry>,
+    pub has_children: bool,
+    pub non_inheritable: bool,
+    pub subtractive_merge: bool, // merged_in_revsions: Vec<RevisionNumber>,
 }
 
 impl LogEntry {
@@ -1244,16 +1247,21 @@ impl LogEntry {
             let mut date: *const c_char = std::ptr::null();
             let mut message: *const c_char = std::ptr::null();
 
-            ffi::svn_compat_log_revprops_out(
-                &mut author as _,
-                &mut date as _,
-                &mut message as _,
-                log_entry.revprops,
-            );
+            if !log_entry.revprops.is_null() {
+                ffi::svn_compat_log_revprops_out(
+                    &mut author as _,
+                    &mut date as _,
+                    &mut message as _,
+                    log_entry.revprops,
+                );
+            }
+
 
             let revision = log_entry.revision.try_into().ok();
 
             let mut pool = apr::Pool::create();
+
+            let revision_properties = log_entry.revprops.map(|v| pool.convert_to_hash_map(v as _));
 
             let mut time_is_valid = false;
             let mut time: ffi::apr_time_t = 0;
@@ -1308,6 +1316,7 @@ impl LogEntry {
                 date,
                 author,
                 message,
+                revision_properties,
                 changed_path_entries,
                 has_children,
                 non_inheritable,

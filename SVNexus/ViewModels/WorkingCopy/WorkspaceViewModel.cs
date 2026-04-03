@@ -430,6 +430,16 @@ public partial class WorkspaceViewModel : ViewModelBase,
     [RelayCommand]
     private async Task Refresh()
     {
+        if (!IsRefreshButtonEnable)
+        {
+            return;
+        }
+
+        Manager.Default.Send(new OnShowToast()
+        {
+            Content = $"Refreshing: {SelectedTreeItems.First().AbsolutePath.TrimStartString(WorkspaceRoot?.GetDirectoryName() ?? string.Empty).TrimStartPathSeparatorChar()}",
+            Type = NotificationType.Information
+        }, Manager.MainWindowToken);
         await RefreshTreeItems();
     }
 
