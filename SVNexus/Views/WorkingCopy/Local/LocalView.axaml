@@ -39,16 +39,6 @@
                     </StackPanel.Styles>
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Load all"
-                                          Command="{Binding CheckAllCommand}"
-                                          Source="{StaticResource Icons.CheckAll}">
-                    </components:SvgButton>
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Load all"
-                                          Command="{Binding ClearAllCommand}"
-                                          Source="{StaticResource Icons.ClearAll}">
-                    </components:SvgButton>
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Load all"
                                           Command="{Binding LoadAllCommand}"
                                           Source="{StaticResource Icons.LoadAll}">
                     </components:SvgButton>
@@ -71,10 +61,11 @@
             <u:Divider Grid.Row="1" Orientation="Horizontal"></u:Divider>
             <Grid Grid.Row="3" Margin="0 2">
                 <components:AdvancedTreeView
-                    SelectionMode="Single"
+                    SelectionMode="Multiple"
                     Margin="0"
                     Padding="0"
                     ItemsSource="{Binding TreeItems}"
+                    SelectedItems="{Binding SelectedTreeItems}"
                     AutoScrollToSelectedItem="False">
                     <TreeView.Styles>
                         <Style Selector="components|AdvancedTreeViewItem"
@@ -92,43 +83,44 @@
                     <TreeView.DataTemplates>
                         <TreeDataTemplate x:DataType="local:LocalViewModel+TreeItemViewModel"
                                           ItemsSource="{Binding Children}">
-                            <Grid ColumnDefinitions="Auto, Auto, *, Auto"
-                                  IsHitTestVisible="True"
-                                  Background="Transparent">
-                                <Grid.ContextMenu>
-                                    <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}">
-                                        <Interaction.Behaviors>
-                                            <behaviors:ContextMenuBehavior AllowToOpen="False" />
-                                        </Interaction.Behaviors>
-                                    </ContextMenu>
-                                </Grid.ContextMenu>
-
-                                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
-                                          IsChecked="{Binding IsChecked}"
-                                          Grid.Column="0">
-                                </CheckBox>
-                                <components:SvgRender Grid.Column="1"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      Width="{Binding #TreeItemText.Bounds.Height}"
-                                                      Height="{Binding #TreeItemText.Bounds.Height}"
-                                                      Source="{Binding NodeKindIcon, Mode=OneWay}">
-                                </components:SvgRender>
-                                <TextBlock Grid.Column="2"
-                                           x:Name="TreeItemText"
-                                           Classes.Delete="{Binding IsDelete}"
-                                           VerticalAlignment="Center"
-                                           FontSize="14"
-                                           Text="{Binding Name}">
-                                </TextBlock>
-
-                                <components:SvgRender Grid.Column="3"
-                                                      ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}"
-                                                      Width="{Binding #TreeItemText.Bounds.Height}"
-                                                      Height="{Binding #TreeItemText.Bounds.Height}"
-                                                      Source="{Binding StatusIcon, Mode=OneWay}">
-                                </components:SvgRender>
-                            </Grid>
+                            <components:StatusEntryItem FileName="{Binding Name}"
+                                                        IsDelete="{Binding IsDelete}"
+                                                        KindIcon="{Binding NodeKindIcon}"
+                                                        StatusToolTip="{Binding StatusToolTip}"
+                                                        StatusIcon="{Binding StatusIcon}">
+                            </components:StatusEntryItem>
+                            <!-- <Grid ColumnDefinitions="Auto, *, Auto" -->
+                            <!--       IsHitTestVisible="True" -->
+                            <!--       Background="Transparent"> -->
+                            <!--     <Grid.ContextMenu> -->
+                            <!--         <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}"> -->
+                            <!--             <Interaction.Behaviors> -->
+                            <!--                 <behaviors:ContextMenuBehavior AllowToOpen="False" /> -->
+                            <!--             </Interaction.Behaviors> -->
+                            <!--         </ContextMenu> -->
+                            <!--     </Grid.ContextMenu> -->
+                            <!-- -->
+                            <!--     <components:SvgRender Grid.Column="0" -->
+                            <!--                           HorizontalAlignment="Center" -->
+                            <!--                           VerticalAlignment="Center" -->
+                            <!--                           Size="18" -->
+                            <!--                           Source="{Binding NodeKindIcon, Mode=OneWay}"> -->
+                            <!--     </components:SvgRender> -->
+                            <!--     <TextBlock Grid.Column="1" -->
+                            <!--                x:Name="TreeItemText" -->
+                            <!--                Classes.Delete="{Binding IsDelete}" -->
+                            <!--                VerticalAlignment="Center" -->
+                            <!--                FontSize="14" -->
+                            <!--                LineHeight="20" -->
+                            <!--                Text="{Binding Name}"> -->
+                            <!--     </TextBlock> -->
+                            <!-- -->
+                            <!--     <components:SvgRender Grid.Column="2" -->
+                            <!--                           ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}" -->
+                            <!--                           Size="18" -->
+                            <!--                           Source="{Binding StatusIcon, Mode=OneWay}"> -->
+                            <!--     </components:SvgRender> -->
+                            <!-- </Grid> -->
                         </TreeDataTemplate>
                     </TreeView.DataTemplates>
                 </components:AdvancedTreeView>

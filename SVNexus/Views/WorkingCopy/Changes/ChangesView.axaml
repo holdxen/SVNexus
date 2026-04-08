@@ -37,16 +37,6 @@
                             IsVisible="{Binding IsListView}"
                             Orientation="Horizontal">
                     <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Load all"
-                                          Command="{Binding ChangesListViewModel.CheckAllCommand}"
-                                          Source="{StaticResource Icons.CheckAll}">
-                    </components:SvgButton>
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Load all"
-                                          Command="{Binding ChangesListViewModel.ClearAllCommand}"
-                                          Source="{StaticResource Icons.ClearAll}">
-                    </components:SvgButton>
-                    <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Search"
                                           Source="{StaticResource Icons.Search}">
                     </components:SvgButton>
@@ -56,14 +46,6 @@
                             IsVisible="{Binding IsTreeView}"
                             Orientation="Horizontal">
                     <CheckBox Content="Root" IsChecked="{Binding ChangesTreeViewModel.ShowRoot}"></CheckBox>
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Load all"
-                                          Source="{StaticResource Icons.CheckAll}">
-                    </components:SvgButton>
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Load all"
-                                          Source="{StaticResource Icons.ClearAll}">
-                    </components:SvgButton>
                     <components:SvgButton Classes="ToolButton"
                                           Classes.Selected="{Binding ChangesTreeViewModel.SearchMode}"
                                           ToolTip.Tip="Search"

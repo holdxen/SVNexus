@@ -1,0 +1,50 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="using:SVNexus.Components">
+    <Design.PreviewWith>
+        <components:StatusEntryItem />
+    </Design.PreviewWith>
+
+    <Style Selector="components|StatusEntryItem">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Padding="2 4" Background="Transparent">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <components:SvgRender Source="{TemplateBinding KindIcon}" 
+                                              Size="18"
+                                              Margin="2 0"
+                                              Grid.Column="0"></components:SvgRender>
+                        <Grid Grid.Column="1" 
+                              ClipToBounds="True"
+                              ColumnDefinitions="Auto, *" 
+                              ToolTip.Tip="{TemplateBinding TextToolTip}" 
+                              Background="Transparent">
+                            <TextBlock Grid.Column="0"
+                                       MaxLines="1"
+                                       Classes.Delete="{TemplateBinding IsDelete}"
+                                       FontSize="14"
+                                       LineHeight="20"
+                                       VerticalAlignment="Center"
+                                       Text="{TemplateBinding FileName}"
+                                       HorizontalAlignment="Left">
+                            </TextBlock>
+                            <TextBlock Margin="5 0 0 0" 
+                                       Classes="Quaternary"
+                                       VerticalAlignment="Center"
+                                       FontSize="12"
+                                       MaxLines="1"
+                                       Text="{TemplateBinding RelativeDirectory}"
+                                       IsVisible="{TemplateBinding ShowRelateDirectory}"
+                                       Grid.Column="1">
+                            </TextBlock>
+                        </Grid>
+                        <components:SvgRender Size="18" 
+                                              ToolTip.Tip="{TemplateBinding StatusToolTip}"
+                                              Margin="2 0" 
+                                              Source="{TemplateBinding StatusIcon}" Grid.Column="2"></components:SvgRender>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

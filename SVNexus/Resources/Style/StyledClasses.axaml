@@ -85,4 +85,60 @@
     <Style Selector="u|DefaultDialogControl.FixedTheme">
         <Setter Property="Theme" Value="{StaticResource FixedControl}"></Setter>
     </Style>
+    
+    <Style Selector="components|AdvancedTreeViewItem:not(:disabled):selected /template/ Border#PART_LayoutRoot:pointerover">
+        <Setter Property="Background">
+            <Setter.Value>
+                <SolidColorBrush Color="{DynamicResource SemiBlue3Color}" Opacity="0.85"></SolidColorBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector=":is(Border).StatusEntryItem">
+        <Setter Property="Padding" Value="2 4"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Style Selector="^ components|SvgRender#NodeKindIcon">
+            <Setter Property="Size" Value="18"></Setter>
+            <Setter Property="Margin" Value="2 0"></Setter>
+        </Style>
+        <Style Selector="^ components|SvgRender#NodeStatusIcon">
+            <Setter Property="Size" Value="18"></Setter>
+            <Setter Property="Margin" Value="2 0"></Setter>
+        </Style>
+        <Style Selector="^ TextBlock#NameText">
+            <Setter Property="FontSize" Value="14"></Setter>
+            <Setter Property="LineHeight" Value="20"></Setter>
+            <Setter Property="MaxLines" Value="1"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        </Style>
+        <Style Selector="^ TextBlock#RelativeDirectory">
+            <Setter Property="Foreground" Value="{DynamicResource TextBlockQuaternaryForeground}"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="FontSize" Value="12"></Setter> 
+            <Setter Property="MaxLines" Value="1"></Setter>
+        </Style>
+    </Style>
+    
+    <Style Selector="ListBox > ListBoxItem">
+        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="CornerRadius" Value="5"></Setter>
+    </Style>
+    
+    
+    <Style Selector="ListBox.ButtonItem">
+        <Style Selector="^ ListBoxItem:pressed">
+            <Setter Property="Background"
+                    Value="{DynamicResource ListBoxItemPointeroverBackground}">
+            </Setter>
+        </Style>
+        <Style Selector="^ ListBoxItem:selected">
+            <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" />
+            <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedBackground}" />
+            <Style Selector="^:pointerover">
+                <Setter Property="Background"
+                        Value="{DynamicResource ListBoxItemSelectedPointeroverBackground}" />
+            </Style>
+        </Style>
+    </Style>
+    
 </Styles>

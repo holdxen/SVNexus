@@ -3,7 +3,7 @@ use super::stream::Stream;
 use super::wc::*;
 use super::{SVNError, svn_no_error};
 use crate::apr::{self, AprArray, AprPool, Pool};
-use crate::error::{self, Error, builder};
+use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
 use crate::subversion::utils;
 use crate::subversion::version::Version;
 use crate::utils::PointerMutMapper;
@@ -11,7 +11,6 @@ use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
 use crate::utils::{Pointer, PointerMapper};
 use core::panic;
-use apache_avro::AvroSchema;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
@@ -23,24 +22,24 @@ pub type RevisionNumber = u32;
 
 #[uniffi::export(with_foreign)]
 pub trait ContextNotifier: Send + Sync + 'static {
-    fn may_save_password_as_plain_text(&self, realm_string: String) -> bool;
-    fn working_copy_notify(&self, notify: WorkingCopyNotify);
+    fn may_save_password_as_plain_text(&self, realm_string: String) -> Result<bool, CSharpError>;
+    fn working_copy_notify(&self, notify: WorkingCopyNotify) -> Result<(), CSharpError>;
     fn ssl_server_trust_prompt(
         &self,
         realm: String,
         failures: u32,
         info: SslServerCertInfo,
         may_save: bool,
-    ) -> Option<TrustServer>;
-    fn cancel(&self) -> Option<String>;
-    fn progress_notify(&self, pos: i64, total: i64);
+    ) -> Result<Option<TrustServer>, CSharpError>;
+    fn cancel(&self) -> Result<Option<String>, CSharpError>;
+    fn progress_notify(&self, pos: i64, total: i64) -> Result<(), CSharpError>;
     fn authenticate(
         &self,
         realm: String,
         username: String,
         may_save: bool,
-    ) -> Option<Authentication>;
-    fn conflict(&self, description: WorkingCopyConflictDescription) -> WorkingCopyConflictResult;
+    ) -> Result<Option<Authentication>, CSharpError>;
+    fn conflict(&self, description: WorkingCopyConflictDescription) -> Result<WorkingCopyConflictResult, CSharpError>;
 }
 
 #[derive(new)]
@@ -244,7 +243,7 @@ pub struct CommitResult {
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_node_kind_t)]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, AvroSchema, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, Serialize, Deserialize)]
 pub enum NodeKind {
     None = ffi::svn_node_kind_t_svn_node_none,
     File = ffi::svn_node_kind_t_svn_node_file,
@@ -298,9 +297,9 @@ pub struct StatusEntry {
     file_size: Option<u64>,
     versioned: bool,
     conflicted: bool,
-    node_status: NodeStatus,
-    text_status: NodeStatus,
-    prop_status: NodeStatus,
+    node_status: WorkingCopyStatus,
+    text_status: WorkingCopyStatus,
+    prop_status: WorkingCopyStatus,
     wc_is_locked: bool,
     copied: bool,
     repos_root_url: Option<String>,
@@ -316,9 +315,9 @@ pub struct StatusEntry {
     changelist: Option<String>,
     depth: Depth,
     out_of_date_kind: NodeKind,
-    repos_node_status: NodeStatus,
-    repos_text_status: NodeStatus,
-    repos_prop_status: NodeStatus,
+    repos_node_status: WorkingCopyStatus,
+    repos_text_status: WorkingCopyStatus,
+    repos_prop_status: WorkingCopyStatus,
     repos_lock: Option<Lock>,
     out_of_date_changed_revision: Option<RevisionNumber>,
     out_of_date_changed_date: Option<i64>,
@@ -329,7 +328,7 @@ pub struct StatusEntry {
 
 impl StatusEntry {
     fn fix_node_kind(&mut self) -> error::Result<()> {
-        if self.node_status != NodeStatus::Unversioned {
+        if self.node_status != WorkingCopyStatus::Unversioned {
             return Ok(());
         }
 
@@ -374,7 +373,7 @@ pub struct CommitInfo {
 // #[derive(Debug, TryFromPrimitive)]
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_status_kind)]
 #[derive(Debug, uniffi::Enum, PartialEq, Eq, Hash)]
-pub enum NodeStatus {
+pub enum WorkingCopyStatus {
     None = ffi::svn_wc_status_kind_svn_wc_status_none,
     Unversioned = ffi::svn_wc_status_kind_svn_wc_status_unversioned,
     Normal = ffi::svn_wc_status_kind_svn_wc_status_normal,
@@ -432,7 +431,7 @@ pub struct StatusOptions {
 
 #[uniffi::export(with_foreign)]
 pub trait StatusReceiver: Send + Sync + 'static {
-    fn on_status_entry(&self, entry: StatusEntry);
+    fn on_status_entry(&self, entry: StatusEntry) -> Result<(), error::CSharpError>;
 }
 
 #[derive(new, Debug, uniffi::Record)]
@@ -683,11 +682,11 @@ impl StatusEntry {
 
             let conflicted = entry.conflicted != 0;
 
-            let node_status = NodeStatus::try_from(entry.node_status).unwrap();
+            let node_status = WorkingCopyStatus::try_from(entry.node_status).unwrap();
 
-            let text_status = NodeStatus::try_from(entry.text_status).unwrap();
+            let text_status = WorkingCopyStatus::try_from(entry.text_status).unwrap();
 
-            let prop_status = NodeStatus::try_from(entry.prop_status).unwrap();
+            let prop_status = WorkingCopyStatus::try_from(entry.prop_status).unwrap();
 
             let wc_is_locked = entry.wc_is_locked != 0;
 
@@ -719,11 +718,11 @@ impl StatusEntry {
 
             let out_of_date_kind = NodeKind::try_from(entry.ood_kind).unwrap();
 
-            let repos_node_status = NodeStatus::try_from(entry.repos_node_status).unwrap();
+            let repos_node_status = WorkingCopyStatus::try_from(entry.repos_node_status).unwrap();
 
-            let repos_text_status = NodeStatus::try_from(entry.repos_text_status).unwrap();
+            let repos_text_status = WorkingCopyStatus::try_from(entry.repos_text_status).unwrap();
 
-            let repos_prop_status = NodeStatus::try_from(entry.repos_prop_status).unwrap();
+            let repos_prop_status = WorkingCopyStatus::try_from(entry.repos_prop_status).unwrap();
 
             let repos_lock = entry.repos_lock.map(Lock::from);
 
@@ -780,7 +779,7 @@ impl StatusEntry {
     }
 }
 
-impl Default for NodeStatus {
+impl Default for WorkingCopyStatus {
     fn default() -> Self {
         Self::None
     }
@@ -939,20 +938,27 @@ unsafe extern "C" fn on_progress_notify(
 ) {
     unsafe {
         let this = &*(baton as *mut ContextInner);
-        this.context_notifier
+        let result = this.context_notifier
             .progress_notify(progress.try_into().unwrap(), total.try_into().unwrap());
+        if let Err(e) = result {
+            tracing::error!("Unexpected Error from csharp: {}", e);
+        }
     }
 }
 
 unsafe extern "C" fn on_cancel(baton: *mut c_void) -> *mut ffi::svn_error_t {
     unsafe {
-        let ctx = &mut *(baton as *mut ContextInner);
-        if let Some(msg) = ctx.context_notifier.cancel() {
+        let ctx = (baton as *mut ContextInner).as_mut().unwrap();
+        let v = match ctx.context_notifier.cancel() {
+            Ok(v) => v,
+            Err(e) => return e.native_error(),
+        };
+        if let Some(msg) = v {
             let mut pool = apr::Pool::create();
             return ffi::svn_error_create(
                 ffi::svn_errno_t_SVN_ERR_CANCELLED as _,
                 std::ptr::null_mut(),
-                pool.string(msg.as_str()).unwrap_or(std::ptr::null_mut()) as _,
+                pool.string(msg.as_str()).unwrap_or_default() as _,
             );
         }
     }
@@ -1012,9 +1018,12 @@ unsafe extern "C" fn on_notify(
 
         let notify = WorkingCopyNotify::from(notify);
 
-        tracing::info!("Notify: {:#?}", notify);
+        // tracing::info!("Notify: {:#?}", notify);
 
-        this.context_notifier.working_copy_notify(notify);
+        let result = this.context_notifier.working_copy_notify(notify);
+        if let Err(e) = result {
+            tracing::error!("Unexpected error from csharp: {}", e);
+        }
 
         // (this.on_notify)(Notify::from_raw(notify));
     }
@@ -1040,10 +1049,14 @@ unsafe extern "C" fn may_save_password_as_plain_text(
         let ctx = (baton as *mut ContextInner).as_mut().unwrap();
         let realm_string = realm_string.to_str();
         // *save = (ctx.on_may_save_password_as_plain_text)(realm_string).into();
-        *save = ctx
+
+        let v = match ctx
             .context_notifier
-            .may_save_password_as_plain_text(realm_string.to_string())
-            .into();
+            .may_save_password_as_plain_text(realm_string.to_string()) {
+                Ok(v) => v,
+                Err(e) => return e.native_error(),
+            };
+        *save = v.into();
     }
 
     std::ptr::null_mut()
@@ -1147,14 +1160,17 @@ unsafe extern "C" fn ssl_server_trust_prompt(
         );
 
         match trust {
-            Some(trust) => {
+            Err(e) => {
+                return e.native_error();
+            },
+            Ok(Some(trust)) => {
                 *cred = pool.malloc::<ffi::svn_auth_cred_ssl_server_trust_t>();
                 let cred = &mut **cred;
 
                 cred.accepted_failures = trust.accept_failures;
                 cred.may_save = trust.save as _;
             }
-            None => {
+            Ok(None) => {
                 *cred = std::ptr::null_mut();
             }
         }
@@ -1166,7 +1182,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
 // #[derive(TryFromPrimitive)]
 // #[repr(u8)]
 #[svnexus_macro::enum_converter(repr_type=u8)]
-#[derive(uniffi::Enum, Debug, AvroSchema, Serialize, Deserialize)]
+#[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
 enum LogChangedPathAction {
     Add = b'A',
     Delete = b'D',
@@ -1179,7 +1195,7 @@ impl LogChangedPathAction {
     }
 }
 
-#[derive(new, Debug, uniffi::Record, AvroSchema, Serialize, Deserialize)]
+#[derive(new, Debug, uniffi::Record, Serialize, Deserialize)]
 pub struct LogChangedPathEntry {
     action: LogChangedPathAction,
     copy_from_path: Option<String>,
@@ -1225,7 +1241,7 @@ impl LogChangedPathEntry {
     }
 }
 
-#[derive(Default, new, Debug, uniffi::Record, AvroSchema, Serialize, Deserialize)]
+#[derive(Default, new, Debug, uniffi::Record, Serialize, Deserialize)]
 pub struct LogEntry {
     pub revision: Option<RevisionNumber>,
     pub date: Option<i64>,
@@ -1342,11 +1358,15 @@ unsafe extern "C" fn on_authenticate(
         }
 
         let context = (baton as *mut ContextInner).as_mut().unwrap();
-        if let Some(result) = context.context_notifier.authenticate(
+        let v = match context.context_notifier.authenticate(
             realm.to_nullable_str().unwrap_or_default().to_string(),
             username.to_nullable_str().unwrap_or_default().to_string(),
             may_save != 0,
         ) {
+            Ok(v) => v,
+            Err(e) => return e.native_error(),
+        };
+        if let Some(result) = v {
             *cred = pool.malloc();
 
             let cred = (*cred).as_mut().unwrap();
@@ -1355,10 +1375,8 @@ unsafe extern "C" fn on_authenticate(
             cred.password = pool.string(result.password).expect("Invalid password");
             cred.username = pool.string(result.username).expect("Invalid username");
 
-            svn_no_error()
-        } else {
-            on_cancel(baton)
         }
+        svn_no_error()
     }
 }
 
@@ -1419,7 +1437,7 @@ pub struct RelocateOptions {
 pub struct RevertOptions {
     paths: Vec<String>,
     depth: Depth,
-    changelists: Vec<String>,
+    changelists: Option<Vec<String>>,
     clear_changelists: bool,
     metadata_only: bool,
     added_keep_local: bool,
@@ -1550,7 +1568,7 @@ pub struct InfoOptions {
     fetch_excluded: bool,
     fetch_actual_only: bool,
     include_externals: bool,
-    changelists: Vec<String>,
+    changelists: Option<Vec<String>>,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -2108,6 +2126,13 @@ pub struct InfoEntry {
     working_copy_info: Option<WorkingCopyInfo>,
 }
 
+#[derive(uniffi::Record, Debug, new)]
+pub struct GetRepositoryRootResult {
+    pub root_url: String,
+    pub uuid: String,
+}
+
+
 #[easy_ext::ext]
 impl *const ffi::svn_client_info2_t {
     fn to_info_entry(self) -> InfoEntry {
@@ -2198,7 +2223,9 @@ impl Context {
     }
 
     fn cancelled(&self) -> error::Result<()> {
-        let msg = self.inner.context_notifier.cancel();
+        let msg = self.inner.context_notifier.cancel().map_err(|e| builder::General {
+            detail: format!("Unexpected error: {}", e),
+        }.build())?;
         if let Some(msg) = msg {
             builder::General {
                 detail: format!("Cancelled: {}", msg),
@@ -2427,11 +2454,9 @@ impl Context {
                 this.status_receiver
                     .as_ref()
                     .expect("status receiver must be set")
-                    .on_status_entry(entry);
+                    .on_status_entry(entry)
+                    .native_error()
             }
-            // tracing::info!("translated entry: {:#?}", entry);
-
-            svn_no_error()
         }
 
         let mut result_revision: ffi::svn_revnum_t = 0;
@@ -2824,6 +2849,7 @@ impl Context {
     }
 
     pub fn delete(&mut self, opts: DeleteOptions) -> error::Result<DeleteResult> {
+        tracing::info!("Delete options: {:#?}", opts);
         unsafe {
             let mut pool = apr::Pool::create();
 
@@ -2866,7 +2892,7 @@ impl Context {
             let error = ffi::svn_client_revert4(
                 pool.string_array(opts.paths.len(), opts.paths.iter())?,
                 opts.depth.into(),
-                pool.string_array(opts.changelists.len(), opts.changelists.iter())?,
+                opts.changelists.map(|c| pool.string_array(c.len(), c.iter())).transpose()?.unwrap_or_default(),
                 opts.clear_changelists.into(),
                 opts.metadata_only.into(),
                 opts.added_keep_local.into(),
@@ -3136,7 +3162,7 @@ impl Context {
 
             let include_externals = opts.include_externals.into();
 
-            let changelists = pool.string_array(opts.changelists.len(), opts.changelists.iter())?;
+            let changelists = opts.changelists.map(|p| pool.string_array(p.len(), p.iter())).transpose()?.unwrap_or_default();
 
             tracing::info!("DEBUG block");
             let error = ffi::svn_client_info4(
@@ -3184,7 +3210,7 @@ impl Context {
         }
     }
 
-    pub fn update(&mut self, opts: UpdateOptions) -> error::Result<Vec<RevisionNumber>> {
+    pub fn update(&mut self, opts: UpdateOptions) -> error::Result<Vec<Option<RevisionNumber>>> {
         unsafe {
             let mut pool = apr::Pool::create();
             let paths = pool.string_array(opts.paths.len(), opts.paths.iter())?;
@@ -3211,8 +3237,7 @@ impl Context {
 
             Ok(revisions.to_value_vec(|ptr| {
                 (*(ptr as *const ffi::svn_revnum_t))
-                    .try_into()
-                    .expect("Failed to convert revision number to u32")
+                    .try_into().ok()
             }))
         }
     }
@@ -3566,10 +3591,16 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
             let path = pool.string(path)?;
+
+            let mut absolute_path: *const c_char = std::ptr::null();
+
+            let error = ffi::svn_dirent_get_absolute(absolute_path.pointer_mut(), path, pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
             let mut root: *const c_char = std::ptr::null_mut();
             let error = ffi::svn_client_get_wc_root(
                 root.pointer_mut(),
-                path,
+                absolute_path,
                 self.ctx(),
                 pool.as_mut_ptr(),
                 pool.as_mut_ptr(),
@@ -3782,6 +3813,34 @@ impl Context {
         }
     }
 
+    pub fn get_repository_root(&mut self, target: String) -> error::Result<GetRepositoryRootResult> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let target = pool.string(target)?;
+
+            let mut absolute_path: *const c_char = std::ptr::null();
+
+            let error = ffi::svn_dirent_get_absolute(absolute_path.pointer_mut(), target, pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let mut root_url: *const c_char = std::ptr::null_mut();
+            let mut uuid: *const c_char = std::ptr::null_mut();
+
+            let error = ffi::svn_client_get_repos_root(root_url.pointer_mut(), uuid.pointer_mut(), absolute_path, self.ctx(), pool.as_mut_ptr(), pool.as_mut_ptr());
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let root_url = root_url.to_str().to_string();
+
+            let uuid = uuid.to_str().to_string();
+
+            Ok(GetRepositoryRootResult {
+                root_url,
+                uuid,
+            })
+        }
+    }
+
     pub fn lock(&mut self, opts: LockOptions) -> error::Result<()> {
         unsafe {
             let mut pool = apr::Pool::create();
@@ -3958,6 +4017,11 @@ impl Context {
                 let description = WorkingCopyConflictDescription::from(description);
 
                 let user_result = this.context_notifier.conflict(description);
+                let user_result = match user_result {
+                    Ok(v) => v,
+                    Err(e) => return e.native_error(),
+                };
+
 
                 let merged_file = user_result
                     .merged_file

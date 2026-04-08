@@ -19,7 +19,7 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewModelBase(parent), IRecipient<ChangesListViewModel.OnItemCheckStateChanged>
+public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewModelBase(parent)//, IRecipient<ChangesListViewModel.OnItemCheckStateChanged>
 {
     // private readonly IServiceProvider _serviceProvider;
     public partial class MenuIconViewModel: ViewModelBase
@@ -30,54 +30,54 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
         [ObservableProperty] public partial bool Themable { get; set; } = true;
     }
 
-    public class OnItemCheckStateChanged
+    // public class OnItemCheckStateChanged
+    // {
+    //     public required ListItemViewModel Item { get; set; }
+    //     public required bool Checked { get; set; }
+    // }
+
+    public partial class ListItemViewModel : StatusEntryItemViewModel
     {
-        public required ListItemViewModel Item { get; set; }
-        public required bool Checked { get; set; }
-    }
-
-    public partial class ListItemViewModel : ViewModelBase
-    {
-        [ObservableProperty]
-        public partial bool IsChecked { get; set; }
-
-
-        public string? ContainsDirectory
-        {
-            get
-            {
-                var path = SendMessage(new OnGetWorkingCopyPath());
-                if (path == StatusEntry.Path)
-                {
-                    return null;
-                }
-                var contain = StatusEntry.Path.TrimStartString(path)
-                    .TrimStartPathSeparatorChar().GetDirectoryName();
-                return string.IsNullOrEmpty(contain) ? "/" : contain;
-            }
-        }
-
-        public string Name => StatusEntry.Path.GetFileName();
-    
-
-        public string AbsolutePath => StatusEntry.Path;
-
-
-
-        public string PathSvgIcon => StatusEntry.NodeKind.NodeKindIcon();
-    
-        public string StatusSvgIcon => StatusEntry.NodeStatus.NodeStatusIcon();
-    
-    
-        public string StatusToolTip => StatusEntry.NodeStatus.ToString();
-
-    
-
-        [ObservableProperty] 
-        [NotifyPropertyChangedFor(nameof(Name))]
-        [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
-        [NotifyPropertyChangedFor(nameof(AbsolutePath))]
-        public required partial StatusEntry StatusEntry { get; set; }
+        // [ObservableProperty]
+        // public partial bool IsChecked { get; set; }
+        //
+        //
+        // public string? ContainsDirectory
+        // {
+        //     get
+        //     {
+        //         var path = SendMessage(new OnGetWorkingCopyPath());
+        //         if (path == StatusEntry.Path)
+        //         {
+        //             return null;
+        //         }
+        //         var contain = StatusEntry.Path.TrimStartString(path)
+        //             .TrimStartPathSeparatorChar().GetDirectoryName();
+        //         return string.IsNullOrEmpty(contain) ? "/" : contain;
+        //     }
+        // }
+        //
+        // public string Name => StatusEntry.Path.GetFileName();
+        //
+        //
+        // public string AbsolutePath => StatusEntry.Path;
+        //
+        //
+        //
+        // public string PathSvgIcon => StatusEntry.NodeKind.NodeKindIcon();
+        //
+        // public string StatusSvgIcon => StatusEntry.NodeStatus.NodeStatusIcon();
+        //
+        //
+        // public string StatusToolTip => StatusEntry.NodeStatus.ToString();
+        //
+        //
+        //
+        // [ObservableProperty] 
+        // [NotifyPropertyChangedFor(nameof(Name))]
+        // [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
+        // [NotifyPropertyChangedFor(nameof(AbsolutePath))]
+        // public required partial StatusEntry StatusEntry { get; set; }
 
 
         public List<MenuItemViewModel>? MenuItems
@@ -85,11 +85,11 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
             get
             {
                 List<MenuItemViewModel> menuItems = [];
-                switch (StatusEntry.NodeStatus)
+                switch (Entry.NodeStatus)
                 {
-                    case NodeStatus.None:
+                    case WorkingCopyStatus.None:
                         break;
-                    case NodeStatus.Unversioned:
+                    case WorkingCopyStatus.Unversioned:
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Add",
@@ -100,9 +100,9 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
                             }
                         });
                         break;
-                    case NodeStatus.Normal:
+                    case WorkingCopyStatus.Normal:
                         break;
-                    case NodeStatus.Added:
+                    case WorkingCopyStatus.Added:
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Revert",
@@ -113,7 +113,7 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
                             }
                         });
                         break;
-                    case NodeStatus.Missing:
+                    case WorkingCopyStatus.Missing:
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Revert",
@@ -133,7 +133,7 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
                             }
                         });
                         break;
-                    case NodeStatus.Deleted:
+                    case WorkingCopyStatus.Deleted:
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Revert",
@@ -144,9 +144,9 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
                             }
                         });
                         break;
-                    case NodeStatus.Replaced:
+                    case WorkingCopyStatus.Replaced:
                         break;
-                    case NodeStatus.Modified:
+                    case WorkingCopyStatus.Modified:
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Revert",
@@ -157,21 +157,21 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
                             }
                         });
                         break;
-                    case NodeStatus.Merged:
+                    case WorkingCopyStatus.Merged:
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Merge",
                         });
                         break;
-                    case NodeStatus.Conflicted:
+                    case WorkingCopyStatus.Conflicted:
                         break;
-                    case NodeStatus.Ignored:
+                    case WorkingCopyStatus.Ignored:
                         break;
-                    case NodeStatus.Obstructed:
+                    case WorkingCopyStatus.Obstructed:
                         break;
-                    case NodeStatus.External:
+                    case WorkingCopyStatus.External:
                         break;
-                    case NodeStatus.Incomplete:
+                    case WorkingCopyStatus.Incomplete:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -181,14 +181,14 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
             }
         }
 
-        partial void OnIsCheckedChanged(bool value)
-        {
-            SendMessage(new OnItemCheckStateChanged()
-            {
-                Item = this,
-                Checked = value
-            });
-        }
+        // partial void OnIsCheckedChanged(bool value)
+        // {
+        //     SendMessage(new OnItemCheckStateChanged()
+        //     {
+        //         Item = this,
+        //         Checked = value
+        //     });
+        // }
 
 
         [RelayCommand]
@@ -203,7 +203,7 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
 
             try
             {
-                using var context = Engine.Engine.Instance.SimpleContext(hostId);
+                using var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
                 var addOptions = new AddOptions(AbsolutePath, Depth.Empty, false, false, false, false);
                 
@@ -239,7 +239,7 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
             var hostId = SendMessage(new OnGetDialogHostId()).Response;
             var path = SendMessage(new OnGetWorkingCopyPath()).Response;
             
-            if (StatusEntry.NodeStatus == NodeStatus.Unversioned)
+            if (Entry.NodeStatus == WorkingCopyStatus.Unversioned)
             {
                 // var result = await MessageBox.ShowOverlayAsync(message: $"\n{AbsolutePath.TrimStartString(WorkingCopyPath).TrimStartPathSeparatorChar()} will be permanently deleted", 
                 //     title: "Warning", hostId: hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
@@ -259,7 +259,7 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
             }
             try
             {
-                using var context = Engine.Engine.Instance.SimpleContext(hostId);
+                using var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
                 var revertOptions = new RevertOptions(
                     Paths: [AbsolutePath], 
                     Depth: Depth.Empty, 
@@ -304,7 +304,12 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
     [ObservableProperty]
     public partial string SearchText { get; set; } = string.Empty;
 
-    private bool BlockSignal { get; set; }
+    partial void OnSelectedItemChanged(ListItemViewModel? value)
+    {
+        SendMessage(new OnSelectedItemChanged(value?.Entry));
+    }
+
+    // private bool BlockSignal { get; set; }
 
     // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
     // private readonly Services.TypeService _typeService;
@@ -315,29 +320,28 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
     //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
     
     
-    [RelayCommand]
-    private void CheckAll()
-    {
-        foreach (var item in Items)
-        {
-            item.IsChecked = true;
-        }
-    }
+    // [RelayCommand]
+    // private void CheckAll()
+    // {
+    //     foreach (var item in Items)
+    //     {
+    //         item.IsChecked = true;
+    //     }
+    // }
+    //
+    // [RelayCommand]
+    // private void ClearAll()
+    // {
+    //     foreach (var item in Items)
+    //     {
+    //         item.IsChecked = false;
+    //     }
+    // }
 
-    [RelayCommand]
-    private void ClearAll()
-    {
-        foreach (var item in Items)
-        {
-            item.IsChecked = false;
-        }
-    }
-
-    partial void OnSelectedItemChanged(ListItemViewModel? value)
-    {
-        // Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
-        SendMessage(new OnSelectedItemChanged(value?.StatusEntry));
-    }
+    // partial void OnSelectedItemChanged(ListItemViewModel? value)
+    // {
+    //     SendMessage(new OnSelectedItemChanged(value?.StatusEntry));
+    // }
 
     // public void Receive(OnLocalListItemSelected message)
     // {
@@ -360,8 +364,8 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
         {
             var item = new ListItemViewModel
             {
-                StatusEntry = entry,
-                IsChecked = CheckedItems.ContainsKey(entry.Path),
+                Entry = entry,
+                RelateTo = SendMessage(new OnGetWorkingCopyPath())
             };
             // item.ItemCheckStateChanged += OnItemCheckStateChanged;
             if (SelectedItem?.AbsolutePath == entry.Path)
@@ -376,19 +380,19 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
 
         SelectedItem = selectedItem;
     
-        CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
+        // CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
     
     }
 
-    public void Receive(OnItemCheckStateChanged message)
-    {
-        if (message.Checked)
-        {
-            CheckedItems.Add(message.Item.StatusEntry.Path, message.Item.StatusEntry);
-        }
-        else
-        {
-            CheckedItems.Remove(message.Item.StatusEntry.Path);
-        }
-    }
+    // public void Receive(OnItemCheckStateChanged message)
+    // {
+    //     if (message.Checked)
+    //     {
+    //         CheckedItems.Add(message.Item.Entry.Path, message.Item.Entry);
+    //     }
+    //     else
+    //     {
+    //         CheckedItems.Remove(message.Item.Entry.Path);
+    //     }
+    // }
 }

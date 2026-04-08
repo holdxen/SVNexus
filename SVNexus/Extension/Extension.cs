@@ -25,24 +25,24 @@ public static class Extension
         return pathIcon;
     }
 
-    public static string NodeStatusIcon(this NodeStatus status)
+    public static string NodeStatusIcon(this WorkingCopyStatus status)
     {
         var icon = status switch
         {
-            NodeStatus.None => "Icons.Status-Normal",
-            NodeStatus.Unversioned => "Icons.Status-Unversioned",
-            NodeStatus.Normal => "Icons.Status-Normal",
-            NodeStatus.Added => "Icons.Status-Added",
-            NodeStatus.Missing => "Icons.Status-Missing",
-            NodeStatus.Deleted => "Icons.Status-Deleted",
-            NodeStatus.Replaced => "Icons.Status-Replaced",
-            NodeStatus.Modified => "Icons.Status-Modified",
-            NodeStatus.Merged => "Icons.Status-Merged",
-            NodeStatus.Conflicted => "Icons.Status-Conflicted",
-            NodeStatus.Ignored => "Icons.Status-Ignored",
-            NodeStatus.Obstructed => "Icons.Status-Obstructed",
-            NodeStatus.External => "Icons.Status-External",
-            NodeStatus.Incomplete => "Icons.Status-Incomplete",
+            WorkingCopyStatus.None => "Icons.Status-Normal",
+            WorkingCopyStatus.Unversioned => "Icons.Status-Unversioned",
+            WorkingCopyStatus.Normal => "Icons.Status-Normal",
+            WorkingCopyStatus.Added => "Icons.Status-Added",
+            WorkingCopyStatus.Missing => "Icons.Status-Missing",
+            WorkingCopyStatus.Deleted => "Icons.Status-Deleted",
+            WorkingCopyStatus.Replaced => "Icons.Status-Replaced",
+            WorkingCopyStatus.Modified => "Icons.Status-Modified",
+            WorkingCopyStatus.Merged => "Icons.Status-Merged",
+            WorkingCopyStatus.Conflicted => "Icons.Status-Conflicted",
+            WorkingCopyStatus.Ignored => "Icons.Status-Ignored",
+            WorkingCopyStatus.Obstructed => "Icons.Status-Obstructed",
+            WorkingCopyStatus.External => "Icons.Status-External",
+            WorkingCopyStatus.Incomplete => "Icons.Status-Incomplete",
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 

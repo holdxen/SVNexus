@@ -27,7 +27,9 @@
             <u:FormItem Label="Path:">
                 <Grid ColumnDefinitions="*, Auto">
                     <TextBox Grid.Column="0" Text="{Binding Path}"></TextBox>
-                    <components:SvgButton Classes="Default" Command="{Binding SelectFolderCommand}" Grid.Column="1"
+                    <components:SvgButton Classes="Button" 
+                                          Command="{Binding SelectFolderCommand}" 
+                                          Grid.Column="1"
                                           Source="{StaticResource Icons.FolderPlus}" />
                 </Grid>
             </u:FormItem>

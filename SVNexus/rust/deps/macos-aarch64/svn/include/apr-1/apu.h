@@ -100,7 +100,6 @@
  * we always have SDBM (it's in our codebase)
  */
 #define APU_HAVE_SDBM   1
-#define APU_HAVE_LMDB   0
 #define APU_HAVE_GDBM   0
 #define APU_HAVE_NDBM   0
 #define APU_HAVE_DB     0
@@ -116,20 +115,14 @@
 #define APU_HAVE_ORACLE        0
 #define APU_HAVE_ODBC          0
 
-#define APU_HAVE_CRYPTO        1
-#define APU_HAVE_CRYPTO_PRNG   0
+#define APU_HAVE_CRYPTO        0
 #define APU_HAVE_OPENSSL       0
 #define APU_HAVE_NSS           0
-#define APU_HAVE_COMMONCRYPTO  1
+#define APU_HAVE_COMMONCRYPTO  0
 
 #define APU_HAVE_APR_ICONV     0
 #define APU_HAVE_ICONV         1
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
-
-#define APU_USE_EXPAT          0
-#define APU_USE_LIBXML2        1
-
-#define APU_HAVE_MEMMEM        1
 
 #endif /* APU_H */
 /** @} */

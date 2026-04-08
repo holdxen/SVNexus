@@ -1,14 +1,20 @@
 using System;
 using SVNexus.Generated;
+using SVNexus.Utils;
 
 namespace SVNexus.Engine;
 
-public class Engine
+public class EngineBackend
 {
-    public static Engine Instance => Lazy.Value;
+    public static EngineBackend Instance => Lazy.Value;
     
-    private static readonly Lazy<Engine> Lazy =
-        new(() => new Engine(), isThreadSafe: true);
+    private static readonly Lazy<EngineBackend> Lazy =
+        new(() => new EngineBackend(), isThreadSafe: true);
+
+    public SingleTaskQueue DatabaseQueue { get; } = new()
+    {
+        Single = false
+    };
 
     public string Name => "SVNexus";
 
@@ -18,8 +24,6 @@ public class Engine
 
 
     public Proxies Proxies { get; set; } = new(null, null, null);
-    
-
 
     public CreateContextOptions MakeCreateContextOptions(ContextNotifier notifier)
     {

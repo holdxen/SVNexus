@@ -6,6 +6,15 @@
     xmlns:components="clr-namespace:SVNexus.Components"
     xmlns:converters="clr-namespace:Semi.Avalonia.Converters;assembly=Semi.Avalonia">
     
+    <SolidColorBrush x:Key="SelectedEntryItemBackground" 
+                     Color="{DynamicResource SemiBlue3Color}"></SolidColorBrush>
+    
+    <SolidColorBrush x:Key="ListBoxItemSelectedBackground" Color="{DynamicResource SemiBlue3Color}"></SolidColorBrush>
+    <SolidColorBrush x:Key="ListBoxItemSelectedPointeroverBackground" Opacity="0.85" Color="{DynamicResource SemiBlue3Color}"></SolidColorBrush>
+    <SolidColorBrush x:Key="TreeViewItemSelectedBackground" Color="{DynamicResource SemiBlue3Color}"></SolidColorBrush>
+    
+    <Thickness x:Key="TreeViewItemPadding">0</Thickness>
+    
     <ControlTheme
         x:Key="{x:Type components:AdvancedTreeViewItem}"
         TargetType="components:AdvancedTreeViewItem"

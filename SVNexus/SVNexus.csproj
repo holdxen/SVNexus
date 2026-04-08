@@ -6,7 +6,6 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <LangVersion>preview</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,7 +33,6 @@
         <PackageReference Include="Semi.Avalonia.Dock" Version="11.3.6.2" />
         <PackageReference Include="Semi.Avalonia.Tabalonia" Version="11.0.0-beta1" />
         <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.2" />
-        <PackageReference Include="System.Reactive" Version="6.1.0" />
         <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.5" />
         <PackageReference Include="Xaml.Behaviors.Interactions" Version="11.3.9.5" />
         <PackageReference Include="Xaml.Behaviors.Interactivity" Version="11.3.9.5" />
@@ -70,5 +68,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Tabalonia\Tabalonia.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\" />
     </ItemGroup>
 </Project>

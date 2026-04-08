@@ -314,13 +314,19 @@ pub fn derive_is_methods(input: TokenStream) -> TokenStream {
         //     return quote! { compile_error!(#msg); }.into();
         // }
 
-        let method_ident = quote::format_ident!("is_{}", field_ident);
+        let is_method_ident = quote::format_ident!("is_{}", field_ident);
+        let value_method_ident = quote::format_ident!("{}_value", field_ident);
         let ty = &f.ty;
 
         methods.push(quote! {
             #[inline]
-            pub fn #method_ident(&self, value: #ty) -> bool {
+            pub fn #is_method_ident(&self, value: #ty) -> bool {
                 self.#field_ident == value
+            }
+
+            #[inline]
+            pub fn #value_method_ident(&self) -> #ty {
+                self.#field_ident
             }
         });
     }

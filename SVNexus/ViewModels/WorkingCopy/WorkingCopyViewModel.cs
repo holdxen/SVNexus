@@ -141,7 +141,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
         
         Task.Run(async () =>
         {
-            var context = AsyncContext.Create(Engine.Engine.Instance.MakeCreateContextOptions(contextNotifierDelegate));
+            var context = AsyncContext.Create(Engine.EngineBackend.Instance.MakeCreateContextOptions(contextNotifierDelegate));
 
             try
             {

@@ -167,9 +167,9 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
 
                 var hostId = SendMessage(new OnGetDialogHostId());
             
-                var context = Engine.Engine.Instance.SimpleContext(hostId);
+                var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
-                var commitOptions = new CommitOptions(Targets.Where(i => i.NodeStatus is not (NodeStatus.Unversioned or NodeStatus.Missing)).Select(i => i.Path).ToArray(),
+                var commitOptions = new CommitOptions(Targets.Where(i => i.NodeStatus is not (WorkingCopyStatus.Unversioned or WorkingCopyStatus.Missing)).Select(i => i.Path).ToArray(),
                     Depth,
                     NoLock,
                     false,
@@ -218,7 +218,7 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
         try
         {
 
-            var context = Engine.Engine.Instance.SimpleContext(hostId);
+            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
             if (token.IsCancellationRequested)
             {
@@ -253,7 +253,7 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
             var containsUnavaliable = false;
             foreach (var entry in entries.Values)
             {
-                if (entry.NodeStatus is NodeStatus.Missing or NodeStatus.Unversioned)
+                if (entry.NodeStatus is WorkingCopyStatus.Missing or WorkingCopyStatus.Unversioned)
                 {
                     containsUnavaliable = true;
                     continue;

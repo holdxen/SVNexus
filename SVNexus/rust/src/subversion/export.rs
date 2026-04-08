@@ -36,6 +36,11 @@ impl AsyncContext {
         wc::AsyncWorkingCopyContext::Context(self.context.clone())
     }
 
+    pub async fn get_repository_root(&self, target: String) -> error::Result<GetRepositoryRootResult> {
+        self.call_async(|mut context| context.get_repository_root(target))
+            .await
+    }
+
     pub async fn lock(&self, opts: LockOptions) -> error::Result<()> {
         self.call_async(|mut context| context.lock(opts))
             .await
@@ -177,7 +182,7 @@ impl AsyncContext {
         self.call_async(|mut context| context.export(opts)).await
     }
 
-    pub async fn update(&self, opts: UpdateOptions) -> error::Result<Vec<RevisionNumber>> {
+    pub async fn update(&self, opts: UpdateOptions) -> error::Result<Vec<Option<RevisionNumber>>> {
         self.call_async(|mut context| context.update(opts)).await
     }
 

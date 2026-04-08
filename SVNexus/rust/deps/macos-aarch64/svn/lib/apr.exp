@@ -29,9 +29,7 @@ apr_atomic_dec64
 apr_atomic_cas64
 apr_atomic_xchg64
 apr_atomic_casptr
-apr_atomic_casptr2
 apr_atomic_xchgptr
-apr_atomic_xchgptr2
 apr_cstr_split
 apr_cstr_split_append
 apr_cstr_match_glob_list
@@ -314,10 +312,6 @@ apr_pool_child_cleanup_set
 apr_pool_cleanup_run
 apr_pool_cleanup_null
 apr_pool_cleanup_for_exec
-apr_pool_join
-apr_pool_find
-apr_pool_num_bytes
-apr_pool_lock
 apr_os_global_mutex_get
 apr_os_file_get
 apr_os_dir_get
@@ -490,11 +484,7 @@ apr_threadattr_detach_set
 apr_threadattr_detach_get
 apr_threadattr_stacksize_set
 apr_threadattr_guardsize_set
-apr_threadattr_max_free_set
 apr_thread_create
-apr_thread_current_create
-apr_thread_current_after_fork
-apr_thread_current
 apr_thread_exit
 apr_thread_join
 apr_thread_yield

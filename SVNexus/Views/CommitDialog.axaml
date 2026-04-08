@@ -39,26 +39,34 @@
                         <ListBox Height="150" ItemsSource="{Binding ToBeCommittedItems}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="viewModels:CommitDialogModel+ToBeCommittedItem">
-                                    <Grid ColumnDefinitions="Auto, *, Auto" 
-                                          Margin="0 3">
-                                        <components:SvgRender Source="{Binding NodeKindIcon}" Size="20" Grid.Column="0"></components:SvgRender>
-                                        <Grid Grid.Column="1" ColumnDefinitions="Auto, *">
-                                            <TextBlock Grid.Column="0"
-                                                       MaxLines="1"
-                                                       x:Name="ListItemText"
-                                                       Text="{Binding Name}"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center">
-                                            </TextBlock>
-                                            <TextBlock Margin="5 0 0 0" 
-                                                       Grid.Column="1"
-                                                       Classes="Quaternary VCenter"
-                                                       FontSize="12"
-                                            >
-                                            </TextBlock>
-                                        </Grid>
-                                        <components:SvgRender Size="20" Source="{Binding NodeStatusIcon}" Grid.Column="2"></components:SvgRender>
-                                    </Grid>
+                                    <components:StatusEntryItem KindIcon="{Binding NodeKindIcon}"
+                                                                FileName="{Binding Name}"
+                                                                StatusIcon="{Binding NodeStatusIcon}"
+                                                                StatusToolTip="{Binding StatusEntry.NodeStatus}"
+                                                                >
+                                        
+                                    </components:StatusEntryItem>
+                                    <!-- <Border Classes="StatusEntryItem"> -->
+                                    <!--     <Grid ColumnDefinitions="Auto, *, Auto"> -->
+                                    <!--         <components:SvgRender Source="{Binding NodeKindIcon}"  -->
+                                    <!--                               Name="NodeKindIcon" -->
+                                    <!--                               Grid.Column="0"></components:SvgRender> -->
+                                    <!--         <Grid Grid.Column="1" ColumnDefinitions="Auto, *"> -->
+                                    <!--             <TextBlock Grid.Column="0" -->
+                                    <!--                        MaxLines="1" -->
+                                    <!--                        Name="NameText" -->
+                                    <!--                        Text="{Binding Name}" -->
+                                    <!--                        HorizontalAlignment="Left"> -->
+                                    <!--             </TextBlock> -->
+                                    <!--             <TextBlock Margin="5 0 0 0"  -->
+                                    <!--                        Name="RelativeDirectory" -->
+                                    <!--                        Grid.Column="1"> -->
+                                    <!--             </TextBlock> -->
+                                    <!--         </Grid> -->
+                                    <!--         <components:SvgRender Name="NodeStatusIcon"  -->
+                                    <!--                               Source="{Binding NodeStatusIcon}" Grid.Column="2"></components:SvgRender> -->
+                                    <!--     </Grid> -->
+                                    <!-- </Border> -->
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

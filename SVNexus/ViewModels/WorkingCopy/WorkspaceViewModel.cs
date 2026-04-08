@@ -17,13 +17,16 @@ using SVNexus.Messages;
 using SVNexus.Utils;
 using SVNexus.Views;
 using Ursa.Controls;
+using Exception = System.Exception;
 
 namespace SVNexus.ViewModels.WorkingCopy;
 
 public partial class WorkspaceViewModel : ViewModelBase, 
     IRecipient<WorkspaceViewModel.OnItemIsExpandedChanged>,
     IRecipient<OnGetContext>,
-    IRecipient<OnGetWorkingCopyRoot>
+    IRecipient<OnGetWorkingCopyRoot>,
+    IRecipient<OnGetWorkspaceHistory>,
+    IRecipient<OnSetWorkspaceHistory>
 {
 
     public class OnItemIsExpandedChanged()
@@ -80,6 +83,9 @@ public partial class WorkspaceViewModel : ViewModelBase,
     public string WorkspacePath { get; set; }
     
     public string? WorkspaceRoot { get; set; }
+
+
+    public WorkspaceHistory.WorkingCopy? History { get; set; }
     
     
     [ObservableProperty]
@@ -97,29 +103,33 @@ public partial class WorkspaceViewModel : ViewModelBase,
     
     private List<string> _expandedItems = [];
 
-    public bool IsAddButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry is not null && i.StatusEntry?.NodeStatus == NodeStatus.Unversioned);
-    
-    public bool IsUpdateButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsAddButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry?.NodeStatus == WorkingCopyStatus.Unversioned);
 
-    public bool IsRefreshButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsUpdateButtonEnable => SelectedTreeItems.Count > 0;
+
+    // public bool IsRefreshButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsRefreshButtonEnable => true;
     
-    public bool IsRevertButtonEnable =>  SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    // public bool IsRevertButtonEnable =>  SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsRevertButtonEnable => SelectedTreeItems.Count > 0;
     
-    public bool IsDiffButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsDiffButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned;
     
-    public bool IsPatchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsPatchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned;
     
-    public bool IsDeleteButtonEnable => SelectedTreeItems.Count == 1 && 
-                                        SelectedTreeItems.First().StatusEntry?.NodeStatus is not (NodeStatus.Unversioned or NodeStatus.Added) &&
-                                        SelectedTreeItems.First().AbsolutePath != WorkspaceRoot;
+    // public bool IsDeleteButtonEnable => SelectedTreeItems.Count == 1 && 
+    //                                     SelectedTreeItems.First().StatusEntry?.NodeStatus is not (NodeStatus.Unversioned or NodeStatus.Added) &&
+    //                                     SelectedTreeItems.First().AbsolutePath != WorkspaceRoot;
     
-    public bool IsMkdirButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsDeleteButtonEnable => SelectedTreeItems.Count > 0; // && SelectedTreeItems.All(i => i.StatusEntry is not null && i.StatusEntry.NodeStatus != NodeStatus.Unversioned);
     
-    public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != NodeStatus.Unversioned);
+    public bool IsMkdirButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned;
     
-    public bool IsSwitchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned);
     
-    public bool IsMergeButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != NodeStatus.Unversioned;
+    public bool IsSwitchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned;
+    
+    public bool IsMergeButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned;
     
     public bool IsRelocateButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().AbsolutePath == WorkspaceRoot;
     
@@ -132,7 +142,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         _context = new Lazy<AsyncContext>(() =>
         {
             var hostId = SendMessage(new OnGetDialogHostId()); 
-            var context = Engine.Engine.Instance.SimpleContext(hostId);
+            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
             return context;
         });
 
@@ -171,7 +181,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
     partial void OnSelectedTreeItemChanged(TreeItemViewModel? value)
     {
-        if (value is null || value.StatusEntry?.NodeStatus == NodeStatus.Unversioned)
+        if (value is null || value.StatusEntry?.NodeStatus == WorkingCopyStatus.Unversioned)
         {
             WorkingCopyViewModel = null;
             return;
@@ -226,6 +236,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
         }
 
 
+        var lockedEntries = new List<StatusEntry>();
+        var incompleteEntries = new List<StatusEntry>();
         
         TreeItemViewModel? selectedTreeItem = null;
 
@@ -235,12 +247,22 @@ public partial class WorkspaceViewModel : ViewModelBase,
             {
                 try
                 {
-                    if (entry.NodeKind != NodeKind.Directory)
-                    {
-                        return;
-                    }
                     Dispatcher.UIThread.Invoke(() =>
                     {
+                        if (entry.WcIsLocked)
+                        {
+                            lockedEntries.Add(entry);
+                        }
+
+                        if (entry.NodeStatus == WorkingCopyStatus.Incomplete)
+                        {
+                            incompleteEntries.Add(entry);
+                        }
+                        if (entry.NodeKind != NodeKind.Directory)
+                        {
+                            return;
+                        }
+
                         var path = entry.Path.TrimStartString(WorkspaceRoot).TrimStartPathSeparatorChar();
                         if (string.IsNullOrEmpty(path))
                         {
@@ -307,15 +329,60 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
                     });
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    throw;
                 }
             }
         };
 
         await _context.Value.StatusNext(statusOptions, receiver);
+
+        if (lockedEntries.Count > 0)
+        {
+            var hostId = SendMessage(new OnGetDialogHostId());
+
+            var result = await MessageBox.ShowOverlayAsync(
+                "Working copy is locked, Whether to cleanup", 
+                "Error", 
+                hostId,  
+                MessageBoxIcon.Error, 
+                MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                var options = new CleanupOptions(WorkspaceRoot, false, true, true, true, true);
+                
+                await _context.Value.Cleanup(options);
+                
+                await RefreshTreeItems(initialize);
+            }
+            else
+            {
+                SendMessage(new OnRemoveTabModel());
+            }
+            return;
+        }
+
+        if (incompleteEntries.Count > 0)
+        {
+            var hostId = SendMessage(new OnGetDialogHostId());
+            var result = await MessageBox.ShowOverlayAsync("Working copy is locked, Whether to update", "Error", hostId,  MessageBoxIcon.Error, MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+
+                var options = new UpdateOptions([WorkspaceRoot], new Revision.Base(), Depth.Infinity, false, false, true, true, true);
+                
+                await _context.Value.Update(options);
+                
+                await RefreshTreeItems(initialize);
+            }
+            else
+            {
+                SendMessage(new OnRemoveTabModel());
+            }
+
+            return;
+        }
         
         
         TreeItems.Clear();
@@ -395,12 +462,12 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
         try
         {
-            var mkdirDialogModel = new MkdirDialogModel()
+            var mkdirDialogModel = new MkdirDialogModel
             {
                 ParentDirectory = SelectedTreeItems.First().AbsolutePath,
             };
 
-            var dialogOptions = new OverlayDialogOptions()
+            var dialogOptions = new OverlayDialogOptions
             {
                 IsCloseButtonVisible = false,
                 Buttons = DialogButton.None,
@@ -417,7 +484,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             await _context.Value.Mkdir(options);
             await RefreshTreeItems();
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Manager.Default.Send(new OnShowToast()
             {
@@ -430,16 +497,6 @@ public partial class WorkspaceViewModel : ViewModelBase,
     [RelayCommand]
     private async Task Refresh()
     {
-        if (!IsRefreshButtonEnable)
-        {
-            return;
-        }
-
-        Manager.Default.Send(new OnShowToast()
-        {
-            Content = $"Refreshing: {SelectedTreeItems.First().AbsolutePath.TrimStartString(WorkspaceRoot?.GetDirectoryName() ?? string.Empty).TrimStartPathSeparatorChar()}",
-            Type = NotificationType.Information
-        }, Manager.MainWindowToken);
         await RefreshTreeItems();
     }
 
@@ -454,10 +511,19 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 return;
             }
 
+            var hostId = SendMessage(new OnGetDialogHostId());
+
+
+            var result = await MessageBox.ShowOverlayAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
             var revertOptions = new RevertOptions(
-                [SelectedTreeItems.First().AbsolutePath],
+                SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
                 Depth.Infinity,
-                [],
+                null,
                 false,
                 false,
                 true
@@ -468,7 +534,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
             await RefreshTreeItems();
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Manager.Default.Send(new OnShowToast()
             {
@@ -486,11 +552,22 @@ public partial class WorkspaceViewModel : ViewModelBase,
             return;
         }
 
-        var path = SelectedTreeItems.First().AbsolutePath;
+        try
+        {
 
-        var deleteOptions = new DeleteOptions([path], false, true, null);
+            var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(), false, false, null);
 
-        await _context.Value.Delete(deleteOptions);
+            await _context.Value.Delete(deleteOptions);
+        }
+        catch (Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to delete: {e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
+        }
+
         
         await RefreshTreeItems();
     }
@@ -503,9 +580,12 @@ public partial class WorkspaceViewModel : ViewModelBase,
             return;
         }
 
-        var addOptions = new AddOptions(SelectedTreeItems.First().AbsolutePath, Depth.Infinity, false, false, false, false);
+        foreach (var treeItem in SelectedTreeItems)
+        {
+            var addOptions = new AddOptions(treeItem.AbsolutePath, Depth.Infinity, false, false, false, true);
+            await _context.Value.Add(addOptions);
+        }
 
-        await _context.Value.Add(addOptions);
         await RefreshTreeItems();
     }
 
@@ -567,34 +647,66 @@ public partial class WorkspaceViewModel : ViewModelBase,
             }
 
             WorkspaceRoot = root;
+
+            var repositoryRoot = await _context.Value.GetRepositoryRoot(WorkspacePath);
+
+            await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+            {
+                var historyItems = await DatabaseManager.Default.WorkspaceHistories();
+
+                var time = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                if (History is not null)
+                {
+                    if (historyItems.Any(historyItem => historyItem.Uuid == History.Uuid))
+                    {
+                        var item = History with { LastUsedTime = time, WorkingCopyPath = WorkspacePath, WorkingCopyRoot = root};
+                        await DatabaseManager.Default.SetWorkspaceHistory(item);
+                        return;
+                    }
+                }
+                
+                foreach (var historyItem in historyItems)
+                {
+                    if (historyItem is not WorkspaceHistory.WorkingCopy workingCopy ||
+                        workingCopy.WorkingCopyRoot != WorkspaceRoot) continue;
+                    workingCopy = workingCopy with { LastUsedTime = time };
+                    
+                    await DatabaseManager.Default.SetWorkspaceHistory(workingCopy);
+
+                    History = workingCopy;
+                    
+                    return;
+                }
+
+
+                var history = new WorkspaceHistory.WorkingCopy(WorkspaceRoot, WorkspacePath, repositoryRoot.RootUrl, time, false, 0, false, Guid.NewGuid().ToString(), null);
+                await DatabaseManager.Default.InsertWorkspaceHistories([history]);
+            
+                History = history;
+            });
+
+
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             await e.HandleAsync(svnExceptionHandler: async error =>
             {
                 var constant = new SvnErrnoConstants();
-                if (constant.IsWcNotWorkingCopy(error.Code))
+                if (!constant.IsWcNotWorkingCopy(error.Code)) return false;
+                var hostId = SendMessage(new OnGetDialogHostId());
+
+                var result = await MessageBox.ShowOverlayAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
                 {
-                    var hostId = SendMessage(new OnGetDialogHostId());
-
-                    var result = await MessageBox.ShowOverlayAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
-                    if (result == MessageBoxResult.Yes)
-                    {
                         
-                    }
-                    else
-                    {
-                        SendMessage(new OnRemoveTabModel());
-                    }
-
-                    return true;
                 }
-                return false;
+                else
+                {
+                    SendMessage(new OnRemoveTabModel());
+                }
+
+                return true;
             });
-        }
-        finally
-        {
-            
         }
     }
     
@@ -602,7 +714,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
     private async Task OnLoaded()
     {
         var queue = SendMessage(new OnGetSingleTaskQueue()).Response;
-        await queue.Run(async token =>
+        await queue.Run(async _ =>
         {
             await Prepare();
             await RefreshTreeItems(true);
@@ -633,18 +745,13 @@ public partial class WorkspaceViewModel : ViewModelBase,
     {
         try
         {
-            if (SelectedTreeItem is null)
+            if (!IsUpdateButtonEnable)
             {
-                Manager.Default.Send(new OnShowToast
-                {
-                    Type = NotificationType.Warning,
-                    Content = "No selected item to update"
-                }, Manager.MainWindowToken);
                 return;
             }
 
             var updateOptions = new UpdateOptions(
-                [SelectedTreeItem.AbsolutePath],
+                SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
                 new Revision.Head(),
                 Depth.Infinity,
                 false,
@@ -654,20 +761,23 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 true
             );
         
-            var revision = (await _context.Value.Update(updateOptions)).FirstOrDefault();
 
-            Manager.Default.Send(new OnShowToast()
+            var revisions = await _context.Value.Update(updateOptions);
+            foreach (var revision in revisions)
             {
-                Type =  NotificationType.Success,
-                Content = $"Updated Successfully to r{revision}"
-            }, Manager.MainWindowToken);
+                Manager.Default.Send(new OnShowToast()
+                {
+                    Type =  NotificationType.Success,
+                    Content = revision is null ? "Update skipped" : $"Updated Successfully to r{revision}"
+                }, Manager.MainWindowToken);
+            }
 
         }
         catch (System.Exception e)
         {
             Manager.Default.Send(new OnShowToast
             {
-                Content = "Failed to update the workspace.",
+                Content = $"Failed to update the workspace: {e.HumanReadableMessage}",
                 Type =  NotificationType.Error,
             }, Manager.MainWindowToken);
         }
@@ -693,5 +803,32 @@ public partial class WorkspaceViewModel : ViewModelBase,
     public void Receive(OnGetWorkingCopyRoot message)
     {
         message.Reply(WorkspaceRoot ?? string.Empty);
+    }
+
+    public void Receive(OnGetWorkspaceHistory message)
+    {
+        if (History is null)
+        {
+            return;
+        }
+        message.Reply(History);
+    }
+
+    public void Receive(OnSetWorkspaceHistory message)
+    {
+        if (History is null)
+        {
+            return;
+        }
+
+        var id = History.Uuid;
+        EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+        {
+            await DatabaseManager.Default.UpdateWorkspaceHistory(id, new WorkspaceHistoryUpdateOperationDelegate
+            {
+                UpdateFunc = message.Value
+            });
+        });
+
     }
 }

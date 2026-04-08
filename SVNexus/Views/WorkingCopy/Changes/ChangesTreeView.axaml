@@ -7,10 +7,8 @@
              x:DataType="changes:ChangesTreeViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="True"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
-             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesTreeView">
-    <components:AdvancedTreeView SelectionMode="Single"
+    <components:AdvancedTreeView SelectionMode="Multiple"
               Margin="0"
               Padding="0"
               AutoScrollToSelectedItem="False"
@@ -37,53 +35,34 @@
         <TreeView.DataTemplates>
             <TreeDataTemplate x:DataType="changes:ChangesTreeViewModel+TreeItemViewModel" 
                               ItemsSource="{Binding Children}">
-                <Grid ColumnDefinitions="Auto, Auto, *, Auto, Auto, Auto"
-                      IsHitTestVisible="True"
-                      Background="Transparent">
-                    <Grid.ContextMenu>
-                        <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}">
-                            <Interaction.Behaviors>
-                                <behaviors:ContextMenuBehavior AllowToOpen="False"/>
-                            </Interaction.Behaviors>
-                        </ContextMenu>
-                    </Grid.ContextMenu>
-
-                    <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"
-                              IsChecked="{Binding IsChecked}"
-                              IsEnabled="{Binding IsReal}" Grid.Column="0">
-                    </CheckBox>
-                    <components:SvgRender Grid.Column="1"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          Width="{Binding #TreeItemText.Bounds.Height}"
-                                          Height="{Binding #TreeItemText.Bounds.Height}"
-                                          Source="{Binding PathSvgIcon, Mode=OneWay}">
-                    </components:SvgRender>
-                    <TextBlock Grid.Column="2"
-                               x:Name="TreeItemText"
-                               Classes.Delete="{Binding IsDelete}"
-                               VerticalAlignment="Center"
-                               FontSize="14"
-                               Text="{Binding Text}">
-                    </TextBlock>
-                    <ItemsControl
-                        Opacity="{Binding $parent[Grid].IsPointerOver}"
-                        IsEnabled="{Binding $parent[Grid].IsPointerOver}"
-                        Grid.Column="3" ItemsSource="{Binding Buttons}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <!-- 横向排列 -->
-                                <StackPanel Orientation="Horizontal" Spacing="1" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                    <components:SvgRender Grid.Column="5"
-                                          ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}"
-                                          Width="{Binding #TreeItemText.Bounds.Height}"
-                                          Height="{Binding #TreeItemText.Bounds.Height}"
-                                          Source="{Binding StatusSvgIcon, Mode=OneWay}">
-                    </components:SvgRender>
-                </Grid>
+                <components:StatusEntryItem FileName="{Binding Text}" 
+                                            KindIcon="{Binding KindIcon}"
+                                            IsDelete="{Binding IsDelete}"
+                                            StatusIcon="{Binding StatusIcon}"
+                                            ShowRelateDirectory="False">
+                </components:StatusEntryItem>
+                <!-- <Grid ColumnDefinitions="Auto, *, Auto" -->
+                <!--       Background="Transparent"> -->
+                <!--     <components:SvgRender Grid.Column="0" -->
+                <!--                           HorizontalAlignment="Center" -->
+                <!--                           VerticalAlignment="Center" -->
+                <!--                           Size="18" -->
+                <!--                           Source="{Binding PathSvgIcon, Mode=OneWay}"> -->
+                <!--     </components:SvgRender> -->
+                <!--     <TextBlock Grid.Column="1" -->
+                <!--                x:Name="TreeItemText" -->
+                <!--                Classes.Delete="{Binding IsDelete}" -->
+                <!--                VerticalAlignment="Center" -->
+                <!--                FontSize="14" -->
+                <!--                LineHeight="20" -->
+                <!--                Text="{Binding Text}"> -->
+                <!--     </TextBlock> -->
+                <!--     <components:SvgRender Grid.Column="2" -->
+                <!--                           ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}" -->
+                <!--                           Size="18" -->
+                <!--                           Source="{Binding StatusSvgIcon, Mode=OneWay}"> -->
+                <!--     </components:SvgRender> -->
+                <!-- </Grid> -->
             </TreeDataTemplate>
         </TreeView.DataTemplates>
     </components:AdvancedTreeView>

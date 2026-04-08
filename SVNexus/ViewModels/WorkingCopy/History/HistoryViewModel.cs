@@ -259,7 +259,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         var hostId = SendMessage(new OnGetDialogHostId());
         var path = SendMessage(new OnGetWorkingCopyPath());
 
-        using var context = Engine.Engine.Instance.SimpleContext(hostId);
+        using var context = EngineBackend.Instance.SimpleContext(hostId);
 
         try
         {
@@ -319,7 +319,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
             var hostId = SendMessage(new OnGetDialogHostId());
 
-            context = Engine.Engine.Instance.SimpleContext(hostId);
+            context = EngineBackend.Instance.SimpleContext(hostId);
 
 
             var logOptions = new LogOptions(

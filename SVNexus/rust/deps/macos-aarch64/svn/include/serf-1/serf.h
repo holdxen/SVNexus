@@ -53,13 +53,6 @@ typedef struct serf_incoming_request_t serf_incoming_request_t;
 
 typedef struct serf_request_t serf_request_t;
 
-#if 0
-typedef struct serf_connection_type_t serf_connection_type_t;
-typedef struct serf_protocol_t serf_protocol_t;
-typedef struct serf_protocol_type_t serf_protocol_type_t;
-#endif /* Connection and protocol API v2 */
-
-typedef struct serf_config_t serf_config_t;
 
 /**
  * @defgroup serf high-level constructs
@@ -99,62 +92,12 @@ typedef struct serf_config_t serf_config_t;
 #define SERF_ERROR_SSLTUNNEL_SETUP_FAILED (SERF_ERROR_START + 7)
 /* The server unexpectedly closed the connection prematurely. */
 #define SERF_ERROR_ABORTED_CONNECTION (SERF_ERROR_START + 8)
-/* Generic 'The line too long'. Used internally. */
-#define SERF_ERROR_LINE_TOO_LONG (SERF_ERROR_START + 9)
-/* The HTTP response status line too long. */
-#define SERF_ERROR_STATUS_LINE_TOO_LONG (SERF_ERROR_START + 10)
-/* The HTTP response header too long. */
-#define SERF_ERROR_RESPONSE_HEADER_TOO_LONG (SERF_ERROR_START + 11)
-/* The connection to the server timed out. */
-#define SERF_ERROR_CONNECTION_TIMEDOUT (SERF_ERROR_START + 12)
-/* The stream returned less data than was expected */
-#define SERF_ERROR_TRUNCATED_STREAM (SERF_ERROR_START + 13)
-/* The stream is empty */
-#define SERF_ERROR_EMPTY_STREAM (SERF_ERROR_START + 14)
-/* An empty read was returned. */
-#define SERF_ERROR_EMPTY_READ (SERF_ERROR_START + 15)
-
-/* Http-2 stream errors, mapped into our error range */
-#define SERF_ERROR_HTTP2_NO_ERROR (SERF_ERROR_START + 50)
-#define SERF_ERROR_HTTP2_PROTOCOL_ERROR (SERF_ERROR_START + 51)
-#define SERF_ERROR_HTTP2_INTERNAL_ERROR (SERF_ERROR_START + 52)
-#define SERF_ERROR_HTTP2_FLOW_CONTROL_ERROR (SERF_ERROR_START + 53)
-#define SERF_ERROR_HTTP2_SETTINGS_TIMEOUT (SERF_ERROR_START + 54)
-#define SERF_ERROR_HTTP2_STREAM_CLOSED (SERF_ERROR_START + 55)
-#define SERF_ERROR_HTTP2_FRAME_SIZE_ERROR (SERF_ERROR_START + 56)
-#define SERF_ERROR_HTTP2_REFUSED_STREAM (SERF_ERROR_START + 57)
-#define SERF_ERROR_HTTP2_CANCEL (SERF_ERROR_START + 58)
-#define SERF_ERROR_HTTP2_COMPRESSION_ERROR (SERF_ERROR_START + 59)
-#define SERF_ERROR_HTTP2_CONNECT_ERROR (SERF_ERROR_START + 60)
-#define SERF_ERROR_HTTP2_ENHANCE_YOUR_CALM (SERF_ERROR_START + 61)
-#define SERF_ERROR_HTTP2_INADEQUATE_SECURITY (SERF_ERROR_START + 62)
-#define SERF_ERROR_HTTP2_HTTP_1_1_REQUIRED (SERF_ERROR_START + 63)
 
 /* SSL certificates related errors */
 #define SERF_ERROR_SSL_CERT_FAILED (SERF_ERROR_START + 70)
 
 /* SSL communications related errors */
 #define SERF_ERROR_SSL_COMM_FAILED (SERF_ERROR_START + 71)
-
-/* SSL handshake failed */
-#define SERF_ERROR_SSL_SETUP_FAILED (SERF_ERROR_START + 72)
-
-/* Serf-internal error code, raised when the server initiates SSL renegotiation
-   on a connection that uses HTTP pipelining. */
-#define SERF_ERROR_SSL_NEGOTIATE_IN_PROGRESS (SERF_ERROR_START + 73)
-
-/* OCSP responder says that the certificate is revoked. */
-#define SERF_ERROR_SSL_OCSP_RESPONSE_CERT_REVOKED (SERF_ERROR_START + 74)
-
-/* OCSP responder says that the certificate is unknown. */
-#define SERF_ERROR_SSL_OCSP_RESPONSE_CERT_UNKNOWN (SERF_ERROR_START + 75)
-
-/* The response from an OCSP responder was not valid. */
-#define SERF_ERROR_SSL_OCSP_RESPONSE_INVALID (SERF_ERROR_START + 76)
-
-#define SERF_OCSP_UNGOOD_ERROR(status) ((status) \
-    && ((SERF_ERROR_SSL_OCSP_CERT_REVOKED == (status)) \
-        ||(SERF_ERROR_SSL_OCSP_CERT_UNKNOWN == (status))))
 
 /* General authentication related errors */
 #define SERF_ERROR_AUTHN_FAILED (SERF_ERROR_START + 90)
@@ -167,9 +110,6 @@ typedef struct serf_config_t serf_config_t;
 
 /* Authentication handler initialization related errors */
 #define SERF_ERROR_AUTHN_INITALIZATION_FAILED (SERF_ERROR_START + 93)
-
-/* The user credentials were rejected by the server */
-#define SERF_ERROR_AUTHN_CREDENTIALS_REJECTED (SERF_ERROR_START + 94)
 
 /* Error code reserved for use in the test suite. */
 #define SERF_ERROR_ISSUE_IN_TESTSUITE (SERF_ERROR_START + 99)
@@ -394,17 +334,6 @@ typedef void (*serf_connection_closed_t)(
     apr_pool_t *pool);
 
 /**
- * Like serf_connection_closed_t, but applies to incoming connections.
- *
- * @since New in 1.4.
- */
-typedef apr_status_t (*serf_incoming_closed_t)(
-    serf_incoming_t *incoming,
-    void *closed_baton,
-    apr_status_t why,
-    apr_pool_t *pool);
-
-/**
  * Response data has arrived and should be processed.
  *
  * Whenever response data for @a request arrives (initially, or continued data
@@ -459,7 +388,7 @@ typedef apr_status_t (*serf_credentials_callback_t)(
  * If no proxy server is configured, a connection will be created to
  * (eventually) connect to the address specified by @a address. The address must
  * live at least as long as @a pool (thus, as long as the connection object).
- * If a proxy server is configured, @a address will be ignored.
+ * If a proxy server is configured, @address will be ignored.
  *
  * The connection object will be allocated within @a pool. Clearing or
  * destroying this pool will close the connection, and terminate any
@@ -472,7 +401,7 @@ typedef apr_status_t (*serf_credentials_callback_t)(
  * NULL may be passed for @a acceptor and @a closed; default implementations
  * will be used.
  *
- * @note The connection is not made immediately. It will be opened on
+ * Note: the connection is not made immediately. It will be opened on
  * the next call to @see serf_context_run.
  */
 serf_connection_t *serf_connection_create(
@@ -487,30 +416,11 @@ serf_connection_t *serf_connection_create(
 /**
  * Create a new connection associated with the @a ctx serf context.
  *
- * Like @see serf_connection_create3 but with @a host_address set to @c NULL.
- */
-apr_status_t serf_connection_create2(
-    serf_connection_t **conn,
-    serf_context_t *ctx,
-    apr_uri_t host_info,
-    serf_connection_setup_t setup,
-    void *setup_baton,
-    serf_connection_closed_t closed,
-    void *closed_baton,
-    apr_pool_t *pool);
-
-
-/**
- * Create a new connection associated with the @a ctx serf context.
- *
  * A connection will be created to (eventually) connect to the address
  * specified by @a address. The address must live at least as long as
  * @a pool (thus, as long as the connection object).
  *
- * If @a host_address is @c NULL, the host address will be looked up
- * based on the hostname in @a host_info; otherwise @a host_address
- * will be used to connect and @a host_info will only be used for
- * setting request headers.
+ * The host address will be looked up based on the hostname in @a host_info.
  *
  * The connection object will be allocated within @a pool. Clearing or
  * destroying this pool will close the connection, and terminate any
@@ -523,16 +433,13 @@ apr_status_t serf_connection_create2(
  * NULL may be passed for @a acceptor and @a closed; default implementations
  * will be used.
  *
- * @note the connection is not made immediately. It will be opened on
+ * Note: the connection is not made immediately. It will be opened on
  * the next call to @see serf_context_run.
- *
- * @since New in 1.4.
  */
-apr_status_t serf_connection_create3(
+apr_status_t serf_connection_create2(
     serf_connection_t **conn,
     serf_context_t *ctx,
     apr_uri_t host_info,
-    apr_sockaddr_t *host_address,
     serf_connection_setup_t setup,
     void *setup_baton,
     serf_connection_closed_t closed,
@@ -556,39 +463,12 @@ apr_status_t serf_listener_create(
     serf_accept_client_t accept_func,
     apr_pool_t *pool);
 
-typedef apr_status_t (*serf_incoming_request_handler_t)(
-    serf_incoming_request_t *req,
-    serf_bucket_t *request,
-    void *handler_baton,
-    apr_pool_t *pool);
-
-typedef apr_status_t (*serf_incoming_response_setup_t)(
-    serf_bucket_t **resp_bkt,
-    serf_incoming_request_t *req,
-    void *setup_baton,
-    serf_bucket_alloc_t *allocator,
-    apr_pool_t *pool);
-
-typedef apr_status_t (*serf_incoming_request_setup_t)(
-    serf_bucket_t **req_bkt,
-    serf_bucket_t *stream,
+typedef apr_status_t (*serf_incoming_request_cb_t)(
+    serf_context_t *ctx,
     serf_incoming_request_t *req,
     void *request_baton,
-    serf_incoming_request_handler_t *handler,
-    void **handler_baton,
-    serf_incoming_response_setup_t *response_setup,
-    void **response_setup_baton,
     apr_pool_t *pool);
 
-/* ### Deprecated: can't do anything with request */
-typedef apr_status_t(*serf_incoming_request_cb_t)(
-  serf_context_t *ctx,
-  serf_incoming_request_t *req,
-  void *request_baton,
-  apr_pool_t *pool);
-
-/* ### Deprecated: Misses ssl support and actual
-       request handling. */
 apr_status_t serf_incoming_create(
     serf_incoming_t **client,
     serf_context_t *ctx,
@@ -597,48 +477,8 @@ apr_status_t serf_incoming_create(
     serf_incoming_request_cb_t request,
     apr_pool_t *pool);
 
-/**
- * Creates a new client associated with @a ctx for socket @a insock. The client
- * takes responsibility for @a client_pool and will destroy it after the
- * connection is closed. Typically this would be the same pool as where the
- * incomming socket @a insock is allocated in.
- *
- * This non-standard behavior is needed to support listeners inside the same
- * @a ctx instance without leaking memory for each used connections. Callers
- * might want to create a specific client pool if they use a non-standard
- * listening pattern.
- *
- * Once the connection is setup @a setup will be called with @a setup_baton
- * to setup the connection's bucket support.
- *
- * When the connection closed @a closed will be called with @a closed_baton to
- * notify that the client and its pool are about to be destroyed.
- *
- * Once the connection is fully setup incoming requests will be routed to @a
- * req_setup with @a req_setup_baton, to handle processing.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_incoming_create2(
-    serf_incoming_t **client,
-    serf_context_t *ctx,
-    apr_socket_t *insock,
-    serf_connection_setup_t setup,
-    void *setup_baton,
-    serf_incoming_closed_t closed,
-    void *closed_baton,
-    serf_incoming_request_setup_t req_setup,
-    void *req_setup_baton,
-    apr_pool_t *client_pool);
 
-/* Allows creating a response before the request is completely
- * read. Will call the response create function if it hasn't
- * been called yet.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_incoming_response_create(
-    serf_incoming_request_t *request);
+
 
 /**
  * Reset the connection, but re-open the socket again.
@@ -673,32 +513,6 @@ void serf_connection_set_async_responses(
     void *acceptor_baton,
     serf_response_handler_t handler,
     void *handler_baton);
-
-typedef enum serf_connection_framing_type_t {
-  SERF_CONNECTION_FRAMING_TYPE_NONE = 0,
-  SERF_CONNECTION_FRAMING_TYPE_HTTP1,
-  SERF_CONNECTION_FRAMING_TYPE_HTTP2,
-  SERF_CONNECTION_FRAMING_TYPE_FCGI
-} serf_connection_framing_type_t;
-
-/**
-* Sets the connection framing on the connection to the specified type. The
-* NONE type specifies that the framing type is undetermined yet and no
-* requests should be written to the connection until the framing type is
-* set. Connections default to HTTP1 framing.
-*
-* @since New in 1.4.
-*/
-void serf_connection_set_framing_type(
-  serf_connection_t *conn,
-  serf_connection_framing_type_t framing_type);
-
-/**
- * @since New in 1.4.
- */
-void serf_incoming_set_framing_type(
-    serf_incoming_t *client,
-    serf_connection_framing_type_t framing_type);
 
 /**
  * Setup the @a request for delivery on its connection.
@@ -764,69 +578,13 @@ serf_request_t *serf_connection_priority_request_create(
     serf_request_setup_t setup,
     void *setup_baton);
 
-/**
- * The default request priority
- *
- * @since New in 1.4.
- */
-#define SERF_REQUEST_PRIORITY_DEFAULT 0x1000
 
-/**
- * Updates the request's priority information. Some protocol implementations,
- * such as HTTP/2 may use this information for response scheduling. The
- * actual behavior depends on the server, intermediate proxies and of course
- * the protocol implementation.
- *
- * It is recommended to prioritize a request before sending it to the server,
- * as that avoids race conditions and receiving unwanted results.
- *
- * If @a depends_on is set, then the request is marked as dependent on
- * @a depends_on, and the result of @a request will only be received if
- * no progress can be made on @a depends_on itself.
- *
- * @a priority is used to relatively prioritize multiple dependencies on the
- * same target. Passing 0 will keep the original priority. In case of HTTP/2
- * this value is mapped to a 8 bit value by ignoring the lowest 8 bits.
- *
- * By default a request is created at priority SERF_REQUEST_PRIORITY_DEFAULT.
- *
- * If @a exclusive is set to TRUE, then all existing dependencies on @a
- * depends_on will be updated to now depend on @a request, to make @a
- * request the only dependency of @a request. When FALSE, request will just
- * be added as a dependency.
- *
- * @since New in 1.4.
- */
-void serf_connection_request_prioritize(serf_request_t *request,
-                                        serf_request_t *depends_on,
-                                        apr_uint16_t priority,
-                                        int exclusive);
-
-/**
- * Returns detected network latency for the @a conn connection. Negative
- * value means that latency is unknwon.
+/** Returns detected network latency for the @a conn connection. Negative
+ *  value means that latency is unknwon.
  */
 apr_interval_time_t serf_connection_get_latency(serf_connection_t *conn);
 
-/**
- * Returns the number of requests waiting to be sent over connection CONN.
- *
- * @since New in 1.4.
- */
-unsigned int serf_connection_queued_requests(serf_connection_t *conn);
-
-/**
- * Returns the total number of requests for which a response hasn't been
- * received yet on connection CONN. This includes requests:
- * - that are queued but not sent.
- * - that have been sent but no response has been completely received yet.
- *
- * @since New in 1.4.
- */
-unsigned int serf_connection_pending_requests(serf_connection_t *conn);
-
-/**
- * Check if a @a request has been completely written.
+/** Check if a @a request has been completely written.
  *
  * Returns APR_SUCCESS if the request was written completely on the connection.
  * Returns APR_EBUSY if the request is not yet or partially written.
@@ -936,8 +694,7 @@ serf_bucket_t *serf_context_bucket_socket_create(
  * settings.
  *
  * This function will set following header(s):
- * - Host: if the connection was created with @see serf_connection_create2
- *         or @see serf_connection_create3
+ * - Host: if the connection was created with @a serf_connection_create2.
  */
 serf_bucket_t *serf_request_bucket_request_create(
     serf_request_t *request,
@@ -984,13 +741,6 @@ serf_bucket_t *serf_request_bucket_request_create(
  */
 #define SERF_NEWLINE_CRLF_SPLIT 0x0010
 
-/**
- * Used to indicate that length of remaining data in bucket is unknown. See
- * serf_bucket_type_t->get_remaining().
- *
- * @since New in 1.4.
- */
-#define SERF_LENGTH_UNKNOWN ((apr_uint64_t) -1)
 
 struct serf_bucket_type_t {
 
@@ -1006,7 +756,7 @@ struct serf_bucket_type_t {
      * The data will exist until one of two conditions occur:
      *
      * 1) this bucket is destroyed
-     * 2) another call to any read function, get_remaining() or to peek()
+     * 2) another call to any read function or to peek()
      *
      * If an application needs the data to exist for a longer duration,
      * then it must make a copy.
@@ -1025,7 +775,7 @@ struct serf_bucket_type_t {
      * specified by @a len. The data will include the newline, if present.
      *
      * Note that there is no way to limit the amount of data returned
-     * by this function. @see serf_bucket_limited_readline().
+     * by this function.
      *
      * The lifetime of the data is the same as that of the @see read
      * function above.
@@ -1128,31 +878,6 @@ struct serf_bucket_type_t {
      */
     void (*destroy)(serf_bucket_t *bucket);
 
-    /* The following members are valid only if read_bucket equals to
-     * serf_buckets_are_v2() (or in a future spec _v3, etc.). */
-
-    /* Real pointer to read_bucket() method when read_bucket is
-     * serf_buckets_are_v2().
-     *
-     * @since New in 1.4 / Buckets v2.
-     */
-    serf_bucket_t * (*read_bucket_v2)(serf_bucket_t *bucket,
-                                      const serf_bucket_type_t *type);
-
-    /* Returns length of remaining data to be read in @a bucket. Returns
-     * SERF_LENGTH_UNKNOWN if length is unknown.
-     *
-     * @since New in 1.4 / Buckets v2.
-     */
-    apr_uint64_t (*get_remaining)(serf_bucket_t *bucket);
-
-    /* Provides a reference to a config object containing all configuration
-     * values relevant for this bucket.
-     *
-     * @since New in 1.4 / Buckets v2
-     */
-    apr_status_t (*set_config)(serf_bucket_t *bucket, serf_config_t *config);
-
     /* ### apr buckets have 'copy', 'split', and 'setaside' functions.
        ### not sure whether those will be needed in this bucket model.
     */
@@ -1179,21 +904,6 @@ struct serf_bucket_type_t {
  */
 /* #define SERF_DEBUG_BUCKET_USE */
 
-/* Predefined value for read_bucket vtable member to declare v2 buckets
- * vtable.
- *
- * @since New in 1.4.
- */
-serf_bucket_t * serf_buckets_are_v2(serf_bucket_t *bucket,
-                                    const serf_bucket_type_t *type);
-
-/** Gets the serf bucket type of the bucket if the bucket implements at least
- * buckets version, or if not a bucket type providing a default implementation
- *
- * @since New in 1.4.
- */
-const serf_bucket_type_t *serf_get_type(serf_bucket_t *bucket,
-                                        int min_version);
 
 /* Internal macros for tracking bucket use. */
 #ifdef SERF_DEBUG_BUCKET_USE
@@ -1212,8 +922,6 @@ const serf_bucket_type_t *serf_get_type(serf_bucket_t *bucket,
 #define serf_bucket_read_bucket(b,t) ((b)->type->read_bucket(b,t))
 #define serf_bucket_peek(b,d,l) ((b)->type->peek(b,d,l))
 #define serf_bucket_destroy(b) ((b)->type->destroy(b))
-#define serf_bucket_get_remaining(b) (serf_get_type(b, 2)->get_remaining(b))
-#define serf_bucket_set_config(b,c) (serf_get_type(b, 2)->set_config(b, c))
 
 /**
  * Check whether a real error occurred. Note that bucket read functions
@@ -1243,9 +951,6 @@ struct serf_bucket_t {
  * Generic macro to construct "is TYPE" macros.
  */
 #define SERF_BUCKET_CHECK(b, btype) ((b)->type == &serf_bucket_type_ ## btype)
-
-
-/** @} */
 
 
 /**
@@ -1307,7 +1012,7 @@ apr_pool_t *serf_bucket_allocator_get_pool(
  */
 #define SERF_LINEBUF_LIMIT 8000
 
-typedef struct serf_linebuf_t {
+typedef struct {
 
     /* Current state of the buffer. */
     enum {
@@ -1320,13 +1025,7 @@ typedef struct serf_linebuf_t {
     /* How much of the buffer have we used? */
     apr_size_t used;
 
-    /* The line is read into this buffer, minus CR/LF.
-     *
-     * NOTE: Before serf 1.4 buffer IS NOT NUL terminated
-     * and @a used should be used to find line length.
-     *
-     * Since serf 1.4 buffer is always NUL terminated.
-     **/
+    /* The line is read into this buffer, minus CR/LF */
     char line[SERF_LINEBUF_LIMIT];
 
 } serf_linebuf_t;
@@ -1349,408 +1048,10 @@ apr_status_t serf_linebuf_fetch(
     serf_bucket_t *bucket,
     int acceptable);
 
-/*** Configuration store declarations ***/
-
-typedef const apr_uint32_t serf_config_key_t;
-
-/* The left-most byte of the int32 key holds the category (bit flags).
-   The other bytes are a number representing the key.
-
-   Serf will not use the second byte for its own keys, so applications can
-   use this byte to define custom keys.
- */
-typedef enum serf_config_categories_t {
-    SERF_CONFIG_PER_CONTEXT    = 0x10000000,
-    SERF_CONFIG_PER_HOST       = 0x20000000,
-    SERF_CONFIG_PER_CONNECTION = 0x40000000,
-} serf_config_categories_t;
-
-#define SERF_CONFIG_HOST_NAME       (SERF_CONFIG_PER_HOST | 0x000001)
-#define SERF_CONFIG_HOST_PORT       (SERF_CONFIG_PER_HOST | 0x000002)
-#define SERF_CONFIG_CONN_LOCALIP    (SERF_CONFIG_PER_CONNECTION | 0x000001)
-#define SERF_CONFIG_CONN_REMOTEIP   (SERF_CONFIG_PER_CONNECTION | 0x000002)
-#define SERF_CONFIG_CONN_PIPELINING (SERF_CONFIG_PER_CONNECTION | 0x000003)
-#define SERF_CONFIG_CTX_LOGBATON    (SERF_CONFIG_PER_CONTEXT | 0x000001)
-
-/* Configuration values stored in the configuration store:
-
-   Category     Key          Value Type
-   --------     ---          ----------
-   Context      logbaton     log_baton_t *
-   Context      proxyauthn   apr_hash_t * (not implemented)
-   Connection   localip      const char *
-   Connection   remoteip     const char *
-   Host         hostname     const char *
-   Host         hostport     const char *
-   Host         authn        apr_hash_t * (not implemented)
-*/
-
-/**
- * Set a value of type const char * for configuration item CATEGORY+KEY.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_config_set_string(serf_config_t *config,
-                                    serf_config_key_t key,
-                                    const char *value);
-/**
- * Copy a value of type const char * and set it for configuration item
- * CATEGORY+KEY.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_config_set_stringc(serf_config_t *config,
-                                     serf_config_key_t key,
-                                     const char *value);
-
-/**
- * Set a value of generic type for configuration item CATEGORY+KEY.
- * See @a serf_set_config_string for COPY_FLAGS description.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_config_set_stringf(serf_config_t *config,
-                                     serf_config_key_t key,
-                                     apr_pool_t *scratch_pool,
-                                     const char *fmt, ...);
-
-/**
- * Set a value of generic type for configuration item CATEGORY+KEY.
- * See @a serf_set_config_string for COPY_FLAGS description.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_config_set_object(serf_config_t *config,
-                                    serf_config_key_t key,
-                                    void *value);
-
-/**
- * Get the value for configuration item CATEGORY+KEY. The value's type will
- * be fixed, see the above table.
- * Returns APR_EINVAL when getting a key from a category that this config
- * object doesn't contain, APR_SUCCESS otherwise.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_config_get_string(serf_config_t *config,
-                                    serf_config_key_t key,
-                                    const char **value);
-
-apr_status_t serf_config_get_object(serf_config_t *config,
-                                    serf_config_key_t key,
-                                    void **value);
-
-/**
- * Remove the value for configuration item CATEGORY+KEY from the configuration
- * store.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_config_remove_value(serf_config_t *config,
-                                      serf_config_key_t key);
-
-/*** Serf logging API ***/
-
-/* Ordered list of log levels, more detailed log levels include less
-   detailed levels. (e.g. level DEBUG also logs ERROR, WARNING & INFO messages).
- */
-#define SERF_LOG_ERROR   0x0001
-#define SERF_LOG_WARNING 0x0002
-#define SERF_LOG_INFO    0x0004
-#define SERF_LOG_DEBUG   0x0008
-#define SERF_LOG_NONE    0x0000
-
-/* List of components, used as a mask. */
-#define SERF_LOGCOMP_ALL_MSG  0xFFFF /* All components, including message
-                                        content */
-#define SERF_LOGCOMP_RAWMSG   0x0100 /* logs requests and responses directly on
-                                        the socket layer. */
-#define SERF_LOGCOMP_SSLMSG   0x0200 /* logs decrypted requests and responses. */
-
-#define SERF_LOGCOMP_ALL      0x00FF /* All components, no message content */
-#define SERF_LOGCOMP_SSL      0x0001 /* The SSL component */
-#define SERF_LOGCOMP_AUTHN    0x0002 /* Authentication components */
-#define SERF_LOGCOMP_CONN     0x0004 /* Connection-related events */
-#define SERF_LOGCOMP_COMPR    0x0008 /* The compression (deflate) component */
-#define SERF_LOGCOMP_PROTOCOL 0x0010 /* The protocol components */
-#define SERF_LOGCOMP_NONE     0x0000
-
-typedef struct serf_log_output_t serf_log_output_t;
-typedef struct serf_log_layout_t serf_log_layout_t;
-
-/* The default log layout. It's format is:
-   [TIMESTAMP] [LOG LEVEL] [l:LOCALIP:PORT r:REMOTEIP:PORT] FILENAME MESSAGE
- */
-#define SERF_LOG_DEFAULT_LAYOUT ((serf_log_layout_t *)NULL)
-
-/* TODO: it's not yet possible to define custom layouts */
-
-/**
- * Create a stream output for log info. This can be used with one of the
- * standard streams stderr or stdout.
- * LAYOUT should be SERF_LOG_DEFAULT_LAYOUT (there's no alternative for now).
- * The lifetime of POOL should be atleast the same as that of CTX, but it can
- * be used by multiple contexts.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_logging_create_stream_output(serf_log_output_t **output,
-                                               serf_context_t *ctx,
-                                               apr_uint32_t level,
-                                               apr_uint32_t comp_mask,
-                                               serf_log_layout_t *layout,
-                                               FILE *fp,
-                                               apr_pool_t *pool);
-
-/**
- * Define an output handler for a log level and a (set of) log component(s).
- * OUTPUT is the object returned by one of the serf_logging_create_XXX_output
- * factory functions.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_logging_add_output(serf_context_t *ctx,
-                                     const serf_log_output_t *output);
-
-
-/*** Connection and protocol API v2 ***/
-#if 0
-/* ### docco.  */
-apr_status_t serf_connection_switch_protocol(
-    serf_connection_t *conn,
-    serf_protocol_t *proto
-    /* ### other params?  */
-    );
-
-
-/* ### docco.  */
-typedef struct serf_queue_item_t serf_queue_item_t;
-
-
-/**
- * Present a response to the application.
- *
- * Called when a response has been processed by the current protocol (to any
- * extent necessary) and is ready for the application to handle.
- *
- * Note: @a request may be NULL if this response is server-pushed rather than
- *       specifically requested.
- *
- * @since New in 1.4.
- */
-typedef apr_status_t (*serf_begin_response_t)(
-    /* ### args not settled  */
-    void **handler_baton,
-    serf_request_t *request,
-    serf_bucket_t *response,
-    apr_pool_t *scratch_pool);
-
-
-/* ### better name?  */
-typedef apr_status_t (*serf_handler_t)(
-    /* ### args not settled  */
-    void *handler_baton,
-    serf_bucket_t *response,
-    apr_pool_t *scratch_pool);
-
-
-struct serf_protocol_type_t {
-    /** Name of this protocol type.  */
-    const char *name;
-
-    /** Vtable version.  */
-    int version;
-#define SERF_PROTOCOL_TYPE_VERSION 1
-
-    /**
-     * When a pending request reaches the front of the queue, then it becomes
-     * "active". This callback is used to build/provide the protocol-specific
-     * request bucket.
-     *
-     * ### more docco
-     */
-    apr_status_t (*serf_request_activate_t)(
-        serf_bucket_t **request_bkt,
-        serf_queue_item_t *request_qi,
-        void *request_baton,
-        serf_bucket_alloc_t *request_bktalloc,
-        apr_pool_t *scratch_pool);
-
-    /**
-     * Construct a protocol parsing bucket, for passing to the process_data
-     * vtable entry.
-     *
-     * When data arrives on the connection, and a parser is not already
-     * processing the connection's data, then build a new bucket to parse
-     * this incoming data (according to the protocol).
-     */
-    serf_bucket_t * (*build_parser)(serf_protocol_t *proto,
-                                    apr_pool_t *scratch_pool);
-
-    /**
-     * The protocol should parse all available response data, per the protocol.
-     *
-     * This is called when data has become available to the parser. The protocol
-     * should read all available data before returning.
-     */
-    apr_status_t (*process_data)(serf_protocol_t *proto,
-                                 serf_bucket_t *parser,
-                                 apr_pool_t *scratch_pool);
-};
-
-
-/**
- * Activate an HTTP request when it reaches the front of the queue.
- *
- * ### more docco
- *
- * @since New in 1.4.
- */
-typedef apr_status_t (*serf_http_activate_t)(
-    serf_bucket_t **body_bkt,
-    serf_bucket_t *request_bkt,  /* type REQUEST  */
-    serf_queue_item_t *request_qi,
-    void *request_baton,
-    serf_bucket_alloc_t *request_bktalloc,
-    apr_pool_t *scratch_pool);
-
-
-/**
- * Create a new connection and associated HTTP protocol parser.
- *
- * The new connection/protocol will be associated with @a ctx. It will be
- * opened once a request is placed into its outgoing queue. The connection
- * will use @a hostname and @a port for the origin server. If
- * @a proxy_hostname is not NULL, then all requests will go through the
- * proxy specified by @a proxy_hostname and @a proxy_port.
- *
- * DNS lookups for @a hostname and @a proxy_hostname will be performed
- * when the connection first opened, then cached in case the connection
- * ever needs to be re-opened.
- *
- * When a queued request reaches the front of the queue, and is ready for
- * delivery, then @a activate_cb will be called to prepare the request.
- *
- * @a authn_types specifies the types of authentication allowed on this
- * connection. Normally, it should be SERF_AUTHN_ALL. When authentication
- * credentials are required (for the origin server or the proxy), then
- * @a creds_cb will be called with @a app_baton.
- *
- * When the connection is closed (upon request or because of an error),
- * then @a closed_cb will be called with @a app_baton.
- *
- * The connection and protocol paresr will be allocated in @a result_pool.
- * This function will use @a scratch_pool for temporary allocations.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_http_protocol_create(
-    serf_protocol_t **proto,
-    serf_context_t *ctx,
-    const char *hostname,
-    int port,
-    const char *proxy_hostname,
-    int proxy_port,
-    int authn_types,
-    serf_http_activate_t activate_cb,
-    /* ### do we need different params for CREDS_CB and CLOSED_CB ?  */
-    serf_credentials_callback_t creds_cb,
-    serf_connection_closed_t closed_cb,
-    void *app_baton,
-    apr_pool_t *result_pool,
-    apr_pool_t *scratch_pool);
-
-
-/* ### docco. create http proto parser with an encrypted connection.  */
-apr_status_t serf_https_protocol_create(
-    serf_protocol_t **proto,
-    serf_context_t *ctx,
-    const char *hostname,
-    int port,
-    /* ### client certs, credential validation callbacks, etc  */
-    serf_connection_closed_t closed,
-    void *closed_baton,
-    apr_pool_t *result_pool,
-    apr_pool_t *scratch_pool);
-
-
-/* ### docco. queue up an http request.  */
-serf_queue_item_t *serf_http_request_queue(
-    serf_protocol_t *proto,
-    int priority,
-    void *request_baton);
-
-/**
- * ### rationalize against "serf connections and request" group above
- *
- * @defgroup serf connections
- * @ingroup serf
- * @{
- */
-
-struct serf_connection_type_t {
-    /** Name of this connection type.  */
-    const char *name;
-
-    /** Vtable version.  */
-    int version;
-#define SERF_CONNECTION_TYPE_VERSION 1
-
-    /**
-     * Initiate a connection to the server.
-     *
-     * ### docco. note async. note that request(s) may be queued.
-     * ### can we somehow defer the SSL tunnel's CONNECT to the higher
-     * ### layer? then have the HTTP protocol layer wrap a CONN_PLAIN
-     * ### into a CONN_TLS connection once the tunnel is established?
-     */
-    apr_status_t (*connect)(serf_connection_t *conn);
-
-    /**
-     * Returns a bucket for reading from this connection.
-     *
-     * This bucket remains constant for the lifetime of the connection. It has
-     * built-in BARRIER bucket protection, so it can safely be "destroyed"
-     * without problem (and a later call to this vtable function will return
-     * the same bucket again).
-     *
-     * For all intents and purposes, this bucket is borrowed by the caller.
-     *
-     * This bucket effectively maps to the underlying socket, or possibly to
-     * a decrypting bucket layered over the socket.
-     */
-    serf_bucket_t * (*get_read_bucket)(serf_connection_t *conn);
-
-    /**
-     * Write some data into into the connection.
-     *
-     * Attempt to write a number of iovecs into the connection. The number of
-     * vectors *completely* written will be returned in @a vecs_written. If that
-     * equals @a vecs_size, then @a last_written will be set to 0. If it is less
-     * (not all iovecs were written), then the amount written from the next,
-     * incompletely written iovec is returned in @a last_written.
-     *
-     * In other words, the first byte of unwritten content is located at:
-     *
-     * <pre>
-     *   first = vecs[vecs_written][last_written];
-     * </pre>
-     *
-     * If all bytes are written, then APR_SUCCESS is returned. If only a portion
-     * was written, then APR_EAGAIN will be returned.
-     */
-    apr_status_t (*writev)(serf_connection_t *conn,
-                           int vecs_size, struct iovec *vecs,
-                           int *vecs_written, apr_size_t *last_written);
-};
-
-#endif /* Connection and protocol API v2 */
 /** @} */
 
 
-/* Internal functions for bucket use and lifecycle tracking.
-   ### Some of these are directly or via Macros used by third party
-   ### applications, such as Apache Subversion */
+/* Internal functions for bucket use and lifecycle tracking */
 apr_status_t serf_debug__record_read(
     const serf_bucket_t *bucket,
     apr_status_t status);
@@ -1765,8 +1066,8 @@ void serf_debug__bucket_alloc_check(
 
 /* Version info */
 #define SERF_MAJOR_VERSION 1
-#define SERF_MINOR_VERSION 4
-#define SERF_PATCH_VERSION 0
+#define SERF_MINOR_VERSION 3
+#define SERF_PATCH_VERSION 10
 
 /* Version number string */
 #define SERF_VERSION_STRING APR_STRINGIFY(SERF_MAJOR_VERSION) "." \

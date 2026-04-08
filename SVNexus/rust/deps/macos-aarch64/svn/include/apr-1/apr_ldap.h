@@ -91,8 +91,6 @@
 #define APR_HAS_LDAP_SSLINIT 0
 #define APR_HAS_LDAPSSL_INIT 0
 #define APR_HAS_LDAPSSL_INSTALL_ROUTINES 0
-#define APR_HAS_LDAP_SASL_INTERACTIVE_BIND 0
-#define APR_HAS_LDAP_CONNECT 0
 
 /*
  * Make sure the secure LDAP port is defined
@@ -193,8 +191,6 @@ typedef struct apr_ldap_err_t {
 #include "apr_ldap_init.h"
 #include "apr_ldap_option.h"
 #include "apr_ldap_rebind.h"
-
-#include "apr_ldap_common.h"
 
 #endif /* APR_HAS_LDAP */
 /** @} */

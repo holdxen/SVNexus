@@ -24,13 +24,13 @@
 #
 # Configuration variables
 #
-apr_builddir=/Users/zhouguiqing/Documents/Installation/svn/build-1
-apr_builders=/Users/zhouguiqing/Documents/Installation/svn/build-1
-top_builddir=/Users/zhouguiqing/Documents/Installation/svn/build-1
+apr_builddir=/Users/zhouguiqing/Downloads/svn/build-1
+apr_builders=/Users/zhouguiqing/Downloads/svn/build-1
+top_builddir=/Users/zhouguiqing/Downloads/svn/build-1
 
 # Some layouts require knowing what version we are at.
 APR_MAJOR_VERSION=1
-APR_DOTTED_VERSION=1.8.0
+APR_DOTTED_VERSION=1.7.6
 
 CC=gcc
 CC_FOR_BUILD=gcc

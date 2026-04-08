@@ -4,17 +4,230 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:u="https://irihi.tech/ursa"
              x:DataType="viewModels:WelcomeViewModel"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
+             xmlns:u="https://irihi.tech/ursa"
              x:Class="SVNexus.Views.WelcomeView">
-    <Design.DataContext>
-        <viewModels:WelcomeViewModel />
-    </Design.DataContext>
-    <Border Padding="4">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="viewModels:WelcomeViewModel+RepositoryItemViewModel">
+            <Grid RowDefinitions="*, Auto, Auto, Auto">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto" Margin="6">
+                    <components:SvgRender Grid.Column="0"
+                                          Classes="Themable"
+                                          Source="{Binding  Icon}"
+                                          Margin="0 3"
+                                          Size="23">
+                    </components:SvgRender>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <StackPanel.Styles>
+                            <Style Selector="Label">
+                                <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                            </Style>
+                        </StackPanel.Styles>
+                        <Label Theme="{StaticResource TitleLabel}" Classes="H3" Content="{Binding Name}">
+                        </Label>
+                    </StackPanel>
+                    <Border Grid.Column="2"></Border>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="5">
+                        <StackPanel.Styles>
+                            <Style Selector="components|LoadingSvgButton">
+                                <Setter Property="Size" Value="20"></Setter>
+                                <Setter Property="Spacing" Value="4"></Setter>
+                            </Style>
+                        </StackPanel.Styles>
+                        <components:LoadingSvgButton
+                            IsLoading="{Binding ToggleIsStarCommand.IsRunning}"
+                            Classes="Button"
+                            Classes.Star="{Binding IsStar}"
+                            Command="{Binding ToggleIsStarCommand}">
+                            <components:LoadingSvgButton.Styles>
+                                <Style Selector="components|LoadingSvgButton.Star">
+                                    <Setter Property="Source" Value="{StaticResource Icons.IsStar}"></Setter>
+                                </Style>
+                                <Style Selector="components|LoadingSvgButton">
+                                    <Setter Property="Source" Value="{StaticResource Icons.NotStar}"></Setter>
+                                </Style>
+                            </components:LoadingSvgButton.Styles>
+                        </components:LoadingSvgButton>
+                        <components:LoadingSvgButton
+                            Classes="Button"
+                            EnableFlyout="True"
+                            Source="{StaticResource Icons.More}">
+                            <components:LoadingSvgButton.Flyout>
+                                <MenuFlyout ItemsSource="{Binding MenuItems}">
+                                    <MenuFlyout.ItemContainerTheme>
+                                        <ControlTheme TargetType="MenuItem"
+                                                      BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                      x:DataType="viewModels:MenuItemViewModel">
+                                            <Setter Property="Icon" Value="{Binding Icon}"></Setter>
+                                            <Setter Property="Padding" Value="4 2"></Setter>
+                                            <Setter Property="Header" Value="{Binding Header}" />
+                                            <Setter Property="ItemsSource"
+                                                    Value="{Binding Children}" />
+                                            <Setter Property="Command" Value="{Binding Command}" />
+                                            <Setter Property="CommandParameter"
+                                                    Value="{Binding CommandParameter}" />
+                                            <Setter Property="IsEnabled"
+                                                    Value="{Binding IsEnabled}" />
+                                        </ControlTheme>
+                                    </MenuFlyout.ItemContainerTheme>
+                                </MenuFlyout>
+                            </components:LoadingSvgButton.Flyout>
+                        </components:LoadingSvgButton>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Grid.Row="1"
+                           Margin="0 3"
+                           Classes="Tertiary"
+                           FontSize="12"
+                           Text="{Binding RepositoryUuid}">
+                </TextBlock>
+                <TextBlock Grid.Row="2"
+                           Margin="0 3"
+                           Classes="Tertiary"
+                           FontSize="12"
+                           Text="{Binding Url}">
+                </TextBlock>
+                <StackPanel Grid.Row="3" Margin="0 3">
+                    <StackPanel.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="FontSize" Value="12"></Setter>
+                        </Style>
+                    </StackPanel.Styles>
+                    <TextBlock Classes="Tertiary" Text="{Binding LastUsedTime}"></TextBlock>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate DataType="viewModels:WelcomeViewModel+WorkingCopyItemViewModel">
+            <Grid RowDefinitions="*, Auto, Auto, Auto">
+                <Interaction.Behaviors>
+                    <EventTriggerBehavior EventName="Loaded">
+                        <InvokeCommandAction Command="{Binding LoadedCommand}"></InvokeCommandAction>
+                    </EventTriggerBehavior>
+                </Interaction.Behaviors>
+                <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto" Margin="6">
+                    <components:SvgRender Grid.Column="0"
+                                          Classes="Themable"
+                                          Source="{Binding  Icon}"
+                                          Margin="0 3"
+                                          Size="23">
+                    </components:SvgRender>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                        <StackPanel.Styles>
+                            <Style Selector="Label">
+                                <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                            </Style>
+                        </StackPanel.Styles>
+                        <Label Theme="{StaticResource TitleLabel}" Classes="H3" Content="{Binding Name}">
+                        </Label>
+                        <Label Theme="{StaticResource TagLabel}"
+                               Classes="Purple Solid Circle"
+                               Content="{Binding Revision}">
+                        </Label>
+                        <Label IsVisible="{Binding IsInvalid}" 
+                               Theme="{StaticResource TagLabel}" Classes="Red Circle" Content="Invalid"></Label>
+                        <Label Theme="{StaticResource TagLabel}" Classes="Green Circle" Content="Clean">
+                            <Label.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Converter="{x:Static BoolConverters.Not}" Path="IsConflict"></Binding>
+                                    <Binding Converter="{x:Static BoolConverters.Not}" Path="IsModified"></Binding>
+                                    <Binding Converter="{x:Static BoolConverters.Not}" Path="IsInvalid"></Binding>
+                                </MultiBinding>
+                            </Label.IsVisible>
+                        </Label>
+                        <Label IsVisible="{Binding IsModified}"
+                               Theme="{StaticResource TagLabel}"
+                               Classes="Amber Circle" Content="Modified">
+                        </Label>
+                        <Label IsVisible="{Binding IsConflict}"
+                               Theme="{StaticResource TagLabel}"
+                               Classes="Violet Circle" 
+                               Content="Conflict">
+                        </Label>
+                    </StackPanel>
+                    <Border Grid.Column="2"></Border>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="5">
+                        <StackPanel.Styles>
+                            <Style Selector="components|LoadingSvgButton">
+                                <Setter Property="Size" Value="20"></Setter>
+                                <Setter Property="Spacing" Value="4"></Setter>
+                            </Style>
+                        </StackPanel.Styles>
+                        <components:LoadingSvgButton
+                            IsLoading="{Binding ToggleIsStarCommand.IsRunning}"
+                            Classes="Button"
+                            Classes.Star="{Binding IsStar}"
+                            Command="{Binding ToggleIsStarCommand}">
+                            <components:LoadingSvgButton.Styles>
+                                <Style Selector="components|LoadingSvgButton.Star">
+                                    <Setter Property="Source" Value="{StaticResource Icons.IsStar}"></Setter>
+                                </Style>
+                                <Style Selector="components|LoadingSvgButton">
+                                    <Setter Property="Source" Value="{StaticResource Icons.NotStar}"></Setter>
+                                </Style>
+                            </components:LoadingSvgButton.Styles>
+                        </components:LoadingSvgButton>
+                        <components:LoadingSvgButton
+                            Classes="Button"
+                            EnableFlyout="True"
+                            Source="{StaticResource Icons.More}">
+                            <components:LoadingSvgButton.Flyout>
+                                <MenuFlyout ItemsSource="{Binding MenuItems}">
+                                    <MenuFlyout.ItemContainerTheme>
+                                        <ControlTheme TargetType="MenuItem"
+                                                      BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                      x:DataType="viewModels:MenuItemViewModel">
+                                            <Setter Property="Icon" Value="{Binding Icon}"></Setter>
+                                            <Setter Property="Padding" Value="4 2"></Setter>
+                                            <Setter Property="Header" Value="{Binding Header}" />
+                                            <Setter Property="ItemsSource"
+                                                    Value="{Binding Children}" />
+                                            <Setter Property="Command" Value="{Binding Command}" />
+                                            <Setter Property="CommandParameter"
+                                                    Value="{Binding CommandParameter}" />
+                                            <Setter Property="IsEnabled"
+                                                    Value="{Binding IsEnabled}" />
+                                        </ControlTheme>
+                                    </MenuFlyout.ItemContainerTheme>
+                                </MenuFlyout>
+                            </components:LoadingSvgButton.Flyout>
+                        </components:LoadingSvgButton>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Grid.Row="1"
+                           Margin="0 3"
+                           Classes="Tertiary"
+                           FontSize="12"
+                           Text="{Binding Path}">
+                </TextBlock>
+                <TextBlock Grid.Row="2"
+                           Margin="0 3"
+                           Classes="Tertiary"
+                           FontSize="12"
+                           Text="{Binding RepositoryRootUrl}">
+                </TextBlock>
+                <StackPanel Grid.Row="3" Margin="0 3">
+                    <StackPanel.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="FontSize" Value="12"></Setter>
+                        </Style>
+                    </StackPanel.Styles>
+                    <TextBlock Classes="Tertiary" Text="{Binding LastUsedTime}"></TextBlock>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <Grid Margin="4" RowDefinitions="Auto, Auto, *">
         <Grid RowDefinitions="Auto, *">
-            <Grid Grid.Row="0" RowDefinitions="*" ColumnDefinitions="Auto, *, Auto">
+            <Grid Grid.Row="0" 
+                  RowDefinitions="*" 
+                  ColumnDefinitions="Auto, *, Auto">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Checkout"
@@ -30,7 +243,8 @@
                                           Command="{Binding ShowExportDialogCommand}" />
                 </StackPanel>
                 <Border Grid.Column="1"></Border>
-                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Open terminal"
@@ -38,6 +252,237 @@
                 </StackPanel>
             </Grid>
         </Grid>
-
-    </Border>
+        <u:Divider Grid.Row="1" />
+        <Grid Grid.Row="2" ColumnDefinitions="*, 3*, *">
+            <Border Grid.Column="0" Theme="{StaticResource CardBorder}">
+                <Grid RowDefinitions="Auto, Auto, Auto, Auto, *">
+                    <Label Grid.Row="0" Content="SVNexus" Theme="{StaticResource TitleLabel}" Classes="H1"></Label>
+                    <u:Divider Margin="0 5" Grid.Row="1"></u:Divider>
+                    <Grid Grid.Row="2" RowDefinitions="Auto, *">
+                        <TextBlock Grid.Row="0"
+                                   FontSize="12"
+                                   Text="Navigation"
+                                   Classes="Tertiary" Margin="0 5">
+                        </TextBlock>
+                        <ListBox Grid.Row="1">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="12 14"></Setter>
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBoxItem>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="All"></TextBlock>
+                                    <Label Grid.Column="1"
+                                           Theme="{StaticResource TagLabel}"
+                                           Classes="Circle Indigo"
+                                           Content="{Binding HistoryItems.Count}">
+                                    </Label>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="Star"></TextBlock>
+                                    <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
+                                           Content="0">
+                                    </Label>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="Modified"></TextBlock>
+                                    <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
+                                           Content="0">
+                                    </Label>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="Conflicted"></TextBlock>
+                                    <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
+                                           Content="0">
+                                    </Label>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="Invalid"></TextBlock>
+                                    <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
+                                           Content="0">
+                                    </Label>
+                                </Grid>
+                            </ListBoxItem>
+                        </ListBox>
+                    </Grid>
+                    <u:Divider Margin="0 5" Grid.Row="3"></u:Divider>
+                    <Grid Grid.Row="4" RowDefinitions="Auto, *">
+                        <TextBlock Text="Group" FontSize="12" Classes="Tertiary" Margin="0 5"></TextBlock>
+                        <ListBox Grid.Row="1" SelectedIndex="{Binding SelectedKindIndex}">
+                            <ListBoxItem>
+                                <Grid RowDefinitions="*, Auto">
+                                    <TextBlock Text="All"></TextBlock>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Text="All"></TextBlock>
+                                    <Label Grid.Column="1"
+                                           Theme="{StaticResource TagLabel}"
+                                           Classes="Circle Indigo"
+                                           Content="0">
+                                    </Label>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <TextBlock Text="Modified"></TextBlock>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <TextBlock Text="Conflicted"></TextBlock>
+                            </ListBoxItem>
+                            <ListBoxItem>
+                                <TextBlock Text="Invalid"></TextBlock>
+                            </ListBoxItem>
+                        </ListBox>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Theme="{StaticResource CardBorder}">
+                <Grid RowDefinitions="Auto, Auto, *">
+                    <Label Grid.Row="0"
+                           Theme="{StaticResource TitleLabel}"
+                           Classes="H1"
+                           Content="History">
+                    </Label>
+                    <TextBox Grid.Row="1" Margin="0 4" Classes="ClearButton" Text="{Binding SearchText}"></TextBox>
+                    <ListBox Grid.Row="2"
+                             Classes="ButtonItem"
+                             SelectionMode="Single,Toggle"
+                             SelectedItem="{Binding SelectedHistoryItem}"
+                             ItemsSource="{Binding HistoryItems}">
+                        <ListBox.Styles>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Padding" Value="8 16"></Setter>
+                            </Style>
+                            <!-- <Style Selector="ListBoxItem:pressed"> -->
+                            <!--     <Setter Property="Background" -->
+                            <!--             Value="{DynamicResource ListBoxItemPointeroverBackground}"> -->
+                            <!--     </Setter> -->
+                            <!-- </Style> -->
+                            <!-- <Style Selector="ListBoxItem:selected"> -->
+                            <!--     <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" /> -->
+                            <!--     <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedBackground}" /> -->
+                            <!--     <Style Selector="^:pointerover"> -->
+                            <!--         <Setter Property="Background" -->
+                            <!--                 Value="{DynamicResource ListBoxItemSelectedPointeroverBackground}" /> -->
+                            <!--     </Style> -->
+                            <!-- </Style> -->
+                        </ListBox.Styles>
+                    </ListBox>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" Theme="{StaticResource CardBorder}" >
+                <Border.DataTemplates>
+                    <DataTemplate DataType="viewModels:WelcomeViewModel+WorkingCopyItemViewModel">
+                        <Grid RowDefinitions="Auto, Auto, Auto, Auto, *, Auto">
+                            <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+                                <Label Theme="{StaticResource TitleLabel}" Classes="H3" Content="{Binding Name}"/>
+                                <StackPanel Grid.Column="1">
+                                    <Label Theme="{StaticResource TagLabel}" Classes="Green Circle" Content="Clean">
+                                        <Label.IsVisible>
+                                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                <Binding Converter="{x:Static BoolConverters.Not}" Path="IsConflict"></Binding>
+                                                <Binding Converter="{x:Static BoolConverters.Not}" Path="IsModified"></Binding>
+                                            </MultiBinding>
+                                        </Label.IsVisible>
+                                    </Label>
+                                    <Label IsVisible="{Binding IsModified}"
+                                           Theme="{StaticResource TagLabel}"
+                                           Classes="Amber Circle" Content="Modified">
+                                    </Label>
+                                    <Label IsVisible="{Binding IsConflict}"
+                                           Theme="{StaticResource TagLabel}"
+                                           Classes="Violet Circle" Content="Conflict">
+                                    </Label>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
+                                <Grid.Styles>
+                                    <Style Selector="components|SvgButton">
+                                        <Setter Property="Margin" Value="5 0"></Setter>
+                                        <Setter Property="Size" Value="20"></Setter>
+                                    </Style>
+                                </Grid.Styles>
+                                <TextBox Grid.Column="0" 
+                                         AcceptsReturn="True"
+                                         IsVisible="{Binding IsEditing}"
+                                         MaxHeight="200"
+                                         TextWrapping="Wrap"
+                                         Text="{Binding Remark}">
+                                </TextBox>
+                                <Border Grid.Column="0"
+                                        MaxHeight="200"
+                                        ClipToBounds="True"
+                                        IsVisible="{Binding !IsEditing}"
+                                        MinHeight="{StaticResource TextBoxDefaultHeight}"
+                                        Padding="{StaticResource TextBoxContentPadding}"
+                                        Margin="{StaticResource TextBoxBorderThickness}">
+                                    <TextBlock Text="{Binding Remark}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="WordEllipsis"
+                                               VerticalAlignment="Center">
+                                    </TextBlock>
+                                </Border>
+                                <components:SvgButton Grid.Column="1" 
+                                                      Classes="Button"
+                                                      Command="{Binding EditRemarkCommand}"
+                                                      IsVisible="{Binding !IsEditing}"
+                                                      Source="{StaticResource Icons.EnterEdit}">
+                                </components:SvgButton>
+                                <components:SvgButton Grid.Column="1" 
+                                                      Classes="Button"
+                                                      Command="{Binding EditRemarkCommand}"
+                                                      IsVisible="{Binding IsEditing}"
+                                                      Source="{StaticResource Icons.Confirm}"></components:SvgButton>
+                            </Grid>
+                            <u:Divider Grid.Row="2">
+                            </u:Divider>
+                            <u:Descriptions Grid.Row="3" HorizontalAlignment="Left">
+                                <u:Descriptions.Resources>
+                                    <Thickness x:Key="DescriptionsItemMargin">0</Thickness>
+                                    <Thickness x:Key="DescriptionsKeyPadding">0 0 5 0</Thickness>
+                                </u:Descriptions.Resources>
+                                <u:DescriptionsItem Label="Local path" >
+                                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Path}"></SelectableTextBlock>
+                                </u:DescriptionsItem>
+                                <u:DescriptionsItem Label="Repository" >
+                                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding RepositoryRootUrl}"></SelectableTextBlock>
+                                </u:DescriptionsItem>
+                                <u:DescriptionsItem Label="Revision" >
+                                    <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Revision}"></SelectableTextBlock>
+                                </u:DescriptionsItem>
+                            </u:Descriptions>
+                            <Border Grid.Row="4"></Border>
+                            <Grid Grid.Row="5" ColumnDefinitions="*, *">
+                                <Grid.Styles>
+                                    <Style Selector="Button">
+                                        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+                                        <Setter Property="Margin" Value="3 0"></Setter>
+                                    </Style>
+                                </Grid.Styles>
+                                <Button 
+                                    Grid.Row="0" 
+                                    Content="Open" Classes="Primary" Theme="{StaticResource SolidButton}">
+                                </Button>
+                                <Button Grid.Row="0" 
+                                        Grid.Column="1" 
+                                        Content="Clear cache" Classes="Primary"></Button>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </Border.DataTemplates>
+                <ContentControl Content="{Binding SelectedHistoryItem}">
+                </ContentControl>
+            </Border>
+        </Grid>
+    </Grid>
 </UserControl>

@@ -5,13 +5,45 @@
     <Design.PreviewWith>
         <components:LoadingSvgButton />
     </Design.PreviewWith>
+    <!-- <Style Selector="components|LoadingSvgButton.ToolButton"> -->
+    <!--     <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter> -->
+    <!--     <Setter Property="Size" Value="20"></Setter> -->
+    <!--     <Setter Property="Spacing" Value="2"></Setter> -->
+    <!--     <Style Selector="^[IsEnabled=False]"> -->
+    <!--         <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter> -->
+    <!--         <Setter Property="Opacity" Value="0.35"></Setter> -->
+    <!--     </Style> -->
+    <!-- </Style> -->
+    
     <Style Selector="components|LoadingSvgButton.ToolButton">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
         <Setter Property="Size" Value="20"></Setter>
         <Setter Property="Spacing" Value="2"></Setter>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>
+        </Style>
+
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter>
+        </Style>
         <Style Selector="^[IsEnabled=False]">
             <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
             <Setter Property="Opacity" Value="0.35"></Setter>
+        </Style>
+    </Style>
+    
+    <Style Selector="components|LoadingSvgButton.Button">
+        <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
+        <Style Selector="^[IsEnabled=False]">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
+            <Setter Property="Opacity" Value="0.35"></Setter>
+        </Style>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>
+        </Style>
+
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter>
         </Style>
     </Style>
 
@@ -24,6 +56,7 @@
                     <Grid>
                         <components:SvgButton Size="{TemplateBinding Size}" 
                                               Foreground="{TemplateBinding Foreground}"
+                                              Background="{TemplateBinding Background}"
                                               Spacing="{TemplateBinding Spacing}"
                                               IsEnabled="{TemplateBinding IsEnabled}"
                                               IsVisible="{TemplateBinding IsLoading, Converter={x:Static BoolConverters.Not}}"

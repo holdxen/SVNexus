@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Irihi.Avalonia.Shared.Contracts;
 using SVNexus.Messages;
-using SVNexus.Models;
 using SVNexus.Views;
 
 namespace SVNexus.ViewModels;

@@ -1,17 +1,17 @@
 use derive_new::new;
 use snafu::ResultExt;
 
-use std::collections::HashMap;
-use std::sync::Arc;
+use super::SVNError;
 use super::context;
 use super::ffi;
+use super::version::Version;
 use crate::apr;
 use crate::error;
 use crate::error::builder;
 use crate::utils::Pointer;
-use crate::utils::{CStringer, SubversionStringer, PointerMapper};
-use super::SVNError;
-use super::version::Version;
+use crate::utils::{CStringer, PointerMapper, SubversionStringer};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct WorkingCopyContext {
     ptr: *mut ffi::svn_wc_context_t,
@@ -22,18 +22,18 @@ impl Drop for WorkingCopyContext {
         unsafe {
             let error = ffi::svn_wc_context_destroy(self.ptr);
             if !error.is_null() {
-                tracing::info!("Failed to destroy wc context: {:?}", SVNError::from_nullable_ptr(error))
+                tracing::info!(
+                    "Failed to destroy wc context: {:?}",
+                    SVNError::from_nullable_ptr(error)
+                )
             }
-
         }
     }
 }
 unsafe impl Send for WorkingCopyContext {}
 
 #[derive(uniffi::Record, Debug)]
-pub struct WorkingCopyCreateContextOptions {
-
-}
+pub struct WorkingCopyCreateContextOptions {}
 
 impl WorkingCopyContext {
     fn create(_: WorkingCopyCreateContextOptions) -> error::Result<Self> {
@@ -41,17 +41,17 @@ impl WorkingCopyContext {
             let mut pool = apr::Pool::create();
 
             let mut ptr: *mut ffi::svn_wc_context_t = std::ptr::null_mut();
-            let error = ffi::svn_wc_context_create(ptr.pointer_mut(), std::ptr::null_mut(), pool.as_mut_ptr(), pool.as_mut_ptr());
+            let error = ffi::svn_wc_context_create(
+                ptr.pointer_mut(),
+                std::ptr::null_mut(),
+                pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             assert!(!ptr.is_null(), "wc context ptr should not be null");
 
-            Ok(Self {
-                ptr,
-                pool
-            })
-
-
+            Ok(Self { ptr, pool })
         }
     }
 }
@@ -69,40 +69,94 @@ pub struct WorkingCopyWalkStatusOptions {
     get_all: bool,
     no_ignore: bool,
     ignore_text_modified: bool,
-
 }
-
 
 #[derive(uniffi::Object, Clone)]
 pub enum AsyncWorkingCopyContext {
     Context(Arc<parking_lot::FairMutex<context::Context>>),
-    Raw(Arc<parking_lot::FairMutex<WorkingCopyContext>>)
+    Raw(Arc<parking_lot::FairMutex<WorkingCopyContext>>),
 }
 
 #[uniffi::export(async_runtime = "tokio")]
 impl AsyncWorkingCopyContext {
-
     #[uniffi::constructor]
     pub fn create(opts: WorkingCopyCreateContextOptions) -> error::Result<Self> {
-        Ok(Self::Raw(Arc::new(parking_lot::FairMutex::new(WorkingCopyContext::create(opts)?))))
+        Ok(Self::Raw(Arc::new(parking_lot::FairMutex::new(
+            WorkingCopyContext::create(opts)?,
+        ))))
     }
 
-    pub async fn check_root(&self, path: String) -> error::Result<CheckRootResult> {
+    pub async fn revsion_status(
+        &self,
+        opts: WorkingCopyRevisionStatusOptions,
+    ) -> error::Result<WorkingCopyRevisionStatusResult> {
         self.call_async(move |ctx| unsafe {
             let mut pool = apr::Pool::create();
-            let path = pool.string(path)?;
+            let path = pool.string(opts.local_absolute_path)?;
+            let trail_url = opts
+                .trail_url
+                .map(|u| pool.string(u))
+                .transpose()?
+                .unwrap_or_default();
+            let committed = opts.committed;
+
+            let mut status: *mut ffi::svn_wc_revision_status_t = std::ptr::null_mut();
+
+            let error = ffi::svn_wc_revision_status2(
+                status.pointer_mut(),
+                ctx,
+                path,
+                trail_url,
+                committed.into(),
+                None,
+                Default::default(),
+                pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            Ok(WorkingCopyRevisionStatusResult {
+                status: WorkingCopyRevisionStatus::from(status as *const _)
+            })
+        })
+        .await
+    }
+
+    pub async fn check_root(&self, absolute_path: String) -> error::Result<CheckRootResult> {
+        self.call_async(move |ctx| unsafe {
+
+            let mut pool = apr::Pool::create();
+            let path = pool.string(&absolute_path)?;
+
+            if ffi::svn_dirent_is_absolute(path) == 0 {
+                return builder::InvalidArgument {
+                    detail: format!("{} must be an absolute path", absolute_path),
+                }.fail();
+            }
 
             let mut is_wc_root: ffi::svn_boolean_t = 0;
             let mut is_switched: ffi::svn_boolean_t = 0;
             let mut kind: ffi::svn_node_kind_t = ffi::svn_node_kind_t_svn_node_unknown;
-            let error = ffi::svn_wc_check_root(is_wc_root.pointer_mut(), is_switched.pointer_mut(), kind.pointer_mut(), ctx, path, pool.as_mut_ptr());
+            let error = ffi::svn_wc_check_root(
+                is_wc_root.pointer_mut(),
+                is_switched.pointer_mut(),
+                kind.pointer_mut(),
+                ctx,
+                path,
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let is_wc_root = is_wc_root != 0;
             let is_switched = is_switched != 0;
             let kind = context::NodeKind::try_from(kind).unwrap();
-            Ok(CheckRootResult { is_wc_root, is_switched, kind })
-        }).await
+            Ok(CheckRootResult {
+                is_wc_root,
+                is_switched,
+                kind,
+            })
+        })
+        .await
     }
 
     pub async fn wc_version(&self, path: String) -> error::Result<Option<Version>> {
@@ -123,40 +177,41 @@ impl AsyncWorkingCopyContext {
             Ok(v)
 
             // Ok(version)
-        }).await
+        })
+        .await
     }
 }
 
 impl AsyncWorkingCopyContext {
-    fn call<T>(&self, f: impl FnOnce(*mut ffi::svn_wc_context_t) -> error::Result<T>) -> error::Result<T> {
+    fn call<T>(
+        &self,
+        f: impl FnOnce(*mut ffi::svn_wc_context_t) -> error::Result<T>,
+    ) -> error::Result<T> {
         match self {
             AsyncWorkingCopyContext::Context(mutex) => {
                 let mut lock = mutex.lock();
                 let ctx = unsafe { lock.ctx().as_mut().unwrap().wc_ctx };
                 f(ctx)
-            },
+            }
             AsyncWorkingCopyContext::Raw(mutex) => {
                 let lock = mutex.lock();
                 f(lock.ptr)
-            },
+            }
         }
     }
 
     async fn call_async<F, R>(&self, call: F) -> error::Result<R>
     where
-        F: (FnOnce(*mut ffi::svn_wc_context_t)-> error::Result<R>) + Send + 'static,
+        F: (FnOnce(*mut ffi::svn_wc_context_t) -> error::Result<R>) + Send + 'static,
         R: Send + 'static,
     {
         let context = self.clone();
-        let result = tokio::task::spawn_blocking(move || {
-            context.call(call)
-        })
-        .await
-        .context(builder::Runtime)??;
+        let result = tokio::task::spawn_blocking(move || context.call(call))
+            .await
+            .context(builder::Runtime)??;
 
         Ok(result)
     }
-
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_conflict_kind_t)]
@@ -308,11 +363,9 @@ impl From<*const ffi::svn_wc_conflict_description2_t> for WorkingCopyConflictDes
     }
 }
 
-
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_conflict_choice_t)]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum)]
-pub enum WorkingCopyConflictChoice
-{
+pub enum WorkingCopyConflictChoice {
     Undefined = ffi::svn_wc_conflict_choice_t_svn_wc_conflict_choose_undefined,
     Postpone = ffi::svn_wc_conflict_choice_t_svn_wc_conflict_choose_postpone,
     Base = ffi::svn_wc_conflict_choice_t_svn_wc_conflict_choose_base,
@@ -324,15 +377,13 @@ pub enum WorkingCopyConflictChoice
     Unspecified = ffi::svn_wc_conflict_choice_t_svn_wc_conflict_choose_unspecified,
 }
 
-
 #[derive(uniffi::Record)]
 pub struct WorkingCopyConflictResult {
     pub choise: WorkingCopyConflictChoice,
     pub merged_file: Option<String>,
     pub save_merged: bool,
-    pub merged_value: Option<String>
+    pub merged_value: Option<String>,
 }
-
 
 #[derive(uniffi::Record, Debug, new)]
 pub struct WorkingCopyInfo {
@@ -365,14 +416,9 @@ impl From<*const ffi::svn_wc_info_t> for WorkingCopyInfo {
 
             let working_copy_absolute_path = ptr.wcroot_abspath.to_str().to_string();
 
-            let moved_from_absolute_path = ptr
-                .moved_from_abspath
-                .to_nullable_string();
+            let moved_from_absolute_path = ptr.moved_from_abspath.to_nullable_string();
 
-            let moved_to_absolute_path = ptr
-                .moved_to_abspath
-                .to_nullable_string()
-        ;
+            let moved_to_absolute_path = ptr.moved_to_abspath.to_nullable_string();
 
             let working_copy_format = ptr.wc_format.try_into().unwrap();
 
@@ -404,7 +450,6 @@ pub enum WorkingCopySchedule {
     Delete = ffi::svn_wc_schedule_t_svn_wc_schedule_delete,
     Replace = ffi::svn_wc_schedule_t_svn_wc_schedule_replace,
 }
-
 
 #[derive(uniffi::Enum, Debug)]
 pub enum CheckSum {
@@ -443,7 +488,6 @@ impl From<*const ffi::svn_checksum_t> for CheckSum {
         }
     }
 }
-
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_wc_notify_state_t)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, uniffi::Enum)]
@@ -709,5 +753,48 @@ pub enum WorkingCopyNotifyAction {
     HydratingFile = ffi::svn_wc_notify_action_t_svn_wc_notify_hydrating_file,
     HydratingEnd = ffi::svn_wc_notify_action_t_svn_wc_notify_hydrating_end,
     Warning = ffi::svn_wc_notify_action_t_svn_wc_notify_warning,
-    RevertNoAccess = ffi::svn_wc_notify_action_t_svn_wc_notify_revert_noaccess,
+    // RevertNoAccess = ffi::svn_wc_notify_action_t_svn_wc_notify_revert_noaccess,
+}
+
+#[derive(uniffi::Record, Debug, Clone)]
+pub struct WorkingCopyRevisionStatusResult {
+    status: WorkingCopyRevisionStatus,
+}
+
+#[derive(uniffi::Record, Debug, Clone)]
+pub struct WorkingCopyRevisionStatusOptions {
+    local_absolute_path: String,
+    trail_url: Option<String>,
+    committed: bool,
+}
+
+#[derive(uniffi::Record, Debug, Clone)]
+pub struct WorkingCopyRevisionStatus {
+    min_revision: context::RevisionNumber,
+    max_revision: context::RevisionNumber,
+    switched: bool,
+    modified: bool,
+    sparse_checkout: bool,
+}
+
+impl From<*const ffi::svn_wc_revision_status_t> for WorkingCopyRevisionStatus {
+    fn from(value: *const ffi::svn_wc_revision_status_t) -> Self {
+        unsafe {
+            let value = value.as_ref().unwrap();
+
+            let min_revision = value.min_rev.try_into().unwrap();
+            let max_revision = value.max_rev.try_into().unwrap();
+            let switched = value.switched != 0;
+            let modified = value.modified != 0;
+            let sparse_checkout = value.sparse_checkout != 0;
+
+            Self {
+                min_revision,
+                max_revision,
+                switched,
+                modified,
+                sparse_checkout,
+            }
+        }
+    }
 }

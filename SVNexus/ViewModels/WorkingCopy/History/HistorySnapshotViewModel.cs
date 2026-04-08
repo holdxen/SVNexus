@@ -191,7 +191,7 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId());
 
-        using var context = Engine.Engine.Instance.SimpleContext(hostId);
+        using var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
         try
         {
             var result = await context.Cat(catOptions);
@@ -389,7 +389,7 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        using var context = Engine.Engine.Instance.SimpleContext(hostId);
+        using var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
         TreeViewState = LoadingOrErrorState.MakeLoading();
 

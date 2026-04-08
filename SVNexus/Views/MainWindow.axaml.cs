@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Inject;
 using SVNexus.Messages;
+using SVNexus.Utils;
 using Ursa.Controls;
 
 namespace SVNexus.Views;
@@ -14,7 +15,8 @@ public partial class MainWindow : Window,
     IRecipient<OnNotification>, 
     IRecipient<OnShowToast>, 
     IRecipient<OnFilePickerOpen>,
-    IRecipient<OnFilePickerSave>
+    IRecipient<OnFilePickerSave>,
+    IRecipient<ClipBoardMessages.SetText>
 {
     
     private readonly WindowNotificationManager _notificationManager;
@@ -84,5 +86,28 @@ public partial class MainWindow : Window,
         }
         
         message.Reply(top.StorageProvider.SaveFilePickerAsync(message.Options));
+    }
+
+    public void Receive(ClipBoardMessages.SetText message)
+    {
+        var top = GetTopLevel(this);
+        if (top == null)
+        {
+            message.Reply(Task.FromResult(Unit.Value));
+        }
+        else
+        {
+            async Task<Unit> SetText()
+            {
+                if (top.Clipboard != null)
+                {
+                    await top.Clipboard.SetTextAsync(message.Text);
+                }
+
+                return Unit.Value;
+            }
+
+            message.Reply(SetText());
+        }
     }
 }

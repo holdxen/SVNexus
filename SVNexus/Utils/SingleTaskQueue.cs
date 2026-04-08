@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using Avalonia.Xaml.Interactions.Custom;
-using SVNexus.Generated;
 
 namespace SVNexus.Utils;
 
@@ -16,26 +14,17 @@ public sealed class SingleTaskQueue : IDisposable
         public required CancellationToken CancellationToken { get; init; }
         public required object Task { get; init; }
         public required Action Finished { get; init; }
+        
+        public TaskCompletionSource<object?>? TaskCompletionSource { get; init; }
     }
     
     private Channel<TaskMessage>? TaskQueue { get; set; }
-    //     =  Channel.CreateUnbounded<TaskMessage>(new UnboundedChannelOptions()
-    // {
-    //     SingleReader = true,
-    //     SingleWriter = false
-    // });
     
     public event Func<Task?>? QueueEmpty;
     
-    public List<CancellationTokenSource> Tokens { get; set; } = [];
+    private List<CancellationTokenSource> Tokens { get; set; } = [];
 
-    // public SingleTaskQueue(bool start = true)
-    // {
-    //     if (start)
-    //     {
-    //         Start();
-    //     }
-    // }
+    public bool Single { get; set; } = true;
     
     private static void VerifyAccess()
     {
@@ -45,8 +34,87 @@ public sealed class SingleTaskQueue : IDisposable
                 $"当前方法必须在 UI 线程上调用。当前线程: {Environment.CurrentManagedThreadId}");
         }
     }
+    
 
-    private async Task Add(object task, bool cancelOthers = true)
+    // private async Task Add(object task, bool cancelOthers = true)
+    // {
+    //     VerifyAccess();
+    //     if (TaskQueue is null)
+    //     {
+    //         TaskQueue = Channel.CreateUnbounded<TaskMessage>(new UnboundedChannelOptions()
+    //         {
+    //             SingleReader = true,
+    //             SingleWriter = false
+    //         });
+    //         _ = Dispatcher.UIThread.InvokeAsync(async () =>
+    //         {
+    //             while (true)
+    //             {
+    //                 TaskMessage? msg = null;
+    //                 try
+    //                 {
+    //                     // var msg = await TaskQueue.Reader.ReadAsync();
+    //                     if (!(TaskQueue?.Reader.TryRead(out msg) ?? false))
+    //                     {
+    //                         var awaiter = QueueEmpty?.Invoke();
+    //                         if (awaiter != null)
+    //                         {
+    //                             await awaiter;
+    //                         }
+    //
+    //                         TaskQueue = null;
+    //                         break;
+    //                     }
+    //
+    //                     switch (msg.Task)
+    //                     {
+    //                         case Func<CancellationToken, Task> func:
+    //                             await func.Invoke(msg.CancellationToken);
+    //                             break;
+    //                         case Action<CancellationToken> action:
+    //                             action.Invoke(msg.CancellationToken);
+    //                             break;
+    //                     }
+    //                 }
+    //                 catch (ChannelClosedException)
+    //                 {
+    //                     break;
+    //                 }
+    //                 catch (OperationCanceledException)
+    //                 {
+    //                     Logger.Info("Task is cancelled");
+    //                 }
+    //                 finally
+    //                 {
+    //                     msg?.Finished();
+    //                 }
+    //             }
+    //
+    //         });
+    //     }
+    //     var cts = new CancellationTokenSource();
+    //     var tokens = Tokens;
+    //     Tokens = [cts];
+    //     await TaskQueue.Writer.WriteAsync(new TaskMessage
+    //     {
+    //         CancellationToken = cts.Token,
+    //         Task = task,
+    //         Finished = () =>
+    //         {
+    //             Tokens.Remove(cts);
+    //         },
+    //     }, CancellationToken.None);
+    //     if (cancelOthers)
+    //     {
+    //         foreach (var token in tokens)
+    //         {
+    //             await token.CancelAsync();
+    //         }
+    //     }
+    // }
+    
+    
+    private async Task Add(object task, TaskCompletionSource<object?>? completionSource = null, bool cancelOthers = true)
     {
         VerifyAccess();
         if (TaskQueue is null)
@@ -56,6 +124,7 @@ public sealed class SingleTaskQueue : IDisposable
                 SingleReader = true,
                 SingleWriter = false
             });
+
             _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 while (true)
@@ -63,7 +132,6 @@ public sealed class SingleTaskQueue : IDisposable
                     TaskMessage? msg = null;
                     try
                     {
-                        // var msg = await TaskQueue.Reader.ReadAsync();
                         if (!(TaskQueue?.Reader.TryRead(out msg) ?? false))
                         {
                             var awaiter = QueueEmpty?.Invoke();
@@ -76,7 +144,7 @@ public sealed class SingleTaskQueue : IDisposable
                             break;
                         }
 
-                        switch (msg?.Task)
+                        switch (msg.Task)
                         {
                             case Func<CancellationToken, Task> func:
                                 await func.Invoke(msg.CancellationToken);
@@ -85,26 +153,36 @@ public sealed class SingleTaskQueue : IDisposable
                                 action.Invoke(msg.CancellationToken);
                                 break;
                         }
+
+                        msg.TaskCompletionSource?.TrySetResult(null);
                     }
-                    catch (ChannelClosedException)
+                    catch (ChannelClosedException ex)
                     {
+                        msg?.TaskCompletionSource?.TrySetException(ex);
                         break;
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException ex)
                     {
                         Logger.Info("Task is cancelled");
+                        msg?.TaskCompletionSource?.TrySetCanceled(ex.CancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"Task execution failed, {ex}");
+                        msg?.TaskCompletionSource?.TrySetException(ex);
                     }
                     finally
                     {
                         msg?.Finished();
                     }
                 }
-
             });
         }
+
         var cts = new CancellationTokenSource();
         var tokens = Tokens;
         Tokens = [cts];
+
         await TaskQueue.Writer.WriteAsync(new TaskMessage
         {
             CancellationToken = cts.Token,
@@ -112,8 +190,11 @@ public sealed class SingleTaskQueue : IDisposable
             Finished = () =>
             {
                 Tokens.Remove(cts);
+                cts.Dispose();
             },
+            TaskCompletionSource = completionSource
         }, CancellationToken.None);
+
         if (cancelOthers)
         {
             foreach (var token in tokens)
@@ -121,89 +202,35 @@ public sealed class SingleTaskQueue : IDisposable
                 await token.CancelAsync();
             }
         }
-        // if (cancelOthers)
-        // {
-        //     foreach (var token in Tokens)
-        //     {
-        //         await token.CancelAsync();
-        //     }
-        //     Tokens.Clear();
-        // }
-        //
-        // var cts = new CancellationTokenSource();
-        //
-        // Tokens.Add(cts);
-        //
-        // await TaskQueue.Writer.WriteAsync(new TaskMessage()
-        // {
-        //     CancellationToken = cts.Token,
-        //     Task = task,
-        //     Finished = () =>
-        //     {
-        //         Tokens.Remove(cts);
-        //     },
-        // }, CancellationToken.None);
     }
 
-    public bool Single { get; set; } = true;
-
-    public Task Push(Action<CancellationToken> task, bool? cancelOthers = null)
+    public async Task RunAndWait(Action<CancellationToken> task, bool? cancelOthers = null)
     {
-        return Add(task, cancelOthers ?? Single);
+        var tcs = new TaskCompletionSource<object?>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+        await Add(task, tcs, cancelOthers ?? Single);
+        await tcs.Task;
+    }
+    
+    public async Task RunAndWait(Func<CancellationToken, Task> task, bool? cancelOthers = null)
+    {
+        var tcs = new TaskCompletionSource<object?>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+        await Add(task, tcs, cancelOthers ?? Single);
+        var r = await tcs.Task;
+    }
+
+    public Task Run(Action<CancellationToken> task, bool? cancelOthers = null)
+    {
+        return Add(task, null, cancelOthers ?? Single);
     }
 
     public Task Run(Func<CancellationToken, Task> task, bool? cancelOthers = null)
     {
-        return Add(task, cancelOthers ?? Single);
+        return Add(task, null, cancelOthers ?? Single);
     }
-
-    // public void Start()
-    // {
-    //     Dispatcher.UIThread.InvokeAsync(async () =>
-    //     {
-    //         while (true)
-    //         {
-    //             TaskMessage? msg = null;
-    //             try
-    //             {
-    //                 // var msg = await TaskQueue.Reader.ReadAsync();
-    //                 if (!TaskQueue.Reader.TryRead(out msg))
-    //                 {
-    //                     var awaiter = QueueEmpty?.Invoke();
-    //                     if (awaiter != null)
-    //                     {
-    //                         await awaiter;
-    //                     }
-    //
-    //                     await TaskQueue.Reader.WaitToReadAsync();
-    //                     continue;
-    //                 }
-    //
-    //                 switch (msg.Task)
-    //                 {
-    //                     case Func<CancellationToken, Task> func:
-    //                         await func.Invoke(msg.CancellationToken);
-    //                         break;
-    //                     case Action<CancellationToken> action:
-    //                         action.Invoke(msg.CancellationToken);
-    //                         break;
-    //                 }
-    //             }
-    //             catch (ChannelClosedException)
-    //             {
-    //                 break;
-    //             }
-    //             catch (OperationCanceledException)
-    //             {
-    //                 Log.Info("Task is cancelled");
-    //             }
-    //             finally
-    //             {
-    //                 msg?.Finished();
-    //             }
-    //         }
-    //     });
-    // }
 
     private void ReleaseUnmanagedResources()
     {

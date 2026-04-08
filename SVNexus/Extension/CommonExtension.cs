@@ -11,5 +11,10 @@ public static class CommonExtension
             action(obj);
             return obj;
         }
+
+        public TR Map<TR>(Func<T, TR> func)
+        {
+            return func(obj);
+        }
     }
 }

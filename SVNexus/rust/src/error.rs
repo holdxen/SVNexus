@@ -1,9 +1,13 @@
+use crate::subversion::SvnErrnoConstants;
+use crate::subversion::ffi;
+
 use super::apr;
 use super::subversion;
 
 use snafu::Backtrace;
 use snafu::IntoError;
 use snafu::Snafu;
+use uniffi::UnexpectedUniFFICallbackError;
 use std::fmt::Debug;
 use strum::EnumDiscriminants;
 
@@ -68,7 +72,14 @@ pub enum Error {
 
     #[snafu(display("Svg decode error: {source}"))]
     SvgError { source: resvg::usvg::Error },
+
+    #[snafu(display("Json error: {source}"))]
+    JsonError {
+        source: serde_json::Error,
+        backtrace: Backtrace,
+    },
 }
+
 
 pub fn ok<T>(value: T) -> Result<T, Error> {
     Ok(value)
@@ -110,8 +121,66 @@ impl From<redb::TableError> for Error {
     }
 }
 
-impl From<apache_avro::Error> for Error {
-    fn from(value: apache_avro::Error) -> Self {
-        todo!()
+impl From<redb::CommitError> for Error {
+    fn from(value: redb::CommitError) -> Self {
+        builder::Database {}.into_error(Box::new(value) as _)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        builder::Json {}.into_error(value)
+    }
+}
+
+#[derive(Snafu, Debug, uniffi::Error)]
+pub enum CSharpError {
+    #[snafu(display("{msg}({code})"))]
+    SubversionError {
+        code: i32,
+        msg: String,
+    },
+
+    #[snafu(display("{detail}"))]
+    UnexpectedError {
+        detail: String,
+    }
+}
+
+impl From<UnexpectedUniFFICallbackError> for CSharpError {
+    fn from(value: UnexpectedUniFFICallbackError) -> Self {
+        UnexpectedSnafu { detail: value.to_string() }.into_error(snafu::NoneError)
+    }
+}
+
+impl CSharpError {
+    pub fn native_error(&self) -> *mut ffi::svn_error_t {
+        let (code, msg) = match self {
+            CSharpError::SubversionError { code, msg } => {
+                (*code, msg.as_str())
+            },
+            CSharpError::UnexpectedError { detail } => {
+                let constants = SvnErrnoConstants::new();
+                (constants.cease_invocation, detail.as_str())
+            },
+        };
+        unsafe  {
+            let mut pool = apr::Pool::create();
+            let msg = pool.string(msg).unwrap_or_default();
+
+            let error = ffi::svn_error_create(code.try_into().unwrap_or_default(), Default::default(), msg);
+
+            error
+        }
+    }
+}
+
+#[easy_ext::ext(CSharpErrorExtension)]
+pub impl<T> Result<T, CSharpError> {
+    fn native_error(&self) -> *mut ffi::svn_error_t {
+        match self {
+            Ok(_) => std::ptr::null_mut(),
+            Err(e) => e.native_error(),
+        }
     }
 }

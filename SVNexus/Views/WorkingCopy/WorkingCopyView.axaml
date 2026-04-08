@@ -98,14 +98,6 @@
                                               Source="{StaticResource Icons.OperationMkdir}"
                                               Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Relocate"
-                                              Source="{StaticResource Icons.OperationSwitch}"
-                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Relocate"
-                                              Source="{StaticResource Icons.OperationMerge}"
-                                              Command="{Binding ChangesViewModel.CommitCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Commit"
                                               Source="{StaticResource Icons.OperationCommit}"
                                               Command="{Binding ChangesViewModel.CommitCommand}"></components:SvgButton>
@@ -142,6 +134,64 @@
                             <components:SvgButton.CommandParameter>
                                 <system:UInt32>20</system:UInt32>
                             </components:SvgButton.CommandParameter>
+                        </components:SvgButton>
+                    </StackPanel>
+                    <Border Grid.Column="1"></Border>
+                    <StackPanel 
+                        Grid.Column="2"
+                        Orientation="Horizontal" 
+                        Spacing="5">
+                    </StackPanel>
+                </Grid>
+                <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsLocalView}">
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Spacing="5">
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Update"
+                                              Source="{StaticResource Icons.OperationUpdate}">
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Status"
+                                              Source="{StaticResource Icons.Refresh}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Revert"
+                                              Source="{StaticResource Icons.OperationRevert}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Diff"
+                                              Source="{StaticResource Icons.OperationDiff}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Lock"
+                                              IsEnabled="{Binding LocalViewModel.IsLockButtonEnable}"
+                                              Command="{Binding LocalViewModel.LockCommand}"
+                                              Source="{StaticResource Icons.OperationLock}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Unlock"
+                                              Source="{StaticResource Icons.OperationUnlock}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Delete"
+                                              Source="{StaticResource Icons.OperationDelete}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Mkdir"
+                                              Source="{StaticResource Icons.OperationMkdir}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Commit"
+                                              Source="{StaticResource Icons.OperationCommit}"
+                        >
                         </components:SvgButton>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>

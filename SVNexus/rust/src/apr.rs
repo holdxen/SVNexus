@@ -538,7 +538,7 @@ pub impl *const ffi::apr_array_header_t {
         vec
     }
 
-    fn to_value_vec<T: Sized>(self, read: impl Fn(*const c_char) -> T) -> Vec<T> {
+    fn to_value_vec<T>(self, read: impl Fn(*const c_char) -> T) -> Vec<T> {
         let mut vec = Vec::with_capacity(self.len());
         let element_size = std::mem::size_of::<T>();
         unsafe {

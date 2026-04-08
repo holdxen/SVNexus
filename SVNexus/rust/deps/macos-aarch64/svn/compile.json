@@ -72,7 +72,7 @@
       ],
       "allowlist_file": [
         ".*svn_.*\\.h"
-      ], 
+      ],
       "blocklist_file": [".*apr_.*\\.h"]
     },
     "apr": {
@@ -100,7 +100,6 @@
         "include/apr-1/apr_sdbm.h",
         "include/apr-1/apr_redis.h",
         "include/apr-1/apr_tables.h",
-        "include/apr-1/apr_buffer.h",
         "include/apr-1/apr_ldap_init.h",
         "include/apr-1/apr_skiplist.h",
         "include/apr-1/apr_dbm.h",
@@ -152,7 +151,6 @@
         "include/apr-1/apr_pools.h",
         "include/apr-1/apr_env.h",
         "include/apr-1/apr_inherit.h",
-        "include/apr-1/apr_ldap_common.h",
         "include/apr-1/apr_user.h",
         "include/apr-1/apr_signal.h",
         "include/apr-1/apr_want.h",
@@ -165,15 +163,13 @@
         "include/apr-1/apr_crypto.h",
         "include/apr-1/apr_getopt.h",
         "include/apr-1/apr_thread_rwlock.h",
-        "include/apr-1/apr_json.h",
         "include/apr-1/apr_allocator.h",
-        "include/apr-1/apr_jose.h",
         "include/apr-1/apr_thread_mutex.h",
         "include/apr-1/apr_proc_mutex.h"
       ],
       "allowlist_file": [
         ".*apr_.*\\.h"
-      ], 
+      ],
       "blocklist_file": []
     }
   }

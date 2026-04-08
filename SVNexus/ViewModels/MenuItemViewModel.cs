@@ -7,7 +7,7 @@ public class MenuItemViewModel
 {
     public object? Icon { get; set; }
     
-    public string Header { get; set; } = string.Empty;
+    public object? Header { get; set; }
     public ICommand? Command { get; set; }
     public object? CommandParameter { get; set; }
 

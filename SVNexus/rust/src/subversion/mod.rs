@@ -8,7 +8,7 @@ pub mod export;
 #[cfg(test)]
 mod tests;
 
-use crate::apr;
+use crate::{apr, utils::CStringer};
 use serde::{Deserialize, Serialize};
 
 #[allow(bad_style)]
@@ -814,6 +814,15 @@ impl std::fmt::Display for SVNError {
 }
 
 impl SVNError {
+
+    fn to_error(&self) -> *mut ffi::svn_error_t {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let msg = pool.string(self.msg.as_str()).unwrap_or_default();
+            ffi::svn_error_create(self.code, Default::default(), msg as _)
+        }
+    }
+
     fn from_nullable_ptr(err: *mut ffi::svn_error_t) -> Result<(), Self> {
         if err.is_null() {
             Ok(())
@@ -836,7 +845,7 @@ impl SVNError {
 
             let msg = ffi::svn_err_best_message(err, buf.as_mut_ptr(), buf.len() as _);
 
-            let msg = apr::char_array_to_string(msg).unwrap();
+            let msg = msg.to_str().to_string();
 
             let code = err.as_ref().unwrap().apr_err as i32;
 
@@ -849,9 +858,9 @@ impl SVNError {
             while !next.is_null() {
                 let err = next.as_ref().unwrap();
 
-                let msg = apr::char_array_to_string(err.message).unwrap_or_default();
+                let msg = err.message.to_nullable_string().unwrap_or_default();
 
-                let file = apr::char_array_to_string(err.file).unwrap_or_default();
+                let file = err.file.to_nullable_string().unwrap_or_default();
                 let error_info = ErrorInfo {
                     code: err.apr_err as _,
                     msg,

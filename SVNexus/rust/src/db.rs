@@ -1,7 +1,8 @@
-use apache_avro::{AvroSchema, Reader, Writer, from_value, types::Value};
-use redb::{Database, ReadableDatabase, TableDefinition};
+use std::sync::Arc;
+
+use redb::{Database, ReadableDatabase, ReadableTable, TableDefinition};
 use serde::{Deserialize, Serialize};
-use snafu::{OptionExt, ResultExt};
+use snafu::ResultExt;
 use uuid::Uuid;
 use crate::{error::{self, builder}, subversion::context::LogEntry};
 
@@ -15,43 +16,11 @@ fn database() -> error::Result<&'static Database> {
     })
 }
 
-#[easy_ext::ext]
-impl apache_avro::Schema {
-    fn default_writer(&self) -> Writer<'_, Vec<u8>> {
-        Writer::new(self, Vec::new())
-    }
-
-    fn value<T: Serialize>(&self, value: &T) -> error::Result<Vec<u8>> {
-        let mut writer = self.default_writer();
-        writer.append_ser(value)?;
-        Ok(writer.into_inner()?)
-    }
-}
-
-#[easy_ext::ext]
-impl<'a, R: std::io::Read> apache_avro::Reader<'a, R> {
-    fn one(&mut self) -> error::Result<Value> {
-        let value = self.next().context(builder::General {
-            detail: "None"
-        })??;
-
-        Ok(value)
-    }
-}
-
-#[easy_ext::ext]
-impl Value {
-    fn as_type<'de, T: Deserialize<'de>>(& 'de self) -> error::Result<T> {
-        let v = from_value(self)?;
-        Ok(v)
-    }
-}
-
 #[derive(uniffi::Record)]
 pub struct DatabaseManager {}
 
 impl DatabaseManager {
-    async fn call_async<F, R>(&self, call: F) -> error::Result<R>
+    async fn call_async<F, R>(self, call: F) -> error::Result<R>
     where
         F: (FnOnce(&'static Database) -> error::Result<R>) + Send + 'static,
         R: Send + 'static,
@@ -65,22 +34,110 @@ impl DatabaseManager {
     }
 }
 
-const REGISTRY: TableDefinition<&str, &[u8]> = TableDefinition::new("registry");
+// const REGISTRY: TableDefinition<&str, &str> = TableDefinition::new("registry");
 
-pub struct RevisionsTableEntry {
-    key: u32,
-    log: LogEntry
+// const GLOBAL: TableDefinition<&str, &str> = TableDefinition::new("global");
+
+
+#[derive(Serialize, Deserialize, Default, uniffi::Record, Debug, Clone)]
+pub struct GlobalSettings {
+    default_username: Option<String>,
+    default_password: Option<String>
 }
 
-#[derive(AvroSchema, Serialize, Deserialize, uniffi::Record, Debug, Clone)]
+#[derive(Serialize, Deserialize, uniffi::Enum, Debug, Clone)]
+pub enum WorkspaceHistory {
+    WorkingCopy {
+        working_copy_root: String,
+        working_copy_path: String,
+        repository_root_url: Option<String>,
+        last_used_time: Option<i64>,
+        checkout: bool,
+        order: i32,
+        star: bool,
+        id: String,
+        remark: Option<String>,
+    },
+    Repository {
+        root_url: String,
+        repository_uuid: String,
+        last_used_time: Option<i64>,
+        order: i32,
+        star: bool,
+        id: String,
+        remark: Option<String>,
+    }
+}
+
+impl WorkspaceHistory {
+    fn uuid(&self) -> &str {
+        match self {
+            WorkspaceHistory::WorkingCopy { id, .. } => id,
+            WorkspaceHistory::Repository { id, .. } => id,
+        }
+    }
+}
+
+pub struct SettingsTable;
+impl SettingsTable {
+    pub const TABLE_NAME: &'static str = "Settings";
+    pub const TABLE: TableDefinition<'static, &str, &str> = TableDefinition::new(Self::TABLE_NAME);
+    pub const SETTINGS_KEY: &'static str = "setting";
+}
+
+pub struct HistoryGroup {
+    pub name: String,
+    pub children: Vec<String>
+}
+
+pub struct HistoryTable;
+
+impl HistoryTable {
+    pub const TABLE_NAME: &'static str = "History";
+    pub const TABLE: TableDefinition<'static, &str, &str> = TableDefinition::new(Self::TABLE_NAME);
+
+    pub const HISTORY_KEY: &'static str = "history";
+
+    pub const HISTORY_GROUPS_KEY: &'static str = "history_groups";
+}
+
+pub struct RegistryTable;
+impl RegistryTable {
+    pub const TABLE_NAME: &'static str = "Registry";
+    pub const TABLE: TableDefinition<'static, &str, &str> = TableDefinition::new(Self::TABLE_NAME);
+
+}
+
+#[derive(Serialize, Deserialize, uniffi::Record, Debug, Clone)]
 pub struct RepositoryTable {
     revisions: String,
 }
 
-#[derive(AvroSchema, Serialize, Deserialize, uniffi::Record, Debug)]
+#[derive(Serialize, Deserialize, uniffi::Record, Debug)]
 pub struct RelativeLogEntry {
     entry: LogEntry,
     children: Vec<RelativeLogEntry>
+}
+
+#[easy_ext::ext(JsonExtension)]
+pub impl<T> T {
+    fn as_json(&self) -> error::Result<String>
+        where Self: Serialize
+    {
+        let v = serde_json::to_string(self)?;
+        Ok(v)
+    }
+    fn from_json<'de>(json: &'de str) -> error::Result<Self>
+        where Self: Deserialize<'de>
+    {
+        let v = serde_json::from_str(json)?;
+        Ok(v)
+    }
+}
+
+#[uniffi::export(with_foreign)]
+pub trait WorkspaceHistoryUpdateOperation: Send + Sync + 'static {
+    fn update(&self, v: WorkspaceHistory) -> WorkspaceHistory;
 }
 
 fn entries_to_relative(entries: Vec<LogEntry>) -> Vec<RelativeLogEntry> {
@@ -130,25 +187,184 @@ fn entries_to_relative(entries: Vec<LogEntry>) -> Vec<RelativeLogEntry> {
 #[uniffi::export(async_runtime = "tokio")]
 impl DatabaseManager {
 
+    async fn settings(self) -> error::Result<GlobalSettings> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            let table = lock.open_table(SettingsTable::TABLE)?;
 
-    async fn repository_insert_history(self, name: String, entries: Vec<LogEntry>) -> error::Result<()> {
+            let Some(value) = table.get(SettingsTable::SETTINGS_KEY)? else {
+                return Ok(Default::default());
+            };
+
+            Ok(GlobalSettings::from_json(value.value())?)
+
+        }).await
+    }
+
+    async fn set_settings(self, settings: GlobalSettings) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            let mut table = lock.open_table(SettingsTable::TABLE)?;
+
+            table.insert(SettingsTable::SETTINGS_KEY, settings.as_json()?.as_str())?;
+
+
+            Ok(())
+        }).await
+    }
+
+    async fn delete_workspace_history(self, uuid: String) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            {
+                let mut table = lock.open_table(HistoryTable::TABLE)?;
+
+                let mut old_histories = vec![];
+
+                if let Some(value) = table.get(HistoryTable::HISTORY_KEY)? {
+                    old_histories = serde_json::from_str::<Vec<WorkspaceHistory>>(value.value())?;
+                }
+
+                old_histories.retain(|h| h.uuid() != uuid);
+
+                table.insert(HistoryTable::HISTORY_KEY, old_histories.as_json()?.as_str())?;
+            }
+
+            lock.commit()?;
+
+            Ok(())
+        }).await
+    }
+
+    async fn update_workspace_history(self, uuid: String, operation: Arc<dyn WorkspaceHistoryUpdateOperation>) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            {
+                let mut table = lock.open_table(HistoryTable::TABLE)?;
+
+                let mut old_histories = vec![];
+
+                if let Some(value) = table.get(HistoryTable::HISTORY_KEY)? {
+                    old_histories = serde_json::from_str::<Vec<WorkspaceHistory>>(value.value())?;
+                }
+
+                for i in old_histories.iter_mut() {
+                    if i.uuid() == uuid {
+                        *i = operation.update(i.clone());
+                        break;
+                    }
+                }
+
+                table.insert(HistoryTable::HISTORY_KEY, old_histories.as_json()?.as_str())?;
+            }
+
+            lock.commit()?;
+
+            Ok(())
+        }).await
+    }
+
+    async fn set_workspace_history(self, history: WorkspaceHistory) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            {
+                let mut table = lock.open_table(HistoryTable::TABLE)?;
+
+                let mut old_histories = vec![];
+
+                if let Some(value) = table.get(HistoryTable::HISTORY_KEY)? {
+                    old_histories = serde_json::from_str::<Vec<WorkspaceHistory>>(value.value())?;
+                }
+
+                for i in old_histories.iter_mut() {
+                    if i.uuid() == history.uuid() {
+                        *i = history;
+                        break;
+                    }
+                }
+
+                table.insert(HistoryTable::HISTORY_KEY, old_histories.as_json()?.as_str())?;
+            }
+
+            lock.commit()?;
+
+            Ok(())
+        }).await
+    }
+
+    async fn insert_workspace_histories(self, histories: Vec<WorkspaceHistory>) -> error::Result<()> {
         self.call_async(move |db| {
             let lock = db.begin_write()?;
 
-            let mut table = lock.open_table(TableDefinition::new(name.as_str()) as TableDefinition<u32, &[u8]>)?;
+            {
+                let mut table = lock.open_table(HistoryTable::TABLE)?;
+                let mut old_histories = vec![];
+
+                if let Some(value) = table.get(HistoryTable::HISTORY_KEY)? {
+                    old_histories = serde_json::from_str::<Vec<WorkspaceHistory>>(value.value())?;
+                }
 
 
-            let relative = entries_to_relative(entries);
 
-            for i in relative {
-                let Some(revision) = i.entry.revision else {
-                    continue;
-                };
+                tracing::info!("Insert history: {histories:#?}");
 
-                let v = RelativeLogEntry::get_schema().value(&i)?;
-                table.insert(revision, v.as_slice())?;
+                old_histories.extend(histories);
+
+
+                table.insert(HistoryTable::HISTORY_KEY, old_histories.as_json()?.as_str())?;
             }
+            lock.commit()?;
 
+            Ok(())
+        }).await
+    }
+
+
+    async fn workspace_histories(self) -> error::Result<Vec<WorkspaceHistory>> {
+
+        self.call_async(move |db| {
+
+            let lock = db.begin_write()?;
+
+            let table = lock.open_table(HistoryTable::TABLE)?;
+
+            let Some(history) = table.get(HistoryTable::HISTORY_KEY)? else {
+                return Ok(vec![]);
+            };
+
+
+            let history = serde_json::from_str::<Vec<WorkspaceHistory>>(history.value())?;
+
+
+
+            Ok(history)
+
+        }).await
+
+    }
+
+
+    async fn insert_repository_history(self, name: String, entries: Vec<LogEntry>) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+
+            {
+                let mut table = lock.open_table(TableDefinition::new(name.as_str()) as TableDefinition<u32, &str>)?;
+
+
+                let relative = entries_to_relative(entries);
+
+                for i in relative {
+                    let Some(revision) = i.entry.revision else {
+                        continue;
+                    };
+
+                    let v = i.as_json()?;
+                    table.insert(revision, v.as_str())?;
+                }
+
+            }
+            lock.commit()?;
 
             Ok(())
 
@@ -159,8 +375,8 @@ impl DatabaseManager {
 
     async fn repository_history(self, name: String, start: u32, end: u32) -> error::Result<Vec<RelativeLogEntry>> {
         self.call_async(move |db| {
-            let lock = db.begin_read()?;
-            let table = lock.open_table(TableDefinition::new(name.as_str()) as TableDefinition<u32, &[u8]>)?;
+            let lock = db.begin_write()?;
+            let table = lock.open_table(TableDefinition::new(name.as_str()) as TableDefinition<u32, &str>)?;
 
             let mut result = Vec::with_capacity((end - start).try_into().unwrap());
 
@@ -168,9 +384,10 @@ impl DatabaseManager {
 
             for i in range {
                 let (_, v) = i?;
-                let mut reader = Reader::new(v.value())?;
 
-                result.push(reader.one()?.as_type::<RelativeLogEntry>()?);
+                let v: RelativeLogEntry = serde_json::from_str(v.value())?;
+
+                result.push(v);
             }
 
             Ok(result)
@@ -181,16 +398,17 @@ impl DatabaseManager {
         self.call_async(move |db| {
             let lock = db.begin_read()?;
 
-            let registry = lock.open_table(REGISTRY)?;
+            let registry = lock.open_table(RegistryTable::TABLE)?;
 
             let Some(data) = registry.get(key.as_str())? else {
                 return Ok(None);
             };
 
 
-            let mut reader = Reader::new(data.value())?;
-            let table = reader.one()?.as_type::<RepositoryTable>()?;
-            Ok(Some(table))
+            // let mut reader = Reader::new(data.value())?;
+            let v: RepositoryTable = serde_json::from_str(data.value())?;
+            // let table = reader.one()?.as_type::<RepositoryTable>()?;
+            Ok(Some(v))
         }).await
     }
 
@@ -199,11 +417,14 @@ impl DatabaseManager {
             let table = table.unwrap_or_else(|| RepositoryTable { revisions: Uuid::new_v4().to_string() });
             let lock = db.begin_write()?;
 
-            let mut registry = lock.open_table(REGISTRY)?;
+            let mut registry = lock.open_table(RegistryTable::TABLE)?;
 
-            let value = RepositoryTable::get_schema().value(&table)?;
+            // let value = RepositoryTable::get_schema().value(&table)?;
+            //
 
-            registry.insert(key.as_str(), value.as_slice())?;
+            let value = table.as_json()?;
+
+            registry.insert(key.as_str(), value.as_str())?;
 
             Ok(table)
         }).await

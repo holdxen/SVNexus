@@ -1285,7 +1285,7 @@ svn_client_checkout4(svn_revnum_t *result_rev,
 
 /**
  * Similar to svn_client_checkout4() but with @a wc_format_version set
- * to @c NULL.
+ * to @c NULL and @a store_pristine set to #svn_tristate_unknown.
  *
  * @since New in 1.5.
  * @deprecated Provided for backward compatibility with the 1.10 API.
@@ -7770,6 +7770,28 @@ svn_client_patch(const char *patch_abspath,
                  void *patch_baton,
                  svn_client_ctx_t *ctx,
                  apr_pool_t *scratch_pool);
+
+/**
+ * Similar to svn_client_patch(), but the patch is read from a file handle,
+ * described in @a patch_file.
+ *
+ * In future versions, this function may be used to apply a patch directly
+ * from an svn_stream_t.
+ *
+ * @since New in 1.15.
+ */
+svn_error_t *
+svn_client_patch_stream(apr_file_t *patch_file,
+                        const char *wc_dir_abspath,
+                        svn_boolean_t dry_run,
+                        int strip_count,
+                        svn_boolean_t reverse,
+                        svn_boolean_t ignore_whitespace,
+                        svn_boolean_t remove_tempfiles,
+                        svn_client_patch_func_t patch_func,
+                        void *patch_baton,
+                        svn_client_ctx_t *ctx,
+                        apr_pool_t *scratch_pool);
 
 /** @} */
 

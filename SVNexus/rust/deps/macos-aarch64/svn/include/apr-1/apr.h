@@ -68,13 +68,10 @@
  * necessarily __attribute__ (e.g. builtin), so check for both to
  * avoid overriding __attribute__.
  */
-#if !(defined(__attribute__) || defined(__has_attribute))
+#if !(defined(__attribute__) || defined(__has_attribute)) || defined(__SUNPRO_C)
 #define __attribute__(__x)
 #endif
 #endif /* !__GNUC__ */
-#ifndef __has_attribute
-#define __has_attribute(__x)    0
-#endif
 
 #define APR_HAVE_ARPA_INET_H     1
 #define APR_HAVE_CONIO_H         0

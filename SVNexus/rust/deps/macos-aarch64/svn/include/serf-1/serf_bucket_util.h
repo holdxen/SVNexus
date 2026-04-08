@@ -61,19 +61,6 @@ apr_status_t serf_default_read_iovec(
     int *vecs_used);
 
 /**
- * Default implementation of the @see readline functionality.
- *
- * This function will use the @see read function, when possible optimized by
- * the @a peek function to return the requested result.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_default_readline(serf_bucket_t *bucket, int acceptable,
-                                   int *found,
-                                   const char **data, apr_size_t *len);
-
-
-/**
  * Default implementation of the @see read_for_sendfile functionality.
  *
  * This function will use the @see read function to get a block of memory,
@@ -98,18 +85,6 @@ serf_bucket_t *serf_default_read_bucket(
     const serf_bucket_type_t *type);
 
 /**
- * Default implementation of the @see peek functionality.
- *
- * This function will always state that there is no data available.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_default_peek(
-    serf_bucket_t *bucket,
-    const char **data,
-    apr_size_t *len);
-
-/**
  * Default implementation of the @see destroy functionality.
  *
  * This function will return the @a bucket to its allcoator.
@@ -127,38 +102,6 @@ void serf_default_destroy(
 void serf_default_destroy_and_data(
     serf_bucket_t *bucket);
 
-/**
- * Implementation of a limited @see readline functionality.
- *
- * This function will use the @see read function, when possible optimized by
- * the @a peek function to return the requested result.
- *
- * @since New in 1.4.
- */
-apr_status_t serf_bucket_limited_readline(serf_bucket_t *bucket, int acceptable,
-                                          apr_size_t requested, int *found,
-                                          const char **data, apr_size_t *len);
-
-/**
- * Default implementation of the @see get_remaining functionality.
- *
- * This function will just return SERF_LENGTH_UNKNOWN.
- *
- * @since New in 1.4.
- */
-apr_uint64_t serf_default_get_remaining(
-    serf_bucket_t *bucket);
-
-/**
- * Default implementation of the @see set_config functionality.
- *
- * This function will not do anything, it should be used in buckets
- * that have no use for the shared config, and do not wrap other bucket(s).
- *
- * @since New in 1.4.
- */
-apr_status_t serf_default_ignore_config(serf_bucket_t *bucket,
-                                        serf_config_t *config);
 
 /**
  * Allocate @a size bytes of memory using @a allocator.
@@ -282,7 +225,7 @@ typedef apr_status_t (*serf_databuf_reader_t)(
  * This structure should be initialized by calling @see serf_databuf_init.
  * Users should not bother to zero the structure beforehand.
  */
-typedef struct serf_databuf_t {
+typedef struct {
     /** The current data position within the buffer. */
     const char *current;
 
@@ -353,4 +296,4 @@ apr_status_t serf_databuf_peek(
 }
 #endif
 
-#endif /* !SERF_BUCKET_UTIL_H */
+#endif	/* !SERF_BUCKET_UTIL_H */

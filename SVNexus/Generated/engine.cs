@@ -689,6 +689,10 @@ static class _UniFFILib {
         ulong @callbackData,_UniFFILib.UniffiForeignFutureResultVoid @result
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceWorkspaceHistoryUpdateOperationMethod0(
+        ulong @uniffiHandle,RustBuffer @v,IntPtr /*RustBuffer*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceContextNotifierMethod0(
         ulong @uniffiHandle,RustBuffer @realmString,IntPtr /*sbyte*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
@@ -748,6 +752,13 @@ static class _UniFFILib {
     public delegate void UniffiCallbackInterfaceStatusReceiverMethod0(
         ulong @uniffiHandle,RustBuffer @entry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
+    [StructLayout(LayoutKind.Sequential)]
+    public struct UniffiVTableCallbackInterfaceWorkspaceHistoryUpdateOperation
+    {
+        public IntPtr @uniffiFree;
+        public IntPtr @uniffiClone;
+        public IntPtr @update;
+    }
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceContextNotifier
     {
@@ -1688,6 +1699,726 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -1697,7 +2428,52 @@ static class _UniFFILib {
         UniffiCallbackInterfaceInitializeRepositoryNotifier.Register();
         UniffiCallbackInterfaceLogReceiver.Register();
         UniffiCallbackInterfaceStatusReceiver.Register();
+        UniffiCallbackInterfaceWorkspaceHistoryUpdateOperation.Register();
         }
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_clone_workspacehistoryupdateoperation(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_free_workspacehistoryupdateoperation(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_init_callback_vtable_workspacehistoryupdateoperation(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceWorkspaceHistoryUpdateOperation*/ @vtable
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_engine_fn_method_workspacehistoryupdateoperation_update(ulong @ptr,RustBuffer @v,ref UniffiRustCallStatus _uniffi_out_err
+    );
 
     #if NET8_0_OR_GREATER
     [LibraryImport("engine")]
@@ -1730,6 +2506,2008 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_constructor_svnerrnoconstants_new(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_apmod_activity_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_apmod_bad_baseline_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_apmod_connection_aborted_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_apmod_malformed_uri_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_apmod_missing_path_to_fs_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_asn1_invalid_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_asn1_invalid_length_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_asn1_length_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_asn1_out_of_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_asn1_unexpected_tag_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_assertion_fail_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_assertion_only_tracing_links_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_atomic_init_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authn_creds_not_saved_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authn_creds_unavailable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authn_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authn_no_provider_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authn_providers_exhausted_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authz_invalid_config_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authz_partially_readable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authz_root_unreadable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authz_unreadable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_authz_unwritable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_atomic_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_changelist_name_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_checksum_kind_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_checksum_parse_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_compression_method_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_config_value_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_containing_pool_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_date_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_filename_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_mime_type_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_prop_kind_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_property_value_eol_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_property_value_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_relative_path_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_server_specification_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_token_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_url_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_uuid_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_bad_version_file_format_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_base_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cancelled_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_canonicalization_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cease_invocation_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_checksum_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_adm_dir_reserved_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_arg_parsing_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_bad_log_message_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_commit_in_added_dir_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_error_processing_externals_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_insufficient_args_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_log_message_is_pathname_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_log_message_is_versioned_file_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_mutually_exclusive_args_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_no_external_editor_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_no_external_merge_tool_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_repos_verify_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_cl_unnecessary_log_message_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_bad_revision_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_conflict_option_not_applicable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_cycle_detected_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_duplicate_commit_url_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_file_external_overwrite_versioned_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_forbidden_by_server_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_invalid_externals_description_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_invalid_mergeinfo_no_mergetracking_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_invalid_relocation_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_is_binary_file_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_is_directory_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_merge_update_required_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_missing_lock_token_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_modified_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_multiple_sources_disallowed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_no_lock_token_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_no_versioned_parent_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_not_ready_to_merge_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_patch_bad_strip_count_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_property_name_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_ra_access_required_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_revision_author_contains_newline_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_revision_range_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_unrelated_resources_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_client_versioned_path_required_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_composed_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_corrupt_packed_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_corrupted_atomic_storage_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_delta_md5_checksum_absent_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_diff_datasource_modified_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_diff_unexpected_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_dir_not_empty_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_entry_attribute_invalid_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_entry_exists_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_entry_forbidden_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_entry_missing_revision_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_entry_missing_url_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_entry_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_external_program_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_already_exists_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_already_open_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_ambiguous_checksum_rep_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_bad_lock_token_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_berkeley_db_deadlock_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_berkeley_db_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_cleanup_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_conflict_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_container_index_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_container_size_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_corrupt_proplist_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_corrupt_revprop_manifest_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_corrupt_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_general_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_id_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_incorrect_editor_completion_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_index_corruption_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_index_inconsistent_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_index_overflow_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_index_revision_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_invalid_generation_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_lock_expired_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_lock_operation_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_lock_owner_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_malformed_noderev_id_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_malformed_skel_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_malformed_txn_id_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_lock_token_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_checksum_rep_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_copy_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_entry_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_lock_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_node_origin_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_representation_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_revision_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_string_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_transaction_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_no_user_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_directory_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_file_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_id_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_mutable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_open_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_revision_root_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_single_path_component_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_not_txn_root_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_out_of_date_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_packed_revprop_read_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_path_already_locked_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_path_not_locked_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_path_syntax_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_prop_basevalue_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_rep_being_written_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_rep_changed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_rep_not_mutable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_rep_sharing_not_allowed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_rep_sharing_not_supported_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_revprop_cache_init_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_root_dir_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_transaction_dead_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_transaction_not_dead_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_transaction_not_mutable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_txn_name_too_long_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_txn_out_of_date_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_unknown_fs_type_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_unrecognized_ioctl_code_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_unsupported_format_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_unsupported_type_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_fs_unsupported_upgrade_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_illegal_target_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_incomplete_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_incorrect_params_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_invalid_diff_option_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_invalid_input_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_corrupt_eol_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_inconsistent_eol_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_pipe_frame_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_pipe_read_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_pipe_write_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_unique_names_exhausted_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_unknown_eol_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_io_write_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -5612,6 +8390,1876 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     int uniffi_engine_fn_method_svnerrnoconstants_iter_break_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_lz4_compression_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_lz4_decompression_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_malformed_file_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_malformed_version_string_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_mergeinfo_parse_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_no_apr_memcache_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_no_auth_file_path_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_node_unexpected_kind_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_node_unknown_kind_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_plugin_load_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_property_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_cannot_create_session_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_cannot_create_tunnel_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_already_exists_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_conn_timeout_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_creating_request_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_forbidden_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_invalid_config_value_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_malformed_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_method_not_allowed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_options_req_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_path_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_precondition_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_proppatch_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_props_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_relocated_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_request_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_response_header_badness_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_dav_sock_init_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_illegal_url_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_local_repos_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_local_repos_open_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_no_repos_uuid_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_not_authorized_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_not_implemented_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_not_locked_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_out_of_date_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_partial_replay_not_supported_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_repos_root_url_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_serf_gssapi_initialisation_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_serf_ssl_cert_untrusted_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_serf_sspi_initialisation_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_serf_stream_bucket_read_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_serf_wrapped_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_session_url_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_bad_version_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_cmd_err_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_connection_closed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_edit_aborted_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_io_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_malformed_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_no_mechanisms_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_repos_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_request_size_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_response_size_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_svn_unknown_cmd_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_unknown_auth_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_unsupported_abi_version_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_ra_uuid_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_bad_args_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_bad_revision_report_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_disabled_feature_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_hook_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_locked_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_no_data_for_report_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_post_commit_hook_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_post_lock_hook_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_post_unlock_hook_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_unsupported_upgrade_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_repos_unsupported_version_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_reserved_filename_specified_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_revnum_parse_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_busy_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_constraint_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_readonly_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_resetting_for_rollback_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_rollback_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_sqlite_unsupported_schema_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_stream_malformed_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_stream_not_supported_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_stream_seek_not_supported_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_stream_unexpected_eof_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_stream_unrecognized_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_svndiff_backward_view_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_svndiff_corrupt_window_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_svndiff_invalid_compressed_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_svndiff_invalid_header_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_svndiff_invalid_ops_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_svndiff_unexpected_end_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_swig_py_exception_set_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_test_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_test_skipped_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_too_many_memcached_servers_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_unknown_capability_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_unknown_changelist_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_unsupported_feature_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_unversioned_resource_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_utf8_glob_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_utf8proc_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_version_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_warning_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_bad_adm_log_start_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_bad_adm_log_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_bad_path_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_cannot_delete_file_external_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_cannot_move_file_external_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_changelist_move_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_cleanup_required_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_conflict_resolver_failure_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_copyfrom_path_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_corrupt_text_base_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_corrupt_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_db_error_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_deprecated_api_store_pristine_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_duplicate_externals_target_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_found_conflict_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_incompatible_settings_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_lock_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_op_on_cwd_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_operation_depth_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_relocation_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_schedule_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_switch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_left_local_mod_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_locked_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_mismatched_changelist_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_missing_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_mixed_revisions_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_node_kind_change_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_not_directory_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_not_file_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_not_locked_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_not_symlink_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_not_up_to_date_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_not_working_copy_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_obstructed_update_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_path_access_denied_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_path_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_path_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_path_unexpected_status_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_pristine_dehydrated_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_schedule_conflict_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_unsupported_format_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_unwind_empty_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_unwind_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_unwind_not_empty_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_wc_upgrade_required_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_alg_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_date_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_extensions_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_format_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_name_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_pem_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_pubkey_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_serial_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_signature_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_version_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_sig_mismatch_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_unknown_pk_alg_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_unknown_version_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_cert_verify_failed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_x509_feature_unavailable_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_xml_attrib_not_found_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_xml_malformed_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_xml_missing_ancestry_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_xml_unescapable_data_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_xml_unexpected_element_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     int uniffi_engine_fn_method_svnerrnoconstants_xml_unknown_encoding_value(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_clone_contextnotifier(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
@@ -6052,6 +10700,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_get_repository_root(ulong @ptr,RustBuffer @target
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_get_wc_root(ulong @ptr,RustBuffer @path
     );
 
@@ -6327,7 +10986,18 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_method_asyncworkingcopycontext_check_root(ulong @ptr,RustBuffer @path
+     ulong uniffi_engine_fn_method_asyncworkingcopycontext_check_root(ulong @ptr,RustBuffer @absolutePath
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asyncworkingcopycontext_revsion_status(ulong @ptr,RustBuffer @opts
     );
 
     #if NET8_0_OR_GREATER
@@ -6349,7 +11019,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_method_databasemanager_repository_history(RustBuffer @ptr,RustBuffer @name,uint @start,uint @end
+     ulong uniffi_engine_fn_method_databasemanager_delete_workspace_history(RustBuffer @ptr,RustBuffer @uuid
     );
 
     #if NET8_0_OR_GREATER
@@ -6360,7 +11030,29 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_method_databasemanager_repository_insert_history(RustBuffer @ptr,RustBuffer @name,RustBuffer @entries
+     ulong uniffi_engine_fn_method_databasemanager_insert_repository_history(RustBuffer @ptr,RustBuffer @name,RustBuffer @entries
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_insert_workspace_histories(RustBuffer @ptr,RustBuffer @histories
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_repository_history(RustBuffer @ptr,RustBuffer @name,uint @start,uint @end
     );
 
     #if NET8_0_OR_GREATER
@@ -6383,6 +11075,61 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_databasemanager_resgister_repository(RustBuffer @ptr,RustBuffer @key,RustBuffer @table
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_set_settings(RustBuffer @ptr,RustBuffer @settings
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_set_workspace_history(RustBuffer @ptr,RustBuffer @history
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_settings(RustBuffer @ptr
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_update_workspace_history(RustBuffer @ptr,RustBuffer @uuid,ulong @operation
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_databasemanager_workspace_histories(RustBuffer @ptr
     );
 
     #if NET8_0_OR_GREATER
@@ -7153,6 +11900,2019 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_func_setup_svg(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_workspacehistoryupdateoperation_update(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_apmod_activity_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_apmod_bad_baseline_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_apmod_connection_aborted_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_apmod_malformed_uri_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_apmod_missing_path_to_fs_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_asn1_invalid_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_asn1_invalid_length_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_asn1_length_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_asn1_out_of_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_asn1_unexpected_tag_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_assertion_fail_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_assertion_only_tracing_links_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_atomic_init_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authn_creds_not_saved_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authn_creds_unavailable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authn_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authn_no_provider_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authn_providers_exhausted_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authz_invalid_config_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authz_partially_readable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authz_root_unreadable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authz_unreadable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_authz_unwritable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_atomic_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_changelist_name_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_checksum_kind_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_checksum_parse_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_compression_method_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_config_value_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_containing_pool_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_date_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_filename_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_mime_type_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_prop_kind_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_property_value_eol_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_property_value_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_relative_path_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_server_specification_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_token_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_url_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_uuid_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_bad_version_file_format_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_base_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cancelled_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_canonicalization_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cease_invocation_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_checksum_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_adm_dir_reserved_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_arg_parsing_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_bad_log_message_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_commit_in_added_dir_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_error_processing_externals_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_insufficient_args_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_log_message_is_pathname_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_log_message_is_versioned_file_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_mutually_exclusive_args_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_no_external_editor_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_no_external_merge_tool_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_repos_verify_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_cl_unnecessary_log_message_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_bad_revision_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_conflict_option_not_applicable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_cycle_detected_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_duplicate_commit_url_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_file_external_overwrite_versioned_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_forbidden_by_server_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_externals_description_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_mergeinfo_no_mergetracking_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_relocation_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_is_binary_file_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_is_directory_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_merge_update_required_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_missing_lock_token_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_modified_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_multiple_sources_disallowed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_no_lock_token_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_no_versioned_parent_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_not_ready_to_merge_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_patch_bad_strip_count_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_property_name_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_ra_access_required_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_revision_author_contains_newline_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_revision_range_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_unrelated_resources_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_client_versioned_path_required_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_composed_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_corrupt_packed_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_corrupted_atomic_storage_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_delta_md5_checksum_absent_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_diff_datasource_modified_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_diff_unexpected_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_dir_not_empty_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_entry_attribute_invalid_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_entry_exists_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_entry_forbidden_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_entry_missing_revision_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_entry_missing_url_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_entry_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_external_program_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_already_exists_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_already_open_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_ambiguous_checksum_rep_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_bad_lock_token_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_berkeley_db_deadlock_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_berkeley_db_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_cleanup_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_conflict_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_container_index_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_container_size_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_proplist_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_revprop_manifest_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_general_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_id_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_incorrect_editor_completion_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_index_corruption_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_index_inconsistent_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_index_overflow_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_index_revision_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_invalid_generation_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_expired_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_operation_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_owner_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_noderev_id_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_skel_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_txn_id_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_lock_token_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_checksum_rep_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_copy_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_entry_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_lock_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_node_origin_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_representation_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_revision_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_string_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_transaction_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_no_user_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_directory_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_file_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_id_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_mutable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_open_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_revision_root_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_single_path_component_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_not_txn_root_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_out_of_date_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_packed_revprop_read_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_path_already_locked_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_path_not_locked_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_path_syntax_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_prop_basevalue_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_being_written_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_changed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_not_mutable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_sharing_not_allowed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_sharing_not_supported_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_revprop_cache_init_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_root_dir_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_dead_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_not_dead_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_not_mutable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_txn_name_too_long_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_txn_out_of_date_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_unknown_fs_type_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_unrecognized_ioctl_code_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_format_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_type_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_upgrade_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_illegal_target_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_incomplete_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_incorrect_params_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_invalid_diff_option_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_invalid_input_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_corrupt_eol_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_inconsistent_eol_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_frame_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_read_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_write_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_unique_names_exhausted_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_unknown_eol_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_io_write_error_value(
     );
 
     #if NET8_0_OR_GREATER
@@ -11035,6 +17795,1876 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_iter_break_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_lz4_compression_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_lz4_decompression_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_malformed_file_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_malformed_version_string_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_mergeinfo_parse_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_no_apr_memcache_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_no_auth_file_path_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_node_unexpected_kind_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_node_unknown_kind_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_plugin_load_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_property_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_cannot_create_session_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_cannot_create_tunnel_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_already_exists_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_conn_timeout_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_creating_request_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_forbidden_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_invalid_config_value_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_malformed_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_method_not_allowed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_options_req_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_path_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_precondition_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_proppatch_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_props_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_relocated_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_request_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_response_header_badness_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_sock_init_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_illegal_url_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_local_repos_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_local_repos_open_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_no_repos_uuid_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_not_authorized_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_not_implemented_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_not_locked_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_out_of_date_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_partial_replay_not_supported_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_repos_root_url_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_gssapi_initialisation_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_ssl_cert_untrusted_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_sspi_initialisation_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_stream_bucket_read_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_wrapped_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_session_url_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_bad_version_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_cmd_err_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_connection_closed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_edit_aborted_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_io_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_malformed_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_no_mechanisms_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_repos_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_request_size_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_response_size_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_unknown_cmd_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_unknown_auth_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_unsupported_abi_version_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_ra_uuid_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_bad_args_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_bad_revision_report_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_disabled_feature_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_hook_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_locked_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_no_data_for_report_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_post_commit_hook_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_post_lock_hook_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_post_unlock_hook_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_unsupported_upgrade_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_repos_unsupported_version_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_reserved_filename_specified_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_revnum_parse_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_busy_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_constraint_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_readonly_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_resetting_for_rollback_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_rollback_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_sqlite_unsupported_schema_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_stream_malformed_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_stream_not_supported_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_stream_seek_not_supported_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_stream_unexpected_eof_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_stream_unrecognized_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_svndiff_backward_view_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_svndiff_corrupt_window_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_compressed_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_header_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_ops_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_svndiff_unexpected_end_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_swig_py_exception_set_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_test_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_test_skipped_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_too_many_memcached_servers_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_unknown_capability_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_unknown_changelist_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_unsupported_feature_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_unversioned_resource_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_utf8_glob_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_utf8proc_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_version_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_warning_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_adm_log_start_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_adm_log_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_path_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_cannot_delete_file_external_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_cannot_move_file_external_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_changelist_move_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_cleanup_required_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_conflict_resolver_failure_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_copyfrom_path_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_corrupt_text_base_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_corrupt_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_db_error_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_deprecated_api_store_pristine_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_duplicate_externals_target_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_found_conflict_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_incompatible_settings_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_lock_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_op_on_cwd_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_operation_depth_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_relocation_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_schedule_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_switch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_left_local_mod_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_locked_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_mismatched_changelist_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_missing_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_mixed_revisions_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_node_kind_change_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_not_directory_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_not_file_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_not_locked_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_not_symlink_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_not_up_to_date_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_not_working_copy_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_obstructed_update_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_path_access_denied_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_path_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_path_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_path_unexpected_status_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_pristine_dehydrated_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_schedule_conflict_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_unsupported_format_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_empty_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_not_empty_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_wc_upgrade_required_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_alg_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_date_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_extensions_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_format_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_name_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_pem_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_pubkey_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_serial_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_signature_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_version_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_sig_mismatch_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_unknown_pk_alg_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_unknown_version_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_verify_failed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_x509_feature_unavailable_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_xml_attrib_not_found_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_xml_malformed_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_xml_missing_ancestry_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_xml_unescapable_data_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_xml_unexpected_element_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_svnerrnoconstants_xml_unknown_encoding_value(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text(
     );
 
@@ -11310,6 +19940,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_get_repository_root(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_get_wc_root(
     );
 
@@ -11563,6 +20204,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asyncworkingcopycontext_revsion_status(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asyncworkingcopycontext_wc_version(
     );
 
@@ -11659,6 +20311,1104 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_setup_svg();
             if (checksum != 11189) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_setup_svg` checksum `11189`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_workspacehistoryupdateoperation_update();
+            if (checksum != 61713) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_workspacehistoryupdateoperation_update` checksum `61713`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_apmod_activity_not_found_value();
+            if (checksum != 13393) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_apmod_activity_not_found_value` checksum `13393`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_apmod_bad_baseline_value();
+            if (checksum != 9009) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_apmod_bad_baseline_value` checksum `9009`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_apmod_connection_aborted_value();
+            if (checksum != 3411) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_apmod_connection_aborted_value` checksum `3411`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_apmod_malformed_uri_value();
+            if (checksum != 52493) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_apmod_malformed_uri_value` checksum `52493`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_apmod_missing_path_to_fs_value();
+            if (checksum != 24301) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_apmod_missing_path_to_fs_value` checksum `24301`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_asn1_invalid_data_value();
+            if (checksum != 1932) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_asn1_invalid_data_value` checksum `1932`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_asn1_invalid_length_value();
+            if (checksum != 33895) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_asn1_invalid_length_value` checksum `33895`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_asn1_length_mismatch_value();
+            if (checksum != 20264) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_asn1_length_mismatch_value` checksum `20264`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_asn1_out_of_data_value();
+            if (checksum != 35183) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_asn1_out_of_data_value` checksum `35183`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_asn1_unexpected_tag_value();
+            if (checksum != 27360) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_asn1_unexpected_tag_value` checksum `27360`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_assertion_fail_value();
+            if (checksum != 11680) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_assertion_fail_value` checksum `11680`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_assertion_only_tracing_links_value();
+            if (checksum != 3537) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_assertion_only_tracing_links_value` checksum `3537`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_atomic_init_failure_value();
+            if (checksum != 15087) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_atomic_init_failure_value` checksum `15087`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authn_creds_not_saved_value();
+            if (checksum != 26763) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authn_creds_not_saved_value` checksum `26763`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authn_creds_unavailable_value();
+            if (checksum != 31062) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authn_creds_unavailable_value` checksum `31062`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authn_failed_value();
+            if (checksum != 28413) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authn_failed_value` checksum `28413`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authn_no_provider_value();
+            if (checksum != 57268) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authn_no_provider_value` checksum `57268`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authn_providers_exhausted_value();
+            if (checksum != 21975) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authn_providers_exhausted_value` checksum `21975`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authz_invalid_config_value();
+            if (checksum != 27892) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authz_invalid_config_value` checksum `27892`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authz_partially_readable_value();
+            if (checksum != 28242) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authz_partially_readable_value` checksum `28242`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authz_root_unreadable_value();
+            if (checksum != 23007) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authz_root_unreadable_value` checksum `23007`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authz_unreadable_value();
+            if (checksum != 36207) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authz_unreadable_value` checksum `36207`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_authz_unwritable_value();
+            if (checksum != 49492) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_authz_unwritable_value` checksum `49492`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_atomic_value();
+            if (checksum != 62638) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_atomic_value` checksum `62638`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_changelist_name_value();
+            if (checksum != 24217) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_changelist_name_value` checksum `24217`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_checksum_kind_value();
+            if (checksum != 62383) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_checksum_kind_value` checksum `62383`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_checksum_parse_value();
+            if (checksum != 59092) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_checksum_parse_value` checksum `59092`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_compression_method_value();
+            if (checksum != 41876) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_compression_method_value` checksum `41876`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_config_value_value();
+            if (checksum != 36255) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_config_value_value` checksum `36255`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_containing_pool_value();
+            if (checksum != 45761) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_containing_pool_value` checksum `45761`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_date_value();
+            if (checksum != 23769) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_date_value` checksum `23769`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_filename_value();
+            if (checksum != 21107) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_filename_value` checksum `21107`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_mime_type_value();
+            if (checksum != 63416) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_mime_type_value` checksum `63416`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_prop_kind_value();
+            if (checksum != 60841) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_prop_kind_value` checksum `60841`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_property_value_eol_value();
+            if (checksum != 29730) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_property_value_eol_value` checksum `29730`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_property_value_value();
+            if (checksum != 30340) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_property_value_value` checksum `30340`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_relative_path_value();
+            if (checksum != 3101) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_relative_path_value` checksum `3101`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_server_specification_value();
+            if (checksum != 12136) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_server_specification_value` checksum `12136`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_token_value();
+            if (checksum != 50736) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_token_value` checksum `50736`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_url_value();
+            if (checksum != 56253) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_url_value` checksum `56253`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_uuid_value();
+            if (checksum != 5230) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_uuid_value` checksum `5230`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_bad_version_file_format_value();
+            if (checksum != 5729) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_bad_version_file_format_value` checksum `5729`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_base_value();
+            if (checksum != 60945) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_base_value` checksum `60945`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cancelled_value();
+            if (checksum != 57998) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cancelled_value` checksum `57998`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_canonicalization_failed_value();
+            if (checksum != 15174) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_canonicalization_failed_value` checksum `15174`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cease_invocation_value();
+            if (checksum != 16918) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cease_invocation_value` checksum `16918`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_checksum_mismatch_value();
+            if (checksum != 1875) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_checksum_mismatch_value` checksum `1875`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_adm_dir_reserved_value();
+            if (checksum != 24242) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_adm_dir_reserved_value` checksum `24242`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_arg_parsing_error_value();
+            if (checksum != 32917) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_arg_parsing_error_value` checksum `32917`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_bad_log_message_value();
+            if (checksum != 64539) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_bad_log_message_value` checksum `64539`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_commit_in_added_dir_value();
+            if (checksum != 17232) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_commit_in_added_dir_value` checksum `17232`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_error_processing_externals_value();
+            if (checksum != 64325) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_error_processing_externals_value` checksum `64325`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_insufficient_args_value();
+            if (checksum != 38575) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_insufficient_args_value` checksum `38575`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_log_message_is_pathname_value();
+            if (checksum != 17123) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_log_message_is_pathname_value` checksum `17123`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_log_message_is_versioned_file_value();
+            if (checksum != 23725) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_log_message_is_versioned_file_value` checksum `23725`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_mutually_exclusive_args_value();
+            if (checksum != 45324) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_mutually_exclusive_args_value` checksum `45324`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_no_external_editor_value();
+            if (checksum != 59288) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_no_external_editor_value` checksum `59288`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_no_external_merge_tool_value();
+            if (checksum != 19276) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_no_external_merge_tool_value` checksum `19276`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_repos_verify_failed_value();
+            if (checksum != 47525) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_repos_verify_failed_value` checksum `47525`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_cl_unnecessary_log_message_value();
+            if (checksum != 46972) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_cl_unnecessary_log_message_value` checksum `46972`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_bad_revision_value();
+            if (checksum != 40467) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_bad_revision_value` checksum `40467`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_conflict_option_not_applicable_value();
+            if (checksum != 40693) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_conflict_option_not_applicable_value` checksum `40693`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_cycle_detected_value();
+            if (checksum != 11467) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_cycle_detected_value` checksum `11467`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_duplicate_commit_url_value();
+            if (checksum != 25668) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_duplicate_commit_url_value` checksum `25668`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_file_external_overwrite_versioned_value();
+            if (checksum != 15469) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_file_external_overwrite_versioned_value` checksum `15469`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_forbidden_by_server_value();
+            if (checksum != 1393) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_forbidden_by_server_value` checksum `1393`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_externals_description_value();
+            if (checksum != 11832) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_externals_description_value` checksum `11832`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_mergeinfo_no_mergetracking_value();
+            if (checksum != 14400) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_mergeinfo_no_mergetracking_value` checksum `14400`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_relocation_value();
+            if (checksum != 15613) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_invalid_relocation_value` checksum `15613`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_is_binary_file_value();
+            if (checksum != 9797) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_is_binary_file_value` checksum `9797`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_is_directory_value();
+            if (checksum != 29415) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_is_directory_value` checksum `29415`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_merge_update_required_value();
+            if (checksum != 35911) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_merge_update_required_value` checksum `35911`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_missing_lock_token_value();
+            if (checksum != 36385) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_missing_lock_token_value` checksum `36385`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_modified_value();
+            if (checksum != 45955) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_modified_value` checksum `45955`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_multiple_sources_disallowed_value();
+            if (checksum != 32660) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_multiple_sources_disallowed_value` checksum `32660`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_no_lock_token_value();
+            if (checksum != 33286) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_no_lock_token_value` checksum `33286`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_no_versioned_parent_value();
+            if (checksum != 37689) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_no_versioned_parent_value` checksum `37689`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_not_ready_to_merge_value();
+            if (checksum != 33624) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_not_ready_to_merge_value` checksum `33624`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_patch_bad_strip_count_value();
+            if (checksum != 21897) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_patch_bad_strip_count_value` checksum `21897`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_property_name_value();
+            if (checksum != 42678) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_property_name_value` checksum `42678`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_ra_access_required_value();
+            if (checksum != 20045) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_ra_access_required_value` checksum `20045`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_revision_author_contains_newline_value();
+            if (checksum != 44627) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_revision_author_contains_newline_value` checksum `44627`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_revision_range_value();
+            if (checksum != 802) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_revision_range_value` checksum `802`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_unrelated_resources_value();
+            if (checksum != 33298) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_unrelated_resources_value` checksum `33298`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_client_versioned_path_required_value();
+            if (checksum != 55670) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_client_versioned_path_required_value` checksum `55670`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_composed_error_value();
+            if (checksum != 33208) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_composed_error_value` checksum `33208`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_corrupt_packed_data_value();
+            if (checksum != 10842) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_corrupt_packed_data_value` checksum `10842`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_corrupted_atomic_storage_value();
+            if (checksum != 53048) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_corrupted_atomic_storage_value` checksum `53048`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_delta_md5_checksum_absent_value();
+            if (checksum != 59292) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_delta_md5_checksum_absent_value` checksum `59292`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_diff_datasource_modified_value();
+            if (checksum != 51568) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_diff_datasource_modified_value` checksum `51568`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_diff_unexpected_data_value();
+            if (checksum != 8488) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_diff_unexpected_data_value` checksum `8488`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_dir_not_empty_value();
+            if (checksum != 25742) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_dir_not_empty_value` checksum `25742`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_entry_attribute_invalid_value();
+            if (checksum != 21824) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_entry_attribute_invalid_value` checksum `21824`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_entry_exists_value();
+            if (checksum != 5521) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_entry_exists_value` checksum `5521`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_entry_forbidden_value();
+            if (checksum != 8377) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_entry_forbidden_value` checksum `8377`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_entry_missing_revision_value();
+            if (checksum != 57118) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_entry_missing_revision_value` checksum `57118`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_entry_missing_url_value();
+            if (checksum != 29480) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_entry_missing_url_value` checksum `29480`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_entry_not_found_value();
+            if (checksum != 61843) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_entry_not_found_value` checksum `61843`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_external_program_value();
+            if (checksum != 29939) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_external_program_value` checksum `29939`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_already_exists_value();
+            if (checksum != 47721) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_already_exists_value` checksum `47721`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_already_open_value();
+            if (checksum != 35131) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_already_open_value` checksum `35131`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_ambiguous_checksum_rep_value();
+            if (checksum != 56902) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_ambiguous_checksum_rep_value` checksum `56902`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_bad_lock_token_value();
+            if (checksum != 10122) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_bad_lock_token_value` checksum `10122`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_berkeley_db_deadlock_value();
+            if (checksum != 22252) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_berkeley_db_deadlock_value` checksum `22252`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_berkeley_db_value();
+            if (checksum != 29980) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_berkeley_db_value` checksum `29980`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_cleanup_value();
+            if (checksum != 57401) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_cleanup_value` checksum `57401`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_conflict_value();
+            if (checksum != 6560) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_conflict_value` checksum `6560`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_container_index_value();
+            if (checksum != 33369) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_container_index_value` checksum `33369`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_container_size_value();
+            if (checksum != 7515) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_container_size_value` checksum `7515`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_proplist_value();
+            if (checksum != 47234) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_proplist_value` checksum `47234`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_revprop_manifest_value();
+            if (checksum != 39896) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_revprop_manifest_value` checksum `39896`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_value();
+            if (checksum != 17855) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_corrupt_value` checksum `17855`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_general_value();
+            if (checksum != 33969) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_general_value` checksum `33969`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_id_not_found_value();
+            if (checksum != 23217) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_id_not_found_value` checksum `23217`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_incorrect_editor_completion_value();
+            if (checksum != 62618) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_incorrect_editor_completion_value` checksum `62618`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_index_corruption_value();
+            if (checksum != 36326) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_index_corruption_value` checksum `36326`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_index_inconsistent_value();
+            if (checksum != 39841) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_index_inconsistent_value` checksum `39841`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_index_overflow_value();
+            if (checksum != 2366) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_index_overflow_value` checksum `2366`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_index_revision_value();
+            if (checksum != 43372) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_index_revision_value` checksum `43372`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_invalid_generation_value();
+            if (checksum != 22651) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_invalid_generation_value` checksum `22651`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_expired_value();
+            if (checksum != 882) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_expired_value` checksum `882`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_operation_failed_value();
+            if (checksum != 24223) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_operation_failed_value` checksum `24223`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_owner_mismatch_value();
+            if (checksum != 42968) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_lock_owner_mismatch_value` checksum `42968`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_noderev_id_value();
+            if (checksum != 29513) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_noderev_id_value` checksum `29513`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_skel_value();
+            if (checksum != 41433) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_skel_value` checksum `41433`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_txn_id_value();
+            if (checksum != 12236) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_malformed_txn_id_value` checksum `12236`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_lock_token_value();
+            if (checksum != 59684) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_lock_token_value` checksum `59684`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_checksum_rep_value();
+            if (checksum != 31741) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_checksum_rep_value` checksum `31741`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_copy_value();
+            if (checksum != 36142) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_copy_value` checksum `36142`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_entry_value();
+            if (checksum != 48294) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_entry_value` checksum `48294`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_lock_value();
+            if (checksum != 59840) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_lock_value` checksum `59840`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_node_origin_value();
+            if (checksum != 21071) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_node_origin_value` checksum `21071`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_representation_value();
+            if (checksum != 41347) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_representation_value` checksum `41347`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_revision_value();
+            if (checksum != 46884) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_revision_value` checksum `46884`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_string_value();
+            if (checksum != 37237) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_string_value` checksum `37237`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_transaction_value();
+            if (checksum != 35404) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_such_transaction_value` checksum `35404`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_no_user_value();
+            if (checksum != 21313) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_no_user_value` checksum `21313`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_directory_value();
+            if (checksum != 30334) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_directory_value` checksum `30334`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_file_value();
+            if (checksum != 25647) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_file_value` checksum `25647`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_found_value();
+            if (checksum != 8335) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_found_value` checksum `8335`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_id_value();
+            if (checksum != 33377) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_id_value` checksum `33377`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_mutable_value();
+            if (checksum != 51296) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_mutable_value` checksum `51296`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_open_value();
+            if (checksum != 1570) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_open_value` checksum `1570`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_revision_root_value();
+            if (checksum != 61514) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_revision_root_value` checksum `61514`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_single_path_component_value();
+            if (checksum != 35342) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_single_path_component_value` checksum `35342`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_not_txn_root_value();
+            if (checksum != 37512) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_not_txn_root_value` checksum `37512`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_out_of_date_value();
+            if (checksum != 3272) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_out_of_date_value` checksum `3272`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_packed_revprop_read_failure_value();
+            if (checksum != 18048) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_packed_revprop_read_failure_value` checksum `18048`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_path_already_locked_value();
+            if (checksum != 40894) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_path_already_locked_value` checksum `40894`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_path_not_locked_value();
+            if (checksum != 5883) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_path_not_locked_value` checksum `5883`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_path_syntax_value();
+            if (checksum != 40143) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_path_syntax_value` checksum `40143`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_prop_basevalue_mismatch_value();
+            if (checksum != 33128) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_prop_basevalue_mismatch_value` checksum `33128`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_being_written_value();
+            if (checksum != 46231) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_being_written_value` checksum `46231`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_changed_value();
+            if (checksum != 26143) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_changed_value` checksum `26143`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_not_mutable_value();
+            if (checksum != 53963) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_not_mutable_value` checksum `53963`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_sharing_not_allowed_value();
+            if (checksum != 23568) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_sharing_not_allowed_value` checksum `23568`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_sharing_not_supported_value();
+            if (checksum != 2077) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_rep_sharing_not_supported_value` checksum `2077`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_revprop_cache_init_failure_value();
+            if (checksum != 41344) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_revprop_cache_init_failure_value` checksum `41344`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_root_dir_value();
+            if (checksum != 55548) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_root_dir_value` checksum `55548`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_dead_value();
+            if (checksum != 6375) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_dead_value` checksum `6375`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_not_dead_value();
+            if (checksum != 28422) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_not_dead_value` checksum `28422`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_not_mutable_value();
+            if (checksum != 59456) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_transaction_not_mutable_value` checksum `59456`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_txn_name_too_long_value();
+            if (checksum != 30575) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_txn_name_too_long_value` checksum `30575`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_txn_out_of_date_value();
+            if (checksum != 60031) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_txn_out_of_date_value` checksum `60031`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_unknown_fs_type_value();
+            if (checksum != 48184) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_unknown_fs_type_value` checksum `48184`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_unrecognized_ioctl_code_value();
+            if (checksum != 40824) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_unrecognized_ioctl_code_value` checksum `40824`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_format_value();
+            if (checksum != 13036) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_format_value` checksum `13036`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_type_value();
+            if (checksum != 41461) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_type_value` checksum `41461`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_upgrade_value();
+            if (checksum != 28508) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_fs_unsupported_upgrade_value` checksum `28508`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_illegal_target_value();
+            if (checksum != 32147) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_illegal_target_value` checksum `32147`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_incomplete_data_value();
+            if (checksum != 3274) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_incomplete_data_value` checksum `3274`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_incorrect_params_value();
+            if (checksum != 38493) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_incorrect_params_value` checksum `38493`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_invalid_diff_option_value();
+            if (checksum != 55326) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_invalid_diff_option_value` checksum `55326`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_invalid_input_value();
+            if (checksum != 42775) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_invalid_input_value` checksum `42775`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_corrupt_eol_value();
+            if (checksum != 14824) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_corrupt_eol_value` checksum `14824`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_inconsistent_eol_value();
+            if (checksum != 17181) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_inconsistent_eol_value` checksum `17181`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_frame_error_value();
+            if (checksum != 3889) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_frame_error_value` checksum `3889`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_read_error_value();
+            if (checksum != 28463) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_read_error_value` checksum `28463`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_write_error_value();
+            if (checksum != 9055) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_pipe_write_error_value` checksum `9055`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_unique_names_exhausted_value();
+            if (checksum != 31244) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_unique_names_exhausted_value` checksum `31244`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_unknown_eol_value();
+            if (checksum != 54851) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_unknown_eol_value` checksum `54851`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_io_write_error_value();
+            if (checksum != 44066) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_io_write_error_value` checksum `44066`, library returned `{checksum}`");
             }
         }
         {
@@ -13774,45 +23524,1065 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_iter_break_value();
+            if (checksum != 7811) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_iter_break_value` checksum `7811`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_lz4_compression_failed_value();
+            if (checksum != 39507) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_lz4_compression_failed_value` checksum `39507`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_lz4_decompression_failed_value();
+            if (checksum != 62619) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_lz4_decompression_failed_value` checksum `62619`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_malformed_file_value();
+            if (checksum != 6174) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_malformed_file_value` checksum `6174`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_malformed_version_string_value();
+            if (checksum != 30636) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_malformed_version_string_value` checksum `30636`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_mergeinfo_parse_error_value();
+            if (checksum != 15021) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_mergeinfo_parse_error_value` checksum `15021`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_no_apr_memcache_value();
+            if (checksum != 55818) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_no_apr_memcache_value` checksum `55818`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_no_auth_file_path_value();
+            if (checksum != 53416) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_no_auth_file_path_value` checksum `53416`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_node_unexpected_kind_value();
+            if (checksum != 60304) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_node_unexpected_kind_value` checksum `60304`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_node_unknown_kind_value();
+            if (checksum != 19828) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_node_unknown_kind_value` checksum `19828`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_plugin_load_failure_value();
+            if (checksum != 18870) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_plugin_load_failure_value` checksum `18870`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_property_not_found_value();
+            if (checksum != 65400) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_property_not_found_value` checksum `65400`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_cannot_create_session_value();
+            if (checksum != 9303) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_cannot_create_session_value` checksum `9303`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_cannot_create_tunnel_value();
+            if (checksum != 48976) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_cannot_create_tunnel_value` checksum `48976`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_already_exists_value();
+            if (checksum != 25671) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_already_exists_value` checksum `25671`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_conn_timeout_value();
+            if (checksum != 63562) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_conn_timeout_value` checksum `63562`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_creating_request_value();
+            if (checksum != 64600) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_creating_request_value` checksum `64600`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_forbidden_value();
+            if (checksum != 13844) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_forbidden_value` checksum `13844`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_invalid_config_value_value();
+            if (checksum != 62675) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_invalid_config_value_value` checksum `62675`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_malformed_data_value();
+            if (checksum != 7826) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_malformed_data_value` checksum `7826`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_method_not_allowed_value();
+            if (checksum != 22991) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_method_not_allowed_value` checksum `22991`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_options_req_failed_value();
+            if (checksum != 20794) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_options_req_failed_value` checksum `20794`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_path_not_found_value();
+            if (checksum != 58088) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_path_not_found_value` checksum `58088`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_precondition_failed_value();
+            if (checksum != 32356) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_precondition_failed_value` checksum `32356`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_proppatch_failed_value();
+            if (checksum != 31222) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_proppatch_failed_value` checksum `31222`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_props_not_found_value();
+            if (checksum != 37130) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_props_not_found_value` checksum `37130`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_relocated_value();
+            if (checksum != 21263) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_relocated_value` checksum `21263`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_request_failed_value();
+            if (checksum != 42530) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_request_failed_value` checksum `42530`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_response_header_badness_value();
+            if (checksum != 47459) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_response_header_badness_value` checksum `47459`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_sock_init_value();
+            if (checksum != 9027) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_dav_sock_init_value` checksum `9027`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_illegal_url_value();
+            if (checksum != 57003) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_illegal_url_value` checksum `57003`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_local_repos_not_found_value();
+            if (checksum != 32156) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_local_repos_not_found_value` checksum `32156`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_local_repos_open_failed_value();
+            if (checksum != 56299) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_local_repos_open_failed_value` checksum `56299`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_no_repos_uuid_value();
+            if (checksum != 48484) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_no_repos_uuid_value` checksum `48484`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_not_authorized_value();
+            if (checksum != 62577) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_not_authorized_value` checksum `62577`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_not_implemented_value();
+            if (checksum != 48694) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_not_implemented_value` checksum `48694`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_not_locked_value();
+            if (checksum != 7609) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_not_locked_value` checksum `7609`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_out_of_date_value();
+            if (checksum != 29790) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_out_of_date_value` checksum `29790`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_partial_replay_not_supported_value();
+            if (checksum != 51640) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_partial_replay_not_supported_value` checksum `51640`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_repos_root_url_mismatch_value();
+            if (checksum != 11963) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_repos_root_url_mismatch_value` checksum `11963`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_gssapi_initialisation_failed_value();
+            if (checksum != 46741) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_gssapi_initialisation_failed_value` checksum `46741`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_ssl_cert_untrusted_value();
+            if (checksum != 55026) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_ssl_cert_untrusted_value` checksum `55026`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_sspi_initialisation_failed_value();
+            if (checksum != 31547) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_sspi_initialisation_failed_value` checksum `31547`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_stream_bucket_read_error_value();
+            if (checksum != 28260) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_stream_bucket_read_error_value` checksum `28260`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_wrapped_error_value();
+            if (checksum != 46214) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_serf_wrapped_error_value` checksum `46214`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_session_url_mismatch_value();
+            if (checksum != 61982) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_session_url_mismatch_value` checksum `61982`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_bad_version_value();
+            if (checksum != 55009) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_bad_version_value` checksum `55009`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_cmd_err_value();
+            if (checksum != 38776) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_cmd_err_value` checksum `38776`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_connection_closed_value();
+            if (checksum != 45029) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_connection_closed_value` checksum `45029`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_edit_aborted_value();
+            if (checksum != 57076) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_edit_aborted_value` checksum `57076`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_io_error_value();
+            if (checksum != 10041) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_io_error_value` checksum `10041`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_malformed_data_value();
+            if (checksum != 60292) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_malformed_data_value` checksum `60292`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_no_mechanisms_value();
+            if (checksum != 48085) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_no_mechanisms_value` checksum `48085`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_repos_not_found_value();
+            if (checksum != 47045) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_repos_not_found_value` checksum `47045`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_request_size_value();
+            if (checksum != 53710) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_request_size_value` checksum `53710`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_response_size_value();
+            if (checksum != 23562) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_response_size_value` checksum `23562`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_unknown_cmd_value();
+            if (checksum != 63192) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_svn_unknown_cmd_value` checksum `63192`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_unknown_auth_value();
+            if (checksum != 9479) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_unknown_auth_value` checksum `9479`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_unsupported_abi_version_value();
+            if (checksum != 11701) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_unsupported_abi_version_value` checksum `11701`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_ra_uuid_mismatch_value();
+            if (checksum != 1498) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_ra_uuid_mismatch_value` checksum `1498`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_bad_args_value();
+            if (checksum != 20827) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_bad_args_value` checksum `20827`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_bad_revision_report_value();
+            if (checksum != 16191) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_bad_revision_report_value` checksum `16191`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_disabled_feature_value();
+            if (checksum != 26090) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_disabled_feature_value` checksum `26090`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_hook_failure_value();
+            if (checksum != 43746) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_hook_failure_value` checksum `43746`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_locked_value();
+            if (checksum != 30008) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_locked_value` checksum `30008`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_no_data_for_report_value();
+            if (checksum != 49331) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_no_data_for_report_value` checksum `49331`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_post_commit_hook_failed_value();
+            if (checksum != 44760) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_post_commit_hook_failed_value` checksum `44760`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_post_lock_hook_failed_value();
+            if (checksum != 65245) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_post_lock_hook_failed_value` checksum `65245`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_post_unlock_hook_failed_value();
+            if (checksum != 31884) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_post_unlock_hook_failed_value` checksum `31884`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_unsupported_upgrade_value();
+            if (checksum != 64553) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_unsupported_upgrade_value` checksum `64553`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_repos_unsupported_version_value();
+            if (checksum != 17123) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_repos_unsupported_version_value` checksum `17123`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_reserved_filename_specified_value();
+            if (checksum != 3932) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_reserved_filename_specified_value` checksum `3932`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_revnum_parse_failure_value();
+            if (checksum != 20608) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_revnum_parse_failure_value` checksum `20608`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_busy_value();
+            if (checksum != 17263) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_busy_value` checksum `17263`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_constraint_value();
+            if (checksum != 1714) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_constraint_value` checksum `1714`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_error_value();
+            if (checksum != 60652) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_error_value` checksum `60652`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_readonly_value();
+            if (checksum != 33055) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_readonly_value` checksum `33055`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_resetting_for_rollback_value();
+            if (checksum != 51129) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_resetting_for_rollback_value` checksum `51129`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_rollback_failed_value();
+            if (checksum != 64655) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_rollback_failed_value` checksum `64655`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_sqlite_unsupported_schema_value();
+            if (checksum != 22926) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_sqlite_unsupported_schema_value` checksum `22926`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_stream_malformed_data_value();
+            if (checksum != 29311) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_stream_malformed_data_value` checksum `29311`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_stream_not_supported_value();
+            if (checksum != 48362) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_stream_not_supported_value` checksum `48362`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_stream_seek_not_supported_value();
+            if (checksum != 41351) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_stream_seek_not_supported_value` checksum `41351`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_stream_unexpected_eof_value();
+            if (checksum != 43063) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_stream_unexpected_eof_value` checksum `43063`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_stream_unrecognized_data_value();
+            if (checksum != 21422) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_stream_unrecognized_data_value` checksum `21422`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_svndiff_backward_view_value();
+            if (checksum != 39679) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_svndiff_backward_view_value` checksum `39679`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_svndiff_corrupt_window_value();
+            if (checksum != 59189) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_svndiff_corrupt_window_value` checksum `59189`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_compressed_data_value();
+            if (checksum != 34662) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_compressed_data_value` checksum `34662`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_header_value();
+            if (checksum != 57850) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_header_value` checksum `57850`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_ops_value();
+            if (checksum != 48058) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_svndiff_invalid_ops_value` checksum `48058`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_svndiff_unexpected_end_value();
+            if (checksum != 2498) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_svndiff_unexpected_end_value` checksum `2498`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_swig_py_exception_set_value();
+            if (checksum != 45165) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_swig_py_exception_set_value` checksum `45165`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_test_failed_value();
+            if (checksum != 36246) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_test_failed_value` checksum `36246`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_test_skipped_value();
+            if (checksum != 9179) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_test_skipped_value` checksum `9179`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_too_many_memcached_servers_value();
+            if (checksum != 57796) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_too_many_memcached_servers_value` checksum `57796`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_unknown_capability_value();
+            if (checksum != 9236) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_unknown_capability_value` checksum `9236`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_unknown_changelist_value();
+            if (checksum != 9906) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_unknown_changelist_value` checksum `9906`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_unsupported_feature_value();
+            if (checksum != 976) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_unsupported_feature_value` checksum `976`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_unversioned_resource_value();
+            if (checksum != 63325) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_unversioned_resource_value` checksum `63325`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_utf8_glob_value();
+            if (checksum != 63196) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_utf8_glob_value` checksum `63196`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_utf8proc_error_value();
+            if (checksum != 31359) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_utf8proc_error_value` checksum `31359`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_version_mismatch_value();
+            if (checksum != 33923) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_version_mismatch_value` checksum `33923`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_warning_value();
+            if (checksum != 48561) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_warning_value` checksum `48561`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_adm_log_start_value();
+            if (checksum != 33535) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_adm_log_start_value` checksum `33535`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_adm_log_value();
+            if (checksum != 10266) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_adm_log_value` checksum `10266`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_path_value();
+            if (checksum != 42909) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_bad_path_value` checksum `42909`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_cannot_delete_file_external_value();
+            if (checksum != 39553) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_cannot_delete_file_external_value` checksum `39553`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_cannot_move_file_external_value();
+            if (checksum != 53573) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_cannot_move_file_external_value` checksum `53573`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_changelist_move_value();
+            if (checksum != 33631) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_changelist_move_value` checksum `33631`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_cleanup_required_value();
+            if (checksum != 23376) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_cleanup_required_value` checksum `23376`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_conflict_resolver_failure_value();
+            if (checksum != 8834) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_conflict_resolver_failure_value` checksum `8834`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_copyfrom_path_not_found_value();
+            if (checksum != 57463) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_copyfrom_path_not_found_value` checksum `57463`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_corrupt_text_base_value();
+            if (checksum != 26666) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_corrupt_text_base_value` checksum `26666`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_corrupt_value();
+            if (checksum != 43424) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_corrupt_value` checksum `43424`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_db_error_value();
+            if (checksum != 62302) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_db_error_value` checksum `62302`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_deprecated_api_store_pristine_value();
+            if (checksum != 3262) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_deprecated_api_store_pristine_value` checksum `3262`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_duplicate_externals_target_value();
+            if (checksum != 51595) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_duplicate_externals_target_value` checksum `51595`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_found_conflict_value();
+            if (checksum != 51838) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_found_conflict_value` checksum `51838`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_incompatible_settings_value();
+            if (checksum != 49170) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_incompatible_settings_value` checksum `49170`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_lock_value();
+            if (checksum != 22157) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_lock_value` checksum `22157`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_op_on_cwd_value();
+            if (checksum != 28271) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_op_on_cwd_value` checksum `28271`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_operation_depth_value();
+            if (checksum != 63397) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_operation_depth_value` checksum `63397`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_relocation_value();
+            if (checksum != 23473) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_relocation_value` checksum `23473`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_schedule_value();
+            if (checksum != 54195) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_schedule_value` checksum `54195`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_switch_value();
+            if (checksum != 44186) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_invalid_switch_value` checksum `44186`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_left_local_mod_value();
+            if (checksum != 46911) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_left_local_mod_value` checksum `46911`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_locked_value();
+            if (checksum != 15391) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_locked_value` checksum `15391`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_mismatched_changelist_value();
+            if (checksum != 16041) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_mismatched_changelist_value` checksum `16041`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_missing_value();
+            if (checksum != 61443) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_missing_value` checksum `61443`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_mixed_revisions_value();
+            if (checksum != 46142) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_mixed_revisions_value` checksum `46142`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_node_kind_change_value();
+            if (checksum != 65148) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_node_kind_change_value` checksum `65148`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_not_directory_value();
+            if (checksum != 43447) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_not_directory_value` checksum `43447`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_not_file_value();
+            if (checksum != 57018) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_not_file_value` checksum `57018`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_not_locked_value();
+            if (checksum != 6771) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_not_locked_value` checksum `6771`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_not_symlink_value();
+            if (checksum != 37358) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_not_symlink_value` checksum `37358`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_not_up_to_date_value();
+            if (checksum != 39024) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_not_up_to_date_value` checksum `39024`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_not_working_copy_value();
+            if (checksum != 42537) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_not_working_copy_value` checksum `42537`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_obstructed_update_value();
+            if (checksum != 18896) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_obstructed_update_value` checksum `18896`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_path_access_denied_value();
+            if (checksum != 42144) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_path_access_denied_value` checksum `42144`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_path_found_value();
+            if (checksum != 35691) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_path_found_value` checksum `35691`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_path_not_found_value();
+            if (checksum != 36269) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_path_not_found_value` checksum `36269`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_path_unexpected_status_value();
+            if (checksum != 44796) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_path_unexpected_status_value` checksum `44796`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_pristine_dehydrated_value();
+            if (checksum != 49078) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_pristine_dehydrated_value` checksum `49078`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_schedule_conflict_value();
+            if (checksum != 13972) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_schedule_conflict_value` checksum `13972`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_unsupported_format_value();
+            if (checksum != 45684) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_unsupported_format_value` checksum `45684`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_empty_value();
+            if (checksum != 39120) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_empty_value` checksum `39120`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_mismatch_value();
+            if (checksum != 9350) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_mismatch_value` checksum `9350`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_not_empty_value();
+            if (checksum != 49469) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_unwind_not_empty_value` checksum `49469`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_wc_upgrade_required_value();
+            if (checksum != 62458) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_wc_upgrade_required_value` checksum `62458`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_alg_value();
+            if (checksum != 35864) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_alg_value` checksum `35864`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_date_value();
+            if (checksum != 3954) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_date_value` checksum `3954`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_extensions_value();
+            if (checksum != 61768) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_extensions_value` checksum `61768`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_format_value();
+            if (checksum != 63936) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_format_value` checksum `63936`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_name_value();
+            if (checksum != 29373) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_name_value` checksum `29373`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_pem_value();
+            if (checksum != 64771) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_pem_value` checksum `64771`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_pubkey_value();
+            if (checksum != 53170) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_pubkey_value` checksum `53170`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_serial_value();
+            if (checksum != 8253) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_serial_value` checksum `8253`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_signature_value();
+            if (checksum != 8078) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_signature_value` checksum `8078`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_version_value();
+            if (checksum != 24945) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_invalid_version_value` checksum `24945`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_sig_mismatch_value();
+            if (checksum != 44659) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_sig_mismatch_value` checksum `44659`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_unknown_pk_alg_value();
+            if (checksum != 61707) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_unknown_pk_alg_value` checksum `61707`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_unknown_version_value();
+            if (checksum != 27063) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_unknown_version_value` checksum `27063`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_verify_failed_value();
+            if (checksum != 48688) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_cert_verify_failed_value` checksum `48688`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_x509_feature_unavailable_value();
+            if (checksum != 36400) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_x509_feature_unavailable_value` checksum `36400`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_xml_attrib_not_found_value();
+            if (checksum != 300) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_xml_attrib_not_found_value` checksum `300`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_xml_malformed_value();
+            if (checksum != 64225) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_xml_malformed_value` checksum `64225`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_xml_missing_ancestry_value();
+            if (checksum != 29209) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_xml_missing_ancestry_value` checksum `29209`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_xml_unescapable_data_value();
+            if (checksum != 38581) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_xml_unescapable_data_value` checksum `38581`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_xml_unexpected_element_value();
+            if (checksum != 15616) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_xml_unexpected_element_value` checksum `15616`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_svnerrnoconstants_xml_unknown_encoding_value();
+            if (checksum != 36404) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_svnerrnoconstants_xml_unknown_encoding_value` checksum `36404`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text();
-            if (checksum != 54111) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text` checksum `54111`, library returned `{checksum}`");
+            if (checksum != 59948) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_may_save_password_as_plain_text` checksum `59948`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_working_copy_notify();
-            if (checksum != 20106) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_working_copy_notify` checksum `20106`, library returned `{checksum}`");
+            if (checksum != 62797) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_working_copy_notify` checksum `62797`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt();
-            if (checksum != 2526) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt` checksum `2526`, library returned `{checksum}`");
+            if (checksum != 8065) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_ssl_server_trust_prompt` checksum `8065`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_cancel();
-            if (checksum != 14508) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_cancel` checksum `14508`, library returned `{checksum}`");
+            if (checksum != 44551) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_cancel` checksum `44551`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_progress_notify();
-            if (checksum != 53640) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_progress_notify` checksum `53640`, library returned `{checksum}`");
+            if (checksum != 19647) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_progress_notify` checksum `19647`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_authenticate();
-            if (checksum != 15182) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_authenticate` checksum `15182`, library returned `{checksum}`");
+            if (checksum != 12675) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_authenticate` checksum `12675`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_contextnotifier_conflict();
-            if (checksum != 12033) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_conflict` checksum `12033`, library returned `{checksum}`");
+            if (checksum != 6535) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_contextnotifier_conflict` checksum `6535`, library returned `{checksum}`");
             }
         }
         {
@@ -13859,8 +24629,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_statusreceiver_on_status_entry();
-            if (checksum != 6927) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_statusreceiver_on_status_entry` checksum `6927`, library returned `{checksum}`");
+            if (checksum != 25059) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_statusreceiver_on_status_entry` checksum `25059`, library returned `{checksum}`");
             }
         }
         {
@@ -13921,6 +24691,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_export();
             if (checksum != 58976) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_export` checksum `58976`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_get_repository_root();
+            if (checksum != 52917) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_get_repository_root` checksum `52917`, library returned `{checksum}`");
             }
         }
         {
@@ -14039,8 +24815,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_update();
-            if (checksum != 27059) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_update` checksum `27059`, library returned `{checksum}`");
+            if (checksum != 47570) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_update` checksum `47570`, library returned `{checksum}`");
             }
         }
         {
@@ -14057,8 +24833,14 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asyncworkingcopycontext_check_root();
-            if (checksum != 57597) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_check_root` checksum `57597`, library returned `{checksum}`");
+            if (checksum != 65234) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_check_root` checksum `65234`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asyncworkingcopycontext_revsion_status();
+            if (checksum != 21523) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_revsion_status` checksum `21523`, library returned `{checksum}`");
             }
         }
         {
@@ -14367,6 +25149,8 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<uint> Export(ExportOptions @opts);
     /// <exception cref="Exception"></exception>
+    Task<GetRepositoryRootResult> GetRepositoryRoot(string @target);
+    /// <exception cref="Exception"></exception>
     Task<string> GetWcRoot(string @path);
     /// <exception cref="Exception"></exception>
     Task<ImportResult> Import(ImportOptions @opts);
@@ -14405,7 +25189,7 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task Unlock(UnlockOptions @opts);
     /// <exception cref="Exception"></exception>
-    Task<uint[]> Update(UpdateOptions @opts);
+    Task<uint?[]> Update(UpdateOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<string> UrlFromPath(string @path);
     AsyncWorkingCopyContext WorkingCopyContext();
@@ -14706,6 +25490,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u32(future),
         // Lift
         (result) => FfiConverterUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<GetRepositoryRootResult> GetRepositoryRoot(string @target) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_get_repository_root(thisPtr, FfiConverterString.INSTANCE.Lower(@target));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeGetRepositoryRootResult.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -15094,7 +25900,7 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
-    public async Task<uint[]> Update(UpdateOptions @opts) {
+    public async Task<uint?[]> Update(UpdateOptions @opts) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
@@ -15109,7 +25915,7 @@ public class AsyncContext : IAsyncContext, IDisposable {
         // Free
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
-        (result) => FfiConverterSequenceUInt32.INSTANCE.Lift(result),
+        (result) => FfiConverterSequenceOptionalUInt32.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -15186,7 +25992,9 @@ class FfiConverterTypeAsyncContext: FfiConverter<AsyncContext, ulong> {
 
 public interface IAsyncWorkingCopyContext {
     /// <exception cref="Exception"></exception>
-    Task<CheckRootResult> CheckRoot(string @path);
+    Task<CheckRootResult> CheckRoot(string @absolutePath);
+    /// <exception cref="Exception"></exception>
+    Task<WorkingCopyRevisionStatusResult> RevsionStatus(WorkingCopyRevisionStatusOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<Version?> WcVersion(string @path);
 }
@@ -15280,11 +26088,11 @@ public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
 
     
     /// <exception cref="Exception"></exception>
-    public async Task<CheckRootResult> CheckRoot(string @path) {
+    public async Task<CheckRootResult> CheckRoot(string @absolutePath) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
-            return _UniFFILib.uniffi_engine_fn_method_asyncworkingcopycontext_check_root(thisPtr, FfiConverterString.INSTANCE.Lower(@path));
+            return _UniFFILib.uniffi_engine_fn_method_asyncworkingcopycontext_check_root(thisPtr, FfiConverterString.INSTANCE.Lower(@absolutePath));
         }),
         // Poll
         (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
@@ -15296,6 +26104,28 @@ public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeCheckRootResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<WorkingCopyRevisionStatusResult> RevsionStatus(WorkingCopyRevisionStatusOptions @opts) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asyncworkingcopycontext_revsion_status(thisPtr, FfiConverterTypeWorkingCopyRevisionStatusOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeWorkingCopyRevisionStatusResult.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -15363,12 +26193,19 @@ class FfiConverterTypeAsyncWorkingCopyContext: FfiConverter<AsyncWorkingCopyCont
 
 
 public interface ContextNotifier {
+    /// <exception cref="CSharpException"></exception>
     bool MaySavePasswordAsPlainText(string @realmString);
+    /// <exception cref="CSharpException"></exception>
     void WorkingCopyNotify(WorkingCopyNotify @notify);
+    /// <exception cref="CSharpException"></exception>
     TrustServer? SslServerTrustPrompt(string @realm, uint @failures, SslServerCertInfo @info, bool @maySave);
+    /// <exception cref="CSharpException"></exception>
     string? Cancel();
+    /// <exception cref="CSharpException"></exception>
     void ProgressNotify(long @pos, long @total);
+    /// <exception cref="CSharpException"></exception>
     Authentication? Authenticate(string @realm, string @username, bool @maySave);
+    /// <exception cref="CSharpException"></exception>
     WorkingCopyConflictResult Conflict(WorkingCopyConflictDescription @description);
 }
 public class ContextNotifierImpl : ContextNotifier, IDisposable {
@@ -15460,59 +26297,66 @@ public class ContextNotifierImpl : ContextNotifier, IDisposable {
     }
 
     
+    /// <exception cref="CSharpException"></exception>
     public bool MaySavePasswordAsPlainText(string @realmString) {
         return CallWithPointer(thisPtr => FfiConverterBoolean.INSTANCE.Lift(
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_may_save_password_as_plain_text(thisPtr, FfiConverterString.INSTANCE.Lower(@realmString), ref _status)
 )));
     }
     
     
+    /// <exception cref="CSharpException"></exception>
     public void WorkingCopyNotify(WorkingCopyNotify @notify) {
         CallWithPointer(thisPtr =>
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_working_copy_notify(thisPtr, FfiConverterTypeWorkingCopyNotify.INSTANCE.Lower(@notify), ref _status)
 ));
     }
     
     
     
+    /// <exception cref="CSharpException"></exception>
     public TrustServer? SslServerTrustPrompt(string @realm, uint @failures, SslServerCertInfo @info, bool @maySave) {
         return CallWithPointer(thisPtr => FfiConverterOptionalTypeTrustServer.INSTANCE.Lift(
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_ssl_server_trust_prompt(thisPtr, FfiConverterString.INSTANCE.Lower(@realm), FfiConverterUInt32.INSTANCE.Lower(@failures), FfiConverterTypeSslServerCertInfo.INSTANCE.Lower(@info), FfiConverterBoolean.INSTANCE.Lower(@maySave), ref _status)
 )));
     }
     
     
+    /// <exception cref="CSharpException"></exception>
     public string? Cancel() {
         return CallWithPointer(thisPtr => FfiConverterOptionalString.INSTANCE.Lift(
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_cancel(thisPtr,  ref _status)
 )));
     }
     
     
+    /// <exception cref="CSharpException"></exception>
     public void ProgressNotify(long @pos, long @total) {
         CallWithPointer(thisPtr =>
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_progress_notify(thisPtr, FfiConverterInt64.INSTANCE.Lower(@pos), FfiConverterInt64.INSTANCE.Lower(@total), ref _status)
 ));
     }
     
     
     
+    /// <exception cref="CSharpException"></exception>
     public Authentication? Authenticate(string @realm, string @username, bool @maySave) {
         return CallWithPointer(thisPtr => FfiConverterOptionalTypeAuthentication.INSTANCE.Lift(
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_authenticate(thisPtr, FfiConverterString.INSTANCE.Lower(@realm), FfiConverterString.INSTANCE.Lower(@username), FfiConverterBoolean.INSTANCE.Lower(@maySave), ref _status)
 )));
     }
     
     
+    /// <exception cref="CSharpException"></exception>
     public WorkingCopyConflictResult Conflict(WorkingCopyConflictDescription @description) {
         return CallWithPointer(thisPtr => FfiConverterTypeWorkingCopyConflictResult.INSTANCE.Lift(
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_contextnotifier_conflict(thisPtr, FfiConverterTypeWorkingCopyConflictDescription.INSTANCE.Lower(@description), ref _status)
 )));
     }
@@ -15537,6 +26381,10 @@ class UniffiCallbackInterfaceContextNotifier {
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
         }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
+        }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
             try {
@@ -15556,6 +26404,10 @@ class UniffiCallbackInterfaceContextNotifier {
                 FfiConverterTypeWorkingCopyNotify.INSTANCE.Lift(@notify));
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
         }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
@@ -15584,6 +26436,10 @@ class UniffiCallbackInterfaceContextNotifier {
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
         }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
+        }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
             try {
@@ -15607,6 +26463,10 @@ class UniffiCallbackInterfaceContextNotifier {
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
         }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
+        }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
             try {
@@ -15627,6 +26487,10 @@ class UniffiCallbackInterfaceContextNotifier {
                 FfiConverterInt64.INSTANCE.Lift(@total));
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
         }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
@@ -15654,6 +26518,10 @@ class UniffiCallbackInterfaceContextNotifier {
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
         }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
+        }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
             try {
@@ -15677,6 +26545,10 @@ class UniffiCallbackInterfaceContextNotifier {
             }
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
         }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
@@ -16388,6 +27260,7 @@ class FfiConverterTypeLogReceiver: FfiConverter<LogReceiver, ulong> {
 
 
 public interface StatusReceiver {
+    /// <exception cref="CSharpException"></exception>
     void OnStatusEntry(StatusEntry @entry);
 }
 public class StatusReceiverImpl : StatusReceiver, IDisposable {
@@ -16479,9 +27352,10 @@ public class StatusReceiverImpl : StatusReceiver, IDisposable {
     }
 
     
+    /// <exception cref="CSharpException"></exception>
     public void OnStatusEntry(StatusEntry @entry) {
         CallWithPointer(thisPtr =>
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_statusreceiver_on_status_entry(thisPtr, FfiConverterTypeStatusEntry.INSTANCE.Lower(@entry), ref _status)
 ));
     }
@@ -16502,6 +27376,10 @@ class UniffiCallbackInterfaceStatusReceiver {
                 FfiConverterTypeStatusEntry.INSTANCE.Lift(@entry));
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
         }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
@@ -16579,6 +27457,188 @@ class FfiConverterTypeStatusReceiver: FfiConverter<StatusReceiver, ulong> {
 
 
 public interface ISvnErrnoConstants {
+    int ApmodActivityNotFoundValue();
+    int ApmodBadBaselineValue();
+    int ApmodConnectionAbortedValue();
+    int ApmodMalformedUriValue();
+    int ApmodMissingPathToFsValue();
+    int Asn1InvalidDataValue();
+    int Asn1InvalidLengthValue();
+    int Asn1LengthMismatchValue();
+    int Asn1OutOfDataValue();
+    int Asn1UnexpectedTagValue();
+    int AssertionFailValue();
+    int AssertionOnlyTracingLinksValue();
+    int AtomicInitFailureValue();
+    int AuthnCredsNotSavedValue();
+    int AuthnCredsUnavailableValue();
+    int AuthnFailedValue();
+    int AuthnNoProviderValue();
+    int AuthnProvidersExhaustedValue();
+    int AuthzInvalidConfigValue();
+    int AuthzPartiallyReadableValue();
+    int AuthzRootUnreadableValue();
+    int AuthzUnreadableValue();
+    int AuthzUnwritableValue();
+    int BadAtomicValue();
+    int BadChangelistNameValue();
+    int BadChecksumKindValue();
+    int BadChecksumParseValue();
+    int BadCompressionMethodValue();
+    int BadConfigValueValue();
+    int BadContainingPoolValue();
+    int BadDateValue();
+    int BadFilenameValue();
+    int BadMimeTypeValue();
+    int BadPropKindValue();
+    int BadPropertyValueEolValue();
+    int BadPropertyValueValue();
+    int BadRelativePathValue();
+    int BadServerSpecificationValue();
+    int BadTokenValue();
+    int BadUrlValue();
+    int BadUuidValue();
+    int BadVersionFileFormatValue();
+    int BaseValue();
+    int CancelledValue();
+    int CanonicalizationFailedValue();
+    int CeaseInvocationValue();
+    int ChecksumMismatchValue();
+    int ClAdmDirReservedValue();
+    int ClArgParsingErrorValue();
+    int ClBadLogMessageValue();
+    int ClCommitInAddedDirValue();
+    int ClErrorProcessingExternalsValue();
+    int ClInsufficientArgsValue();
+    int ClLogMessageIsPathnameValue();
+    int ClLogMessageIsVersionedFileValue();
+    int ClMutuallyExclusiveArgsValue();
+    int ClNoExternalEditorValue();
+    int ClNoExternalMergeToolValue();
+    int ClReposVerifyFailedValue();
+    int ClUnnecessaryLogMessageValue();
+    int ClientBadRevisionValue();
+    int ClientConflictOptionNotApplicableValue();
+    int ClientCycleDetectedValue();
+    int ClientDuplicateCommitUrlValue();
+    int ClientFileExternalOverwriteVersionedValue();
+    int ClientForbiddenByServerValue();
+    int ClientInvalidExternalsDescriptionValue();
+    int ClientInvalidMergeinfoNoMergetrackingValue();
+    int ClientInvalidRelocationValue();
+    int ClientIsBinaryFileValue();
+    int ClientIsDirectoryValue();
+    int ClientMergeUpdateRequiredValue();
+    int ClientMissingLockTokenValue();
+    int ClientModifiedValue();
+    int ClientMultipleSourcesDisallowedValue();
+    int ClientNoLockTokenValue();
+    int ClientNoVersionedParentValue();
+    int ClientNotReadyToMergeValue();
+    int ClientPatchBadStripCountValue();
+    int ClientPropertyNameValue();
+    int ClientRaAccessRequiredValue();
+    int ClientRevisionAuthorContainsNewlineValue();
+    int ClientRevisionRangeValue();
+    int ClientUnrelatedResourcesValue();
+    int ClientVersionedPathRequiredValue();
+    int ComposedErrorValue();
+    int CorruptPackedDataValue();
+    int CorruptedAtomicStorageValue();
+    int DeltaMd5ChecksumAbsentValue();
+    int DiffDatasourceModifiedValue();
+    int DiffUnexpectedDataValue();
+    int DirNotEmptyValue();
+    int EntryAttributeInvalidValue();
+    int EntryExistsValue();
+    int EntryForbiddenValue();
+    int EntryMissingRevisionValue();
+    int EntryMissingUrlValue();
+    int EntryNotFoundValue();
+    int ExternalProgramValue();
+    int FsAlreadyExistsValue();
+    int FsAlreadyOpenValue();
+    int FsAmbiguousChecksumRepValue();
+    int FsBadLockTokenValue();
+    int FsBerkeleyDbDeadlockValue();
+    int FsBerkeleyDbValue();
+    int FsCleanupValue();
+    int FsConflictValue();
+    int FsContainerIndexValue();
+    int FsContainerSizeValue();
+    int FsCorruptProplistValue();
+    int FsCorruptRevpropManifestValue();
+    int FsCorruptValue();
+    int FsGeneralValue();
+    int FsIdNotFoundValue();
+    int FsIncorrectEditorCompletionValue();
+    int FsIndexCorruptionValue();
+    int FsIndexInconsistentValue();
+    int FsIndexOverflowValue();
+    int FsIndexRevisionValue();
+    int FsInvalidGenerationValue();
+    int FsLockExpiredValue();
+    int FsLockOperationFailedValue();
+    int FsLockOwnerMismatchValue();
+    int FsMalformedNoderevIdValue();
+    int FsMalformedSkelValue();
+    int FsMalformedTxnIdValue();
+    int FsNoLockTokenValue();
+    int FsNoSuchChecksumRepValue();
+    int FsNoSuchCopyValue();
+    int FsNoSuchEntryValue();
+    int FsNoSuchLockValue();
+    int FsNoSuchNodeOriginValue();
+    int FsNoSuchRepresentationValue();
+    int FsNoSuchRevisionValue();
+    int FsNoSuchStringValue();
+    int FsNoSuchTransactionValue();
+    int FsNoUserValue();
+    int FsNotDirectoryValue();
+    int FsNotFileValue();
+    int FsNotFoundValue();
+    int FsNotIdValue();
+    int FsNotMutableValue();
+    int FsNotOpenValue();
+    int FsNotRevisionRootValue();
+    int FsNotSinglePathComponentValue();
+    int FsNotTxnRootValue();
+    int FsOutOfDateValue();
+    int FsPackedRevpropReadFailureValue();
+    int FsPathAlreadyLockedValue();
+    int FsPathNotLockedValue();
+    int FsPathSyntaxValue();
+    int FsPropBasevalueMismatchValue();
+    int FsRepBeingWrittenValue();
+    int FsRepChangedValue();
+    int FsRepNotMutableValue();
+    int FsRepSharingNotAllowedValue();
+    int FsRepSharingNotSupportedValue();
+    int FsRevpropCacheInitFailureValue();
+    int FsRootDirValue();
+    int FsTransactionDeadValue();
+    int FsTransactionNotDeadValue();
+    int FsTransactionNotMutableValue();
+    int FsTxnNameTooLongValue();
+    int FsTxnOutOfDateValue();
+    int FsUnknownFsTypeValue();
+    int FsUnrecognizedIoctlCodeValue();
+    int FsUnsupportedFormatValue();
+    int FsUnsupportedTypeValue();
+    int FsUnsupportedUpgradeValue();
+    int IllegalTargetValue();
+    int IncompleteDataValue();
+    int IncorrectParamsValue();
+    int InvalidDiffOptionValue();
+    int InvalidInputValue();
+    int IoCorruptEolValue();
+    int IoInconsistentEolValue();
+    int IoPipeFrameErrorValue();
+    int IoPipeReadErrorValue();
+    int IoPipeWriteErrorValue();
+    int IoUniqueNamesExhaustedValue();
+    int IoUnknownEolValue();
+    int IoWriteErrorValue();
     bool IsApmodActivityNotFound(int @value);
     bool IsApmodBadBaseline(int @value);
     bool IsApmodConnectionAborted(int @value);
@@ -16931,6 +27991,176 @@ public interface ISvnErrnoConstants {
     bool IsXmlUnescapableData(int @value);
     bool IsXmlUnexpectedElement(int @value);
     bool IsXmlUnknownEncoding(int @value);
+    int IterBreakValue();
+    int Lz4CompressionFailedValue();
+    int Lz4DecompressionFailedValue();
+    int MalformedFileValue();
+    int MalformedVersionStringValue();
+    int MergeinfoParseErrorValue();
+    int NoAprMemcacheValue();
+    int NoAuthFilePathValue();
+    int NodeUnexpectedKindValue();
+    int NodeUnknownKindValue();
+    int PluginLoadFailureValue();
+    int PropertyNotFoundValue();
+    int RaCannotCreateSessionValue();
+    int RaCannotCreateTunnelValue();
+    int RaDavAlreadyExistsValue();
+    int RaDavConnTimeoutValue();
+    int RaDavCreatingRequestValue();
+    int RaDavForbiddenValue();
+    int RaDavInvalidConfigValueValue();
+    int RaDavMalformedDataValue();
+    int RaDavMethodNotAllowedValue();
+    int RaDavOptionsReqFailedValue();
+    int RaDavPathNotFoundValue();
+    int RaDavPreconditionFailedValue();
+    int RaDavProppatchFailedValue();
+    int RaDavPropsNotFoundValue();
+    int RaDavRelocatedValue();
+    int RaDavRequestFailedValue();
+    int RaDavResponseHeaderBadnessValue();
+    int RaDavSockInitValue();
+    int RaIllegalUrlValue();
+    int RaLocalReposNotFoundValue();
+    int RaLocalReposOpenFailedValue();
+    int RaNoReposUuidValue();
+    int RaNotAuthorizedValue();
+    int RaNotImplementedValue();
+    int RaNotLockedValue();
+    int RaOutOfDateValue();
+    int RaPartialReplayNotSupportedValue();
+    int RaReposRootUrlMismatchValue();
+    int RaSerfGssapiInitialisationFailedValue();
+    int RaSerfSslCertUntrustedValue();
+    int RaSerfSspiInitialisationFailedValue();
+    int RaSerfStreamBucketReadErrorValue();
+    int RaSerfWrappedErrorValue();
+    int RaSessionUrlMismatchValue();
+    int RaSvnBadVersionValue();
+    int RaSvnCmdErrValue();
+    int RaSvnConnectionClosedValue();
+    int RaSvnEditAbortedValue();
+    int RaSvnIoErrorValue();
+    int RaSvnMalformedDataValue();
+    int RaSvnNoMechanismsValue();
+    int RaSvnReposNotFoundValue();
+    int RaSvnRequestSizeValue();
+    int RaSvnResponseSizeValue();
+    int RaSvnUnknownCmdValue();
+    int RaUnknownAuthValue();
+    int RaUnsupportedAbiVersionValue();
+    int RaUuidMismatchValue();
+    int ReposBadArgsValue();
+    int ReposBadRevisionReportValue();
+    int ReposDisabledFeatureValue();
+    int ReposHookFailureValue();
+    int ReposLockedValue();
+    int ReposNoDataForReportValue();
+    int ReposPostCommitHookFailedValue();
+    int ReposPostLockHookFailedValue();
+    int ReposPostUnlockHookFailedValue();
+    int ReposUnsupportedUpgradeValue();
+    int ReposUnsupportedVersionValue();
+    int ReservedFilenameSpecifiedValue();
+    int RevnumParseFailureValue();
+    int SqliteBusyValue();
+    int SqliteConstraintValue();
+    int SqliteErrorValue();
+    int SqliteReadonlyValue();
+    int SqliteResettingForRollbackValue();
+    int SqliteRollbackFailedValue();
+    int SqliteUnsupportedSchemaValue();
+    int StreamMalformedDataValue();
+    int StreamNotSupportedValue();
+    int StreamSeekNotSupportedValue();
+    int StreamUnexpectedEofValue();
+    int StreamUnrecognizedDataValue();
+    int SvndiffBackwardViewValue();
+    int SvndiffCorruptWindowValue();
+    int SvndiffInvalidCompressedDataValue();
+    int SvndiffInvalidHeaderValue();
+    int SvndiffInvalidOpsValue();
+    int SvndiffUnexpectedEndValue();
+    int SwigPyExceptionSetValue();
+    int TestFailedValue();
+    int TestSkippedValue();
+    int TooManyMemcachedServersValue();
+    int UnknownCapabilityValue();
+    int UnknownChangelistValue();
+    int UnsupportedFeatureValue();
+    int UnversionedResourceValue();
+    int Utf8GlobValue();
+    int Utf8procErrorValue();
+    int VersionMismatchValue();
+    int WarningValue();
+    int WcBadAdmLogStartValue();
+    int WcBadAdmLogValue();
+    int WcBadPathValue();
+    int WcCannotDeleteFileExternalValue();
+    int WcCannotMoveFileExternalValue();
+    int WcChangelistMoveValue();
+    int WcCleanupRequiredValue();
+    int WcConflictResolverFailureValue();
+    int WcCopyfromPathNotFoundValue();
+    int WcCorruptTextBaseValue();
+    int WcCorruptValue();
+    int WcDbErrorValue();
+    int WcDeprecatedApiStorePristineValue();
+    int WcDuplicateExternalsTargetValue();
+    int WcFoundConflictValue();
+    int WcIncompatibleSettingsValue();
+    int WcInvalidLockValue();
+    int WcInvalidOpOnCwdValue();
+    int WcInvalidOperationDepthValue();
+    int WcInvalidRelocationValue();
+    int WcInvalidScheduleValue();
+    int WcInvalidSwitchValue();
+    int WcLeftLocalModValue();
+    int WcLockedValue();
+    int WcMismatchedChangelistValue();
+    int WcMissingValue();
+    int WcMixedRevisionsValue();
+    int WcNodeKindChangeValue();
+    int WcNotDirectoryValue();
+    int WcNotFileValue();
+    int WcNotLockedValue();
+    int WcNotSymlinkValue();
+    int WcNotUpToDateValue();
+    int WcNotWorkingCopyValue();
+    int WcObstructedUpdateValue();
+    int WcPathAccessDeniedValue();
+    int WcPathFoundValue();
+    int WcPathNotFoundValue();
+    int WcPathUnexpectedStatusValue();
+    int WcPristineDehydratedValue();
+    int WcScheduleConflictValue();
+    int WcUnsupportedFormatValue();
+    int WcUnwindEmptyValue();
+    int WcUnwindMismatchValue();
+    int WcUnwindNotEmptyValue();
+    int WcUpgradeRequiredValue();
+    int X509CertInvalidAlgValue();
+    int X509CertInvalidDateValue();
+    int X509CertInvalidExtensionsValue();
+    int X509CertInvalidFormatValue();
+    int X509CertInvalidNameValue();
+    int X509CertInvalidPemValue();
+    int X509CertInvalidPubkeyValue();
+    int X509CertInvalidSerialValue();
+    int X509CertInvalidSignatureValue();
+    int X509CertInvalidVersionValue();
+    int X509CertSigMismatchValue();
+    int X509CertUnknownPkAlgValue();
+    int X509CertUnknownVersionValue();
+    int X509CertVerifyFailedValue();
+    int X509FeatureUnavailableValue();
+    int XmlAttribNotFoundValue();
+    int XmlMalformedValue();
+    int XmlMissingAncestryValue();
+    int XmlUnescapableDataValue();
+    int XmlUnexpectedElementValue();
+    int XmlUnknownEncodingValue();
 }
 public class SvnErrnoConstants : ISvnErrnoConstants, IDisposable {
     protected ulong pointer;
@@ -17029,6 +28259,1462 @@ public class SvnErrnoConstants : ISvnErrnoConstants, IDisposable {
         }
     }
 
+    
+    public int ApmodActivityNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_apmod_activity_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ApmodBadBaselineValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_apmod_bad_baseline_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ApmodConnectionAbortedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_apmod_connection_aborted_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ApmodMalformedUriValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_apmod_malformed_uri_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ApmodMissingPathToFsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_apmod_missing_path_to_fs_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Asn1InvalidDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_asn1_invalid_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Asn1InvalidLengthValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_asn1_invalid_length_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Asn1LengthMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_asn1_length_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Asn1OutOfDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_asn1_out_of_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Asn1UnexpectedTagValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_asn1_unexpected_tag_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AssertionFailValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_assertion_fail_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AssertionOnlyTracingLinksValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_assertion_only_tracing_links_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AtomicInitFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_atomic_init_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthnCredsNotSavedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authn_creds_not_saved_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthnCredsUnavailableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authn_creds_unavailable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthnFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authn_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthnNoProviderValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authn_no_provider_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthnProvidersExhaustedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authn_providers_exhausted_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthzInvalidConfigValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authz_invalid_config_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthzPartiallyReadableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authz_partially_readable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthzRootUnreadableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authz_root_unreadable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthzUnreadableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authz_unreadable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int AuthzUnwritableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_authz_unwritable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadAtomicValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_atomic_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadChangelistNameValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_changelist_name_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadChecksumKindValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_checksum_kind_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadChecksumParseValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_checksum_parse_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadCompressionMethodValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_compression_method_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadConfigValueValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_config_value_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadContainingPoolValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_containing_pool_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadDateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_date_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadFilenameValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_filename_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadMimeTypeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_mime_type_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadPropKindValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_prop_kind_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadPropertyValueEolValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_property_value_eol_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadPropertyValueValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_property_value_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadRelativePathValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_relative_path_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadServerSpecificationValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_server_specification_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadTokenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_token_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadUrlValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_url_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadUuidValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_uuid_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BadVersionFileFormatValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_bad_version_file_format_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int BaseValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_base_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int CancelledValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cancelled_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int CanonicalizationFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_canonicalization_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int CeaseInvocationValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cease_invocation_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ChecksumMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_checksum_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClAdmDirReservedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_adm_dir_reserved_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClArgParsingErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_arg_parsing_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClBadLogMessageValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_bad_log_message_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClCommitInAddedDirValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_commit_in_added_dir_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClErrorProcessingExternalsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_error_processing_externals_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClInsufficientArgsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_insufficient_args_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClLogMessageIsPathnameValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_log_message_is_pathname_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClLogMessageIsVersionedFileValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_log_message_is_versioned_file_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClMutuallyExclusiveArgsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_mutually_exclusive_args_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClNoExternalEditorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_no_external_editor_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClNoExternalMergeToolValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_no_external_merge_tool_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClReposVerifyFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_repos_verify_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClUnnecessaryLogMessageValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_cl_unnecessary_log_message_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientBadRevisionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_bad_revision_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientConflictOptionNotApplicableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_conflict_option_not_applicable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientCycleDetectedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_cycle_detected_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientDuplicateCommitUrlValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_duplicate_commit_url_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientFileExternalOverwriteVersionedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_file_external_overwrite_versioned_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientForbiddenByServerValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_forbidden_by_server_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientInvalidExternalsDescriptionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_invalid_externals_description_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientInvalidMergeinfoNoMergetrackingValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_invalid_mergeinfo_no_mergetracking_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientInvalidRelocationValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_invalid_relocation_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientIsBinaryFileValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_is_binary_file_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientIsDirectoryValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_is_directory_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientMergeUpdateRequiredValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_merge_update_required_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientMissingLockTokenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_missing_lock_token_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientModifiedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_modified_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientMultipleSourcesDisallowedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_multiple_sources_disallowed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientNoLockTokenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_no_lock_token_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientNoVersionedParentValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_no_versioned_parent_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientNotReadyToMergeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_not_ready_to_merge_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientPatchBadStripCountValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_patch_bad_strip_count_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientPropertyNameValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_property_name_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientRaAccessRequiredValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_ra_access_required_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientRevisionAuthorContainsNewlineValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_revision_author_contains_newline_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientRevisionRangeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_revision_range_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientUnrelatedResourcesValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_unrelated_resources_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ClientVersionedPathRequiredValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_client_versioned_path_required_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ComposedErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_composed_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int CorruptPackedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_corrupt_packed_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int CorruptedAtomicStorageValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_corrupted_atomic_storage_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int DeltaMd5ChecksumAbsentValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_delta_md5_checksum_absent_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int DiffDatasourceModifiedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_diff_datasource_modified_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int DiffUnexpectedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_diff_unexpected_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int DirNotEmptyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_dir_not_empty_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int EntryAttributeInvalidValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_entry_attribute_invalid_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int EntryExistsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_entry_exists_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int EntryForbiddenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_entry_forbidden_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int EntryMissingRevisionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_entry_missing_revision_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int EntryMissingUrlValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_entry_missing_url_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int EntryNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_entry_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ExternalProgramValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_external_program_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsAlreadyExistsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_already_exists_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsAlreadyOpenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_already_open_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsAmbiguousChecksumRepValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_ambiguous_checksum_rep_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsBadLockTokenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_bad_lock_token_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsBerkeleyDbDeadlockValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_berkeley_db_deadlock_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsBerkeleyDbValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_berkeley_db_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsCleanupValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_cleanup_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsConflictValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_conflict_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsContainerIndexValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_container_index_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsContainerSizeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_container_size_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsCorruptProplistValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_corrupt_proplist_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsCorruptRevpropManifestValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_corrupt_revprop_manifest_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsCorruptValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_corrupt_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsGeneralValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_general_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsIdNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_id_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsIncorrectEditorCompletionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_incorrect_editor_completion_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsIndexCorruptionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_index_corruption_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsIndexInconsistentValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_index_inconsistent_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsIndexOverflowValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_index_overflow_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsIndexRevisionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_index_revision_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsInvalidGenerationValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_invalid_generation_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsLockExpiredValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_lock_expired_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsLockOperationFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_lock_operation_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsLockOwnerMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_lock_owner_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsMalformedNoderevIdValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_malformed_noderev_id_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsMalformedSkelValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_malformed_skel_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsMalformedTxnIdValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_malformed_txn_id_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoLockTokenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_lock_token_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchChecksumRepValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_checksum_rep_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchCopyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_copy_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchEntryValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_entry_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchLockValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_lock_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchNodeOriginValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_node_origin_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchRepresentationValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_representation_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchRevisionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_revision_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchStringValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_string_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoSuchTransactionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_such_transaction_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNoUserValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_no_user_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotDirectoryValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_directory_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotFileValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_file_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotIdValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_id_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotMutableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_mutable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotOpenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_open_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotRevisionRootValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_revision_root_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotSinglePathComponentValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_single_path_component_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsNotTxnRootValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_not_txn_root_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsOutOfDateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_out_of_date_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsPackedRevpropReadFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_packed_revprop_read_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsPathAlreadyLockedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_path_already_locked_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsPathNotLockedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_path_not_locked_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsPathSyntaxValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_path_syntax_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsPropBasevalueMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_prop_basevalue_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRepBeingWrittenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_rep_being_written_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRepChangedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_rep_changed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRepNotMutableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_rep_not_mutable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRepSharingNotAllowedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_rep_sharing_not_allowed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRepSharingNotSupportedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_rep_sharing_not_supported_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRevpropCacheInitFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_revprop_cache_init_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsRootDirValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_root_dir_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsTransactionDeadValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_transaction_dead_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsTransactionNotDeadValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_transaction_not_dead_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsTransactionNotMutableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_transaction_not_mutable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsTxnNameTooLongValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_txn_name_too_long_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsTxnOutOfDateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_txn_out_of_date_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsUnknownFsTypeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_unknown_fs_type_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsUnrecognizedIoctlCodeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_unrecognized_ioctl_code_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsUnsupportedFormatValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_unsupported_format_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsUnsupportedTypeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_unsupported_type_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int FsUnsupportedUpgradeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_fs_unsupported_upgrade_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IllegalTargetValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_illegal_target_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IncompleteDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_incomplete_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IncorrectParamsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_incorrect_params_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int InvalidDiffOptionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_invalid_diff_option_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int InvalidInputValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_invalid_input_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoCorruptEolValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_corrupt_eol_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoInconsistentEolValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_inconsistent_eol_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoPipeFrameErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_pipe_frame_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoPipeReadErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_pipe_read_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoPipeWriteErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_pipe_write_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoUniqueNamesExhaustedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_unique_names_exhausted_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoUnknownEolValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_unknown_eol_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int IoWriteErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_io_write_error_value(thisPtr,  ref _status)
+)));
+    }
+    
     
     public bool IsApmodActivityNotFound(int @value) {
         return CallWithPointer(thisPtr => FfiConverterBoolean.INSTANCE.Lift(
@@ -19846,6 +32532,1366 @@ public class SvnErrnoConstants : ISvnErrnoConstants, IDisposable {
     }
     
     
+    public int IterBreakValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_iter_break_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Lz4CompressionFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_lz4_compression_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Lz4DecompressionFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_lz4_decompression_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int MalformedFileValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_malformed_file_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int MalformedVersionStringValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_malformed_version_string_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int MergeinfoParseErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_mergeinfo_parse_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int NoAprMemcacheValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_no_apr_memcache_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int NoAuthFilePathValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_no_auth_file_path_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int NodeUnexpectedKindValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_node_unexpected_kind_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int NodeUnknownKindValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_node_unknown_kind_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int PluginLoadFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_plugin_load_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int PropertyNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_property_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaCannotCreateSessionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_cannot_create_session_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaCannotCreateTunnelValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_cannot_create_tunnel_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavAlreadyExistsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_already_exists_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavConnTimeoutValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_conn_timeout_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavCreatingRequestValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_creating_request_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavForbiddenValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_forbidden_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavInvalidConfigValueValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_invalid_config_value_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavMalformedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_malformed_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavMethodNotAllowedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_method_not_allowed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavOptionsReqFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_options_req_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavPathNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_path_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavPreconditionFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_precondition_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavProppatchFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_proppatch_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavPropsNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_props_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavRelocatedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_relocated_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavRequestFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_request_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavResponseHeaderBadnessValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_response_header_badness_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaDavSockInitValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_dav_sock_init_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaIllegalUrlValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_illegal_url_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaLocalReposNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_local_repos_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaLocalReposOpenFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_local_repos_open_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaNoReposUuidValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_no_repos_uuid_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaNotAuthorizedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_not_authorized_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaNotImplementedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_not_implemented_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaNotLockedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_not_locked_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaOutOfDateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_out_of_date_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaPartialReplayNotSupportedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_partial_replay_not_supported_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaReposRootUrlMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_repos_root_url_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSerfGssapiInitialisationFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_serf_gssapi_initialisation_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSerfSslCertUntrustedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_serf_ssl_cert_untrusted_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSerfSspiInitialisationFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_serf_sspi_initialisation_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSerfStreamBucketReadErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_serf_stream_bucket_read_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSerfWrappedErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_serf_wrapped_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSessionUrlMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_session_url_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnBadVersionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_bad_version_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnCmdErrValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_cmd_err_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnConnectionClosedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_connection_closed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnEditAbortedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_edit_aborted_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnIoErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_io_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnMalformedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_malformed_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnNoMechanismsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_no_mechanisms_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnReposNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_repos_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnRequestSizeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_request_size_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnResponseSizeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_response_size_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaSvnUnknownCmdValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_svn_unknown_cmd_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaUnknownAuthValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_unknown_auth_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaUnsupportedAbiVersionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_unsupported_abi_version_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RaUuidMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_ra_uuid_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposBadArgsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_bad_args_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposBadRevisionReportValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_bad_revision_report_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposDisabledFeatureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_disabled_feature_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposHookFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_hook_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposLockedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_locked_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposNoDataForReportValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_no_data_for_report_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposPostCommitHookFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_post_commit_hook_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposPostLockHookFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_post_lock_hook_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposPostUnlockHookFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_post_unlock_hook_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposUnsupportedUpgradeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_unsupported_upgrade_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReposUnsupportedVersionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_repos_unsupported_version_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int ReservedFilenameSpecifiedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_reserved_filename_specified_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int RevnumParseFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_revnum_parse_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteBusyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_busy_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteConstraintValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_constraint_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteReadonlyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_readonly_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteResettingForRollbackValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_resetting_for_rollback_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteRollbackFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_rollback_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SqliteUnsupportedSchemaValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_sqlite_unsupported_schema_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int StreamMalformedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_stream_malformed_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int StreamNotSupportedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_stream_not_supported_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int StreamSeekNotSupportedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_stream_seek_not_supported_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int StreamUnexpectedEofValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_stream_unexpected_eof_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int StreamUnrecognizedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_stream_unrecognized_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SvndiffBackwardViewValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_svndiff_backward_view_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SvndiffCorruptWindowValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_svndiff_corrupt_window_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SvndiffInvalidCompressedDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_svndiff_invalid_compressed_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SvndiffInvalidHeaderValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_svndiff_invalid_header_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SvndiffInvalidOpsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_svndiff_invalid_ops_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SvndiffUnexpectedEndValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_svndiff_unexpected_end_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int SwigPyExceptionSetValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_swig_py_exception_set_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int TestFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_test_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int TestSkippedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_test_skipped_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int TooManyMemcachedServersValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_too_many_memcached_servers_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int UnknownCapabilityValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_unknown_capability_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int UnknownChangelistValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_unknown_changelist_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int UnsupportedFeatureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_unsupported_feature_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int UnversionedResourceValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_unversioned_resource_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Utf8GlobValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_utf8_glob_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int Utf8procErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_utf8proc_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int VersionMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_version_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WarningValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_warning_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcBadAdmLogStartValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_bad_adm_log_start_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcBadAdmLogValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_bad_adm_log_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcBadPathValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_bad_path_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcCannotDeleteFileExternalValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_cannot_delete_file_external_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcCannotMoveFileExternalValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_cannot_move_file_external_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcChangelistMoveValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_changelist_move_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcCleanupRequiredValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_cleanup_required_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcConflictResolverFailureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_conflict_resolver_failure_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcCopyfromPathNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_copyfrom_path_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcCorruptTextBaseValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_corrupt_text_base_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcCorruptValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_corrupt_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcDbErrorValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_db_error_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcDeprecatedApiStorePristineValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_deprecated_api_store_pristine_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcDuplicateExternalsTargetValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_duplicate_externals_target_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcFoundConflictValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_found_conflict_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcIncompatibleSettingsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_incompatible_settings_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcInvalidLockValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_lock_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcInvalidOpOnCwdValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_op_on_cwd_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcInvalidOperationDepthValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_operation_depth_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcInvalidRelocationValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_relocation_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcInvalidScheduleValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_schedule_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcInvalidSwitchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_invalid_switch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcLeftLocalModValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_left_local_mod_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcLockedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_locked_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcMismatchedChangelistValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_mismatched_changelist_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcMissingValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_missing_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcMixedRevisionsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_mixed_revisions_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNodeKindChangeValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_node_kind_change_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNotDirectoryValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_not_directory_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNotFileValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_not_file_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNotLockedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_not_locked_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNotSymlinkValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_not_symlink_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNotUpToDateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_not_up_to_date_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcNotWorkingCopyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_not_working_copy_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcObstructedUpdateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_obstructed_update_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcPathAccessDeniedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_path_access_denied_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcPathFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_path_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcPathNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_path_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcPathUnexpectedStatusValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_path_unexpected_status_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcPristineDehydratedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_pristine_dehydrated_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcScheduleConflictValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_schedule_conflict_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcUnsupportedFormatValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_unsupported_format_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcUnwindEmptyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_unwind_empty_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcUnwindMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_unwind_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcUnwindNotEmptyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_unwind_not_empty_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int WcUpgradeRequiredValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_wc_upgrade_required_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidAlgValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_alg_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidDateValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_date_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidExtensionsValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_extensions_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidFormatValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_format_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidNameValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_name_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidPemValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_pem_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidPubkeyValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_pubkey_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidSerialValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_serial_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidSignatureValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_signature_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertInvalidVersionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_invalid_version_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertSigMismatchValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_sig_mismatch_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertUnknownPkAlgValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_unknown_pk_alg_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertUnknownVersionValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_unknown_version_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509CertVerifyFailedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_cert_verify_failed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int X509FeatureUnavailableValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_x509_feature_unavailable_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int XmlAttribNotFoundValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_xml_attrib_not_found_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int XmlMalformedValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_xml_malformed_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int XmlMissingAncestryValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_xml_missing_ancestry_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int XmlUnescapableDataValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_xml_unescapable_data_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int XmlUnexpectedElementValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_xml_unexpected_element_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
+    public int XmlUnknownEncodingValue() {
+        return CallWithPointer(thisPtr => FfiConverterInt32.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_svnerrnoconstants_xml_unknown_encoding_value(thisPtr,  ref _status)
+)));
+    }
+    
+    
 
     
 }
@@ -19870,6 +33916,200 @@ class FfiConverterTypeSvnErrnoConstants: FfiConverter<SvnErrnoConstants, ulong> 
     }
 
     public override void Write(SvnErrnoConstants value, BigEndianStream stream) {
+        stream.WriteULong(Lower(value));
+    }
+}
+
+
+
+public interface WorkspaceHistoryUpdateOperation {
+    WorkspaceHistory Update(WorkspaceHistory @v);
+}
+public class WorkspaceHistoryUpdateOperationImpl : WorkspaceHistoryUpdateOperation, IDisposable {
+    protected ulong pointer;
+    private int _wasDestroyed = 0;
+    private long _callCounter = 1;
+
+    public WorkspaceHistoryUpdateOperationImpl(ulong pointer) {
+        this.pointer = pointer;
+    }
+
+    ~WorkspaceHistoryUpdateOperationImpl() {
+        Destroy();
+    }
+
+    protected void FreeRustArcPtr() {
+        _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            _UniFFILib.uniffi_engine_fn_free_workspacehistoryupdateoperation(this.pointer, ref status);
+        });
+    }
+
+    protected ulong CloneRustArcPtr() {
+        return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            return _UniFFILib.uniffi_engine_fn_clone_workspacehistoryupdateoperation(this.pointer, ref status);
+        });
+    }
+
+    public void Destroy()
+    {
+        // Only allow a single call to this method.
+        if (Interlocked.CompareExchange(ref _wasDestroyed, 1, 0) == 0)
+        {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (Interlocked.Decrement(ref _callCounter) == 0)
+            {
+                FreeRustArcPtr();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        Destroy();
+        GC.SuppressFinalize(this); // Suppress finalization to avoid unnecessary GC overhead.
+    }
+
+    private void IncrementCallCounter() 
+    {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        long count;
+        do
+        {
+            count = Interlocked.Read(ref _callCounter);
+            if (count == 0L) throw new System.ObjectDisposedException(string.Format("'{0}' object has already been destroyed", this.GetType().Name));
+            if (count == long.MaxValue) throw new System.OverflowException(string.Format("'{0}' call counter would overflow", this.GetType().Name));
+
+        } while (Interlocked.CompareExchange(ref _callCounter, count + 1, count) != count);
+    }
+
+    private void DecrementCallCounter() 
+    {
+        // This decrement always matches the increment we performed above.
+        if (Interlocked.Decrement(ref _callCounter) == 0) {
+            FreeRustArcPtr();
+        }
+    }
+
+    internal void CallWithPointer(Action<ulong> action)
+    {
+        IncrementCallCounter();
+        try {
+            action(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    internal T CallWithPointer<T>(Func<ulong, T> func)
+    {   
+        IncrementCallCounter();
+        try {
+            return func(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    
+    public WorkspaceHistory Update(WorkspaceHistory @v) {
+        return CallWithPointer(thisPtr => FfiConverterTypeWorkspaceHistory.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_workspacehistoryupdateoperation_update(thisPtr, FfiConverterTypeWorkspaceHistory.INSTANCE.Lower(@v), ref _status)
+)));
+    }
+    
+    
+
+    
+}
+class UniffiCallbackInterfaceWorkspaceHistoryUpdateOperation {
+    static void Update(ulong @uniffiHandle,RustBuffer @v,IntPtr /*RustBuffer*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeWorkspaceHistoryUpdateOperation.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            var result =
+            uniffiObject.Update(
+                FfiConverterTypeWorkspaceHistory.INSTANCE.Lift(@v));
+            unsafe {
+                *(RustBuffer*)uniffiOutReturn = FfiConverterTypeWorkspaceHistory.INSTANCE.Lower(result);
+            }
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+
+    static void UniffiFree(ulong @handle) {
+        FfiConverterTypeWorkspaceHistoryUpdateOperation.INSTANCE.handleMap.Remove(@handle);
+    }
+    static _UniFFILib.UniffiCallbackInterfaceWorkspaceHistoryUpdateOperationMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceWorkspaceHistoryUpdateOperationMethod0(Update);
+    static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
+
+    public static void Register() {
+        _UniFFILib.UniffiVTableCallbackInterfaceWorkspaceHistoryUpdateOperation _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceWorkspaceHistoryUpdateOperation {
+            @update = Marshal.GetFunctionPointerForDelegate(_m0),
+            @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free)
+        };
+
+        // Pin vtable to ensure GC does not move the vtable across the heap
+        _UniFFILib.uniffi_engine_fn_init_callback_vtable_workspacehistoryupdateoperation(GCHandle.Alloc(_vtable, GCHandleType.Pinned).AddrOfPinnedObject());
+    }
+}
+
+
+
+
+class FfiConverterTypeWorkspaceHistoryUpdateOperation: FfiConverter<WorkspaceHistoryUpdateOperation, ulong> {
+    public ConcurrentHandleMap<WorkspaceHistoryUpdateOperation> handleMap = new ConcurrentHandleMap<WorkspaceHistoryUpdateOperation>();
+    
+    public static FfiConverterTypeWorkspaceHistoryUpdateOperation INSTANCE = new FfiConverterTypeWorkspaceHistoryUpdateOperation();
+
+
+    public override ulong Lower(WorkspaceHistoryUpdateOperation value) {
+        if (value is WorkspaceHistoryUpdateOperationImpl rustObj) {
+            // Rust-implemented object. Clone the handle and return it.
+            return rustObj.CallWithPointer(thisPtr => thisPtr);
+        } else {
+            // C# object, generate a new handle map entry and return it.
+            return handleMap.Insert(value);
+        }
+    }
+
+    public override WorkspaceHistoryUpdateOperation Lift(ulong value) {
+        if ((value & 1UL) == 0UL) {
+            // Rust-generated handle, construct a new wrapper.
+            return new WorkspaceHistoryUpdateOperationImpl(value);
+        } else {
+            // C#-generated handle, retrieve and remove from the handle map.
+            if (handleMap.Remove(value, out var obj)) {
+                return obj;
+            } else {
+                throw new InternalException($"No callback in handlemap '{value}'");
+            }
+        }
+    }
+
+    public override WorkspaceHistoryUpdateOperation Read(BigEndianStream stream) {
+        return Lift(stream.ReadULong());
+    }
+
+    public override int AllocationSize(WorkspaceHistoryUpdateOperation value) {
+        return 8;
+    }
+
+    public override void Write(WorkspaceHistoryUpdateOperation value, BigEndianStream stream) {
         stream.WriteULong(Lower(value));
     }
 }
@@ -20729,7 +34969,58 @@ class FfiConverterTypeCreateContextOptions: FfiConverterRustBuffer<CreateContext
 
 
 public record DatabaseManager (
-) {
+) : IDisposable {
+    public void Dispose() {
+    FFIObjectUtil.DisposeAll();
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task DeleteWorkspaceHistory(string @uuid) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_delete_workspace_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@uuid)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task InsertRepositoryHistory(string @name, LogEntry[] @entries) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_insert_repository_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@name), FfiConverterSequenceTypeLogEntry.INSTANCE.Lower(@entries)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task InsertWorkspaceHistories(WorkspaceHistory[] @histories) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_insert_workspace_histories(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterSequenceTypeWorkspaceHistory.INSTANCE.Lower(@histories)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
     
     /// <exception cref="Exception"></exception>
     public async Task<RelativeLogEntry[]> RepositoryHistory(string @name, uint @start, uint @end) {
@@ -20746,22 +35037,6 @@ public record DatabaseManager (
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterSequenceTypeRelativeLogEntry.INSTANCE.Lift(result),
-        // Error
-        FfiConverterTypeError.INSTANCE
-    );
-    }
-    
-    /// <exception cref="Exception"></exception>
-    public async Task RepositoryInsertHistory(string @name, LogEntry[] @entries) {await _UniFFIAsync.UniffiRustCallAsync(
-        // Get rust future
-        _UniFFILib.uniffi_engine_fn_method_databasemanager_repository_insert_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@name), FfiConverterSequenceTypeLogEntry.INSTANCE.Lower(@entries)),
-        // Poll
-        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
-        // Complete
-        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
-        },
-        // Free
-        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -20802,6 +35077,94 @@ public record DatabaseManager (
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeRepositoryTable.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task SetSettings(GlobalSettings @settings) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_set_settings(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterTypeGlobalSettings.INSTANCE.Lower(@settings)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task SetWorkspaceHistory(WorkspaceHistory @history) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_set_workspace_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterTypeWorkspaceHistory.INSTANCE.Lower(@history)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<GlobalSettings> Settings() {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_settings(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterTypeGlobalSettings.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task UpdateWorkspaceHistory(string @uuid, WorkspaceHistoryUpdateOperation @operation) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_update_workspace_history(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this), FfiConverterString.INSTANCE.Lower(@uuid), FfiConverterTypeWorkspaceHistoryUpdateOperation.INSTANCE.Lower(@operation)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<WorkspaceHistory[]> WorkspaceHistories() {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        _UniFFILib.uniffi_engine_fn_method_databasemanager_workspace_histories(FfiConverterTypeDatabaseManager.INSTANCE.Lower(this)),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterSequenceTypeWorkspaceHistory.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -21184,6 +35547,66 @@ class FfiConverterTypeFormatSizeOptions: FfiConverterRustBuffer<FormatSizeOption
 
 
 
+public record GetRepositoryRootResult (
+    string RootUrl, 
+    string Uuid
+) {
+}
+
+class FfiConverterTypeGetRepositoryRootResult: FfiConverterRustBuffer<GetRepositoryRootResult> {
+    public static FfiConverterTypeGetRepositoryRootResult INSTANCE = new FfiConverterTypeGetRepositoryRootResult();
+
+    public override GetRepositoryRootResult Read(BigEndianStream stream) {
+        return new GetRepositoryRootResult(
+            RootUrl: FfiConverterString.INSTANCE.Read(stream),
+            Uuid: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(GetRepositoryRootResult value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.RootUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Uuid);
+    }
+
+    public override void Write(GetRepositoryRootResult value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.RootUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.Uuid, stream);
+    }
+}
+
+
+
+public record GlobalSettings (
+    string? DefaultUsername, 
+    string? DefaultPassword
+) {
+}
+
+class FfiConverterTypeGlobalSettings: FfiConverterRustBuffer<GlobalSettings> {
+    public static FfiConverterTypeGlobalSettings INSTANCE = new FfiConverterTypeGlobalSettings();
+
+    public override GlobalSettings Read(BigEndianStream stream) {
+        return new GlobalSettings(
+            DefaultUsername: FfiConverterOptionalString.INSTANCE.Read(stream),
+            DefaultPassword: FfiConverterOptionalString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(GlobalSettings value) {
+        return 0
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DefaultUsername)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.DefaultPassword);
+    }
+
+    public override void Write(GlobalSettings value, BigEndianStream stream) {
+            FfiConverterOptionalString.INSTANCE.Write(value.DefaultUsername, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.DefaultPassword, stream);
+    }
+}
+
+
+
 public record ImportOptions (
     string Path, 
     string Url, 
@@ -21342,7 +35765,7 @@ public record InfoOptions (
     bool FetchExcluded, 
     bool FetchActualOnly, 
     bool IncludeExternals, 
-    string[] Changelists
+    string[]? Changelists
 ) {
 }
 
@@ -21358,7 +35781,7 @@ class FfiConverterTypeInfoOptions: FfiConverterRustBuffer<InfoOptions> {
             FetchExcluded: FfiConverterBoolean.INSTANCE.Read(stream),
             FetchActualOnly: FfiConverterBoolean.INSTANCE.Read(stream),
             IncludeExternals: FfiConverterBoolean.INSTANCE.Read(stream),
-            Changelists: FfiConverterSequenceString.INSTANCE.Read(stream)
+            Changelists: FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
         );
     }
 
@@ -21371,7 +35794,7 @@ class FfiConverterTypeInfoOptions: FfiConverterRustBuffer<InfoOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.FetchExcluded)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.FetchActualOnly)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeExternals)
-            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Changelists);
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Changelists);
     }
 
     public override void Write(InfoOptions value, BigEndianStream stream) {
@@ -21382,7 +35805,7 @@ class FfiConverterTypeInfoOptions: FfiConverterRustBuffer<InfoOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.FetchExcluded, stream);
             FfiConverterBoolean.INSTANCE.Write(value.FetchActualOnly, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IncludeExternals, stream);
-            FfiConverterSequenceString.INSTANCE.Write(value.Changelists, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Changelists, stream);
     }
 }
 
@@ -22553,7 +36976,7 @@ class FfiConverterTypeRepositoryTable: FfiConverterRustBuffer<RepositoryTable> {
 public record RevertOptions (
     string[] Paths, 
     Depth Depth, 
-    string[] Changelists, 
+    string[]? Changelists, 
     bool ClearChangelists, 
     bool MetadataOnly, 
     bool AddedKeepLocal
@@ -22567,7 +36990,7 @@ class FfiConverterTypeRevertOptions: FfiConverterRustBuffer<RevertOptions> {
         return new RevertOptions(
             Paths: FfiConverterSequenceString.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
-            Changelists: FfiConverterSequenceString.INSTANCE.Read(stream),
+            Changelists: FfiConverterOptionalSequenceString.INSTANCE.Read(stream),
             ClearChangelists: FfiConverterBoolean.INSTANCE.Read(stream),
             MetadataOnly: FfiConverterBoolean.INSTANCE.Read(stream),
             AddedKeepLocal: FfiConverterBoolean.INSTANCE.Read(stream)
@@ -22578,7 +37001,7 @@ class FfiConverterTypeRevertOptions: FfiConverterRustBuffer<RevertOptions> {
         return 0
             + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Paths)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
-            + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Changelists)
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Changelists)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.ClearChangelists)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.MetadataOnly)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.AddedKeepLocal);
@@ -22587,7 +37010,7 @@ class FfiConverterTypeRevertOptions: FfiConverterRustBuffer<RevertOptions> {
     public override void Write(RevertOptions value, BigEndianStream stream) {
             FfiConverterSequenceString.INSTANCE.Write(value.Paths, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
-            FfiConverterSequenceString.INSTANCE.Write(value.Changelists, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Changelists, stream);
             FfiConverterBoolean.INSTANCE.Write(value.ClearChangelists, stream);
             FfiConverterBoolean.INSTANCE.Write(value.MetadataOnly, stream);
             FfiConverterBoolean.INSTANCE.Write(value.AddedKeepLocal, stream);
@@ -22773,9 +37196,9 @@ public record StatusEntry (
     ulong? FileSize, 
     bool Versioned, 
     bool Conflicted, 
-    NodeStatus NodeStatus, 
-    NodeStatus TextStatus, 
-    NodeStatus PropStatus, 
+    WorkingCopyStatus NodeStatus, 
+    WorkingCopyStatus TextStatus, 
+    WorkingCopyStatus PropStatus, 
     bool WcIsLocked, 
     bool Copied, 
     string? ReposRootUrl, 
@@ -22791,9 +37214,9 @@ public record StatusEntry (
     string? Changelist, 
     Depth Depth, 
     NodeKind OutOfDateKind, 
-    NodeStatus ReposNodeStatus, 
-    NodeStatus ReposTextStatus, 
-    NodeStatus ReposPropStatus, 
+    WorkingCopyStatus ReposNodeStatus, 
+    WorkingCopyStatus ReposTextStatus, 
+    WorkingCopyStatus ReposPropStatus, 
     Lock? ReposLock, 
     uint? OutOfDateChangedRevision, 
     long? OutOfDateChangedDate, 
@@ -22814,9 +37237,9 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             FileSize: FfiConverterOptionalUInt64.INSTANCE.Read(stream),
             Versioned: FfiConverterBoolean.INSTANCE.Read(stream),
             Conflicted: FfiConverterBoolean.INSTANCE.Read(stream),
-            NodeStatus: FfiConverterTypeNodeStatus.INSTANCE.Read(stream),
-            TextStatus: FfiConverterTypeNodeStatus.INSTANCE.Read(stream),
-            PropStatus: FfiConverterTypeNodeStatus.INSTANCE.Read(stream),
+            NodeStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            TextStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            PropStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
             WcIsLocked: FfiConverterBoolean.INSTANCE.Read(stream),
             Copied: FfiConverterBoolean.INSTANCE.Read(stream),
             ReposRootUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
@@ -22832,9 +37255,9 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             Changelist: FfiConverterOptionalString.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
             OutOfDateKind: FfiConverterTypeNodeKind.INSTANCE.Read(stream),
-            ReposNodeStatus: FfiConverterTypeNodeStatus.INSTANCE.Read(stream),
-            ReposTextStatus: FfiConverterTypeNodeStatus.INSTANCE.Read(stream),
-            ReposPropStatus: FfiConverterTypeNodeStatus.INSTANCE.Read(stream),
+            ReposNodeStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            ReposTextStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            ReposPropStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
             ReposLock: FfiConverterOptionalTypeLock.INSTANCE.Read(stream),
             OutOfDateChangedRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             OutOfDateChangedDate: FfiConverterOptionalInt64.INSTANCE.Read(stream),
@@ -22852,9 +37275,9 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             + FfiConverterOptionalUInt64.INSTANCE.AllocationSize(value.FileSize)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Versioned)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Conflicted)
-            + FfiConverterTypeNodeStatus.INSTANCE.AllocationSize(value.NodeStatus)
-            + FfiConverterTypeNodeStatus.INSTANCE.AllocationSize(value.TextStatus)
-            + FfiConverterTypeNodeStatus.INSTANCE.AllocationSize(value.PropStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.NodeStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.TextStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.PropStatus)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.WcIsLocked)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Copied)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposRootUrl)
@@ -22870,9 +37293,9 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Changelist)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
             + FfiConverterTypeNodeKind.INSTANCE.AllocationSize(value.OutOfDateKind)
-            + FfiConverterTypeNodeStatus.INSTANCE.AllocationSize(value.ReposNodeStatus)
-            + FfiConverterTypeNodeStatus.INSTANCE.AllocationSize(value.ReposTextStatus)
-            + FfiConverterTypeNodeStatus.INSTANCE.AllocationSize(value.ReposPropStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.ReposNodeStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.ReposTextStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.ReposPropStatus)
             + FfiConverterOptionalTypeLock.INSTANCE.AllocationSize(value.ReposLock)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.OutOfDateChangedRevision)
             + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.OutOfDateChangedDate)
@@ -22888,9 +37311,9 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             FfiConverterOptionalUInt64.INSTANCE.Write(value.FileSize, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Versioned, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Conflicted, stream);
-            FfiConverterTypeNodeStatus.INSTANCE.Write(value.NodeStatus, stream);
-            FfiConverterTypeNodeStatus.INSTANCE.Write(value.TextStatus, stream);
-            FfiConverterTypeNodeStatus.INSTANCE.Write(value.PropStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.NodeStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.TextStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.PropStatus, stream);
             FfiConverterBoolean.INSTANCE.Write(value.WcIsLocked, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Copied, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.ReposRootUrl, stream);
@@ -22906,9 +37329,9 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             FfiConverterOptionalString.INSTANCE.Write(value.Changelist, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.OutOfDateKind, stream);
-            FfiConverterTypeNodeStatus.INSTANCE.Write(value.ReposNodeStatus, stream);
-            FfiConverterTypeNodeStatus.INSTANCE.Write(value.ReposTextStatus, stream);
-            FfiConverterTypeNodeStatus.INSTANCE.Write(value.ReposPropStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.ReposNodeStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.ReposTextStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.ReposPropStatus, stream);
             FfiConverterOptionalTypeLock.INSTANCE.Write(value.ReposLock, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.OutOfDateChangedRevision, stream);
             FfiConverterOptionalInt64.INSTANCE.Write(value.OutOfDateChangedDate, stream);
@@ -23723,6 +38146,206 @@ class FfiConverterTypeWorkingCopyNotify: FfiConverterRustBuffer<WorkingCopyNotif
 
 
 
+public record WorkingCopyRevisionStatus (
+    uint MinRevision, 
+    uint MaxRevision, 
+    bool Switched, 
+    bool Modified, 
+    bool SparseCheckout
+) {
+}
+
+class FfiConverterTypeWorkingCopyRevisionStatus: FfiConverterRustBuffer<WorkingCopyRevisionStatus> {
+    public static FfiConverterTypeWorkingCopyRevisionStatus INSTANCE = new FfiConverterTypeWorkingCopyRevisionStatus();
+
+    public override WorkingCopyRevisionStatus Read(BigEndianStream stream) {
+        return new WorkingCopyRevisionStatus(
+            MinRevision: FfiConverterUInt32.INSTANCE.Read(stream),
+            MaxRevision: FfiConverterUInt32.INSTANCE.Read(stream),
+            Switched: FfiConverterBoolean.INSTANCE.Read(stream),
+            Modified: FfiConverterBoolean.INSTANCE.Read(stream),
+            SparseCheckout: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WorkingCopyRevisionStatus value) {
+        return 0
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.MinRevision)
+            + FfiConverterUInt32.INSTANCE.AllocationSize(value.MaxRevision)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Switched)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Modified)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.SparseCheckout);
+    }
+
+    public override void Write(WorkingCopyRevisionStatus value, BigEndianStream stream) {
+            FfiConverterUInt32.INSTANCE.Write(value.MinRevision, stream);
+            FfiConverterUInt32.INSTANCE.Write(value.MaxRevision, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Switched, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Modified, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.SparseCheckout, stream);
+    }
+}
+
+
+
+public record WorkingCopyRevisionStatusOptions (
+    string LocalAbsolutePath, 
+    string? TrailUrl, 
+    bool Committed
+) {
+}
+
+class FfiConverterTypeWorkingCopyRevisionStatusOptions: FfiConverterRustBuffer<WorkingCopyRevisionStatusOptions> {
+    public static FfiConverterTypeWorkingCopyRevisionStatusOptions INSTANCE = new FfiConverterTypeWorkingCopyRevisionStatusOptions();
+
+    public override WorkingCopyRevisionStatusOptions Read(BigEndianStream stream) {
+        return new WorkingCopyRevisionStatusOptions(
+            LocalAbsolutePath: FfiConverterString.INSTANCE.Read(stream),
+            TrailUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
+            Committed: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WorkingCopyRevisionStatusOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.LocalAbsolutePath)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.TrailUrl)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Committed);
+    }
+
+    public override void Write(WorkingCopyRevisionStatusOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.LocalAbsolutePath, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.TrailUrl, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Committed, stream);
+    }
+}
+
+
+
+public record WorkingCopyRevisionStatusResult (
+    WorkingCopyRevisionStatus Status
+) {
+}
+
+class FfiConverterTypeWorkingCopyRevisionStatusResult: FfiConverterRustBuffer<WorkingCopyRevisionStatusResult> {
+    public static FfiConverterTypeWorkingCopyRevisionStatusResult INSTANCE = new FfiConverterTypeWorkingCopyRevisionStatusResult();
+
+    public override WorkingCopyRevisionStatusResult Read(BigEndianStream stream) {
+        return new WorkingCopyRevisionStatusResult(
+            Status: FfiConverterTypeWorkingCopyRevisionStatus.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WorkingCopyRevisionStatusResult value) {
+        return 0
+            + FfiConverterTypeWorkingCopyRevisionStatus.INSTANCE.AllocationSize(value.Status);
+    }
+
+    public override void Write(WorkingCopyRevisionStatusResult value, BigEndianStream stream) {
+            FfiConverterTypeWorkingCopyRevisionStatus.INSTANCE.Write(value.Status, stream);
+    }
+}
+
+
+
+
+
+public class CSharpException: UniffiException {
+    CSharpException() : base() {}
+    CSharpException(String @Message) : base(@Message) {}
+
+    // Each variant is a nested class
+    
+    
+    public class SubversionException : CSharpException {
+        // Members
+        public int @code;
+        public string @msg;
+
+        // Constructor
+        public SubversionException(
+                int @code, 
+                string @msg) : base(
+                "@code" + "=" + @code+ ", " +
+                "@msg" + "=" + @msg) {
+
+            this.@code = @code;
+
+            this.@msg = @msg;
+        }
+    }
+    
+    
+    public class UnexpectedException : CSharpException {
+        // Members
+        public string @detail;
+
+        // Constructor
+        public UnexpectedException(
+                string @detail) : base(
+                "@detail" + "=" + @detail) {
+
+            this.@detail = @detail;
+        }
+    }
+    
+
+    
+}
+
+class FfiConverterTypeCSharpError : FfiConverterRustBuffer<CSharpException>, CallStatusErrorHandler<CSharpException> {
+    public static FfiConverterTypeCSharpError INSTANCE = new FfiConverterTypeCSharpError();
+
+    public override CSharpException Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new CSharpException.SubversionException(
+                    FfiConverterInt32.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream));
+            case 2:
+                return new CSharpException.UnexpectedException(
+                    FfiConverterString.INSTANCE.Read(stream));
+            default:
+                throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeCSharpError.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(CSharpException value) {
+        switch (value) {
+
+            case CSharpException.SubversionException variant_value:
+                return 4
+                    + FfiConverterInt32.INSTANCE.AllocationSize(variant_value.@code)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.@msg);
+
+            case CSharpException.UnexpectedException variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.@detail);
+            default:
+                throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeCSharpError.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(CSharpException value, BigEndianStream stream) {
+        switch (value) {
+            case CSharpException.SubversionException variant_value:
+                stream.WriteInt(1);
+                FfiConverterInt32.INSTANCE.Write(variant_value.@code, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.@msg, stream);
+                break;
+            case CSharpException.UnexpectedException variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.@detail, stream);
+                break;
+            default:
+                throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeCSharpError.Write()", value));
+        }
+    }
+}
+
+
+
 
 
 public record CheckSum {
@@ -24112,6 +38735,10 @@ public class Exception: UniffiException {
         public SvgException(string message): base(message) {}
     }
     
+    public class JsonException: Exception {
+        public JsonException(string message): base(message) {}
+    }
+    
 }
 
 class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusErrorHandler<Exception> {
@@ -24130,6 +38757,7 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
             case 8: return new Exception.RuntimeException(FfiConverterString.INSTANCE.Read(stream));
             case 9: return new Exception.Whatever(FfiConverterString.INSTANCE.Read(stream));
             case 10: return new Exception.SvgException(FfiConverterString.INSTANCE.Read(stream));
+            case 11: return new Exception.JsonException(FfiConverterString.INSTANCE.Read(stream));
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Read()", value));
         }
@@ -24170,6 +38798,9 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
                 break;
             case Exception.SvgException:
                 stream.WriteInt(10);
+                break;
+            case Exception.JsonException:
+                stream.WriteInt(11);
                 break;
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Write()", value));
@@ -24381,51 +39012,6 @@ class FfiConverterTypeNodeKind: FfiConverterRustBuffer<NodeKind> {
     }
 
     public override void Write(NodeKind value, BigEndianStream stream) {
-        stream.WriteInt((int)value + 1);
-    }
-}
-
-
-
-
-
-
-
-public enum NodeStatus: int {
-    
-    None,
-    Unversioned,
-    Normal,
-    Added,
-    Missing,
-    Deleted,
-    Replaced,
-    Modified,
-    Merged,
-    Conflicted,
-    Ignored,
-    Obstructed,
-    External,
-    Incomplete
-}
-
-class FfiConverterTypeNodeStatus: FfiConverterRustBuffer<NodeStatus> {
-    public static FfiConverterTypeNodeStatus INSTANCE = new FfiConverterTypeNodeStatus();
-
-    public override NodeStatus Read(BigEndianStream stream) {
-        var value = stream.ReadInt() - 1;
-        if (Enum.IsDefined(typeof(NodeStatus), value)) {
-            return (NodeStatus)value;
-        } else {
-            throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeNodeStatus.Read()", value));
-        }
-    }
-
-    public override int AllocationSize(NodeStatus value) {
-        return 4;
-    }
-
-    public override void Write(NodeStatus value, BigEndianStream stream) {
         stream.WriteInt((int)value + 1);
     }
 }
@@ -24806,8 +39392,7 @@ public enum WorkingCopyNotifyAction: int {
     HydratingStart,
     HydratingFile,
     HydratingEnd,
-    Warning,
-    RevertNoAccess
+    Warning
 }
 
 class FfiConverterTypeWorkingCopyNotifyAction: FfiConverterRustBuffer<WorkingCopyNotifyAction> {
@@ -24974,6 +39559,175 @@ class FfiConverterTypeWorkingCopySchedule: FfiConverterRustBuffer<WorkingCopySch
 
     public override void Write(WorkingCopySchedule value, BigEndianStream stream) {
         stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
+public enum WorkingCopyStatus: int {
+    
+    None,
+    Unversioned,
+    Normal,
+    Added,
+    Missing,
+    Deleted,
+    Replaced,
+    Modified,
+    Merged,
+    Conflicted,
+    Ignored,
+    Obstructed,
+    External,
+    Incomplete
+}
+
+class FfiConverterTypeWorkingCopyStatus: FfiConverterRustBuffer<WorkingCopyStatus> {
+    public static FfiConverterTypeWorkingCopyStatus INSTANCE = new FfiConverterTypeWorkingCopyStatus();
+
+    public override WorkingCopyStatus Read(BigEndianStream stream) {
+        var value = stream.ReadInt() - 1;
+        if (Enum.IsDefined(typeof(WorkingCopyStatus), value)) {
+            return (WorkingCopyStatus)value;
+        } else {
+            throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeWorkingCopyStatus.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(WorkingCopyStatus value) {
+        return 4;
+    }
+
+    public override void Write(WorkingCopyStatus value, BigEndianStream stream) {
+        stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
+public record WorkspaceHistory {
+    
+    public record WorkingCopy (
+        string WorkingCopyRoot,
+        string WorkingCopyPath,
+        string? RepositoryRootUrl,
+        long? LastUsedTime,
+        bool Checkout,
+        int Order,
+        bool Star,
+        string Id,
+        string? Remark
+    ) : WorkspaceHistory {}
+    
+    public record Repository (
+        string RootUrl,
+        string RepositoryUuid,
+        long? LastUsedTime,
+        int Order,
+        bool Star,
+        string Id,
+        string? Remark
+    ) : WorkspaceHistory {}
+    
+
+    
+}
+
+class FfiConverterTypeWorkspaceHistory : FfiConverterRustBuffer<WorkspaceHistory>{
+    public static FfiConverterRustBuffer<WorkspaceHistory> INSTANCE = new FfiConverterTypeWorkspaceHistory();
+
+    public override WorkspaceHistory Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new WorkspaceHistory.WorkingCopy(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream),
+                    FfiConverterOptionalInt64.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterInt32.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new WorkspaceHistory.Repository(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalInt64.INSTANCE.Read(stream),
+                    FfiConverterInt32.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeWorkspaceHistory.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(WorkspaceHistory value) {
+        switch (value) {
+            case WorkspaceHistory.WorkingCopy variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkingCopyRoot)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.WorkingCopyPath)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.RepositoryRootUrl)
+                    + FfiConverterOptionalInt64.INSTANCE.AllocationSize(variant_value.LastUsedTime)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Checkout)
+                    + FfiConverterInt32.INSTANCE.AllocationSize(variant_value.Order)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Star)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Id)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Remark);
+            case WorkspaceHistory.Repository variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RootUrl)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.RepositoryUuid)
+                    + FfiConverterOptionalInt64.INSTANCE.AllocationSize(variant_value.LastUsedTime)
+                    + FfiConverterInt32.INSTANCE.AllocationSize(variant_value.Order)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.Star)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Id)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Remark);
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeWorkspaceHistory.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(WorkspaceHistory value, BigEndianStream stream) {
+        switch (value) {
+            case WorkspaceHistory.WorkingCopy variant_value:
+                stream.WriteInt(1);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkingCopyRoot, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.WorkingCopyPath, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.RepositoryRootUrl, stream);
+                FfiConverterOptionalInt64.INSTANCE.Write(variant_value.LastUsedTime, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Checkout, stream);
+                FfiConverterInt32.INSTANCE.Write(variant_value.Order, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Star, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.Remark, stream);
+                break;
+            case WorkspaceHistory.Repository variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.RootUrl, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.RepositoryUuid, stream);
+                FfiConverterOptionalInt64.INSTANCE.Write(variant_value.LastUsedTime, stream);
+                FfiConverterInt32.INSTANCE.Write(variant_value.Order, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.Star, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Id, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.Remark, stream);
+                break;
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeWorkspaceHistory.Write()", value));
+        }
     }
 }
 
@@ -25596,58 +40350,6 @@ class FfiConverterOptionalDictionaryStringString: FfiConverterRustBuffer<Diction
             stream.WriteByte(1);
             FfiConverterDictionaryStringString.INSTANCE.Write((Dictionary<string, string>)value, stream);
         }
-    }
-}
-
-
-
-
-class FfiConverterSequenceUInt32: FfiConverterRustBuffer<uint[]> {
-    public static FfiConverterSequenceUInt32 INSTANCE = new FfiConverterSequenceUInt32();
-
-    public override uint[]  Read(BigEndianStream stream) {
-        var length = stream.ReadInt();
-        if (length == 0) {
-            return [];
-        }
-
-        T[] _CreateArray<T>(int length)
-        {
-            return new T[length];
-        }
-
-
-        var result = _CreateArray<uint>(length);
-        var readFn = FfiConverterUInt32.INSTANCE.Read;
-        for (int i = 0; i < length; i++) {
-            result[i] = readFn(stream);
-        }
-        return result;
-    }
-
-    public override int AllocationSize(uint[]  value) {
-        var sizeForLength = 4;
-
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            return sizeForLength;
-        }
-
-        var allocationSizeFn = FfiConverterUInt32.INSTANCE.AllocationSize;
-        var sizeForItems = value.Sum(item => allocationSizeFn(item));
-        return sizeForLength + sizeForItems;
-    }
-
-    public override void Write(uint[] value, BigEndianStream stream) {
-        // details/1-empty-list-as-default-method-parameter.md
-        if (value == null) {
-            stream.WriteInt(0);
-            return;
-        }
-
-        stream.WriteInt(value.Length);
-        var writerFn = FfiConverterUInt32.INSTANCE.Write;
-        value.ForEach(item => writerFn(item, stream));
     }
 }
 
@@ -26427,6 +41129,110 @@ class FfiConverterSequenceTypeConflict: FfiConverterRustBuffer<Conflict[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeConflict.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeWorkspaceHistory: FfiConverterRustBuffer<WorkspaceHistory[]> {
+    public static FfiConverterSequenceTypeWorkspaceHistory INSTANCE = new FfiConverterSequenceTypeWorkspaceHistory();
+
+    public override WorkspaceHistory[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<WorkspaceHistory>(length);
+        var readFn = FfiConverterTypeWorkspaceHistory.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(WorkspaceHistory[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeWorkspaceHistory.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(WorkspaceHistory[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeWorkspaceHistory.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceOptionalUInt32: FfiConverterRustBuffer<uint?[]> {
+    public static FfiConverterSequenceOptionalUInt32 INSTANCE = new FfiConverterSequenceOptionalUInt32();
+
+    public override uint?[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<uint?>(length);
+        var readFn = FfiConverterOptionalUInt32.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(uint?[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterOptionalUInt32.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(uint?[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterOptionalUInt32.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

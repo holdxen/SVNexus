@@ -200,7 +200,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
 
         foreach (var item in items)
         {
-            if (item.Value.NodeStatus == NodeStatus.Unversioned)
+            if (item.Value.NodeStatus == WorkingCopyStatus.Unversioned)
             {
                 unversioned.Add(item.Key);
             }
@@ -333,7 +333,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 }
             }
 
-            var incompleteList = result.Entries.Where(e => e.NodeStatus == NodeStatus.Incomplete).ToList();
+            var incompleteList = result.Entries.Where(e => e.NodeStatus == WorkingCopyStatus.Incomplete).ToList();
             if (incompleteList.Count > 0)
             {
                 var boxResult = await MessageBox.ShowOverlayAsync(
@@ -627,7 +627,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 Func<Task<CatResult>> catModified;
                 Func<Task<CatResult>> catOriginal;
 
-                if (statusEntry.NodeStatus is NodeStatus.Missing or NodeStatus.Deleted)
+                if (statusEntry.NodeStatus is WorkingCopyStatus.Missing or WorkingCopyStatus.Deleted)
                 {
                     catModified = () => Task.FromResult(new CatResult([], []));
                     catOriginal = () =>
@@ -637,7 +637,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                         return context.Cat(catOptions);
                     };
                 }
-                else if (statusEntry.NodeStatus is NodeStatus.Unversioned or NodeStatus.Added)
+                else if (statusEntry.NodeStatus is WorkingCopyStatus.Unversioned or WorkingCopyStatus.Added)
                 {
                     catModified = async () =>
                     {

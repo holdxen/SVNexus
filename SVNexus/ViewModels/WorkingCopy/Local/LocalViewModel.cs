@@ -16,10 +16,12 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Utils;
+using SVNexus.Views;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent), IRecipient<LocalViewModel.OnCreatedItem>
+public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.OnCreatedItem>
 {
 
 
@@ -28,22 +30,6 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     
     public partial class TreeItemViewModel(ViewModelBase? parent): ViewModelBase(parent)//, IRecipient<OnSetChecked>, IRecipient<OnSetExpanded>
     {
-
-        // private readonly IServiceProvider _serviceProvider;
-        //
-        // private readonly Services.ITabService _tabService;
-        
-
-        // private readonly Services.TypeService _typeService;
-        //
-        // public TreeItemViewModel(IServiceProvider serviceProvider)
-        // {
-        //     _serviceProvider = serviceProvider;
-        //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        //     
-        //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-        // }
         
         [ObservableProperty]
         public partial bool HasLoaded { get; set; }
@@ -60,14 +46,11 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
         
         public bool HasChild => StatusEntry.NodeKind == NodeKind.Directory;
         
-        public bool IsReal => StatusEntry.NodeStatus is not (NodeStatus.None or NodeStatus.Normal);
+        public bool IsReal => StatusEntry.NodeStatus is not (WorkingCopyStatus.None or WorkingCopyStatus.Normal);
         
-        public bool IsDelete => StatusEntry.NodeStatus == NodeStatus.Deleted;
+        public bool IsDelete => StatusEntry.NodeStatus == WorkingCopyStatus.Deleted;
 
         [ObservableProperty] public partial bool IsLoading { get; set; }
-        
-        [ObservableProperty]
-        public partial bool IsChecked { get; set; }
 
         public string NodeKindIcon => StatusEntry.NodeKind.NodeKindIcon();
 
@@ -102,7 +85,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
                 // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
                 var hostId = SendMessage(new OnGetDialogHostId());
 
-                var context = Engine.Engine.Instance.SimpleContext(hostId);
+                var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
                 var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true,
                     true, true, false, false, false, null);
@@ -129,7 +112,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
                                 }
                                 else
                                 {
-                                    var item = new TreeItemViewModel(parent)
+                                    var item = new TreeItemViewModel(Parent)
                                     {
                                         StatusEntry = entry
                                     };
@@ -174,7 +157,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
             
             var hostId = SendMessage(new OnGetDialogHostId());
             
-            var context = Engine.Engine.Instance.SimpleContext(hostId);
+            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
             var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true, false, false, false, false, false, null);
 
@@ -227,37 +210,199 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     [ObservableProperty]
     public partial bool IsLoading { get; set; }
     
-    private Dictionary<string, StatusEntry> _checkedItems = [];
-    private HashSet<string> _expandedItems = [];
+    
+    
+    [ObservableProperty]
+    public partial ObservableCollection<TreeItemViewModel> SelectedTreeItems { get; set; } = [];
+    
+    
+    public bool IsAddButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeStatus == WorkingCopyStatus.Unversioned);
+
+    public bool IsUpdateButtonEnable => SelectedTreeItems.Count > 0;
+
+    public bool IsRefreshButtonEnable => true;
+
+    public bool IsRevertButtonEnable => SelectedTreeItems.Count > 0;
+    
+    public bool IsDiffButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry.NodeStatus != WorkingCopyStatus.Unversioned;
+    
+    public bool IsPatchButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry.NodeStatus != WorkingCopyStatus.Unversioned;
+
+    public bool IsDeleteButtonEnable => SelectedTreeItems.Count > 0;
+    
+    public bool IsMkdirButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry.NodeStatus != WorkingCopyStatus.Unversioned;
+    
+    public bool IsLockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeKind == NodeKind.File);
+    
+    public bool IsUnlockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeKind != NodeKind.Directory);
+    
+    
+    // private Dictionary<string, StatusEntry> _checkedItems = [];
+    // private HashSet<string> _expandedItems = [];
 
     private TreeItemViewModel? _root;
     
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
-    // private readonly Services.ITabService _tabService;
-    //
-    // private readonly Services.WorkingCopyViewService _workingCopyViewService;
-    //
-    // private readonly IServiceProvider _serviceProvider;
-    //
-    // private readonly Services.TypeService _typeService;
+    /// <inheritdoc/>
+    public LocalViewModel(ViewModelBase parent) : base(parent)
+    {
+        SelectedTreeItems.CollectionChanged += (sender, args) =>
+        {
+            NotifyProperties();
+        };
+    }
 
-    // public LocalViewModel(IServiceProvider serviceProvider)
-    // {
-    //     _serviceProvider = serviceProvider;
-    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.WorkingCopyViewService>();
-    //     
-    //     
-    //
-    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-    //     
-    //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
-    // }
+
+    private void NotifyProperties()
+    {
+        OnPropertyChanged(nameof(IsAddButtonEnable));
+        OnPropertyChanged(nameof(IsUpdateButtonEnable));
+        OnPropertyChanged(nameof(IsRevertButtonEnable));
+        OnPropertyChanged(nameof(IsRevertButtonEnable));
+        OnPropertyChanged(nameof(IsDiffButtonEnable));
+        OnPropertyChanged(nameof(IsPatchButtonEnable));
+        OnPropertyChanged(nameof(IsDeleteButtonEnable));
+        OnPropertyChanged(nameof(IsMkdirButtonEnable));
+        OnPropertyChanged(nameof(IsLockButtonEnable));
+        OnPropertyChanged(nameof(IsUnlockButtonEnable));
+    }
+
+
+    private async Task Unlock()
+    {
+        if (!IsUnlockButtonEnable)
+        {
+            return;
+        }
+
+
+        // var unlockOptions = new UnlockOptions();
+    }
+
+    [RelayCommand]
+    private async Task Lock()
+    {
+        if (!IsLockButtonEnable)
+        {
+            return;
+        }
+        var lockDialogModel = new LockDialogModel(this)
+        {
+            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
+            TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry).ToList()
+        };
+
+        var dialogOptions = new OverlayDialogOptions()
+        {
+            IsCloseButtonVisible = false,
+            Buttons = DialogButton.None,
+            CanDragMove = true,
+            StyleClass = "Fixed",
+            Title = "Lock"
+        };
+        
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowModal<LockDialog, LockDialogModel>(lockDialogModel, hostId, dialogOptions);
+        // var lockOptions = new LockOptions();
+    }
+
+
+    [RelayCommand]
+    private async Task Difference()
+    {
+        if (!IsDiffButtonEnable)
+        {
+            return;
+        }
+        
+        var differenceDialogModel = new DifferenceDialogModel(this)
+        {
+            Path = SelectedTreeItems.First().StatusEntry.Path,
+        };
+
+        var dialogOptions = new OverlayDialogOptions
+        {
+            FullScreen = true,
+            Title = "Difference",
+            IsCloseButtonVisible = false,
+            StyleClass = "Fixed"
+        };
+
+        await OverlayDialog.ShowModal<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        
+        
+    }
+
+    [RelayCommand]
+    private async Task Revert()
+    {
+        if (!IsRevertButtonEnable)
+        {
+            return;
+        }
+        
+        var revertOptions = new RevertOptions(
+            SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
+            Depth.Infinity,
+            [],
+            false,
+            false,
+            true
+        );
+
+        var context = SendMessage(new OnGetContext()).Response;
+
+        await context.Revert(revertOptions);
+
+    }
+
+    [RelayCommand]
+    private async Task Update()
+    {
+        if (!IsUpdateButtonEnable)
+        {
+            return;
+        }
+        
+        var updateOptions = new UpdateOptions(
+            SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
+            new Revision.Head(),
+            Depth.Infinity,
+            false,
+            false,
+            true,
+            true,
+            true
+        );
+
+
+        var context = SendMessage(new OnGetContext()).Response;
+
+        await context.Update(updateOptions);
+    }
+
+    [RelayCommand]
+    private async Task Add()
+    {
+        if (!IsAddButtonEnable)
+        {
+            return;
+        }
+        var context = SendMessage(new OnGetContext()).Response;
+
+        foreach (var item in SelectedTreeItems)
+        {
+            var addOptions = new AddOptions(item.StatusEntry.Path, Depth.Infinity, false, false, false, true);
+
+            await context.Add(addOptions);
+        }
+    }
 
     private void CleanWeakTreeItems()
     {
-        ForEachWeakTreeItem(item => {});
+        ForEachWeakTreeItem(_ => {});
     }
 
     private void ForEachWeakTreeItem(Action<TreeItemViewModel> action)
@@ -287,20 +432,6 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     {
         // Manager.Default.Send(new OnSetExpanded(true), _typeService.Get<TreeItemViewModel>());
         ForEachWeakTreeItem(item => item.IsExpanded = true);
-    }
-
-    [RelayCommand]
-    private void CheckAll()
-    {
-        // Manager.Default.Send(new OnSetChecked(true), _typeService.Get<TreeItemViewModel>());
-        ForEachWeakTreeItem(item => item.IsChecked = true);
-    }
-    
-    [RelayCommand]
-    private void ClearAll()
-    {
-        // Manager.Default.Send(new OnSetChecked(false), _typeService.Get<TreeItemViewModel>());
-        ForEachWeakTreeItem(item => item.IsChecked = false);
     }
 
     partial void OnShowRootChanged(bool value)
@@ -403,7 +534,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
             var hostId = SendMessage(new OnGetDialogHostId());
             var path = SendMessage(new OnGetWorkingCopyPath());
 
-            var context = Engine.Engine.Instance.SimpleContext(hostId);
+            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
             var statusOptions = new StatusOptions(
                 path,
@@ -465,7 +596,7 @@ public partial class LocalViewModel(ViewModelBase parent): ViewModelBase(parent)
     [RelayCommand]
     private async Task OnLoaded()
     {
-        await _singleTaskQueue.Run(async token => await LoadRoot());
+        await _singleTaskQueue.Run(async _ => await LoadRoot());
     }
 
     public void Receive(OnCreatedItem message)

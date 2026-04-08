@@ -52,7 +52,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         public bool HasChild => StatusEntry?.NodeKind is NodeKind.Directory;
 
 
-        public string PathSvgIcon => StatusEntry?.NodeKind.NodeKindIcon() ?? NodeKind.Directory.NodeKindIcon();
+        public string KindIcon => StatusEntry?.NodeKind.NodeKindIcon() ?? NodeKind.Directory.NodeKindIcon();
 
 
         public string Text
@@ -68,18 +68,18 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         } = string.Empty;
 
 
-        public bool IsDelete => StatusEntry?.NodeStatus is NodeStatus.Deleted or NodeStatus.Missing;
+        public bool IsDelete => StatusEntry?.NodeStatus is WorkingCopyStatus.Deleted or WorkingCopyStatus.Missing;
 
 
         public bool IsReal => StatusEntry is not null;
         
-        public bool IsCheckable => StatusEntry is not null && StatusEntry.NodeStatus != NodeStatus.Normal;
+        public bool IsCheckable => StatusEntry is not null && StatusEntry.NodeStatus != WorkingCopyStatus.Normal;
 
 
         public string StatusToolTip => StatusEntry?.NodeStatus.ToString() ?? string.Empty;
     
     
-        public string StatusSvgIcon => StatusEntry?.NodeStatus.NodeStatusIcon() ?? string.Empty;
+        public string StatusIcon => StatusEntry?.NodeStatus.NodeStatusIcon() ?? string.Empty;
     
         [ObservableProperty]
         public required partial string WorkingCopyPath { get; set; }

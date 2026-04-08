@@ -188,8 +188,17 @@ public partial class MainWindowViewModel : ViewModelBase,
 
     public void Receive(OnAddTab message)
     {
-        message.Value.Parent = this;
-        Tabs.Add(message.Value);
+        // message.Value.Parent = this;
+        // Tabs.Add(message.Value);
+        var tab = new TabItemViewModel(this)
+        {
+            Text = message.Name,
+            Closable = message.Closable,
+        }.Apply(item =>
+        {
+            item.Content = message.Factory(item);
+        });
+        Tabs.Add(tab);
         SelectedIndex = Tabs.Count - 1;
     }
 

@@ -18,6 +18,18 @@ public class DocumentTextBindingBehavior : Behavior<TextEditor>
         set => SetValue(TextProperty, value);
     }
 
+    static DocumentTextBindingBehavior()
+    {
+        TextProperty.Changed.AddClassHandler<DocumentTextBindingBehavior, string>(OnTextPropertyChanged);
+    }
+
+    private static void OnTextPropertyChanged(DocumentTextBindingBehavior target,
+        AvaloniaPropertyChangedEventArgs<string> args)
+    {
+        target.TextPropertyChanged(args.NewValue.Value);
+    }
+
+
     protected override void OnAttached()
     {
         base.OnAttached();
@@ -27,7 +39,7 @@ public class DocumentTextBindingBehavior : Behavior<TextEditor>
         if (textEditor is null) return;
         _textEditor = textEditor;
         _textEditor.TextChanged += TextChanged;
-        this.GetObservable(TextProperty).Subscribe(TextPropertyChanged);
+        // this.GetObservable(TextProperty).Subscribe(TextPropertyChanged);
     }
 
     protected override void OnDetaching()

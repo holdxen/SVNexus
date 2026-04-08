@@ -75,13 +75,13 @@ PATH_SEPARATOR=":"
 
 # The host system.
 host_alias=
-host=aarch64-apple-darwin24.4.0
-host_os=darwin24.4.0
+host=aarch64-apple-darwin23.0.0
+host_os=darwin23.0.0
 
 # The build system.
 build_alias=
-build=aarch64-apple-darwin24.4.0
-build_os=darwin24.4.0
+build=aarch64-apple-darwin23.0.0
+build_os=darwin23.0.0
 
 # A sed program that does not truncate output.
 SED="/usr/bin/sed"
@@ -290,7 +290,7 @@ finish_eval=""
 hardcode_into_libs=no
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/Library/Developer/CommandLineTools/usr/lib/clang/17  /usr/local/lib"
+sys_lib_search_path_spec="/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0  /usr/local/lib"
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/usr/local/lib /lib /usr/lib"
