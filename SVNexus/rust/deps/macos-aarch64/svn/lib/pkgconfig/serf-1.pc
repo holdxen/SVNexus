@@ -1,0 +1,13 @@
+SERF_MAJOR_VERSION=1
+prefix=../svn
+exec_prefix=${prefix}
+libdir=../svn/lib
+includedir=${prefix}/include/serf-1
+
+Name: serf
+Description: HTTP client library
+Version: 1.3.10
+Requires.private: libssl libcrypto
+Libs: -L${libdir} -lserf-${SERF_MAJOR_VERSION}
+Libs.private: /Users/zhouguiqing/Downloads/svn/lib/libaprutil-1.la     /Users/zhouguiqing/Downloads/apr-util-1.6.3/../apr-iconv-1.2.2/lib/libapriconv.la                               -lexpat -liconv /Users/zhouguiqing/Downloads/svn/lib/libapr-1.la -lpthread  -lz
+Cflags: -I${includedir}

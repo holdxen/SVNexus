@@ -258,21 +258,6 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             SendMessage(msg);
         }
 
-        // [RelayCommand]
-        // private async Task Delete()
-        // {
-        //     await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
-        //     {
-        //         await DatabaseManager.Default.DeleteWorkspaceHistory(History.Uuid);
-        //     });
-        //     SendMessage(new OnRemoveHistory()
-        //     {
-        //         Item = this
-        //     });
-        // }
-        //
-        
-        
         [ObservableProperty]
         public partial bool IsConflict { get; set; }
         
