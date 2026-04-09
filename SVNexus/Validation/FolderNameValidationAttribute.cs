@@ -75,8 +75,8 @@ public sealed class FolderNameValidationAttribute() : ValidationAttribute("")
         if (folderName.Any(c => c < 32))
             return "文件夹名称不能包含控制字符。";
 
-        bool checkWindows = EnforceAllPlatforms || RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        bool checkUnix    = EnforceAllPlatforms || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var checkWindows = EnforceAllPlatforms || RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var checkUnix    = EnforceAllPlatforms || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         // 4. 非法字符检查
         if (checkWindows)

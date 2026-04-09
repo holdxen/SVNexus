@@ -264,7 +264,7 @@
                                    Text="Navigation"
                                    Classes="Tertiary" Margin="0 5">
                         </TextBlock>
-                        <ListBox Grid.Row="1">
+                        <ListBox Grid.Row="1" SelectedIndex="{Binding SelectedKindIndex}">
                             <ListBox.Styles>
                                 <Style Selector="ListBoxItem">
                                     <Setter Property="Padding" Value="12 14"></Setter>
@@ -284,7 +284,7 @@
                                 <Grid ColumnDefinitions="*, Auto">
                                     <TextBlock Text="Star"></TextBlock>
                                     <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
-                                           Content="0">
+                                           Content="{Binding StarCount}">
                                     </Label>
                                 </Grid>
                             </ListBoxItem>
@@ -292,7 +292,7 @@
                                 <Grid ColumnDefinitions="*, Auto">
                                     <TextBlock Text="Modified"></TextBlock>
                                     <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
-                                           Content="0">
+                                           Content="{Binding ModifiedCount}">
                                     </Label>
                                 </Grid>
                             </ListBoxItem>
@@ -300,7 +300,7 @@
                                 <Grid ColumnDefinitions="*, Auto">
                                     <TextBlock Text="Conflicted"></TextBlock>
                                     <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
-                                           Content="0">
+                                           Content="{Binding ConflictCount}">
                                     </Label>
                                 </Grid>
                             </ListBoxItem>
@@ -308,7 +308,7 @@
                                 <Grid ColumnDefinitions="*, Auto">
                                     <TextBlock Text="Invalid"></TextBlock>
                                     <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
-                                           Content="0">
+                                           Content="{Binding InvalidCount}">
                                     </Label>
                                 </Grid>
                             </ListBoxItem>
@@ -316,32 +316,58 @@
                     </Grid>
                     <u:Divider Margin="0 5" Grid.Row="3"></u:Divider>
                     <Grid Grid.Row="4" RowDefinitions="Auto, *">
-                        <TextBlock Text="Group" FontSize="12" Classes="Tertiary" Margin="0 5"></TextBlock>
-                        <ListBox Grid.Row="1" SelectedIndex="{Binding SelectedKindIndex}">
-                            <ListBoxItem>
-                                <Grid RowDefinitions="*, Auto">
-                                    <TextBlock Text="All"></TextBlock>
-                                </Grid>
-                            </ListBoxItem>
-                            <ListBoxItem>
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <TextBlock Text="All"></TextBlock>
-                                    <Label Grid.Column="1"
-                                           Theme="{StaticResource TagLabel}"
-                                           Classes="Circle Indigo"
-                                           Content="0">
-                                    </Label>
-                                </Grid>
-                            </ListBoxItem>
-                            <ListBoxItem>
-                                <TextBlock Text="Modified"></TextBlock>
-                            </ListBoxItem>
-                            <ListBoxItem>
-                                <TextBlock Text="Conflicted"></TextBlock>
-                            </ListBoxItem>
-                            <ListBoxItem>
-                                <TextBlock Text="Invalid"></TextBlock>
-                            </ListBoxItem>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBlock Text="Group" 
+                                       FontSize="12" 
+                                       Classes="Tertiary" Margin="0 5"></TextBlock>
+                            <components:SvgButton Grid.Column="1" Source="{StaticResource Icons.DesktopAdd}" 
+                                                  Command="{Binding AddHistoryGroupCommand}"
+                                                  Size="16"
+                                                  Classes="Button"></components:SvgButton>
+                        </Grid>
+                        <ListBox Grid.Row="1" 
+                                 SelectedIndex="{Binding SelectedGroupIndex}" 
+                                 ItemsSource="{Binding HistoryGroupItemViewModels}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="viewModels:WelcomeViewModel+HistoryGroupItemViewModel">
+                                    <Grid ColumnDefinitions="*, Auto" Margin="6 7" Background="Transparent">
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                        <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
+                                               Content="{Binding Count}">
+                                        </Label>
+                                        <Grid.ContextFlyout>
+                                            <MenuFlyout>
+                                                <MenuItem Header="Delete" Command="{Binding DeleteCommand}">
+                                                </MenuItem>
+                                            </MenuFlyout>
+                                        </Grid.ContextFlyout>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <!-- <ListBoxItem> -->
+                            <!--     <Grid RowDefinitions="*, Auto"> -->
+                            <!--         <TextBlock Text="All"></TextBlock> -->
+                            <!--     </Grid> -->
+                            <!-- </ListBoxItem> -->
+                            <!-- <ListBoxItem> -->
+                            <!--     <Grid ColumnDefinitions="*, Auto"> -->
+                            <!--         <TextBlock Text="All"></TextBlock> -->
+                            <!--         <Label Grid.Column="1" -->
+                            <!--                Theme="{StaticResource TagLabel}" -->
+                            <!--                Classes="Circle Indigo" -->
+                            <!--                Content="0"> -->
+                            <!--         </Label> -->
+                            <!--     </Grid> -->
+                            <!-- </ListBoxItem> -->
+                            <!-- <ListBoxItem> -->
+                            <!--     <TextBlock Text="Modified"></TextBlock> -->
+                            <!-- </ListBoxItem> -->
+                            <!-- <ListBoxItem> -->
+                            <!--     <TextBlock Text="Conflicted"></TextBlock> -->
+                            <!-- </ListBoxItem> -->
+                            <!-- <ListBoxItem> -->
+                            <!--     <TextBlock Text="Invalid"></TextBlock> -->
+                            <!-- </ListBoxItem> -->
                         </ListBox>
                     </Grid>
                 </Grid>
@@ -362,6 +388,9 @@
                         <ListBox.Styles>
                             <Style Selector="ListBoxItem">
                                 <Setter Property="Padding" Value="8 16"></Setter>
+                            </Style>
+                            <Style Selector="ListBoxItem" x:DataType="viewModels:WelcomeViewModel+HistoryItemViewModel">
+                                <Setter Property="IsVisible" Value="{Binding IsVisible}"></Setter>
                             </Style>
                             <!-- <Style Selector="ListBoxItem:pressed"> -->
                             <!--     <Setter Property="Background" -->

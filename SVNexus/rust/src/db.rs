@@ -85,9 +85,25 @@ impl SettingsTable {
     pub const SETTINGS_KEY: &'static str = "setting";
 }
 
+#[derive(Serialize, Deserialize, Default, uniffi::Record, Debug, Clone)]
 pub struct HistoryGroup {
+    #[serde(default)]
+    pub id: String,
     pub name: String,
     pub children: Vec<String>
+}
+
+pub trait Table {
+    const TABLE_NAME: &'static str;
+    const TABLE: TableDefinition<'static, &str, &str> = TableDefinition::new(Self::TABLE_NAME);
+}
+
+pub struct TimelineTable {
+
+}
+
+impl Table for TimelineTable {
+    const TABLE_NAME: &'static str = "Timeline";
 }
 
 pub struct HistoryTable;
@@ -202,6 +218,7 @@ impl DatabaseManager {
     }
 
     async fn set_settings(self, settings: GlobalSettings) -> error::Result<()> {
+
         self.call_async(move |db| {
             let lock = db.begin_write()?;
             let mut table = lock.open_table(SettingsTable::TABLE)?;
@@ -211,6 +228,71 @@ impl DatabaseManager {
 
             Ok(())
         }).await
+    }
+
+    async fn delete_history_group(self, id: String) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            {
+                let mut table = lock.open_table(HistoryTable::TABLE)?;
+
+                let mut groups = vec![];
+                if let Some(value) = table.get(HistoryTable::HISTORY_GROUPS_KEY)? {
+                    groups = Vec::<HistoryGroup>::from_json(value.value())?;
+                }
+
+                groups.retain(|i| i.id != id);
+
+                table.insert(HistoryTable::HISTORY_GROUPS_KEY, groups.as_json()?.as_str())?;
+            }
+
+            lock.commit()?;
+
+            Ok(())
+        }).await
+
+    }
+
+    async fn add_history_group(self, group: HistoryGroup) -> error::Result<()> {
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+            {
+                let mut table = lock.open_table(HistoryTable::TABLE)?;
+
+                let mut groups = vec![];
+                if let Some(value) = table.get(HistoryTable::HISTORY_GROUPS_KEY)? {
+                    groups = Vec::<HistoryGroup>::from_json(value.value())?;
+                }
+
+                groups.push(group);
+
+                table.insert(HistoryTable::HISTORY_GROUPS_KEY, groups.as_json()?.as_str())?;
+            }
+
+            lock.commit()?;
+
+            Ok(())
+        }).await
+    }
+
+    async fn history_groups(self) -> error::Result<Vec<HistoryGroup>> {
+
+        self.call_async(move |db| {
+            let lock = db.begin_write()?;
+
+            let table = lock.open_table(HistoryTable::TABLE)?;
+
+            let Some(value) = table.get(HistoryTable::HISTORY_GROUPS_KEY)? else {
+                return Ok(vec![])
+            };
+
+
+            let groups = Vec::<HistoryGroup>::from_json(value.value())?;
+
+            Ok(groups)
+
+        }).await
+
     }
 
     async fn delete_workspace_history(self, uuid: String) -> error::Result<()> {

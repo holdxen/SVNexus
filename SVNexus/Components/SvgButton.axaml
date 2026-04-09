@@ -9,6 +9,7 @@
     
     <Style Selector="components|SvgButton.Button">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
+        <Setter Property="Background" Value="Transparent"></Setter>
         <Style Selector="^[IsEnabled=False]">
             <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
             <Setter Property="Opacity" Value="0.35"></Setter>
