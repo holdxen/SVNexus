@@ -1,12 +1,20 @@
+using System;
+using System.Threading.Tasks;
 using SVNexus.Generated;
 
 namespace SVNexus.Extension;
 
 public static class DatabaseManagerExtension
 {
-    private static readonly DatabaseManager DatabaseManager = new();
-    extension(DatabaseManager)
+    private static SeaDatabaseConnection? _databaseManager;
+
+    public static async Task Create()
     {
-        public static DatabaseManager Default => DatabaseManager;
+        _databaseManager = await SeaDatabaseConnection.Create();
+    }
+    
+    extension(SeaDatabaseConnection)
+    {
+        public static SeaDatabaseConnection Default => _databaseManager ?? throw new InvalidOperationException();
     }
 }

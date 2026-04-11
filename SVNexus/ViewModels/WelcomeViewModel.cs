@@ -12,6 +12,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
@@ -25,7 +26,8 @@ namespace SVNexus.ViewModels;
 
 public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(parent), 
     IRecipient<WelcomeViewModel.OnRemoveHistory>,
-    IRecipient<WelcomeViewModel.OnHistoryStateChanged>
+    IRecipient<WelcomeViewModel.OnHistoryStateChanged>,
+    IRecipient<WelcomeViewModel.OnUpdateHistoryGroup>
 {
 
     public const int AllIndex = 0;
@@ -39,7 +41,22 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         public required HistoryItemViewModel Item { get; set; }
     }
 
+    // public class OnUpdateHistoryGroup(List<WorkspaceHistoryGroup> value)
+    //     : ValueChangedMessage<List<WorkspaceHistoryGroup>>(value);
+
+    public class OnUpdateHistoryGroup;
+    
     public class OnHistoryStateChanged;
+
+    // public partial class GroupMenuItemViewModel: ViewModelBase
+    // {
+    //     public string Name { get; set; } = string.Empty;
+    //
+    //     [ObservableProperty]
+    //     public partial bool IsChecked { get; set; } 
+    //     
+    //
+    // }
     
     public abstract partial class HistoryItemViewModel(ViewModelBase parent): ViewModelMore(parent)
     {
@@ -55,9 +72,15 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         [ObservableProperty]
         public partial bool IsEditing { get; set; }
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MenuItems))]
+        public partial List<WorkspaceHistoryGroup> HistoryGroups { get; set; } = [];
+        
+        public abstract List<MenuItemViewModel> MenuItems { get; }
+
         public abstract WorkspaceHistory RebuildWithIsStar(bool value);
         
-        public abstract WorkspaceHistory RebuildWithIsRemark(string? value);
+        public abstract WorkspaceHistory RebuildWithRemark(string? value);
         
                 
         [ObservableProperty]
@@ -70,7 +93,8 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
-                await DatabaseManager.Default.SetWorkspaceHistory(history);
+                // await DatabaseManager.Default.SetWorkspaceHistory(history);
+                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(history.Uuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(history)));
             });
             SendMessage(new OnHistoryStateChanged());
         }
@@ -80,7 +104,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         {
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
-                await DatabaseManager.Default.DeleteWorkspaceHistory(HistoryUuid);
+                await SeaDatabaseConnection.Default.DeleteWorkspaceHistory(HistoryUuid);
             });
             SendMessage(new OnRemoveHistory()
             {
@@ -97,11 +121,11 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 return;
             }
 
-            var history = RebuildWithIsRemark(Remark);
+            var history = RebuildWithRemark(Remark);
 
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
-                await DatabaseManager.Default.SetWorkspaceHistory(history);
+                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(HistoryUuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(history)));
             });
         }
         
@@ -126,7 +150,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         
         public override string HistoryUuid => History.Uuid;
 
-        public string Url => History.RootUrl;
+        public string Url => History.RepositoryRootUrl;
 
         public string RepositoryUuid => History.Uuid;
         
@@ -137,12 +161,12 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             return History = History with { Star = value };
         }
 
-        public override WorkspaceHistory RebuildWithIsRemark(string? value)
+        public override WorkspaceHistory RebuildWithRemark(string? value)
         {
             return History = History with { Remark = value };
         }
 
-        public List<MenuItemViewModel> MenuItems =>
+        public override List<MenuItemViewModel> MenuItems =>
         [
             new()
             {
@@ -186,29 +210,144 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         public override bool IsStar => History.Star;
         
         public override string HistoryUuid => History.Uuid;
-
-        public List<MenuItemViewModel> MenuItems =>
-        [
-            new()
-            {
-                Header = "Open",
-                Command = OpenCommand
-            },
-            new()
-            {
-                Header = "Delete",
-                Command = DeleteCommand
-            },
-        ];
         
+
+        public override List<MenuItemViewModel> MenuItems
+        {
+            get
+            {
+                List<MenuItemViewModel> items = [
+                    new()
+                    {
+                        Header = "Open",
+                        Command = OpenCommand
+                    },
+                    new()
+                    {
+                        Header = "Delete",
+                        Command = DeleteCommand
+                    }
+                ];
+
+                
+                var groups = new List<MenuItemViewModel>();
+
+                foreach (var group in HistoryGroups)
+                {
+                    var item = new MenuItemViewModel()
+                    {
+                        Header = group.Name,
+                        ToggleType = MenuItemToggleType.CheckBox,
+                        IsChecked = group.Children.Contains(HistoryUuid)
+                    };
+                    
+                    
+                    item.Command = new AsyncRelayCommand(async () => await JoinGroup(group.Uuid, item));
+                    
+                    groups.Add(item);
+                }
+                
+                
+                items.Add(new MenuItemViewModel()
+                {
+                    Header = "Group",
+                    Children = new ObservableCollection<MenuItemViewModel>(groups)
+                });
+                
+                
+                
+                // items.Add(new MenuItemViewModel()
+                // {
+                //     Header = "Group",
+                //     Children = HistoryGroups.Select(i => new MenuItemViewModel()
+                //     {
+                //         ToggleType = MenuItemToggleType.CheckBox,
+                //         Header = i.Name,
+                //     }.Apply(e =>
+                //     {
+                //         e.Command = new AsyncRelayCommand(async () => await JoinGroup("", e.IsChecked));
+                //     })).Map(e => new ObservableCollection<MenuItemViewModel>(e))
+                // });
+
+
+                return items;
+
+                // return
+                // [
+                //     new()
+                //     {
+                //         Header = "Open",
+                //         Command = OpenCommand
+                //     },
+                //     new()
+                //     {
+                //         Header = "Delete",
+                //         Command = DeleteCommand,
+                //     },
+                //     new()
+                //     {
+                //         Header = "Group",
+                //         Children =
+                //         [
+                //         ],
+                //     }
+                // ];
+            }
+        }
+
         // public string? Remark => History.Remark;
+
+
+        private async Task JoinGroup(string uuid, MenuItemViewModel item)
+        {
+            Logger.Info($"JoinGroup: group={uuid}, join={item.IsChecked}");
+            await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
+            {
+                await SeaDatabaseConnection.Default.UpdateHistoryGroup(uuid, new UpdateOperationDelegate()
+                {
+                    UpdateFunc = value =>
+                    {
+                        var v = value.ToWorkspaceHistoryGroup() ?? throw new InvalidOperationException();
+                        
+                        var children = v.Children.ToList();
+                        if (item.IsChecked)
+                        {
+                            children.Add(HistoryUuid);
+                        }
+                        else
+                        {
+                            children.Remove(HistoryUuid);
+                        }
+
+                        v = v with { Children = children.ToArray() };
+
+                        return AnyValue.FromWorkspaceHistoryGroup(v);
+
+                    }
+                });
+                // var children = group.Children.ToList();
+                // if (item.IsChecked)
+                // {
+                //     children.Add(HistoryUuid);
+                // }
+                // else
+                // {
+                //     children.Remove(HistoryUuid);
+                // }
+                //
+                // group = group with { Children = children.ToArray() };
+                //
+                // await SeaDatabaseConnection.Default.UpdateHistoryGroup(group.Uuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistoryGroup(group)));
+            });
+            SendMessage(new OnUpdateHistoryGroup());
+        }
 
         public override WorkspaceHistory RebuildWithIsStar(bool value)
         {
             return History = History with { Star = value };
         }
 
-        public override WorkspaceHistory RebuildWithIsRemark(string? value)
+        public override WorkspaceHistory RebuildWithRemark(string? value)
         {
             return History = History with { Remark = value };
         }
@@ -313,7 +452,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     public partial class HistoryGroupItemViewModel(ViewModelBase parent) : ViewModelBase(parent)
     {
         [ObservableProperty]
-        public required partial HistoryGroup HistoryGroup { get; set; }
+        public required partial WorkspaceHistoryGroup HistoryGroup { get; set; }
         
         
         public string Name => HistoryGroup.Name;
@@ -331,8 +470,10 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             }
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
-                await DatabaseManager.Default.DeleteHistoryGroup(HistoryGroup.Id);
+                await SeaDatabaseConnection.Default.DeleteHistoryGroup(HistoryGroup.Uuid);
             });
+
+            SendMessage(new OnUpdateHistoryGroup());
         }
     }
     
@@ -694,12 +835,73 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         }
     }
 
+
+    private async Task ReloadWorkspaceHistoryGroups()
+    {
+        string? uuid = null;
+        var selectedIndex = SelectedGroupIndex;
+        if (SelectedGroupIndex >= 0 && SelectedGroupIndex < HistoryGroupItemViewModels.Count)
+        {
+            uuid = HistoryGroupItemViewModels[SelectedGroupIndex].HistoryGroup.Uuid;
+        }
+        var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
+        foreach (var item in HistoryItems)
+        {
+            item.HistoryGroups = historyGroups;
+        }
+            
+        HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
+        {
+            HistoryGroup = i
+        }));
+
+        if (HistoryGroupItemViewModels.Count == 0)
+        {
+            if (uuid is not null)
+            {
+                SelectedKindIndex = AllIndex;
+            }
+        } 
+        else if (uuid is not null)
+        {
+            var index = HistoryGroupItemViewModels.FindIndex(e => e.HistoryGroup.Uuid == uuid);
+            if (index < 0)
+            {
+                selectedIndex--;
+                if (selectedIndex < 0)
+                {
+                    selectedIndex = 0;
+                }
+
+                if (selectedIndex >= HistoryGroupItemViewModels.Count)
+                {
+                    selectedIndex = HistoryGroupItemViewModels.Count - 1;
+                }
+                
+                SelectedGroupIndex = selectedIndex;
+            }
+            else
+            {
+                SelectedGroupIndex = index;
+            }
+        }
+
+        // if (uuid is not null)
+        // {
+        //     var index = HistoryGroupItemViewModels.FindIndex(e => e.HistoryGroup.Uuid == uuid);
+        // }
+        // else if (historyGroups.Count == 0)
+        // {
+        //     SelectedKindIndex = AllIndex;
+        // }
+    }
+
     [RelayCommand]
     private async Task OnLoaded()
     {
         await EngineBackend.Instance.DatabaseQueue.Run(async token =>
         {
-            var historyItems = await DatabaseManager.Default.WorkspaceHistories();
+            var historyItems = await SeaDatabaseConnection.Default.WorkspaceHistories();
         
             HistoryItems = new ObservableCollection<HistoryItemViewModel>(historyItems.Select<WorkspaceHistory, HistoryItemViewModel>(i =>
             {
@@ -715,8 +917,13 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 };
             }));
 
-            var historyGroups = await DatabaseManager.Default.HistoryGroups();
-            HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<HistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
+            var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
+            foreach (var item in HistoryItems)
+            {
+                item.HistoryGroups = historyGroups;
+            }
+            
+            HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
             {
                 HistoryGroup = i
             }));
@@ -995,5 +1202,13 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         OnPropertyChanged(nameof(ConflictCount));
         OnPropertyChanged(nameof(StarCount));
         ApplyFilter();
+    }
+
+    public void Receive(OnUpdateHistoryGroup message)
+    {
+        EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+        {
+            await ReloadWorkspaceHistoryGroups();
+        });
     }
 }

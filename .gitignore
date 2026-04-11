@@ -9,5 +9,6 @@ csr/target
 SVNexus/rust/target
 
 SVNexus/rust/svnexus_macro/target
+SVNexus/rust/migration/target
 
 *.sln.DotSettings.user

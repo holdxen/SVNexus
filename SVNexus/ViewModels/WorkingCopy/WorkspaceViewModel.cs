@@ -652,7 +652,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
             await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
             {
-                var historyItems = await DatabaseManager.Default.WorkspaceHistories();
+                var historyItems = await SeaDatabaseConnection.Default.WorkspaceHistories();
 
                 var time = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 if (History is not null)
@@ -660,7 +660,9 @@ public partial class WorkspaceViewModel : ViewModelBase,
                     if (historyItems.Any(historyItem => historyItem.Uuid == History.Uuid))
                     {
                         var item = History with { LastUsedTime = time, WorkingCopyPath = WorkspacePath, WorkingCopyRoot = root};
-                        await DatabaseManager.Default.SetWorkspaceHistory(item);
+                        // await SeaDatabaseConnection.Default.SetWorkspaceHistory(item);
+                        await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(History.Uuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(item)));
+                        History = item;
                         return;
                     }
                 }
@@ -671,7 +673,9 @@ public partial class WorkspaceViewModel : ViewModelBase,
                         workingCopy.WorkingCopyRoot != WorkspaceRoot) continue;
                     workingCopy = workingCopy with { LastUsedTime = time };
                     
-                    await DatabaseManager.Default.SetWorkspaceHistory(workingCopy);
+                    // await SeaDatabaseConnection.Default.SetWorkspaceHistory(workingCopy);
+                    
+                    await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(workingCopy.Uuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(workingCopy)));
 
                     History = workingCopy;
                     
@@ -680,7 +684,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
 
                 var history = new WorkspaceHistory.WorkingCopy(WorkspaceRoot, WorkspacePath, repositoryRoot.RootUrl, time, false, 0, false, Guid.NewGuid().ToString(), null);
-                await DatabaseManager.Default.InsertWorkspaceHistories([history]);
+                await SeaDatabaseConnection.Default.AddWorkspaceHistory(history);
             
                 History = history;
             });
@@ -824,9 +828,13 @@ public partial class WorkspaceViewModel : ViewModelBase,
         var id = History.Uuid;
         EngineBackend.Instance.DatabaseQueue.Run(async _ =>
         {
-            await DatabaseManager.Default.UpdateWorkspaceHistory(id, new WorkspaceHistoryUpdateOperationDelegate
+            await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(id, new UpdateOperationDelegate()
             {
-                UpdateFunc = message.Value
+                UpdateFunc = value =>
+                {
+                    var v = message.Value.Invoke(value.ToWorkspaceHistory() ?? throw new InvalidOperationException());
+                    return AnyValue.FromWorkspaceHistory(v);
+                }
             });
         });
 

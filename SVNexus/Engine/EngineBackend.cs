@@ -1,11 +1,30 @@
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using SVNexus.Generated;
 using SVNexus.Utils;
 
 namespace SVNexus.Engine;
 
-public class EngineBackend
+
+
+public partial class EngineBackend
 {
+    public static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        TypeInfoResolver = EngineJsonContext.Default
+    };
+
+
+    [JsonSerializable(typeof(SvnError))]
+    [JsonSerializable(typeof(ErrorInfo))]
+    private partial class EngineJsonContext : JsonSerializerContext;
+
+
+
     public static EngineBackend Instance => Lazy.Value;
     
     private static readonly Lazy<EngineBackend> Lazy =

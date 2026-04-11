@@ -7,9 +7,9 @@ use super::subversion;
 use snafu::Backtrace;
 use snafu::IntoError;
 use snafu::Snafu;
-use uniffi::UnexpectedUniFFICallbackError;
 use std::fmt::Debug;
 use strum::EnumDiscriminants;
+use uniffi::UnexpectedUniFFICallbackError;
 
 use std::io;
 
@@ -78,8 +78,16 @@ pub enum Error {
         source: serde_json::Error,
         backtrace: Backtrace,
     },
-}
 
+    #[snafu(display("Failed to parse enum: {source}, {detail}"))]
+    EnumParseError {
+        source: strum::ParseError,
+        detail: String,
+    },
+
+    #[snafu(display("CSharp exception: {source}"))]
+    CSharpError { source: CSharpError },
+}
 
 pub fn ok<T>(value: T) -> Result<T, Error> {
     Ok(value)
@@ -97,35 +105,35 @@ impl From<uuid::Error> for Error {
     }
 }
 
-impl From<redb::DatabaseError> for Error {
-    fn from(value: redb::DatabaseError) -> Self {
-        builder::Database {}.into_error(Box::new(value) as _)
-    }
-}
+// impl From<redb::DatabaseError> for Error {
+//     fn from(value: redb::DatabaseError) -> Self {
+//         builder::Database {}.into_error(Box::new(value) as _)
+//     }
+// }
 
-impl From<redb::TransactionError> for Error {
-    fn from(value: redb::TransactionError) -> Self {
-        builder::Database {}.into_error(Box::new(value) as _)
-    }
-}
+// impl From<redb::TransactionError> for Error {
+//     fn from(value: redb::TransactionError) -> Self {
+//         builder::Database {}.into_error(Box::new(value) as _)
+//     }
+// }
 
-impl From<redb::StorageError> for Error {
-    fn from(value: redb::StorageError) -> Self {
-        builder::Database {}.into_error(Box::new(value) as _)
-    }
-}
+// impl From<redb::StorageError> for Error {
+//     fn from(value: redb::StorageError) -> Self {
+//         builder::Database {}.into_error(Box::new(value) as _)
+//     }
+// }
 
-impl From<redb::TableError> for Error {
-    fn from(value: redb::TableError) -> Self {
-        builder::Database {}.into_error(Box::new(value) as _)
-    }
-}
+// impl From<redb::TableError> for Error {
+//     fn from(value: redb::TableError) -> Self {
+//         builder::Database {}.into_error(Box::new(value) as _)
+//     }
+// }
 
-impl From<redb::CommitError> for Error {
-    fn from(value: redb::CommitError) -> Self {
-        builder::Database {}.into_error(Box::new(value) as _)
-    }
-}
+// impl From<redb::CommitError> for Error {
+//     fn from(value: redb::CommitError) -> Self {
+//         builder::Database {}.into_error(Box::new(value) as _)
+//     }
+// }
 
 impl From<serde_json::Error> for Error {
     fn from(value: serde_json::Error) -> Self {
@@ -133,42 +141,66 @@ impl From<serde_json::Error> for Error {
     }
 }
 
+impl From<sea_orm::DbErr> for Error {
+    fn from(value: sea_orm::DbErr) -> Self {
+        todo!()
+    }
+}
+
+impl From<sea_orm::TransactionError<Error>> for Error {
+    fn from(value: sea_orm::TransactionError<Error>) -> Self {
+        match value {
+            sea_orm::TransactionError::Connection(db_err) => db_err.into(),
+            sea_orm::TransactionError::Transaction(e) => e,
+        }
+    }
+}
+
+impl From<strum::ParseError> for Error {
+    fn from(value: strum::ParseError) -> Self {
+        builder::EnumParse { detail: "" }.into_error(value)
+    }
+}
+
+impl From<CSharpError> for Error {
+    fn from(value: CSharpError) -> Self {
+        builder::CSharp {}.into_error(value)
+    }
+}
+
 #[derive(Snafu, Debug, uniffi::Error)]
 pub enum CSharpError {
     #[snafu(display("{msg}({code})"))]
-    SubversionError {
-        code: i32,
-        msg: String,
-    },
+    SubversionError { code: i32, msg: String },
 
     #[snafu(display("{detail}"))]
-    UnexpectedError {
-        detail: String,
-    }
+    UnexpectedError { detail: String },
 }
 
 impl From<UnexpectedUniFFICallbackError> for CSharpError {
     fn from(value: UnexpectedUniFFICallbackError) -> Self {
-        UnexpectedSnafu { detail: value.to_string() }.into_error(snafu::NoneError)
+        UnexpectedSnafu {
+            detail: value.to_string(),
+        }
+        .into_error(snafu::NoneError)
     }
 }
 
 impl CSharpError {
     pub fn native_error(&self) -> *mut ffi::svn_error_t {
         let (code, msg) = match self {
-            CSharpError::SubversionError { code, msg } => {
-                (*code, msg.as_str())
-            },
+            CSharpError::SubversionError { code, msg } => (*code, msg.as_str()),
             CSharpError::UnexpectedError { detail } => {
                 let constants = SvnErrnoConstants::new();
                 (constants.cease_invocation, detail.as_str())
-            },
+            }
         };
-        unsafe  {
+        unsafe {
             let mut pool = apr::Pool::create();
             let msg = pool.string(msg).unwrap_or_default();
 
-            let error = ffi::svn_error_create(code.try_into().unwrap_or_default(), Default::default(), msg);
+            let error =
+                ffi::svn_error_create(code.try_into().unwrap_or_default(), Default::default(), msg);
 
             error
         }

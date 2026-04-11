@@ -187,6 +187,8 @@
                                                     Value="{Binding CommandParameter}" />
                                             <Setter Property="IsEnabled"
                                                     Value="{Binding IsEnabled}" />
+                                            <Setter Property="ToggleType" Value="{Binding ToggleType}"></Setter>
+                                            <Setter Property="IsChecked" Value="{Binding IsChecked, Mode=TwoWay}"></Setter>
                                         </ControlTheme>
                                     </MenuFlyout.ItemContainerTheme>
                                 </MenuFlyout>

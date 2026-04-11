@@ -23,8 +23,8 @@ public static class WorkspaceHistoryExtension
             {
                 return history switch
                 {
-                    WorkspaceHistory.Repository repository => repository.Id,
-                    WorkspaceHistory.WorkingCopy workingCopy => workingCopy.Id,
+                    WorkspaceHistory.Repository repository => repository.Uuid,
+                    WorkspaceHistory.WorkingCopy workingCopy => workingCopy.Uuid,
                     _ => throw new UnreachableException()
                 };
             }

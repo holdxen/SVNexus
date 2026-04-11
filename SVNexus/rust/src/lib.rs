@@ -1,9 +1,15 @@
+use std::any::Any;
+
+use crate::db::{WorkspaceHistory, WorkspaceHistoryGroup};
+
 mod apr;
 mod error;
 mod subversion;
 mod tests;
 mod utils;
 mod db;
+mod entities;
+mod extensions;
 
 uniffi::setup_scaffolding!();
 
@@ -52,4 +58,44 @@ fn engine_initialize() {
         .with(normal_layer)
         .with(no_location_layer)
         .init();
+}
+
+#[derive(uniffi::Object)]
+pub struct AnyValue(Box<dyn Any + Send + Sync +'static>);
+
+impl AnyValue {
+    fn new(value: impl Any + Send + Sync + 'static) -> Self {
+        Self(Box::new(value))
+    }
+}
+
+#[uniffi::export]
+impl AnyValue {
+
+    #[uniffi::constructor]
+    fn from_workspace_history_group(group: WorkspaceHistoryGroup) -> Self {
+        Self::new(group)
+    }
+
+    #[uniffi::constructor]
+    fn from_workspace_history(history: WorkspaceHistory) -> Self {
+        Self::new(history)
+    }
+
+
+    fn to_workspace_history(&self) -> Option<WorkspaceHistory> {
+        if let Some(value) = self.0.downcast_ref::<WorkspaceHistory>() {
+            Some(value.clone())
+        } else {
+            None
+        }
+    }
+
+    fn to_workspace_history_group(&self) -> Option<WorkspaceHistoryGroup> {
+        if let Some(value) = self.0.downcast_ref::<WorkspaceHistoryGroup>() {
+            Some(value.clone())
+        } else {
+            None
+        }
+    }
 }

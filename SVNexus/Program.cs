@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Avalonia.Dialogs;
 using Avalonia.Platform;
+using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Utils;
@@ -23,6 +24,7 @@ internal static class Program
     public static void Main(string[] args)
     {
         EngineMethods.EngineInitialize();
+        DatabaseManagerExtension.Create().Wait();
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

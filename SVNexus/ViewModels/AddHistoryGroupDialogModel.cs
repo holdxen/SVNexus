@@ -27,14 +27,14 @@ public partial class AddHistoryGroupDialogModel: ViewModelMore, IDialogContext
     public event EventHandler<object?>? RequestClose;
 
     
-    public HistoryGroup? HistoryGroup { get; private set; }
+    public WorkspaceHistoryGroup? HistoryGroup { get; private set; }
 
     [RelayCommand]
     private async Task Confirm()
     {
         await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
         {
-            var groups = await DatabaseManager.Default.HistoryGroups();
+            var groups = await SeaDatabaseConnection.Default.HistoryGroups();
             if (groups.FindIndex(g => g.Name == Name) != -1)
             {
                 Manager.Default.Send(new OnShowToast()
@@ -45,9 +45,9 @@ public partial class AddHistoryGroupDialogModel: ViewModelMore, IDialogContext
                 return;
             }
 
-            var group = new HistoryGroup(Guid.NewGuid().ToString(), Name, []);
+            var group = new WorkspaceHistoryGroup(Guid.NewGuid().ToString(), Name, []);
             
-            await DatabaseManager.Default.AddHistoryGroup(group);
+            await SeaDatabaseConnection.Default.AddHistoryGroup(group);
             
             RequestClose?.Invoke(this, null);
             

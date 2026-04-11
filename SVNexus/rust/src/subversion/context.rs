@@ -14,6 +14,7 @@ use core::panic;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
+use strum::EnumString;
 use std::collections::HashMap;
 use std::ffi::{CStr, c_char, c_void};
 use std::sync::Arc;
@@ -243,7 +244,7 @@ pub struct CommitResult {
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_node_kind_t)]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, Serialize, Deserialize, EnumString)]
 pub enum NodeKind {
     None = ffi::svn_node_kind_t_svn_node_none,
     File = ffi::svn_node_kind_t_svn_node_file,
@@ -1182,8 +1183,8 @@ unsafe extern "C" fn ssl_server_trust_prompt(
 // #[derive(TryFromPrimitive)]
 // #[repr(u8)]
 #[svnexus_macro::enum_converter(repr_type=u8)]
-#[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
-enum LogChangedPathAction {
+#[derive(uniffi::Enum, Debug, Serialize, Deserialize, EnumString, strum::Display)]
+pub enum LogChangedPathAction {
     Add = b'A',
     Delete = b'D',
     Replace = b'R',
@@ -1197,12 +1198,12 @@ impl LogChangedPathAction {
 
 #[derive(new, Debug, uniffi::Record, Serialize, Deserialize)]
 pub struct LogChangedPathEntry {
-    action: LogChangedPathAction,
-    copy_from_path: Option<String>,
-    copy_from_revision: Option<RevisionNumber>,
-    node_kind: NodeKind,
-    text_modified: Option<bool>,
-    props_modified: Option<bool>,
+    pub action: LogChangedPathAction,
+    pub copy_from_path: Option<String>,
+    pub copy_from_revision: Option<RevisionNumber>,
+    pub node_kind: NodeKind,
+    pub text_modified: Option<bool>,
+    pub props_modified: Option<bool>,
 }
 
 fn from_svn_stristate(value: u32) -> Option<bool> {

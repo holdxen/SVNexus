@@ -1,8 +1,5 @@
 use std::{
-    cell::RefCell,
-    collections::{HashMap, hash_map::Entry},
-    ffi::{CStr, c_char, c_void},
-    sync::{Arc, OnceLock},
+    cell::RefCell, collections::{HashMap, hash_map::Entry}, ffi::{CStr, c_char, c_void}, sync::{Arc, OnceLock}
 };
 
 use crate::{
@@ -48,8 +45,10 @@ pub impl *const subversion::ffi::svn_string_t {
 
             assert!(!ptr.data.is_null());
 
-            let slice =
-                std::slice::from_raw_parts(ptr.data as *const u8, ptr.len.try_into().expect("Unexpected svn_string_t length"));
+            let slice = std::slice::from_raw_parts(
+                ptr.data as *const u8,
+                ptr.len.try_into().expect("Unexpected svn_string_t length"),
+            );
 
             slice
         }
@@ -125,26 +124,17 @@ pub impl<T> T {
     }
 }
 
-
 #[easy_ext::ext(PointerMapper)]
 pub impl<T> *const T {
     fn map<V>(self, f: impl FnOnce(*const T) -> V) -> Option<V> {
-        if self.is_null() {
-            None
-        } else {
-            Some(f(self))
-        }
+        if self.is_null() { None } else { Some(f(self)) }
     }
 }
 
 #[easy_ext::ext(PointerMutMapper)]
 pub impl<T> *mut T {
     fn map_mut<V>(self, f: impl FnOnce(*mut T) -> V) -> Option<V> {
-        if self.is_null() {
-            None
-        } else {
-            Some(f(self))
-        }
+        if self.is_null() { None } else { Some(f(self)) }
     }
 }
 
@@ -160,7 +150,7 @@ pub struct DecodedSvg {
     width: u32,
     height: u32,
     rgba: Vec<u8>,
-    color: Option<String>
+    color: Option<String>,
 }
 
 #[derive(new, uniffi::Record)]
@@ -168,7 +158,7 @@ pub struct SvgRenderOptions {
     svg: String,
     width: u32,
     height: u32,
-    color: Option<String>
+    color: Option<String>,
 }
 
 #[uniffi::export]
@@ -347,10 +337,9 @@ impl SvgRenderOptions {
 //     Ok(data)
 // }
 
-
 #[derive(Debug, uniffi::Record)]
 pub struct FormatSizeOptions {
-    size: u64
+    size: u64,
 }
 
 #[uniffi::export]
@@ -359,7 +348,6 @@ impl FormatSizeOptions {
         humansize::format_size(self.size, humansize::DECIMAL)
     }
 }
-
 
 #[uniffi::export]
 fn log_info(line: i32, file: &str, member: &str, content: &str) {

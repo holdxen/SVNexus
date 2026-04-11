@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SVNexus.Engine;
 using SVNexus.Generated;
 using Exception = SVNexus.Generated.Exception;
 
@@ -9,12 +10,6 @@ namespace SVNexus.Extension;
 
 public static class ExceptionExtension
 {
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-    };
-
     public static readonly SvnErrnoConstants SvnErrnoConstants = new();
     
     extension(System.Exception e)
@@ -27,12 +22,12 @@ public static class ExceptionExtension
                 {
                     case Exception.SvnException svnException:
                     {
-                        var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, Options)!;
+                        var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, EngineBackend.JsonOptions)!;
                         return string.Join("\n", error.Info.Select(i => i.Msg));
                     }
                     case Exception.AprException aprException:
                     {
-                        var error = JsonSerializer.Deserialize<AprError>(aprException.Message, Options)!;
+                        var error = JsonSerializer.Deserialize<AprError>(aprException.Message, EngineBackend.JsonOptions)!;
                         return error.Msg;
                     }
                     default:
@@ -47,12 +42,12 @@ public static class ExceptionExtension
             {
                 case Exception.SvnException svnException when svnExceptionHandler is not null:
                 {
-                    var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, Options)!;
+                    var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, EngineBackend.JsonOptions)!;
                     return svnExceptionHandler.Invoke(error);
                 }
                 case Exception.AprException aprException when aprExceptionHandler is not null:
                 {
-                    var error = JsonSerializer.Deserialize<AprError>(aprException.Message, Options)!;
+                    var error = JsonSerializer.Deserialize<AprError>(aprException.Message, EngineBackend.JsonOptions)!;
                     return aprExceptionHandler.Invoke(error);
                 }
                 default:
@@ -66,12 +61,12 @@ public static class ExceptionExtension
             {
                 case Exception.SvnException svnException when svnExceptionHandler is not null:
                 {
-                    var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, Options)!;
+                    var error = JsonSerializer.Deserialize<SvnError>(svnException.Message, EngineBackend.JsonOptions)!;
                     return await svnExceptionHandler.Invoke(error);
                 }
                 case Exception.AprException aprException when aprExceptionHandler is not null:
                 {
-                    var error = JsonSerializer.Deserialize<AprError>(aprException.Message, Options)!;
+                    var error = JsonSerializer.Deserialize<AprError>(aprException.Message, EngineBackend.JsonOptions)!;
                     return await aprExceptionHandler.Invoke(error);
                 }
                 default:

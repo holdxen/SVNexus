@@ -296,7 +296,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
     }
 
-    private Stack<CommitItemViewModel> _parentStack = [];
+    private readonly Stack<CommitItemViewModel> _parentStack = [];
 
 
     [RelayCommand]
