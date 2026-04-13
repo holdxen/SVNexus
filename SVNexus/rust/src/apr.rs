@@ -309,6 +309,11 @@ extern "C" fn on_pool_abort(code: std::ffi::c_int) -> std::ffi::c_int {
     panic!("Out of memory: {}", code);
 }
 
+pub struct AutoPool<T> {
+    pub pool: Pool,
+    pub value: T,
+}
+
 
 pub struct Pool {
     ptr: *mut ffi::apr_pool_t,

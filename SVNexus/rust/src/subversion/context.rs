@@ -2,9 +2,10 @@ use super::ffi;
 use super::stream::Stream;
 use super::wc::*;
 use super::{SVNError, svn_no_error};
-use crate::apr::{self, AprArray, AprPool, Pool};
+use crate::apr::{self, AprArray, AprPool, AutoPool, Pool};
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
-use crate::subversion::utils;
+use crate::extensions::{CommonExtension, OptionExtension};
+use crate::subversion::{ra, utils};
 use crate::subversion::version::Version;
 use crate::utils::PointerMutMapper;
 use crate::utils::SubversionStringer;
@@ -92,9 +93,28 @@ pub struct Context {
     config: *mut apr::ffi::apr_hash_t,
     pool: apr::Pool,
     inner: Box<ContextInner>,
+    ra_sessions: HashMap<i32, AutoPool<*mut ffi::svn_ra_session_t>>
 }
 
+unsafe impl Send for AutoPool<*mut ffi::svn_ra_session_t> {}
 unsafe impl Send for Context {}
+
+impl Drop for Context {
+    fn drop(&mut self) {
+        std::mem::take(&mut self.ra_sessions);
+    }
+}
+
+impl Context {
+    pub fn ra_session(&mut self, key: i32) -> error::Result<&mut AutoPool<*mut ffi::svn_ra_session_t>> {
+        self.ra_sessions.get_mut(&key).any_context("No such ra session")
+    }
+
+    pub fn remove_ra_session(&mut self, key: i32) {
+        self.ra_sessions.remove(&key);
+    }
+}
+
 
 #[derive(uniffi::Record)]
 pub struct CreateContextOptions {
@@ -244,7 +264,7 @@ pub struct CommitResult {
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_node_kind_t)]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, Serialize, Deserialize, EnumString)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, Serialize, Deserialize, EnumString, strum::Display)]
 pub enum NodeKind {
     None = ffi::svn_node_kind_t_svn_node_none,
     File = ffi::svn_node_kind_t_svn_node_file,
@@ -793,7 +813,7 @@ pub struct StatusResult {
 
 #[derive(new, Debug, uniffi::Record)]
 pub struct LogResult {
-    log_entries: Vec<LogEntry>,
+    pub log_entries: Vec<LogEntry>,
 }
 
 impl Default for NodeKind {
@@ -1183,7 +1203,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
 // #[derive(TryFromPrimitive)]
 // #[repr(u8)]
 #[svnexus_macro::enum_converter(repr_type=u8)]
-#[derive(uniffi::Enum, Debug, Serialize, Deserialize, EnumString, strum::Display)]
+#[derive(uniffi::Enum, Debug, Clone, Copy, Serialize, Deserialize, EnumString, strum::Display)]
 pub enum LogChangedPathAction {
     Add = b'A',
     Delete = b'D',
@@ -1196,7 +1216,7 @@ impl LogChangedPathAction {
     }
 }
 
-#[derive(new, Debug, uniffi::Record, Serialize, Deserialize)]
+#[derive(new, Debug, uniffi::Record, Clone, Serialize, Deserialize)]
 pub struct LogChangedPathEntry {
     pub action: LogChangedPathAction,
     pub copy_from_path: Option<String>,
@@ -1242,7 +1262,7 @@ impl LogChangedPathEntry {
     }
 }
 
-#[derive(Default, new, Debug, uniffi::Record, Serialize, Deserialize)]
+#[derive(Default, new, Debug, uniffi::Record, Clone, Serialize, Deserialize)]
 pub struct LogEntry {
     pub revision: Option<RevisionNumber>,
     pub date: Option<i64>,
@@ -1446,25 +1466,25 @@ pub struct RevertOptions {
 
 #[derive(uniffi::Record, Debug, new)]
 pub struct RevisionRange {
-    start: Revision,
-    end: Revision,
+    pub start: Revision,
+    pub end: Revision,
 }
 
 #[derive(Debug, uniffi::Record)]
 pub struct LogOptions {
-    targets: Vec<String>,
-    peg_revision: Revision,
-    limit: u32,
-    revsions: Vec<RevisionRange>,
-    discover_changed_paths: bool,
-    strict_node_history: bool,
-    include_merged_revisions: bool,
-    revisions_properties: Option<Vec<String>>,
+    pub targets: Vec<String>,
+    pub peg_revision: Revision,
+    pub limit: u32,
+    pub revsions: Vec<RevisionRange>,
+    pub discover_changed_paths: bool,
+    pub strict_node_history: bool,
+    pub include_merged_revisions: bool,
+    pub revisions_properties: Option<Vec<String>>,
 }
 
 #[uniffi::export(with_foreign)]
 pub trait LogReceiver: Send + Sync + 'static {
-    fn on_log_entry(&self, log_entry: LogEntry) -> error::Result<()>;
+    fn on_log_entry(&self, log_entry: LogEntry) -> Result<(), error::CSharpError>;
 }
 
 #[derive(new, Debug, uniffi::Record)]
@@ -2925,15 +2945,15 @@ impl Context {
                 let log_entry = LogEntry::from_raw(log_entry);
                 // tracing::info!("On get log entry: {:#?}", log_entry);
                 let result = this.log_receiver.as_ref().unwrap().on_log_entry(log_entry);
-                if let Err(err) = result {
-                    return ffi::svn_error_create(
-                        ffi::svn_errno_t_SVN_ERR_CANCELLED as _,
-                        std::ptr::null_mut(),
-                        pool.string(err.to_string().as_str()).unwrap_or_default() as _,
-                    );
-                }
+                result.native_error()
+                // if let Err(err) = result {
+                //     return ffi::svn_error_create(
+                //         ffi::svn_errno_t_SVN_ERR_CANCELLED as _,
+                //         std::ptr::null_mut(),
+                //         pool.string(err.to_string().as_str()).unwrap_or_default() as _,
+                //     );
+                // }
             }
-            svn_no_error()
         }
         unsafe {
             let mut pool = apr::Pool::create();
@@ -3865,6 +3885,30 @@ impl Context {
         Ok(())
     }
 
+    pub fn open_repository_access_session(&mut self, url: String, path: Option<String>) -> error::Result<i32> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+            let url = pool.string(url)?;
+            let path = path.map(|v| pool.string(v)).transpose()?.unwrap_or_default();
+            let mut session: *mut ffi::svn_ra_session_t = std::ptr::null_mut();
+            let mut session_pool = apr::Pool::create();
+            let error = ffi::svn_client_open_ra_session2(session.pointer_mut(), url, path, self.ctx(),  session_pool.as_mut_ptr(), pool.as_mut_ptr());
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let session = AutoPool {
+                pool: session_pool,
+                value: session,
+            };
+
+
+            let key = self.ra_sessions.keys().map(|e| *e).max().unwrap_or_default() + 1;
+
+            self.ra_sessions.insert(key, session);
+
+            Ok(key)
+        }
+    }
+
     fn create(opts: CreateContextOptions) -> error::Result<Self> {
         let mut pool = unsafe { apr::Pool::create() };
 
@@ -4081,6 +4125,7 @@ impl Context {
             pool,
             inner,
             config,
+            ra_sessions: Default::default()
         })
     }
 }

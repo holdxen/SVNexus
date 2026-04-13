@@ -4,6 +4,7 @@ mod utils;
 pub mod version;
 pub mod wc;
 pub mod export;
+pub mod ra;
 
 #[cfg(test)]
 mod tests;

@@ -32,11 +32,11 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
-    #[snafu(display("{}", source))]
-    DatabaseError {
-        source: Box<dyn std::error::Error + Sync + Send>,
-        backtrace: Backtrace,
-    },
+    // #[snafu(display("{}", source))]
+    // DatabaseError {
+    //     source: Box<dyn std::error::Error + Sync + Send>,
+    //     backtrace: Backtrace,
+    // },
 
     #[snafu(display("Invalid argument: {detail} at {location}"))]
     InvalidArgument {
@@ -87,6 +87,17 @@ pub enum Error {
 
     #[snafu(display("CSharp exception: {source}"))]
     CSharpError { source: CSharpError },
+
+    #[snafu(display("Repository cache broken: {uuid}"))]
+    CacheBrokenError {
+        uuid: String,
+    },
+
+    #[snafu(display("Failed to query database: {source}\n{backtrace:#?}"))]
+    DatabaseError {
+        source: sea_orm::DbErr,
+        backtrace: Backtrace
+    }
 }
 
 pub fn ok<T>(value: T) -> Result<T, Error> {
@@ -143,7 +154,7 @@ impl From<serde_json::Error> for Error {
 
 impl From<sea_orm::DbErr> for Error {
     fn from(value: sea_orm::DbErr) -> Self {
-        todo!()
+        builder::Database {}.into_error(value)
     }
 }
 

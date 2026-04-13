@@ -22,26 +22,7 @@ pub struct SeaDatabaseConnection {
     connection: DatabaseConnection,
 }
 
-#[easy_ext::ext(ActiveValueExtension)]
-impl<T: Into<sea_query::Value>> ActiveValue<T> {
-    fn set_value(&mut self, value: T) {
-        *self = Self::Set(value);
-    }
-}
 
-#[easy_ext::ext(DefaultExtension)]
-impl<T: Default> T {
-    fn default_value() -> Self {
-        Default::default()
-    }
-}
-
-#[easy_ext::ext]
-impl<T> Option<T> {
-    fn inner_into<V: From<T>>(self) -> Option<V> {
-        self.map(|v| V::from(v))
-    }
-}
 
 impl SeaDatabaseConnection {
     fn entities_to_entries(
@@ -51,7 +32,7 @@ impl SeaDatabaseConnection {
             Vec<property::Model>,
             Vec<log_changed_path_entry::Model>,
         )>,
-    ) -> error::Result<Vec<LogEntry>> {
+    ) -> error::Result<Vec<IndexedLogEntry>> {
         let mut result = Vec::with_capacity(entities.len());
         for (model, properties, changes) in entities {
             let mut revision_properties = HashMap::new();
@@ -108,10 +89,19 @@ impl SeaDatabaseConnection {
                 non_inheritable: model.non_inheritable,
                 subtractive_merge: model.subtractive_merge,
             };
-            result.push(entry);
+            result.push(IndexedLogEntry {
+                id: model.id,
+                entry
+            });
         }
         Ok(result)
     }
+}
+
+#[derive(uniffi::Record, Clone)]
+pub struct IndexedLogEntry {
+    pub id: i64,
+    pub entry: LogEntry,
 }
 
 #[uniffi::export(async_runtime = "tokio")]
@@ -128,7 +118,7 @@ impl SeaDatabaseConnection {
         tail: bool,
         repository_uuid: String,
         entries: Vec<LogEntry>,
-    ) -> error::Result<()> {
+    ) -> error::Result<Vec<IndexedLogEntry>> {
         self.connection
             .transaction(move |transaction| {
                 Box::pin(async move {
@@ -141,8 +131,10 @@ impl SeaDatabaseConnection {
                             .into_tuple()
                             .one(transaction)
                             .await?;
-                        primary_id.set_value(id.unwrap_or_default());
+                        primary_id.set_value(id.map(|id| id - 1).unwrap_or_default());
                     }
+
+                    let mut result = Vec::with_capacity(entries.len());
 
                     for entry in entries {
                         let mut model = log_entry::ActiveModel::default_value();
@@ -150,22 +142,22 @@ impl SeaDatabaseConnection {
                         model.id = primary_id.clone();
                         model.repository_uuid.set_value(repository_uuid.clone());
                         model.revision.set_value(entry.revision.inner_into());
-                        model.author.set_value(entry.author);
+                        model.author.set_value(entry.author.clone());
                         model.date.set_value(entry.date);
 
-                        model.message.set_value(entry.message);
+                        model.message.set_value(entry.message.clone());
                         model.has_children.set_value(entry.has_children);
                         model.non_inheritable.set_value(entry.non_inheritable);
                         model.subtractive_merge.set_value(entry.subtractive_merge);
 
-                        let result = log_entry::Entity::insert(model).exec(transaction).await?;
+                        let insert_result = log_entry::Entity::insert(model).exec(transaction).await?;
 
-                        if let Some(properties) = entry.revision_properties {
+                        if let Some(properties) = entry.revision_properties.clone() {
                             for (key, value) in properties {
                                 let mut property_model = property::ActiveModel::default_value();
                                 property_model
                                     .log_entry_id
-                                    .set_value(Some(result.last_insert_id));
+                                    .set_value(Some(insert_result.last_insert_id));
                                 property_model.name.set_value(key);
                                 property_model.value.set_value(value);
                                 property::Entity::insert(property_model)
@@ -174,16 +166,25 @@ impl SeaDatabaseConnection {
                             }
                         }
 
-                        for (path, change) in entry.changed_path_entries {
+                        for (path, change) in entry.changed_path_entries.clone() {
                             let mut changed_path_model =
                                 log_changed_path_entry::ActiveModel::default_value();
-                            changed_path_model
-                                .log_entry_id
-                                .set_value(result.last_insert_id);
                             changed_path_model.path.set_value(path);
                             changed_path_model
                                 .action
                                 .set_value(change.action.to_string());
+                            changed_path_model.copy_from_path.set_value(change.copy_from_path);
+                            changed_path_model.copy_from_revision.set_value(change.copy_from_revision.map(|e| e.try_into().unwrap()));
+                            changed_path_model.node_kind.set_value(change.node_kind.to_string());
+
+                            changed_path_model.text_modified.set_value(change.text_modified);
+
+                            changed_path_model.properties_modified.set_value(change.props_modified);
+
+
+                            changed_path_model
+                                .log_entry_id
+                                .set_value(insert_result.last_insert_id);
                             log_changed_path_entry::Entity::insert(changed_path_model)
                                 .exec(transaction)
                                 .await?;
@@ -192,27 +193,31 @@ impl SeaDatabaseConnection {
                         if let ActiveValue::Set(value) = primary_id {
                             primary_id.set_value(value - 1);
                         }
+
+                        result.push(IndexedLogEntry {
+                            id: insert_result.last_insert_id,
+                            entry
+                        });
+
                     }
-                    error::ok(())
+                    error::ok(result)
                 })
             })
-            .await?;
-
-        Ok(())
+            .await.map_err(Into::into)
     }
 
     pub async fn repository_logs(
         &self,
         repository_uuid: &str,
-        offset: Option<u64>,
+        start: Option<i64>,
         limit: Option<u64>,
         reverse: bool,
-    ) -> error::Result<Vec<LogEntry>> {
+    ) -> error::Result<Vec<IndexedLogEntry>> {
         let entries = log_entry::Entity::find()
             .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
+            .if_some(start, |this, start| this.filter(log_entry::Column::Id.gt(start)))
             .find_also_related(property::Entity)
             .find_also_related(log_changed_path_entry::Entity)
-            .offset(offset.unwrap_or_default())
             .if_or(
                 reverse,
                 |this| this.order_by_desc(log_entry::Column::Id),
@@ -659,23 +664,7 @@ pub struct RelativeLogEntry {
     children: Vec<RelativeLogEntry>,
 }
 
-#[easy_ext::ext(JsonExtension)]
-pub impl<T> T {
-    fn as_json(&self) -> error::Result<String>
-    where
-        Self: Serialize,
-    {
-        let v = serde_json::to_string(self)?;
-        Ok(v)
-    }
-    fn from_json<'de>(json: &'de str) -> error::Result<Self>
-    where
-        Self: Deserialize<'de>,
-    {
-        let v = serde_json::from_str(json)?;
-        Ok(v)
-    }
-}
+
 
 #[uniffi::export(with_foreign)]
 pub trait UpdateOperation: Send + Sync + 'static {

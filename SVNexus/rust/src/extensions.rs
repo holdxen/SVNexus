@@ -1,9 +1,56 @@
 
 use std::{any::Any, sync::Arc};
 
+use sea_orm::ActiveValue;
 use snafu::{OptionExt, ResultExt};
 
 use crate::{AnyValue, error::Error};
+
+// #[easy_ext::ext(JsonExtension)]
+// pub impl<T> T {
+//     fn as_json(&self) -> error::Result<String>
+//     where
+//         Self: Serialize,
+//     {
+//         let v = serde_json::to_string(self)?;
+//         Ok(v)
+//     }
+//     fn from_json<'de>(json: &'de str) -> error::Result<Self>
+//     where
+//         Self: Deserialize<'de>,
+//     {
+//         let v = serde_json::from_str(json)?;
+//         Ok(v)
+//     }
+// }
+
+#[easy_ext::ext(ActiveValueExtension)]
+pub impl<T: Into<sea_query::Value>> ActiveValue<T> {
+    fn set_value(&mut self, value: T) {
+        *self = Self::Set(value);
+    }
+}
+
+#[easy_ext::ext(DefaultExtension)]
+pub impl<T: Default> T {
+    fn default_value() -> Self {
+        Default::default()
+    }
+}
+
+// pub enum ValueOrRef<'a, T> {
+//     Ref(&'a T),
+//     Value(T),
+// }
+
+// impl<'a, T> AsRef<T> for ValueOrRef<'a, T> {
+//     fn as_ref(&self) -> &T {
+//         match *self {
+//             ValueOrRef::Ref(v) => v,
+//             ValueOrRef::Value(ref v) => v,
+//         }
+//     }
+// }
 
 #[easy_ext::ext(OptionExtension)]
 pub impl<T> Option<T> {
@@ -22,6 +69,10 @@ pub impl<T> Option<T> {
         S: Into<String>,
     {
         self.with_whatever_context::<_, _, Error>(context)
+    }
+
+    fn inner_into<V: From<T>>(self) -> Option<V> {
+        self.map(|v| V::from(v))
     }
 }
 
@@ -48,6 +99,10 @@ pub impl<T, E: std::error::Error + Send + Sync + 'static> Result<T, E> {
 
 #[easy_ext::ext(CommonExtension)]
 pub impl<T: Sized> T {
+    fn if_some<V>(self, option: Option<V>, f: impl FnOnce(Self, V) -> Self) -> Self {
+        if let Some(v) = option { f(self, v) } else { self }
+    }
+
     fn if_or<R>(
         self,
         value: bool,

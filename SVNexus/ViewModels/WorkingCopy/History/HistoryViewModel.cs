@@ -299,8 +299,153 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     private readonly Stack<CommitItemViewModel> _parentStack = [];
 
 
+    private uint? HandleLogEntries(LogEntry[] logs, IList<CommitItemViewModel> commitItems, Stack<CommitItemViewModel> parentStack)
+    {
+        uint? revision = null;
+        foreach (var entry in logs)
+        {
+            if (entry.Revision is null)
+            {
+                parentStack.Pop();
+            } 
+            else if (entry.HasChildren)
+            {
+                var item = new CommitItemViewModel()
+                {
+                    Entry = entry
+                };
+                var last = parentStack.LastOrDefault();
+                if (last is not null)
+                {
+                    last.Children.Add(item);
+                }
+                else
+                {
+                    CommitItems.Add(item);
+                }
+                parentStack.Push(item);
+                // _parent = item;
+                // CommitItems.Add(item);
+            }
+            else if (_parentStack.Count > 0)
+            {
+                parentStack.Last().Children.Add(new CommitItemViewModel()
+                {
+                    Entry = entry,
+                });
+            }
+            else
+            {
+                CommitItems.Add(new CommitItemViewModel()
+                {
+                    Entry = entry
+                });
+            }
+
+            if (entry.Revision is not null)
+            {
+                revision = entry.Revision;
+            }
+        }
+
+        return revision;
+    }
+
+    private long? _offset;
+
+    private async Task LogCache()
+    {
+        // var hostId = SendMessage(new OnGetDialogHostId());
+        // using var context = EngineBackend.Instance.SimpleContext(hostId);
+        //
+        // var path = SendMessage(new OnGetWorkingCopyPath());
+        //
+        // var root = await context.GetRepositoryRoot(path);
+        //
+        //
+        //
+        // await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+        // {
+        //     var logs = await SeaDatabaseConnection.Default.RepositoryLogs(root.Uuid, 0, 100, false);
+        //     if (logs.Length > 0)
+        //     {
+        //
+        //         _startRevision = HandleLogEntries(logs, CommitItems, _parentStack);
+        //         
+        //         var revision = logs.First().Revision;
+        //         using var ra = await context.OpenRepositoryAccessSession(root.RootUrl, null);
+        //         var latest = await ra.GetLatestRevisionNumber();
+        //         
+        //         
+        //         if (latest != revision)
+        //         {
+        //             var logOptions = new LogOptions([root.RootUrl], 
+        //                 new Revision.Number(latest), 
+        //                 0, [
+        //                 new RevisionRange(new Revision.Head(), new Revision.Number(revision.GetValueOrDefault()))
+        //             ], true, 
+        //                 false, 
+        //                 true, 
+        //                 null);
+        //
+        //             var logResult = await context.Log(logOptions);
+        //             
+        //             
+        //             
+        //             
+        //         }
+        //     }
+        // });
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+        var path = SendMessage(new OnGetWorkingCopyPath());
+        
+        await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
+        {
+            using var context = EngineBackend.Instance.SimpleContext(hostId);
+            
+            var root = await context.GetRepositoryRoot(path);
+
+            await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, root.Uuid, root.RootUrl);
+
+            var entries = await context.LoadRepositoryLogs(SeaDatabaseConnection.Default, _offset, 100, root.Uuid, root.RootUrl);
+
+            _offset = entries.FirstOrDefault()?.Id;
+
+            HandleLogEntries(entries.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
+
+            // if (entries.Length == 0)
+            // {
+            // }
+            // else
+            // {
+            //     _startRevision = HandleLogEntries(entries.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
+            // }
+
+        });
+    }
+
+
     [RelayCommand]
     private async Task Log(uint limit)
+    {
+        try
+        {
+            IsLoading = true;
+            await LogCache();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task LogDirectly(uint limit)
     {
 
         AsyncContext? context = null;

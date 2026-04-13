@@ -2444,6 +2444,16 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -2640,7 +2650,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_method_seadatabaseconnection_repository_logs(ulong @ptr,RustBuffer @repositoryUuid,RustBuffer @offset,RustBuffer @limit,sbyte @reverse
+     ulong uniffi_engine_fn_method_seadatabaseconnection_repository_logs(ulong @ptr,RustBuffer @repositoryUuid,RustBuffer @start,RustBuffer @limit,sbyte @reverse
     );
 
     #if NET8_0_OR_GREATER
@@ -11011,6 +11021,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_load_repository_logs(ulong @ptr,ulong @db,RustBuffer @start,RustBuffer @limit,RustBuffer @uuid,RustBuffer @url
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_lock(ulong @ptr,RustBuffer @opts
     );
 
@@ -11056,6 +11077,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asynccontext_mkdir(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asynccontext_open_repository_access_session(ulong @ptr,RustBuffer @url,RustBuffer @path
     );
 
     #if NET8_0_OR_GREATER
@@ -11176,6 +11208,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ulong uniffi_engine_fn_method_asynccontext_update_repository_logs(ulong @ptr,ulong @db,RustBuffer @uuid,RustBuffer @url
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ulong uniffi_engine_fn_method_asynccontext_url_from_path(ulong @ptr,RustBuffer @path
     );
 
@@ -11188,6 +11231,39 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asynccontext_working_copy_context(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_clone_repositoryaccessasynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_free_repositoryaccessasynccontext(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_repositoryaccessasynccontext_get_latest_revision_number(ulong @ptr
     );
 
     #if NET8_0_OR_GREATER
@@ -20273,6 +20349,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_load_repository_logs(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_lock(
     );
 
@@ -20318,6 +20405,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_method_asynccontext_mkdir(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_asynccontext_open_repository_access_session(
     );
 
     #if NET8_0_OR_GREATER
@@ -20438,6 +20536,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_update_repository_logs(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_url_from_path(
     );
 
@@ -20450,6 +20559,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_method_asynccontext_working_copy_context(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_method_repositoryaccessasynccontext_get_latest_revision_number(
     );
 
     #if NET8_0_OR_GREATER
@@ -20663,14 +20783,14 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_seadatabaseconnection_insert_repository_logs();
-            if (checksum != 46554) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_seadatabaseconnection_insert_repository_logs` checksum `46554`, library returned `{checksum}`");
+            if (checksum != 31101) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_seadatabaseconnection_insert_repository_logs` checksum `31101`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_seadatabaseconnection_repository_logs();
-            if (checksum != 29555) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_seadatabaseconnection_repository_logs` checksum `29555`, library returned `{checksum}`");
+            if (checksum != 30217) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_seadatabaseconnection_repository_logs` checksum `30217`, library returned `{checksum}`");
             }
         }
         {
@@ -25001,8 +25121,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_logreceiver_on_log_entry();
-            if (checksum != 24734) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_logreceiver_on_log_entry` checksum `24734`, library returned `{checksum}`");
+            if (checksum != 32255) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_logreceiver_on_log_entry` checksum `32255`, library returned `{checksum}`");
             }
         }
         {
@@ -25108,6 +25228,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_load_repository_logs();
+            if (checksum != 55280) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_load_repository_logs` checksum `55280`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_lock();
             if (checksum != 57826) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_lock` checksum `57826`, library returned `{checksum}`");
@@ -25135,6 +25261,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_mkdir();
             if (checksum != 27977) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_mkdir` checksum `27977`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_open_repository_access_session();
+            if (checksum != 32807) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_open_repository_access_session` checksum `32807`, library returned `{checksum}`");
             }
         }
         {
@@ -25198,6 +25330,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_update_repository_logs();
+            if (checksum != 39727) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_update_repository_logs` checksum `39727`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_url_from_path();
             if (checksum != 14798) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_url_from_path` checksum `14798`, library returned `{checksum}`");
@@ -25207,6 +25345,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_working_copy_context();
             if (checksum != 24698) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_working_copy_context` checksum `24698`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_repositoryaccessasynccontext_get_latest_revision_number();
+            if (checksum != 17623) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_repositoryaccessasynccontext_get_latest_revision_number` checksum `17623`, library returned `{checksum}`");
             }
         }
         {
@@ -25711,6 +25855,8 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<ListResult> List(ListOptions @opts);
     /// <exception cref="Exception"></exception>
+    Task<IndexedLogEntry[]> LoadRepositoryLogs(SeaDatabaseConnection @db, long? @start, ulong? @limit, string @uuid, string @url);
+    /// <exception cref="Exception"></exception>
     Task Lock(LockOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<LogResult> Log(LogOptions @opts);
@@ -25720,6 +25866,8 @@ public interface IAsyncContext {
     Task Merge(MergeOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<MkdirResult> Mkdir(MkdirOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task<RepositoryAccessAsyncContext> OpenRepositoryAccessSession(string @url, string? @path);
     /// <exception cref="Exception"></exception>
     Task Patch(PatchOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -25740,6 +25888,8 @@ public interface IAsyncContext {
     Task Unlock(UnlockOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<uint?[]> Update(UpdateOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task<IndexedLogEntry[]> UpdateRepositoryLogs(SeaDatabaseConnection @db, string @uuid, string @url);
     /// <exception cref="Exception"></exception>
     Task<string> UrlFromPath(string @path);
     AsyncWorkingCopyContext WorkingCopyContext();
@@ -26174,6 +26324,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
+    public async Task<IndexedLogEntry[]> LoadRepositoryLogs(SeaDatabaseConnection @db, long? @start, ulong? @limit, string @uuid, string @url) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_load_repository_logs(thisPtr, FfiConverterTypeSeaDatabaseConnection.INSTANCE.Lower(@db), FfiConverterOptionalInt64.INSTANCE.Lower(@start), FfiConverterOptionalUInt64.INSTANCE.Lower(@limit), FfiConverterString.INSTANCE.Lower(@uuid), FfiConverterString.INSTANCE.Lower(@url));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterSequenceTypeIndexedLogEntry.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
     public async Task Lock(LockOptions @opts) {await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
@@ -26266,6 +26438,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeMkdirResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<RepositoryAccessAsyncContext> OpenRepositoryAccessSession(string @url, string? @path) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_open_repository_access_session(thisPtr, FfiConverterString.INSTANCE.Lower(@url), FfiConverterOptionalString.INSTANCE.Lower(@path));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_u64(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_u64(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u64(future),
+        // Lift
+        (result) => FfiConverterTypeRepositoryAccessAsyncContext.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -26466,6 +26660,28 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterSequenceOptionalUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<IndexedLogEntry[]> UpdateRepositoryLogs(SeaDatabaseConnection @db, string @uuid, string @url) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_update_repository_logs(thisPtr, FfiConverterTypeSeaDatabaseConnection.INSTANCE.Lower(@db), FfiConverterString.INSTANCE.Lower(@uuid), FfiConverterString.INSTANCE.Lower(@url));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterSequenceTypeIndexedLogEntry.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -27613,7 +27829,7 @@ class FfiConverterTypeInitializeRepositoryNotifier: FfiConverter<InitializeRepos
 
 
 public interface LogReceiver {
-    /// <exception cref="Exception"></exception>
+    /// <exception cref="CSharpException"></exception>
     void OnLogEntry(LogEntry @logEntry);
 }
 public class LogReceiverImpl : LogReceiver, IDisposable {
@@ -27705,10 +27921,10 @@ public class LogReceiverImpl : LogReceiver, IDisposable {
     }
 
     
-    /// <exception cref="Exception"></exception>
+    /// <exception cref="CSharpException"></exception>
     public void OnLogEntry(LogEntry @logEntry) {
         CallWithPointer(thisPtr =>
-    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_method_logreceiver_on_log_entry(thisPtr, FfiConverterTypeLogEntry.INSTANCE.Lower(@logEntry), ref _status)
 ));
     }
@@ -27730,9 +27946,9 @@ class UniffiCallbackInterfaceLogReceiver {
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
         }
-        catch (Exception e) {
+        catch (CSharpException e) {
             _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
-            _uniffi_out_err.error_buf = FfiConverterTypeError.INSTANCE.Lower(e);
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
         }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
@@ -27809,6 +28025,151 @@ class FfiConverterTypeLogReceiver: FfiConverter<LogReceiver, ulong> {
 
 
 
+public interface IRepositoryAccessAsyncContext {
+    /// <exception cref="Exception"></exception>
+    Task<uint> GetLatestRevisionNumber();
+}
+public class RepositoryAccessAsyncContext : IRepositoryAccessAsyncContext, IDisposable {
+    protected ulong pointer;
+    private int _wasDestroyed = 0;
+    private long _callCounter = 1;
+
+    public RepositoryAccessAsyncContext(ulong pointer) {
+        this.pointer = pointer;
+    }
+
+    ~RepositoryAccessAsyncContext() {
+        Destroy();
+    }
+
+    protected void FreeRustArcPtr() {
+        _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            _UniFFILib.uniffi_engine_fn_free_repositoryaccessasynccontext(this.pointer, ref status);
+        });
+    }
+
+    protected ulong CloneRustArcPtr() {
+        return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            return _UniFFILib.uniffi_engine_fn_clone_repositoryaccessasynccontext(this.pointer, ref status);
+        });
+    }
+
+    public void Destroy()
+    {
+        // Only allow a single call to this method.
+        if (Interlocked.CompareExchange(ref _wasDestroyed, 1, 0) == 0)
+        {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (Interlocked.Decrement(ref _callCounter) == 0)
+            {
+                FreeRustArcPtr();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        Destroy();
+        GC.SuppressFinalize(this); // Suppress finalization to avoid unnecessary GC overhead.
+    }
+
+    private void IncrementCallCounter() 
+    {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        long count;
+        do
+        {
+            count = Interlocked.Read(ref _callCounter);
+            if (count == 0L) throw new System.ObjectDisposedException(string.Format("'{0}' object has already been destroyed", this.GetType().Name));
+            if (count == long.MaxValue) throw new System.OverflowException(string.Format("'{0}' call counter would overflow", this.GetType().Name));
+
+        } while (Interlocked.CompareExchange(ref _callCounter, count + 1, count) != count);
+    }
+
+    private void DecrementCallCounter() 
+    {
+        // This decrement always matches the increment we performed above.
+        if (Interlocked.Decrement(ref _callCounter) == 0) {
+            FreeRustArcPtr();
+        }
+    }
+
+    internal void CallWithPointer(Action<ulong> action)
+    {
+        IncrementCallCounter();
+        try {
+            action(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    internal T CallWithPointer<T>(Func<ulong, T> func)
+    {   
+        IncrementCallCounter();
+        try {
+            return func(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<uint> GetLatestRevisionNumber() {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_repositoryaccessasynccontext_get_latest_revision_number(thisPtr);
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_u32(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_u32(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_u32(future),
+        // Lift
+        (result) => FfiConverterUInt32.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+
+    
+}
+class FfiConverterTypeRepositoryAccessAsyncContext: FfiConverter<RepositoryAccessAsyncContext, ulong> {
+    public static FfiConverterTypeRepositoryAccessAsyncContext INSTANCE = new FfiConverterTypeRepositoryAccessAsyncContext();
+
+
+    public override ulong Lower(RepositoryAccessAsyncContext value) {
+        return value.CallWithPointer(thisPtr => thisPtr);
+    }
+
+    public override RepositoryAccessAsyncContext Lift(ulong value) {
+        return new RepositoryAccessAsyncContext(value);
+    }
+
+    public override RepositoryAccessAsyncContext Read(BigEndianStream stream) {
+        return Lift(stream.ReadULong());
+    }
+
+    public override int AllocationSize(RepositoryAccessAsyncContext value) {
+        return 8;
+    }
+
+    public override void Write(RepositoryAccessAsyncContext value, BigEndianStream stream) {
+        stream.WriteULong(Lower(value));
+    }
+}
+
+
+
 public interface ISeaDatabaseConnection {
     /// <exception cref="Exception"></exception>
     Task AddHistoryGroup(WorkspaceHistoryGroup @group);
@@ -27823,9 +28184,9 @@ public interface ISeaDatabaseConnection {
     /// <exception cref="Exception"></exception>
     Task<WorkspaceHistoryGroup[]> HistoryGroups();
     /// <exception cref="Exception"></exception>
-    Task InsertRepositoryLogs(bool @tail, string @repositoryUuid, LogEntry[] @entries);
+    Task<IndexedLogEntry[]> InsertRepositoryLogs(bool @tail, string @repositoryUuid, LogEntry[] @entries);
     /// <exception cref="Exception"></exception>
-    Task<LogEntry[]> RepositoryLogs(string @repositoryUuid, ulong? @offset, ulong? @limit, bool @reverse);
+    Task<IndexedLogEntry[]> RepositoryLogs(string @repositoryUuid, long? @start, ulong? @limit, bool @reverse);
     /// <exception cref="Exception"></exception>
     Task<WorkspaceHistoryGroup> UpdateHistoryGroup(string @uuid, UpdateOperation @operation);
     /// <exception cref="Exception"></exception>
@@ -28035,29 +28396,11 @@ public class SeaDatabaseConnection : ISeaDatabaseConnection, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
-    public async Task InsertRepositoryLogs(bool @tail, string @repositoryUuid, LogEntry[] @entries) {await _UniFFIAsync.UniffiRustCallAsync(
-        // Get rust future
-        CallWithPointer(thisPtr => {
-            return _UniFFILib.uniffi_engine_fn_method_seadatabaseconnection_insert_repository_logs(thisPtr, FfiConverterBoolean.INSTANCE.Lower(@tail), FfiConverterString.INSTANCE.Lower(@repositoryUuid), FfiConverterSequenceTypeLogEntry.INSTANCE.Lower(@entries));
-        }),
-        // Poll
-        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
-        // Complete
-        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
-        },
-        // Free
-        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
-        // Error
-        FfiConverterTypeError.INSTANCE
-    );
-    }
-    
-    /// <exception cref="Exception"></exception>
-    public async Task<LogEntry[]> RepositoryLogs(string @repositoryUuid, ulong? @offset, ulong? @limit, bool @reverse) {
+    public async Task<IndexedLogEntry[]> InsertRepositoryLogs(bool @tail, string @repositoryUuid, LogEntry[] @entries) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
-            return _UniFFILib.uniffi_engine_fn_method_seadatabaseconnection_repository_logs(thisPtr, FfiConverterString.INSTANCE.Lower(@repositoryUuid), FfiConverterOptionalUInt64.INSTANCE.Lower(@offset), FfiConverterOptionalUInt64.INSTANCE.Lower(@limit), FfiConverterBoolean.INSTANCE.Lower(@reverse));
+            return _UniFFILib.uniffi_engine_fn_method_seadatabaseconnection_insert_repository_logs(thisPtr, FfiConverterBoolean.INSTANCE.Lower(@tail), FfiConverterString.INSTANCE.Lower(@repositoryUuid), FfiConverterSequenceTypeLogEntry.INSTANCE.Lower(@entries));
         }),
         // Poll
         (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
@@ -28068,7 +28411,29 @@ public class SeaDatabaseConnection : ISeaDatabaseConnection, IDisposable {
         // Free
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
-        (result) => FfiConverterSequenceTypeLogEntry.INSTANCE.Lift(result),
+        (result) => FfiConverterSequenceTypeIndexedLogEntry.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<IndexedLogEntry[]> RepositoryLogs(string @repositoryUuid, long? @start, ulong? @limit, bool @reverse) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_seadatabaseconnection_repository_logs(thisPtr, FfiConverterString.INSTANCE.Lower(@repositoryUuid), FfiConverterOptionalInt64.INSTANCE.Lower(@start), FfiConverterOptionalUInt64.INSTANCE.Lower(@limit), FfiConverterBoolean.INSTANCE.Lower(@reverse));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterSequenceTypeIndexedLogEntry.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -36407,6 +36772,36 @@ class FfiConverterTypeImportResult: FfiConverterRustBuffer<ImportResult> {
 
 
 
+public record IndexedLogEntry (
+    long Id, 
+    LogEntry Entry
+) {
+}
+
+class FfiConverterTypeIndexedLogEntry: FfiConverterRustBuffer<IndexedLogEntry> {
+    public static FfiConverterTypeIndexedLogEntry INSTANCE = new FfiConverterTypeIndexedLogEntry();
+
+    public override IndexedLogEntry Read(BigEndianStream stream) {
+        return new IndexedLogEntry(
+            Id: FfiConverterInt64.INSTANCE.Read(stream),
+            Entry: FfiConverterTypeLogEntry.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(IndexedLogEntry value) {
+        return 0
+            + FfiConverterInt64.INSTANCE.AllocationSize(value.Id)
+            + FfiConverterTypeLogEntry.INSTANCE.AllocationSize(value.Entry);
+    }
+
+    public override void Write(IndexedLogEntry value, BigEndianStream stream) {
+            FfiConverterInt64.INSTANCE.Write(value.Id, stream);
+            FfiConverterTypeLogEntry.INSTANCE.Write(value.Entry, stream);
+    }
+}
+
+
+
 public record InfoEntry (
     string Url, 
     uint Revision, 
@@ -39427,10 +39822,6 @@ public class Exception: UniffiException {
         public SvnException(string message): base(message) {}
     }
     
-    public class DatabaseException: Exception {
-        public DatabaseException(string message): base(message) {}
-    }
-    
     public class InvalidArgument: Exception {
         public InvalidArgument(string message): base(message) {}
     }
@@ -39471,6 +39862,14 @@ public class Exception: UniffiException {
         public CSharpException(string message): base(message) {}
     }
     
+    public class CacheBrokenException: Exception {
+        public CacheBrokenException(string message): base(message) {}
+    }
+    
+    public class DatabaseException: Exception {
+        public DatabaseException(string message): base(message) {}
+    }
+    
 }
 
 class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusErrorHandler<Exception> {
@@ -39481,17 +39880,18 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
         switch (value) {
             case 1: return new Exception.AprException(FfiConverterString.INSTANCE.Read(stream));
             case 2: return new Exception.SvnException(FfiConverterString.INSTANCE.Read(stream));
-            case 3: return new Exception.DatabaseException(FfiConverterString.INSTANCE.Read(stream));
-            case 4: return new Exception.InvalidArgument(FfiConverterString.INSTANCE.Read(stream));
-            case 5: return new Exception.IoException(FfiConverterString.INSTANCE.Read(stream));
-            case 6: return new Exception.InvalidId(FfiConverterString.INSTANCE.Read(stream));
-            case 7: return new Exception.GeneralException(FfiConverterString.INSTANCE.Read(stream));
-            case 8: return new Exception.RuntimeException(FfiConverterString.INSTANCE.Read(stream));
-            case 9: return new Exception.Whatever(FfiConverterString.INSTANCE.Read(stream));
-            case 10: return new Exception.SvgException(FfiConverterString.INSTANCE.Read(stream));
-            case 11: return new Exception.JsonException(FfiConverterString.INSTANCE.Read(stream));
-            case 12: return new Exception.EnumParseException(FfiConverterString.INSTANCE.Read(stream));
-            case 13: return new Exception.CSharpException(FfiConverterString.INSTANCE.Read(stream));
+            case 3: return new Exception.InvalidArgument(FfiConverterString.INSTANCE.Read(stream));
+            case 4: return new Exception.IoException(FfiConverterString.INSTANCE.Read(stream));
+            case 5: return new Exception.InvalidId(FfiConverterString.INSTANCE.Read(stream));
+            case 6: return new Exception.GeneralException(FfiConverterString.INSTANCE.Read(stream));
+            case 7: return new Exception.RuntimeException(FfiConverterString.INSTANCE.Read(stream));
+            case 8: return new Exception.Whatever(FfiConverterString.INSTANCE.Read(stream));
+            case 9: return new Exception.SvgException(FfiConverterString.INSTANCE.Read(stream));
+            case 10: return new Exception.JsonException(FfiConverterString.INSTANCE.Read(stream));
+            case 11: return new Exception.EnumParseException(FfiConverterString.INSTANCE.Read(stream));
+            case 12: return new Exception.CSharpException(FfiConverterString.INSTANCE.Read(stream));
+            case 13: return new Exception.CacheBrokenException(FfiConverterString.INSTANCE.Read(stream));
+            case 14: return new Exception.DatabaseException(FfiConverterString.INSTANCE.Read(stream));
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Read()", value));
         }
@@ -39509,38 +39909,41 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
             case Exception.SvnException:
                 stream.WriteInt(2);
                 break;
-            case Exception.DatabaseException:
+            case Exception.InvalidArgument:
                 stream.WriteInt(3);
                 break;
-            case Exception.InvalidArgument:
+            case Exception.IoException:
                 stream.WriteInt(4);
                 break;
-            case Exception.IoException:
+            case Exception.InvalidId:
                 stream.WriteInt(5);
                 break;
-            case Exception.InvalidId:
+            case Exception.GeneralException:
                 stream.WriteInt(6);
                 break;
-            case Exception.GeneralException:
+            case Exception.RuntimeException:
                 stream.WriteInt(7);
                 break;
-            case Exception.RuntimeException:
+            case Exception.Whatever:
                 stream.WriteInt(8);
                 break;
-            case Exception.Whatever:
+            case Exception.SvgException:
                 stream.WriteInt(9);
                 break;
-            case Exception.SvgException:
+            case Exception.JsonException:
                 stream.WriteInt(10);
                 break;
-            case Exception.JsonException:
+            case Exception.EnumParseException:
                 stream.WriteInt(11);
                 break;
-            case Exception.EnumParseException:
+            case Exception.CSharpException:
                 stream.WriteInt(12);
                 break;
-            case Exception.CSharpException:
+            case Exception.CacheBrokenException:
                 stream.WriteInt(13);
+                break;
+            case Exception.DatabaseException:
+                stream.WriteInt(14);
                 break;
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Write()", value));
@@ -41328,6 +41731,58 @@ class FfiConverterSequenceTypeErrorInfo: FfiConverterRustBuffer<ErrorInfo[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeErrorInfo.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeIndexedLogEntry: FfiConverterRustBuffer<IndexedLogEntry[]> {
+    public static FfiConverterSequenceTypeIndexedLogEntry INSTANCE = new FfiConverterSequenceTypeIndexedLogEntry();
+
+    public override IndexedLogEntry[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<IndexedLogEntry>(length);
+        var readFn = FfiConverterTypeIndexedLogEntry.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(IndexedLogEntry[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeIndexedLogEntry.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(IndexedLogEntry[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeIndexedLogEntry.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

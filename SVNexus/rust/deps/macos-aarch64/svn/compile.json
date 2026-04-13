@@ -17,6 +17,7 @@
         "svn_fs_fs-1",
         "svn_fs_util-1",
         "svn_fs_x-1",
+        "svn_ra-1",
         "svn_ra_local-1",
         "svn_ra_serf-1",
         "svn_ra_svn-1",
