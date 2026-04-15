@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SystemPath = System.IO.Path;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
@@ -14,12 +15,12 @@ public partial class HistoryChangesViewModel : ViewModelLite
 
     public partial class ListViewModel : ViewModelBase
     {
-        public ObservableCollection<ListItemViewModel> Items { get; } = [];
+        [ObservableProperty]
+        public partial ObservableCollection<ListItemViewModel> Items { get; set; } = [];
     }
     
     public partial class ListItemViewModel: ViewModelBase
     {
-
         [ObservableProperty]
         public partial string Path { get; set; } = string.Empty;
 
@@ -31,22 +32,40 @@ public partial class HistoryChangesViewModel : ViewModelLite
         {
             get
             {
+                
+                
+                // if (Path == Current)
+                // {
+                //     return string.Empty;
+                // }
+                //
+                // if (Path.StartsWith(Current))
+                // {
+                //     return Path.TrimStartString(Current).TrimStartPathSeparatorChar();
+                // }
+                //
+                // return SystemPath.GetRelativePath(Current, Path.GetDirectoryName() ?? string.Empty);
+                
                 var directory = Path.GetDirectoryName();
                 if (directory == null)
                 {
                     return string.Empty;
                 }
 
+                if (!directory.StartsWith(RelateToRoot)) return SystemPath.GetRelativePath(RelateToRoot, directory);
+                
+                
                 directory = directory.TrimStartString(RelateToRoot);
                 
                 return directory == "/" ? directory : directory.TrimStartPathSeparatorChar();
+
             }
         }
 
         public string RelativePath => Path == RelateToRoot ? "/" : Path.TrimStartString(RelateToRoot).TrimStartPathSeparatorChar();
 
 
-        public string ActionIcon => Entry.Action.LogChangedPathActionIcon();
+        public string ActionIcon => Entry.Action.Icon();
 
 
         public string ActionText => Entry.Action.ToString();
@@ -55,7 +74,7 @@ public partial class HistoryChangesViewModel : ViewModelLite
         
         public required string RelateToRoot { get; set; }
 
-        public string NodeKindIcon => Entry.NodeKind.NodeKindIcon();
+        public string NodeKindIcon => Entry.NodeKind.Icon();
     }
     
     public partial class TreeViewModel: ViewModelBase
@@ -90,16 +109,16 @@ public partial class HistoryChangesViewModel : ViewModelLite
     public required Revision CompareRevision { get; set; }
     
     public required string RelateToRoot { get; set; }
+    
+    public required string CurrentPath { get; set; } = string.Empty;
 
     public void Update()
     {
-        ChangedListViewModel.Items.Clear();
-        
-        ChangedListViewModel.Items.AddRange(LogChangedPathEntries.Select(i => new ListItemViewModel()
+        ChangedListViewModel.Items = new ObservableCollection<ListItemViewModel>(LogChangedPathEntries.Select(i => new ListItemViewModel()
         {
             Entry = i.Value,
             RelateToRoot = RelateToRoot,
-            Path = i.Key
+            Path = i.Key,
         }));
         
     }

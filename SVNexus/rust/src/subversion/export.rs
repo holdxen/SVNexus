@@ -136,26 +136,10 @@ impl AsyncContext {
         uuid: String,
         url: String,
     ) -> error::Result<Vec<IndexedLogEntry>> {
+        tracing::info!("Loading repository logs from database with start={:?}, limit={:?}", start, limit);
         let mut logs = db.repository_logs(&uuid, start, limit, false).await?;
 
-        // if logs.is_empty() {
-        //     let log_options = LogOptions {
-        //         targets: vec![url],
-        //         peg_revision: Revision::Head,
-        //         limit: limit.unwrap_or_default() as u32,
-        //         revsions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
-        //         discover_changed_paths: true,
-        //         strict_node_history: false,
-        //         include_merged_revisions: true,
-        //         revisions_properties: None,
-        //     };
-
-        //     let result = self.log(log_options).await?;
-
-        //     return db
-        //         .insert_repository_logs(true, uuid, result.log_entries)
-        //         .await;
-        // }
+        tracing::info!("Cachce from database: {}", logs.len());
 
         let mut count = 0u64;
         let mut parents = 0;
@@ -166,25 +150,31 @@ impl AsyncContext {
 
         let mut new = vec![];
 
-        let mut database_is_empty = logs.is_empty();
+        // let mut database_is_empty = logs.len() <;
+
+        let mut database_is_empty = limit.is_none_or(|_| logs.is_empty());
 
         loop {
             if logs.is_empty() {
                 let mut cache = vec![];
                 if !database_is_empty {
                     cache = db
-                        .repository_logs(&uuid, last_id, 1.into_option_some(), false)
+                        .repository_logs(&uuid, last_id, 100.into_option_some(), false)
                         .await?;
                 }
 
-                if cache.is_empty() && !database_is_empty {
+                if cache.is_empty() {
                     database_is_empty = true;
                     let log_options = LogOptions {
                         targets: vec![url.clone()],
                         peg_revision: Revision::Head,
                         limit: 100,
-                        revsions: vec![RevisionRange::new(
-                            Revision::Number(last_revision.unwrap()), // cache broken
+                        revisions: vec![RevisionRange::new(
+                            if let Some(revision) = last_revision {
+                                Revision::Number(revision + 1)
+                            } else {
+                                Revision::Head
+                            },
                             Revision::Number(0),
                         )],
                         discover_changed_paths: true,
@@ -198,10 +188,6 @@ impl AsyncContext {
                     cache = db
                         .insert_repository_logs(true, uuid.clone(), log_result.log_entries)
                         .await?;
-
-                    if !cache.is_empty() && cache.first().unwrap().entry.revision == last_revision {
-                        cache.remove(0);
-                    }
                 }
                 snafu::ensure!(
                     !cache.is_empty(),
@@ -237,104 +223,7 @@ impl AsyncContext {
             }
         }
 
-        // let mut last_id = logs.last().unwrap().id;
-
-        // let mut iter = logs.into_iter();
-
-        // let mut last_revsion = 0;
-
-        // let mut left = vec![];
-
-        // loop {
-        //     let next = iter.next();
-
-        //     let i = if let Some(entry) = next {
-        //         entry
-        //     } else {
-        //         if parents == 0 && count.into_option_some() >= limit {
-        //             break;
-        //         }
-        //         let mut cache = db
-        //             .repository_logs(
-        //                 &uuid,
-        //                 last_id.into_option_some(),
-        //                 1.into_option_some(),
-        //                 false,
-        //             )
-        //             .await?;
-
-        //         if cache.is_empty() {
-        //             let log_options = LogOptions {
-        //                 targets: vec![url.clone()],
-        //                 peg_revision: Revision::Head,
-        //                 limit: 100,
-        //                 revsions: vec![RevisionRange::new(
-        //                     Revision::Number(last_revsion),
-        //                     Revision::Number(0),
-        //                 )],
-        //                 discover_changed_paths: true,
-        //                 strict_node_history: false,
-        //                 include_merged_revisions: true,
-        //                 revisions_properties: None,
-        //             };
-
-        //             let log_result = self.log(log_options).await?;
-
-        //             db.insert_repository_logs(true, uuid.clone(), log_result.log_entries)
-        //                 .await?;
-
-        //             continue;
-        //         }
-
-        //         last_id = cache.last().unwrap().id;
-        //         cache.remove(0)
-        //     };
-
-        //     if i.entry.revision.is_none() {
-        //         parents -= 1;
-        //     } else if i.entry.has_children {
-        //         parents += 1;
-        //         count += 1;
-        //     } else if parents == 0 {
-        //         count += 1;
-        //     }
-        //     let revision = i.entry.revision;
-
-        //     last_revsion = revision.unwrap_or_default();
-
-        //     left.push(i);
-
-        //     if revision == 0.into_option_some() {
-        //         break;
-        //     }
-
-        // }
-
-        // Ok(left)
-        //
-
         Ok(new)
-
-        // for i in logs.iter() {
-        //     if i.entry.revision.is_none() {
-        //         parents -= 1;
-        //     } else if i.entry.has_children {
-        //         parents += 1;
-        //     } else if parents == 0 {
-        //         count += 1;
-        //     }
-        // }
-        // if parents != 0 {
-        //     let last = logs.last().unwrap().id;
-        //     let logs = db.repository_logs(&uuid, last.into_option_some(), 1.into_option_some(), false).await?;
-
-        //     snafu::ensure!(logs.len() == 1, builder::CacheBroken {
-        //         uuid: uuid.clone()
-        //     });
-
-        // }
-
-        // todo!()
     }
 
     pub async fn update_repository_logs(
@@ -377,8 +266,8 @@ impl AsyncContext {
                 targets: vec![url],
                 peg_revision: Revision::Head,
                 limit: 0,
-                revsions: vec![RevisionRange::new(
-                    Revision::Number(revision),
+                revisions: vec![RevisionRange::new(
+                    Revision::Number(revision + 1),
                     Revision::Head,
                 )],
                 discover_changed_paths: true,
@@ -402,16 +291,9 @@ impl AsyncContext {
 
                 let mut entries = Vec::with_capacity(limit);
                 let mut indexed_entries = vec![];
-
-                let mut first = true;
-
                 loop {
                     let next = rx.recv().await;
                     if let Some(entry) = next {
-                        if first && entry.revision == revision.into_option_some() {
-                            first = false;
-                            continue;
-                        }
                         entries.insert(0, entry);
 
                         if entries.len() >= limit {
@@ -428,6 +310,7 @@ impl AsyncContext {
                     }
                 }
                 if !entries.is_empty() {
+                    // tracing::info!("Inserting remaining {:#?} entries into database", entries);
                     let mut indexed = db
                         .insert_repository_logs(false, uuid.clone(), std::mem::take(&mut entries))
                         .await?;
@@ -455,7 +338,7 @@ impl AsyncContext {
                 targets: vec![url],
                 peg_revision: Revision::Head,
                 limit: 100,
-                revsions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
+                revisions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
                 discover_changed_paths: true,
                 strict_node_history: false,
                 include_merged_revisions: true,
@@ -660,10 +543,8 @@ impl AsyncContext {
 
     #[uniffi::constructor]
     pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
-        tracing::info!("Before creating context");
         let context = ContextFactory::instance()?.create_context(opts)?;
         let context = Arc::new(parking_lot::FairMutex::new(context));
-        tracing::info!("Finished creating context");
         Ok(AsyncContext { context })
     }
 }

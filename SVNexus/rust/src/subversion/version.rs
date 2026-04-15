@@ -42,7 +42,7 @@ impl From<*const ffi::svn_version_t> for Version {
                 major: value.major.try_into().unwrap(),
                 minor: value.minor.try_into().unwrap(),
                 patch: value.patch.try_into().unwrap(),
-                tag: value.tag.to_nullable_string()
+                tag: value.tag.to_nullable_string(),
             }
         }
     }
@@ -77,12 +77,7 @@ pub fn version() -> Version {
     unsafe {
         let v = ffi::svn_subr_version().as_ref().unwrap();
 
-        Version::new(
-            v.major,
-            v.minor,
-            v.patch,
-            v.tag.to_nullable_string()
-        )
+        Version::new(v.major, v.minor, v.patch, v.tag.to_nullable_string())
     }
 }
 

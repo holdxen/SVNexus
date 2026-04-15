@@ -2454,6 +2454,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -11330,6 +11332,28 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asyncworkingcopycontext_wc_version(ulong @ptr,RustBuffer @path
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_engine_fn_method_nodepropertyname_name(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_engine_fn_method_revisionpropertyname_name(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -36805,8 +36829,8 @@ class FfiConverterTypeIndexedLogEntry: FfiConverterRustBuffer<IndexedLogEntry> {
 public record InfoEntry (
     string Url, 
     uint Revision, 
-    string ReposRootUrl, 
-    string ReposUuid, 
+    string RepositoryRootUrl, 
+    string RepositoryUuid, 
     NodeKind Kind, 
     ulong? Size, 
     uint LastChangedRevision, 
@@ -36824,8 +36848,8 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
         return new InfoEntry(
             Url: FfiConverterString.INSTANCE.Read(stream),
             Revision: FfiConverterUInt32.INSTANCE.Read(stream),
-            ReposRootUrl: FfiConverterString.INSTANCE.Read(stream),
-            ReposUuid: FfiConverterString.INSTANCE.Read(stream),
+            RepositoryRootUrl: FfiConverterString.INSTANCE.Read(stream),
+            RepositoryUuid: FfiConverterString.INSTANCE.Read(stream),
             Kind: FfiConverterTypeNodeKind.INSTANCE.Read(stream),
             Size: FfiConverterOptionalUInt64.INSTANCE.Read(stream),
             LastChangedRevision: FfiConverterUInt32.INSTANCE.Read(stream),
@@ -36840,8 +36864,8 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Url)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.Revision)
-            + FfiConverterString.INSTANCE.AllocationSize(value.ReposRootUrl)
-            + FfiConverterString.INSTANCE.AllocationSize(value.ReposUuid)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RepositoryRootUrl)
+            + FfiConverterString.INSTANCE.AllocationSize(value.RepositoryUuid)
             + FfiConverterTypeNodeKind.INSTANCE.AllocationSize(value.Kind)
             + FfiConverterOptionalUInt64.INSTANCE.AllocationSize(value.Size)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.LastChangedRevision)
@@ -36854,8 +36878,8 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
     public override void Write(InfoEntry value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Url, stream);
             FfiConverterUInt32.INSTANCE.Write(value.Revision, stream);
-            FfiConverterString.INSTANCE.Write(value.ReposRootUrl, stream);
-            FfiConverterString.INSTANCE.Write(value.ReposUuid, stream);
+            FfiConverterString.INSTANCE.Write(value.RepositoryRootUrl, stream);
+            FfiConverterString.INSTANCE.Write(value.RepositoryUuid, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.Kind, stream);
             FfiConverterOptionalUInt64.INSTANCE.Write(value.Size, stream);
             FfiConverterUInt32.INSTANCE.Write(value.LastChangedRevision, stream);
@@ -37434,7 +37458,7 @@ public record LogOptions (
     string[] Targets, 
     Revision PegRevision, 
     uint Limit, 
-    RevisionRange[] Revsions, 
+    RevisionRange[] Revisions, 
     bool DiscoverChangedPaths, 
     bool StrictNodeHistory, 
     bool IncludeMergedRevisions, 
@@ -37450,7 +37474,7 @@ class FfiConverterTypeLogOptions: FfiConverterRustBuffer<LogOptions> {
             Targets: FfiConverterSequenceString.INSTANCE.Read(stream),
             PegRevision: FfiConverterTypeRevision.INSTANCE.Read(stream),
             Limit: FfiConverterUInt32.INSTANCE.Read(stream),
-            Revsions: FfiConverterSequenceTypeRevisionRange.INSTANCE.Read(stream),
+            Revisions: FfiConverterSequenceTypeRevisionRange.INSTANCE.Read(stream),
             DiscoverChangedPaths: FfiConverterBoolean.INSTANCE.Read(stream),
             StrictNodeHistory: FfiConverterBoolean.INSTANCE.Read(stream),
             IncludeMergedRevisions: FfiConverterBoolean.INSTANCE.Read(stream),
@@ -37463,7 +37487,7 @@ class FfiConverterTypeLogOptions: FfiConverterRustBuffer<LogOptions> {
             + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Targets)
             + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.PegRevision)
             + FfiConverterUInt32.INSTANCE.AllocationSize(value.Limit)
-            + FfiConverterSequenceTypeRevisionRange.INSTANCE.AllocationSize(value.Revsions)
+            + FfiConverterSequenceTypeRevisionRange.INSTANCE.AllocationSize(value.Revisions)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.DiscoverChangedPaths)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.StrictNodeHistory)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IncludeMergedRevisions)
@@ -37474,7 +37498,7 @@ class FfiConverterTypeLogOptions: FfiConverterRustBuffer<LogOptions> {
             FfiConverterSequenceString.INSTANCE.Write(value.Targets, stream);
             FfiConverterTypeRevision.INSTANCE.Write(value.PegRevision, stream);
             FfiConverterUInt32.INSTANCE.Write(value.Limit, stream);
-            FfiConverterSequenceTypeRevisionRange.INSTANCE.Write(value.Revsions, stream);
+            FfiConverterSequenceTypeRevisionRange.INSTANCE.Write(value.Revisions, stream);
             FfiConverterBoolean.INSTANCE.Write(value.DiscoverChangedPaths, stream);
             FfiConverterBoolean.INSTANCE.Write(value.StrictNodeHistory, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IncludeMergedRevisions, stream);
@@ -40165,6 +40189,63 @@ class FfiConverterTypeNodeKind: FfiConverterRustBuffer<NodeKind> {
 
 
 
+public enum NodePropertyName: int {
+    
+    MimeType,
+    Ignore,
+    EolStyle,
+    Keywords,
+    Exeucable,
+    NeedsLock,
+    Special,
+    Externals,
+    MergeInfo,
+    AutoProperties,
+    GlobalIgnores,
+    TextTime,
+    Owner,
+    Group,
+    UnixMode
+}
+public static class NodePropertyNameExtensions {
+    
+    public static string Name(this NodePropertyName self_) {
+        return FfiConverterString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_nodepropertyname_name(FfiConverterTypeNodePropertyName.INSTANCE.Lower(self_),  ref _status)
+));
+    }
+    
+    
+}
+
+class FfiConverterTypeNodePropertyName: FfiConverterRustBuffer<NodePropertyName> {
+    public static FfiConverterTypeNodePropertyName INSTANCE = new FfiConverterTypeNodePropertyName();
+
+    public override NodePropertyName Read(BigEndianStream stream) {
+        var value = stream.ReadInt() - 1;
+        if (Enum.IsDefined(typeof(NodePropertyName), value)) {
+            return (NodePropertyName)value;
+        } else {
+            throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeNodePropertyName.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(NodePropertyName value) {
+        return 4;
+    }
+
+    public override void Write(NodePropertyName value, BigEndianStream stream) {
+        stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
 public record Revision {
     
     public record Unspecified: Revision {}
@@ -40290,6 +40371,58 @@ class FfiConverterTypeRevision : FfiConverterRustBuffer<Revision>{
             default:
                 throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeRevision.Write()", value));
         }
+    }
+}
+
+
+
+
+
+
+
+public enum RevisionPropertyName: int {
+    
+    Author,
+    Date,
+    Log,
+    OriginalDate,
+    Autoversioned,
+    Lock,
+    FromUrl,
+    FromUuid,
+    LastMergeRevision,
+    CurrentCopying
+}
+public static class RevisionPropertyNameExtensions {
+    
+    public static string Name(this RevisionPropertyName self_) {
+        return FfiConverterString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_revisionpropertyname_name(FfiConverterTypeRevisionPropertyName.INSTANCE.Lower(self_),  ref _status)
+));
+    }
+    
+    
+}
+
+class FfiConverterTypeRevisionPropertyName: FfiConverterRustBuffer<RevisionPropertyName> {
+    public static FfiConverterTypeRevisionPropertyName INSTANCE = new FfiConverterTypeRevisionPropertyName();
+
+    public override RevisionPropertyName Read(BigEndianStream stream) {
+        var value = stream.ReadInt() - 1;
+        if (Enum.IsDefined(typeof(RevisionPropertyName), value)) {
+            return (RevisionPropertyName)value;
+        } else {
+            throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeRevisionPropertyName.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(RevisionPropertyName value) {
+        return 4;
+    }
+
+    public override void Write(RevisionPropertyName value, BigEndianStream stream) {
+        stream.WriteInt((int)value + 1);
     }
 }
 

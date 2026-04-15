@@ -314,7 +314,6 @@ pub struct AutoPool<T> {
     pub value: T,
 }
 
-
 pub struct Pool {
     ptr: *mut ffi::apr_pool_t,
 }
@@ -535,7 +534,9 @@ pub impl *const ffi::apr_array_header_t {
         unsafe {
             let this = self.as_ref().unwrap();
             for i in 0..this.nelts {
-                let ptr = this.elts.byte_add(usize::try_from(i).unwrap() * POINTER_SIZE_BYTES);
+                let ptr = this
+                    .elts
+                    .byte_add(usize::try_from(i).unwrap() * POINTER_SIZE_BYTES);
                 let value = read(std::ptr::read(ptr as _));
                 vec.push(value);
             }
@@ -549,7 +550,9 @@ pub impl *const ffi::apr_array_header_t {
         unsafe {
             let this = self.as_ref().unwrap();
             for i in 0..this.nelts {
-                let ptr = this.elts.byte_add(usize::try_from(i).unwrap() * element_size);
+                let ptr = this
+                    .elts
+                    .byte_add(usize::try_from(i).unwrap() * element_size);
                 let value = read(ptr);
                 vec.push(value);
             }

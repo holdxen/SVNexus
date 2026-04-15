@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -53,7 +55,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         }
         
         
-        public string DateTimeText => DateTimeOffset.FromUnixTimeMilliseconds(Entry.Date.GetValueOrDefault() / 1000).UtcDateTime.ToString("u");
+        public string DateTimeText => DateTimeOffset.FromUnixTimeMilliseconds(Entry.Date.GetValueOrDefault() / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
         
         public ObservableCollection<CommitItemViewModel> Children { get; } = [];
 
@@ -66,7 +68,8 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
     [ObservableProperty] public partial int SelectedCommitItemIndex { get; set; } = -1;
 
-    public ObservableCollection<CommitItemViewModel> CommitItems { get; } = [];
+    [ObservableProperty]
+    public partial ObservableCollection<CommitItemViewModel> CommitItems { get; set; } = [];
     
     // public string? Url { get; set; }
 
@@ -115,7 +118,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
         
-        var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.ReposRootUrl);
+        var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
         var commitItem = CommitItems[value];
         DetailViewModel = new HistoryDetailViewModel
         {
@@ -168,7 +171,8 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                         CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
                         CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
                         RelateToRoot = relateToRoot,
-                        LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+                        LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                        CurrentPath = string.Empty,
                     };
                     ChangesViewModel.Update();
                     
@@ -187,7 +191,8 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                     CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
                     CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
                     RelateToRoot = relateToRoot,
-                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                    CurrentPath = string.Empty,
                 };
                 ChangesViewModel.Update();
             }
@@ -296,12 +301,19 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
     }
 
+    private async Task LoadDirectlyCache()
+    {
+
+
+
+
+    }
+
     private readonly Stack<CommitItemViewModel> _parentStack = [];
 
 
-    private uint? HandleLogEntries(LogEntry[] logs, IList<CommitItemViewModel> commitItems, Stack<CommitItemViewModel> parentStack)
+    private static void HandleLogEntries(LogEntry[] logs, IList<CommitItemViewModel> commitItems, Stack<CommitItemViewModel> parentStack)
     {
-        uint? revision = null;
         foreach (var entry in logs)
         {
             if (entry.Revision is null)
@@ -321,13 +333,17 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                 }
                 else
                 {
-                    CommitItems.Add(item);
+                    commitItems.Add(item);
                 }
                 parentStack.Push(item);
+
+                foreach (var change in item.Entry.ChangedPathEntries)
+                {
+                }
                 // _parent = item;
                 // CommitItems.Add(item);
             }
-            else if (_parentStack.Count > 0)
+            else if (parentStack.Count > 0)
             {
                 parentStack.Last().Children.Add(new CommitItemViewModel()
                 {
@@ -336,99 +352,89 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             }
             else
             {
-                CommitItems.Add(new CommitItemViewModel()
+                commitItems.Add(new CommitItemViewModel()
                 {
                     Entry = entry
                 });
             }
-
-            if (entry.Revision is not null)
-            {
-                revision = entry.Revision;
-            }
         }
-
-        return revision;
     }
 
-    private long? _offset;
+    private Tuple<long, long>? _logsRange; 
 
     private async Task LogCache()
     {
-        // var hostId = SendMessage(new OnGetDialogHostId());
-        // using var context = EngineBackend.Instance.SimpleContext(hostId);
-        //
-        // var path = SendMessage(new OnGetWorkingCopyPath());
-        //
-        // var root = await context.GetRepositoryRoot(path);
-        //
-        //
-        //
-        // await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
-        // {
-        //     var logs = await SeaDatabaseConnection.Default.RepositoryLogs(root.Uuid, 0, 100, false);
-        //     if (logs.Length > 0)
-        //     {
-        //
-        //         _startRevision = HandleLogEntries(logs, CommitItems, _parentStack);
-        //         
-        //         var revision = logs.First().Revision;
-        //         using var ra = await context.OpenRepositoryAccessSession(root.RootUrl, null);
-        //         var latest = await ra.GetLatestRevisionNumber();
-        //         
-        //         
-        //         if (latest != revision)
-        //         {
-        //             var logOptions = new LogOptions([root.RootUrl], 
-        //                 new Revision.Number(latest), 
-        //                 0, [
-        //                 new RevisionRange(new Revision.Head(), new Revision.Number(revision.GetValueOrDefault()))
-        //             ], true, 
-        //                 false, 
-        //                 true, 
-        //                 null);
-        //
-        //             var logResult = await context.Log(logOptions);
-        //             
-        //             
-        //             
-        //             
-        //         }
-        //     }
-        // });
+        await CheckUrl();
+        if (ThisEntry is null)
+        {
+            return;
+        }
 
         var hostId = SendMessage(new OnGetDialogHostId());
-        var path = SendMessage(new OnGetWorkingCopyPath());
-        
-        await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
+        var context = EngineBackend.Instance.SimpleContext(hostId);
+        if (_logsRange is null)
         {
-            using var context = EngineBackend.Instance.SimpleContext(hostId);
-            
-            var root = await context.GetRepositoryRoot(path);
+            var logs = await SeaDatabaseConnection.Default.RepositoryLogs(ThisEntry.RepositoryUuid, null, 100, false);
 
-            await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, root.Uuid, root.RootUrl);
+            Logger.Info($"Logs from database: {logs.Length}");
 
-            var entries = await context.LoadRepositoryLogs(SeaDatabaseConnection.Default, _offset, 100, root.Uuid, root.RootUrl);
+            if (logs.Length == 0)
+            {
+                logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
+            }
+            else
+            {
+                _ = Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
 
-            _offset = entries.FirstOrDefault()?.Id;
+                    var items = new List<CommitItemViewModel>();
+                    var parentStack = new Stack<CommitItemViewModel>();
+                    HandleLogEntries(logs.Select(i => i.Entry).ToArray(), items, parentStack);
 
-            HandleLogEntries(entries.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
+                    
+                    items.AddRange(CommitItems);
 
-            // if (entries.Length == 0)
-            // {
-            // }
-            // else
-            // {
-            //     _startRevision = HandleLogEntries(entries.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
-            // }
+                    CommitItems = new ObservableCollection<CommitItemViewModel>(items);
+                    
+                    if (logs.Length > 1)
+                    {
+                        _logsRange = _logsRange == null ? new Tuple<long, long>(logs.First().Id, logs.Last().Id) : new Tuple<long, long>(logs.First().Id, _logsRange.Item2);
+                    }
+                    
+                });
+            }
 
-        });
+            if (logs.Length > 1)
+            {
+                _logsRange = new Tuple<long, long>(logs.First().Id, logs.Last().Id);
+            }
+        
+            HandleLogEntries(logs.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
+        }
+        else
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                var logs = await context.LoadRepositoryLogs(SeaDatabaseConnection.Default, _logsRange.Item2, 10, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
+
+                if (logs.Length > 1)
+                {
+                    _logsRange = new Tuple<long, long>(_logsRange.Item1, logs.Last().Id);
+                }
+                HandleLogEntries(logs.Select(e => e.Entry).ToArray(), CommitItems, _parentStack);
+            }
+        }
+
+
     }
+
 
 
     [RelayCommand]
     private async Task Log(uint limit)
     {
+        // await LogDirectly(limit);
         try
         {
             IsLoading = true;
@@ -452,7 +458,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         try
         {
             IsLoading = true;
-            if (_startRevision is 1)
+            if (_startRevision <= 1)
             {
                 return;
             }
@@ -471,12 +477,12 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                 Targets: [ThisEntry!.Url],
                 PegRevision: new Revision.Head(),
                 Limit: limit,
-                Revsions:
+                Revisions:
                 [
                     new RevisionRange(
                         Start: _startRevision is null
                             ? new Revision.Head()
-                            : new Revision.Number(_startRevision.GetValueOrDefault() + 1), End: new Revision.Number(1))
+                            : new Revision.Number(_startRevision.GetValueOrDefault() - 1), End: new Revision.Number(0))
                 ],
                 DiscoverChangedPaths: true,
                 StrictNodeHistory: false,

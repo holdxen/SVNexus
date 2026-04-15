@@ -121,7 +121,9 @@ impl apr::Pool {
         let mut hash: *mut apr_hash_t = std::ptr::null_mut();
 
         let path = path
-            .map(|p| unsafe { self.string(p) }).transpose()?.unwrap_or_default();
+            .map(|p| unsafe { self.string(p) })
+            .transpose()?
+            .unwrap_or_default();
 
         unsafe {
             let error = svn_config_get_config(hash.pointer_mut(), path, self.as_mut_ptr());

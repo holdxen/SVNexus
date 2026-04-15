@@ -37,11 +37,24 @@ public partial class HistoryDetailViewModel: ViewModelLite
         [NotifyPropertyChangedFor(nameof(RelativePath))]
         public partial string Path { get; set; } = string.Empty;
 
-        public string Icon => Entry.Action.LogChangedPathActionIcon();
+        public string Icon => Entry.Action.Icon();
 
-        public string RelativePath => Path == RelativeToRoot
-            ? "/"
-            : Path.TrimStartString(RelativeToRoot).TrimStartPathSeparatorChar();
+        // public string RelativePath => Path == RelativeToRoot
+        //     ? "/"
+        //     : Path.TrimStartString(RelativeToRoot).TrimStartPathSeparatorChar();
+
+        public string RelativePath
+        {
+            get
+            {
+                if (RelativeToRoot == Path)
+                {
+                    return "/";
+                }
+
+                return Path.StartsWith(RelativeToRoot) ? Path[RelativeToRoot.Length..].TrimStartPathSeparatorChar() : SystemPath.GetRelativePath(RelativeToRoot, Path);
+            }
+        }
 
     }
 

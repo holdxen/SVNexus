@@ -8,7 +8,7 @@ namespace SVNexus.Extension;
 public static class Extension
 {
 
-    public static string LogChangedPathActionIcon(this LogChangedPathAction action)
+    public static string Icon(this LogChangedPathAction action)
     {
         var icon = action switch
         {
@@ -19,13 +19,14 @@ public static class Extension
             _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
         };
 
-        var pathIcon = (Application.Current!.FindResource(icon) as string)!;
-            
-
-        return pathIcon;
+        return Application.Current?.FindResource(icon) as string ?? string.Empty;
+        // var pathIcon = (Application.Current!.FindResource(icon) as string)!;
+        //     
+        //
+        // return pathIcon;
     }
 
-    public static string NodeStatusIcon(this WorkingCopyStatus status)
+    public static string Icon(this WorkingCopyStatus status)
     {
         var icon = status switch
         {
@@ -46,13 +47,14 @@ public static class Extension
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 
-        var pathIcon = (Application.Current!.FindResource(icon) as string)!;
-            
-
-        return pathIcon;
+        return Application.Current?.FindResource(icon) as string ?? string.Empty;
+        // var pathIcon = (Application.Current!.FindResource(icon) as string)!;
+        //     
+        //
+        // return pathIcon;
     }
     
-    public static string NodeKindIcon(this NodeKind kind)
+    public static string Icon(this NodeKind kind)
     {
         var key = kind switch
         {
@@ -63,6 +65,7 @@ public static class Extension
             _ => "Icons.FileUnknown"
         };
 
-        return (Application.Current!.FindResource(key) as string)!;
+        // return (Application.Current!.FindResource(key) as string)!;
+        return Application.Current?.FindResource(key) as string ?? string.Empty;
     }
 }

@@ -52,7 +52,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         public bool HasChild => StatusEntry?.NodeKind is NodeKind.Directory;
 
 
-        public string KindIcon => StatusEntry?.NodeKind.NodeKindIcon() ?? NodeKind.Directory.NodeKindIcon();
+        public string KindIcon => StatusEntry?.NodeKind.Icon() ?? NodeKind.Directory.Icon();
 
 
         public string Text
@@ -79,7 +79,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         public string StatusToolTip => StatusEntry?.NodeStatus.ToString() ?? string.Empty;
     
     
-        public string StatusIcon => StatusEntry?.NodeStatus.NodeStatusIcon() ?? string.Empty;
+        public string StatusIcon => StatusEntry?.NodeStatus.Icon() ?? string.Empty;
     
         [ObservableProperty]
         public required partial string WorkingCopyPath { get; set; }

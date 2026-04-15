@@ -52,9 +52,9 @@ public partial class WorkspaceViewModel : ViewModelBase,
         } = string.Empty;
 
 
-        public string NodeKindIcon => StatusEntry?.NodeKind.NodeKindIcon() ?? string.Empty;
+        public string NodeKindIcon => StatusEntry?.NodeKind.Icon() ?? string.Empty;
         
-        public string NodeStatusIcon => StatusEntry?.NodeStatus.NodeStatusIcon() ?? string.Empty;
+        public string NodeStatusIcon => StatusEntry?.NodeStatus.Icon() ?? string.Empty;
 
         public bool HasChild => StatusEntry?.NodeKind == NodeKind.Directory;
         

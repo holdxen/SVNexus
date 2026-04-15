@@ -17,8 +17,6 @@ fn add_link_library(lib: &str) {
     println!("cargo:rustc-link-lib={}", lib);
 }
 
-
-
 fn svn_path() -> String {
     use cfg_if::cfg_if;
     cfg_if! {
@@ -51,8 +49,6 @@ fn svn_path() -> String {
         }
     }
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 pub struct CompileOptions {

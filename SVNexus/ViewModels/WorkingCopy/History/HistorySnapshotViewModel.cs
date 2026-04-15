@@ -40,7 +40,7 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
         public ObservableCollection<FileItemViewModel> Children { get; set; } = [];
 
 
-        public string NodeKindIcon => NodeKind.NodeKindIcon();
+        public string NodeKindIcon => NodeKind.Icon();
 
     }
 

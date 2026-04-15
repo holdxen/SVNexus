@@ -31,9 +31,9 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
         public partial string WorkingCopyPath { get; set; } = string.Empty;
 
 
-        public string NodeKindIcon => StatusEntry.NodeKind.NodeKindIcon();
+        public string NodeKindIcon => StatusEntry.NodeKind.Icon();
         
-        public string NodeStatusIcon => StatusEntry.NodeStatus.NodeStatusIcon();
+        public string NodeStatusIcon => StatusEntry.NodeStatus.Icon();
 
         public string Name => StatusEntry.Path.GetFileName();
         

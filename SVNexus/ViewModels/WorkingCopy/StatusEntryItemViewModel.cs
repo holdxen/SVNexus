@@ -26,11 +26,11 @@ public partial class StatusEntryItemViewModel(ViewModelBase? parent = null): Vie
     
     public string FileName => Entry.Path.GetFileName();
 
-    public string StatusIcon => Entry.NodeStatus.NodeStatusIcon();
+    public string StatusIcon => Entry.NodeStatus.Icon();
     
     public string StatusToolTip => Entry.NodeStatus.ToString();
     
-    public string KindIcon => Entry.NodeKind.NodeKindIcon();
+    public string KindIcon => Entry.NodeKind.Icon();
 
     public string AbsolutePath => Entry.Path;
     

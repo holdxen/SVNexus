@@ -116,7 +116,7 @@ impl AsyncWorkingCopyContext {
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             Ok(WorkingCopyRevisionStatusResult {
-                status: WorkingCopyRevisionStatus::from(status as *const _)
+                status: WorkingCopyRevisionStatus::from(status as *const _),
             })
         })
         .await
@@ -124,14 +124,14 @@ impl AsyncWorkingCopyContext {
 
     pub async fn check_root(&self, absolute_path: String) -> error::Result<CheckRootResult> {
         self.call_async(move |ctx| unsafe {
-
             let mut pool = apr::Pool::create();
             let path = pool.string(&absolute_path)?;
 
             if ffi::svn_dirent_is_absolute(path) == 0 {
                 return builder::InvalidArgument {
                     detail: format!("{} must be an absolute path", absolute_path),
-                }.fail();
+                }
+                .fail();
             }
 
             let mut is_wc_root: ffi::svn_boolean_t = 0;

@@ -1,10 +1,11 @@
 pub mod context;
+pub mod export;
+pub mod ra;
 pub mod stream;
 mod utils;
 pub mod version;
 pub mod wc;
-pub mod export;
-pub mod ra;
+mod property;
 
 #[cfg(test)]
 mod tests;
@@ -815,7 +816,6 @@ impl std::fmt::Display for SVNError {
 }
 
 impl SVNError {
-
     fn to_error(&self) -> *mut ffi::svn_error_t {
         unsafe {
             let mut pool = apr::Pool::create();

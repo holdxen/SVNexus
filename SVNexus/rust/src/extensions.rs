@@ -1,4 +1,3 @@
-
 use std::{any::Any, sync::Arc};
 
 use sea_orm::ActiveValue;
@@ -94,21 +93,19 @@ pub impl<T, E: std::error::Error + Send + Sync + 'static> Result<T, E> {
     {
         self.with_whatever_context::<_, _, Error>(context)
     }
-
 }
 
 #[easy_ext::ext(CommonExtension)]
 pub impl<T: Sized> T {
     fn if_some<V>(self, option: Option<V>, f: impl FnOnce(Self, V) -> Self) -> Self {
-        if let Some(v) = option { f(self, v) } else { self }
+        if let Some(v) = option {
+            f(self, v)
+        } else {
+            self
+        }
     }
 
-    fn if_or<R>(
-        self,
-        value: bool,
-        i: impl FnOnce(Self) -> R,
-        o: impl FnOnce(Self) -> R,
-    ) -> R {
+    fn if_or<R>(self, value: bool, i: impl FnOnce(Self) -> R, o: impl FnOnce(Self) -> R) -> R {
         if value { i(self) } else { o(self) }
     }
 

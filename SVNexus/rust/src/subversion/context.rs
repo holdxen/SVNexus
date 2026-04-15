@@ -5,8 +5,8 @@ use super::{SVNError, svn_no_error};
 use crate::apr::{self, AprArray, AprPool, AutoPool, Pool};
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
 use crate::extensions::{CommonExtension, OptionExtension};
-use crate::subversion::{ra, utils};
 use crate::subversion::version::Version;
+use crate::subversion::{ra, utils};
 use crate::utils::PointerMutMapper;
 use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
@@ -15,10 +15,10 @@ use core::panic;
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
-use strum::EnumString;
 use std::collections::HashMap;
 use std::ffi::{CStr, c_char, c_void};
 use std::sync::Arc;
+use strum::EnumString;
 
 pub type RevisionNumber = u32;
 
@@ -41,7 +41,10 @@ pub trait ContextNotifier: Send + Sync + 'static {
         username: String,
         may_save: bool,
     ) -> Result<Option<Authentication>, CSharpError>;
-    fn conflict(&self, description: WorkingCopyConflictDescription) -> Result<WorkingCopyConflictResult, CSharpError>;
+    fn conflict(
+        &self,
+        description: WorkingCopyConflictDescription,
+    ) -> Result<WorkingCopyConflictResult, CSharpError>;
 }
 
 #[derive(new)]
@@ -93,7 +96,7 @@ pub struct Context {
     config: *mut apr::ffi::apr_hash_t,
     pool: apr::Pool,
     inner: Box<ContextInner>,
-    ra_sessions: HashMap<i32, AutoPool<*mut ffi::svn_ra_session_t>>
+    ra_sessions: HashMap<i32, AutoPool<*mut ffi::svn_ra_session_t>>,
 }
 
 unsafe impl Send for AutoPool<*mut ffi::svn_ra_session_t> {}
@@ -106,15 +109,19 @@ impl Drop for Context {
 }
 
 impl Context {
-    pub fn ra_session(&mut self, key: i32) -> error::Result<&mut AutoPool<*mut ffi::svn_ra_session_t>> {
-        self.ra_sessions.get_mut(&key).any_context("No such ra session")
+    pub fn ra_session(
+        &mut self,
+        key: i32,
+    ) -> error::Result<&mut AutoPool<*mut ffi::svn_ra_session_t>> {
+        self.ra_sessions
+            .get_mut(&key)
+            .any_context("No such ra session")
     }
 
     pub fn remove_ra_session(&mut self, key: i32) {
         self.ra_sessions.remove(&key);
     }
 }
-
 
 #[derive(uniffi::Record)]
 pub struct CreateContextOptions {
@@ -264,7 +271,20 @@ pub struct CommitResult {
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_node_kind_t)]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, uniffi::Enum, Serialize, Deserialize, EnumString, strum::Display)]
+#[derive(
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Clone,
+    Copy,
+    Debug,
+    uniffi::Enum,
+    Serialize,
+    Deserialize,
+    EnumString,
+    strum::Display,
+)]
 pub enum NodeKind {
     None = ffi::svn_node_kind_t_svn_node_none,
     File = ffi::svn_node_kind_t_svn_node_file,
@@ -959,7 +979,8 @@ unsafe extern "C" fn on_progress_notify(
 ) {
     unsafe {
         let this = &*(baton as *mut ContextInner);
-        let result = this.context_notifier
+        let result = this
+            .context_notifier
             .progress_notify(progress.try_into().unwrap(), total.try_into().unwrap());
         if let Err(e) = result {
             tracing::error!("Unexpected Error from csharp: {}", e);
@@ -1015,7 +1036,6 @@ unsafe extern "C" fn on_get_commit_message(
             .expect("Invalid message");
 
         this.commit_message.clear();
-
 
         *tmp_file = std::ptr::null();
 
@@ -1073,10 +1093,11 @@ unsafe extern "C" fn may_save_password_as_plain_text(
 
         let v = match ctx
             .context_notifier
-            .may_save_password_as_plain_text(realm_string.to_string()) {
-                Ok(v) => v,
-                Err(e) => return e.native_error(),
-            };
+            .may_save_password_as_plain_text(realm_string.to_string())
+        {
+            Ok(v) => v,
+            Err(e) => return e.native_error(),
+        };
         *save = v.into();
     }
 
@@ -1162,7 +1183,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
     unsafe {
         let realm = CStr::from_ptr(realm).to_str().unwrap();
         let info = SslServerCertInfo::from_raw(info);
-        tracing::info!(
+        tracing::trace!(
             "Server info: realm={} failures={} info={:?} may_save={}",
             realm,
             failures,
@@ -1183,7 +1204,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
         match trust {
             Err(e) => {
                 return e.native_error();
-            },
+            }
             Ok(Some(trust)) => {
                 *cred = pool.malloc::<ffi::svn_auth_cred_ssl_server_trust_t>();
                 let cred = &mut **cred;
@@ -1293,7 +1314,6 @@ impl LogEntry {
                 );
             }
 
-
             let revision = log_entry.revision.try_into().ok();
 
             let mut pool = apr::Pool::create();
@@ -1395,7 +1415,6 @@ unsafe extern "C" fn on_authenticate(
             cred.may_save = result.save.into();
             cred.password = pool.string(result.password).expect("Invalid password");
             cred.username = pool.string(result.username).expect("Invalid username");
-
         }
         svn_no_error()
     }
@@ -1475,7 +1494,7 @@ pub struct LogOptions {
     pub targets: Vec<String>,
     pub peg_revision: Revision,
     pub limit: u32,
-    pub revsions: Vec<RevisionRange>,
+    pub revisions: Vec<RevisionRange>,
     pub discover_changed_paths: bool,
     pub strict_node_history: bool,
     pub include_merged_revisions: bool,
@@ -2136,8 +2155,8 @@ pub struct DifferenceResult {
 pub struct InfoEntry {
     url: String,
     revision: RevisionNumber,
-    repos_root_url: String,
-    repos_uuid: String,
+    repository_root_url: String,
+    repository_uuid: String,
     kind: NodeKind,
     size: Option<u64>,
     last_changed_revision: RevisionNumber,
@@ -2153,7 +2172,6 @@ pub struct GetRepositoryRootResult {
     pub uuid: String,
 }
 
-
 #[easy_ext::ext]
 impl *const ffi::svn_client_info2_t {
     fn to_info_entry(self) -> InfoEntry {
@@ -2164,9 +2182,9 @@ impl *const ffi::svn_client_info2_t {
 
             let revision = ptr.rev.try_into().unwrap();
 
-            let repos_root_url = ptr.repos_root_URL.to_str().to_string();
+            let repository_root_url = ptr.repos_root_URL.to_str().to_string();
 
-            let repos_uuid = ptr.repos_UUID.to_str().to_string();
+            let repository_uuid = ptr.repos_UUID.to_str().to_string();
 
             let kind = ptr.kind.try_into().unwrap();
 
@@ -2197,8 +2215,8 @@ impl *const ffi::svn_client_info2_t {
             InfoEntry {
                 url,
                 revision,
-                repos_root_url,
-                repos_uuid,
+                repository_root_url,
+                repository_uuid,
                 kind,
                 size,
                 last_changed_revision,
@@ -2244,9 +2262,12 @@ impl Context {
     }
 
     fn cancelled(&self) -> error::Result<()> {
-        let msg = self.inner.context_notifier.cancel().map_err(|e| builder::General {
-            detail: format!("Unexpected error: {}", e),
-        }.build())?;
+        let msg = self.inner.context_notifier.cancel().map_err(|e| {
+            builder::General {
+                detail: format!("Unexpected error: {}", e),
+            }
+            .build()
+        })?;
         if let Some(msg) = msg {
             builder::General {
                 detail: format!("Cancelled: {}", msg),
@@ -2562,7 +2583,7 @@ impl Context {
 
         self.inner.status_entries.clear();
 
-        tracing::info!("status options={:#?}", opts);
+        tracing::trace!("status options={:#?}", opts);
 
         unsafe {
             let mut pool = apr::Pool::create();
@@ -2913,7 +2934,10 @@ impl Context {
             let error = ffi::svn_client_revert4(
                 pool.string_array(opts.paths.len(), opts.paths.iter())?,
                 opts.depth.into(),
-                opts.changelists.map(|c| pool.string_array(c.len(), c.iter())).transpose()?.unwrap_or_default(),
+                opts.changelists
+                    .map(|c| pool.string_array(c.len(), c.iter()))
+                    .transpose()?
+                    .unwrap_or_default(),
                 opts.clear_changelists.into(),
                 opts.metadata_only.into(),
                 opts.added_keep_local.into(),
@@ -2973,7 +2997,7 @@ impl Context {
             let error = ffi::svn_client_log5(
                 targets,
                 &peg_revision as *const _,
-                pool.revision_range(&opts.revsions),
+                pool.revision_range(&opts.revisions),
                 opts.limit.try_into().unwrap_or(std::ffi::c_int::MAX),
                 opts.discover_changed_paths.into(),
                 opts.strict_node_history.into(),
@@ -3027,7 +3051,7 @@ impl Context {
             let error = ffi::svn_client_log5(
                 targets,
                 &peg_revision as *const _,
-                pool.revision_range(&opts.revsions),
+                pool.revision_range(&opts.revisions),
                 opts.limit.try_into().unwrap_or(std::ffi::c_int::MAX),
                 opts.discover_changed_paths.into(),
                 opts.strict_node_history.into(),
@@ -3143,7 +3167,6 @@ impl Context {
     }
 
     pub fn info(&mut self, opts: InfoOptions) -> error::Result<InfoResult> {
-        tracing::info!("DEBUG block");
         unsafe extern "C" fn info_receiver(
             baton: *mut c_void,
             path: *const c_char,
@@ -3163,14 +3186,11 @@ impl Context {
 
             svn_no_error()
         }
-        tracing::info!("DEBUG block");
         unsafe {
             let mut pool = apr::Pool::create();
 
-            tracing::info!("DEBUG block");
             let path = pool.string(opts.path.as_str())?;
 
-            tracing::info!("DEBUG block");
             let peg_revision = opts.peg_revision.to_opt_revision();
 
             let revision = opts.revision.to_opt_revision();
@@ -3183,9 +3203,12 @@ impl Context {
 
             let include_externals = opts.include_externals.into();
 
-            let changelists = opts.changelists.map(|p| pool.string_array(p.len(), p.iter())).transpose()?.unwrap_or_default();
+            let changelists = opts
+                .changelists
+                .map(|p| pool.string_array(p.len(), p.iter()))
+                .transpose()?
+                .unwrap_or_default();
 
-            tracing::info!("DEBUG block");
             let error = ffi::svn_client_info4(
                 path,
                 peg_revision.pointer(),
@@ -3200,15 +3223,11 @@ impl Context {
                 self.ctx(),
                 pool.as_mut_ptr(),
             );
-            tracing::info!("DEBUG block");
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
-            tracing::info!("DEBUG block");
         }
 
-        tracing::info!("DEBUG block");
         let entries = std::mem::take(&mut self.inner.info_entries);
-        tracing::info!("DEBUG block");
 
         Ok(InfoResult { entries })
     }
@@ -3256,10 +3275,7 @@ impl Context {
 
             use apr::AprArray;
 
-            Ok(revisions.to_value_vec(|ptr| {
-                (*(ptr as *const ffi::svn_revnum_t))
-                    .try_into().ok()
-            }))
+            Ok(revisions.to_value_vec(|ptr| (*(ptr as *const ffi::svn_revnum_t)).try_into().ok()))
         }
     }
 
@@ -3615,7 +3631,8 @@ impl Context {
 
             let mut absolute_path: *const c_char = std::ptr::null();
 
-            let error = ffi::svn_dirent_get_absolute(absolute_path.pointer_mut(), path, pool.as_mut_ptr());
+            let error =
+                ffi::svn_dirent_get_absolute(absolute_path.pointer_mut(), path, pool.as_mut_ptr());
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let mut root: *const c_char = std::ptr::null_mut();
@@ -3805,7 +3822,6 @@ impl Context {
             reject_abspath: *const c_char,
             scratch_pool: *mut ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
-
             svn_no_error()
         }
         unsafe {
@@ -3834,20 +3850,34 @@ impl Context {
         }
     }
 
-    pub fn get_repository_root(&mut self, target: String) -> error::Result<GetRepositoryRootResult> {
+    pub fn get_repository_root(
+        &mut self,
+        target: String,
+    ) -> error::Result<GetRepositoryRootResult> {
         unsafe {
             let mut pool = apr::Pool::create();
             let target = pool.string(target)?;
 
             let mut absolute_path: *const c_char = std::ptr::null();
 
-            let error = ffi::svn_dirent_get_absolute(absolute_path.pointer_mut(), target, pool.as_mut_ptr());
+            let error = ffi::svn_dirent_get_absolute(
+                absolute_path.pointer_mut(),
+                target,
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let mut root_url: *const c_char = std::ptr::null_mut();
             let mut uuid: *const c_char = std::ptr::null_mut();
 
-            let error = ffi::svn_client_get_repos_root(root_url.pointer_mut(), uuid.pointer_mut(), absolute_path, self.ctx(), pool.as_mut_ptr(), pool.as_mut_ptr());
+            let error = ffi::svn_client_get_repos_root(
+                root_url.pointer_mut(),
+                uuid.pointer_mut(),
+                absolute_path,
+                self.ctx(),
+                pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
@@ -3855,10 +3885,7 @@ impl Context {
 
             let uuid = uuid.to_str().to_string();
 
-            Ok(GetRepositoryRootResult {
-                root_url,
-                uuid,
-            })
+            Ok(GetRepositoryRootResult { root_url, uuid })
         }
     }
 
@@ -3867,9 +3894,19 @@ impl Context {
             let mut pool = apr::Pool::create();
             let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
 
-            let comment = opts.comment.map(|v| pool.string(v)).transpose()?.unwrap_or_default();
+            let comment = opts
+                .comment
+                .map(|v| pool.string(v))
+                .transpose()?
+                .unwrap_or_default();
 
-            let error = ffi::svn_client_lock(targets, comment, opts.steal_lock.into(), self.ctx(), pool.as_mut_ptr());
+            let error = ffi::svn_client_lock(
+                targets,
+                comment,
+                opts.steal_lock.into(),
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         }
         Ok(())
@@ -3879,20 +3916,39 @@ impl Context {
             let mut pool = apr::Pool::create();
             let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
 
-            let error = ffi::svn_client_unlock(targets, opts.break_lock.into(), self.ctx(), pool.as_mut_ptr());
+            let error = ffi::svn_client_unlock(
+                targets,
+                opts.break_lock.into(),
+                self.ctx(),
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         }
         Ok(())
     }
 
-    pub fn open_repository_access_session(&mut self, url: String, path: Option<String>) -> error::Result<i32> {
+    pub fn open_repository_access_session(
+        &mut self,
+        url: String,
+        path: Option<String>,
+    ) -> error::Result<i32> {
         unsafe {
             let mut pool = apr::Pool::create();
             let url = pool.string(url)?;
-            let path = path.map(|v| pool.string(v)).transpose()?.unwrap_or_default();
+            let path = path
+                .map(|v| pool.string(v))
+                .transpose()?
+                .unwrap_or_default();
             let mut session: *mut ffi::svn_ra_session_t = std::ptr::null_mut();
             let mut session_pool = apr::Pool::create();
-            let error = ffi::svn_client_open_ra_session2(session.pointer_mut(), url, path, self.ctx(),  session_pool.as_mut_ptr(), pool.as_mut_ptr());
+            let error = ffi::svn_client_open_ra_session2(
+                session.pointer_mut(),
+                url,
+                path,
+                self.ctx(),
+                session_pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let session = AutoPool {
@@ -3900,8 +3956,13 @@ impl Context {
                 value: session,
             };
 
-
-            let key = self.ra_sessions.keys().map(|e| *e).max().unwrap_or_default() + 1;
+            let key = self
+                .ra_sessions
+                .keys()
+                .map(|e| *e)
+                .max()
+                .unwrap_or_default()
+                + 1;
 
             self.ra_sessions.insert(key, session);
 
@@ -4067,7 +4128,6 @@ impl Context {
                     Err(e) => return e.native_error(),
                 };
 
-
                 let merged_file = user_result
                     .merged_file
                     .map(|e| result_pool.string(e).expect("Invalid file"))
@@ -4125,7 +4185,7 @@ impl Context {
             pool,
             inner,
             config,
-            ra_sessions: Default::default()
+            ra_sessions: Default::default(),
         })
     }
 }

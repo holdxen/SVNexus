@@ -1,5 +1,8 @@
 use std::{
-    cell::RefCell, collections::{HashMap, hash_map::Entry}, ffi::{CStr, c_char, c_void}, sync::{Arc, OnceLock}
+    cell::RefCell,
+    collections::{HashMap, hash_map::Entry},
+    ffi::{CStr, c_char, c_void},
+    sync::{Arc, OnceLock},
 };
 
 use crate::{
@@ -137,7 +140,6 @@ pub impl<T> *mut T {
         if self.is_null() { None } else { Some(f(self)) }
     }
 }
-
 
 thread_local! {
     static SVG: RefCell<HashMap<String, DecodedSvg>> = Default::default();

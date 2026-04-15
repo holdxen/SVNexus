@@ -8,7 +8,7 @@ use crate::{
     subversion::context::{LogChangedPathEntry, LogEntry},
 };
 use migration::MigratorTrait;
-use sea_orm::ActiveModelTrait;
+use sea_orm::{ActiveModelTrait, ConnectOptions, QueryTrait};
 use sea_orm::{
     ActiveValue::{self},
     ColumnTrait, DatabaseConnection, EntityTrait, ModelTrait, QueryFilter, QueryOrder, QuerySelect,
@@ -21,8 +21,6 @@ use snafu::ResultExt;
 pub struct SeaDatabaseConnection {
     connection: DatabaseConnection,
 }
-
-
 
 impl SeaDatabaseConnection {
     fn entities_to_entries(
@@ -91,7 +89,7 @@ impl SeaDatabaseConnection {
             };
             result.push(IndexedLogEntry {
                 id: model.id,
-                entry
+                entry,
             });
         }
         Ok(result)
@@ -108,7 +106,22 @@ pub struct IndexedLogEntry {
 impl SeaDatabaseConnection {
     #[uniffi::constructor]
     pub async fn create() -> error::Result<Self> {
-        let connection = sea_orm::Database::connect("sqlite://svnexus.db?mode=rwc").await?;
+        use sea_orm::sqlx::sqlite::{SqliteJournalMode, SqliteSynchronous};
+        use std::time::Duration;
+        let mut opt = ConnectOptions::new("sqlite://svnexus.db?mode=rwc");
+        opt.sqlx_logging(false);
+        opt.map_sqlx_sqlite_opts(|o| {
+            o.journal_mode(SqliteJournalMode::Wal)
+                .synchronous(SqliteSynchronous::Normal)
+                .busy_timeout(Duration::from_secs(5))
+                .statement_cache_capacity(512)
+                .pragma("cache_size", "-32768") // 32 MiB / connection
+                .pragma("temp_store", "MEMORY")
+                .pragma("mmap_size", "268435456") // 256 MiB
+                .optimize_on_close(true, 400)
+        });
+
+        let connection = sea_orm::Database::connect(opt).await?;
         migration::Migrator::up(&connection, None).await?;
         Ok(Self { connection })
     }
@@ -150,7 +163,8 @@ impl SeaDatabaseConnection {
                         model.non_inheritable.set_value(entry.non_inheritable);
                         model.subtractive_merge.set_value(entry.subtractive_merge);
 
-                        let insert_result = log_entry::Entity::insert(model).exec(transaction).await?;
+                        let insert_result =
+                            log_entry::Entity::insert(model).exec(transaction).await?;
 
                         if let Some(properties) = entry.revision_properties.clone() {
                             for (key, value) in properties {
@@ -173,14 +187,23 @@ impl SeaDatabaseConnection {
                             changed_path_model
                                 .action
                                 .set_value(change.action.to_string());
-                            changed_path_model.copy_from_path.set_value(change.copy_from_path);
-                            changed_path_model.copy_from_revision.set_value(change.copy_from_revision.map(|e| e.try_into().unwrap()));
-                            changed_path_model.node_kind.set_value(change.node_kind.to_string());
+                            changed_path_model
+                                .copy_from_path
+                                .set_value(change.copy_from_path);
+                            changed_path_model.copy_from_revision.set_value(
+                                change.copy_from_revision.map(|e| e.try_into().unwrap()),
+                            );
+                            changed_path_model
+                                .node_kind
+                                .set_value(change.node_kind.to_string());
 
-                            changed_path_model.text_modified.set_value(change.text_modified);
+                            changed_path_model
+                                .text_modified
+                                .set_value(change.text_modified);
 
-                            changed_path_model.properties_modified.set_value(change.props_modified);
-
+                            changed_path_model
+                                .properties_modified
+                                .set_value(change.props_modified);
 
                             changed_path_model
                                 .log_entry_id
@@ -196,14 +219,14 @@ impl SeaDatabaseConnection {
 
                         result.push(IndexedLogEntry {
                             id: insert_result.last_insert_id,
-                            entry
+                            entry,
                         });
-
                     }
                     error::ok(result)
                 })
             })
-            .await.map_err(Into::into)
+            .await
+            .map_err(Into::into)
     }
 
     pub async fn repository_logs(
@@ -213,20 +236,59 @@ impl SeaDatabaseConnection {
         limit: Option<u64>,
         reverse: bool,
     ) -> error::Result<Vec<IndexedLogEntry>> {
-        let entries = log_entry::Entity::find()
+        {
+            let s = log_entry::Entity::find()
+                .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
+                .if_some(start, |this, start| {
+                    this.filter(log_entry::Column::Id.gt(start))
+                })
+                .find_also_related(property::Entity)
+                .find_also_related(log_changed_path_entry::Entity)
+                .if_or(
+                    reverse,
+                    |this| this.order_by_desc(log_entry::Column::Id),
+                    |this| this.order_by_asc(log_entry::Column::Id),
+                )
+                .limit(limit)
+                .build(sea_orm::DbBackend::Sqlite)
+                .to_string();
+
+            tracing::info!("Generated SQL: {}", s);
+        }
+        let logs = log_entry::Entity::find()
             .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
-            .if_some(start, |this, start| this.filter(log_entry::Column::Id.gt(start)))
-            .find_also_related(property::Entity)
-            .find_also_related(log_changed_path_entry::Entity)
+            .if_some(start, |this, start| {
+                this.filter(log_entry::Column::Id.gt(start))
+            })
+            // .find_also_related(property::Entity)
+            // .find_also_related(log_changed_path_entry::Entity)
             .if_or(
                 reverse,
                 |this| this.order_by_desc(log_entry::Column::Id),
                 |this| this.order_by_asc(log_entry::Column::Id),
             )
             .limit(limit)
-            .consolidate()
+            // .consolidate()
             .all(&self.connection)
             .await?;
+
+        let mut entries = Vec::with_capacity(logs.len());
+
+        for i in logs {
+            let properties = property::Entity::find()
+                .filter(property::Column::LogEntryId.eq(i.id))
+                .all(&self.connection)
+                .await?;
+
+            let changed_paths = log_changed_path_entry::Entity::find()
+                .filter(log_changed_path_entry::Column::LogEntryId.eq(i.id))
+                .all(&self.connection)
+                .await?;
+
+            entries.push((i, properties, changed_paths));
+        }
+
+        tracing::info!("Got entries size: {} limit: {:?}", entries.len(), limit);
 
         self.entities_to_entries(entries)
     }
@@ -663,8 +725,6 @@ pub struct RelativeLogEntry {
     entry: LogEntry,
     children: Vec<RelativeLogEntry>,
 }
-
-
 
 #[uniffi::export(with_foreign)]
 pub trait UpdateOperation: Send + Sync + 'static {

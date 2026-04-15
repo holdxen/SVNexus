@@ -52,7 +52,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
 
         [ObservableProperty] public partial bool IsLoading { get; set; }
 
-        public string NodeKindIcon => StatusEntry.NodeKind.NodeKindIcon();
+        public string NodeKindIcon => StatusEntry.NodeKind.Icon();
 
 
         public string Name => StatusEntry.Path.GetFileName();
@@ -61,7 +61,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         public string StatusToolTip => StatusEntry.NodeStatus.ToString();
 
 
-        public string StatusIcon => StatusEntry.NodeStatus.NodeStatusIcon();
+        public string StatusIcon => StatusEntry.NodeStatus.Icon();
         
 
         partial void OnIsExpandedChanged(bool value)
