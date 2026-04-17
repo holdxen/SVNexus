@@ -104,9 +104,9 @@ public partial class HistoryChangesViewModel : ViewModelLite
     public required partial Dictionary<string, LogChangedPathEntry> LogChangedPathEntries { get; set; }
     
     
-    public required Revision CurrentRevision { get; set; }
+    public required uint CurrentRevision { get; set; }
     
-    public required Revision CompareRevision { get; set; }
+    public required uint? CompareRevision { get; set; }
     
     public required string RelateToRoot { get; set; }
     

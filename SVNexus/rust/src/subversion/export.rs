@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, vec};
 
 use snafu::{OptionExt, ResultExt};
 use tokio::{
@@ -128,238 +128,560 @@ impl AsyncContext {
         wc::AsyncWorkingCopyContext::Context(self.context.clone())
     }
 
-    pub async fn load_repository_logs(
+    pub async fn build_repository_logs(
         &self,
         db: Arc<db::SeaDatabaseConnection>,
-        start: Option<i64>,
-        limit: Option<u64>,
         uuid: String,
         url: String,
+    ) -> error::Result<()> {
+        db.truncate_repository_logs(&uuid).await?;
+
+        let (tx, mut rx) = mpsc::unbounded_channel();
+
+        let receiver = LogReceiverClosure::new(move |entry| {
+            let result = tx.send(entry);
+            if let Err(err) = result {
+                tracing::error!("Failed to send log entry: {}", err);
+            }
+            Ok(())
+        });
+
+        let joiner = tokio::spawn(async move {
+            let limit = 1024;
+
+            let mut entries = Vec::with_capacity(limit);
+            loop {
+                let next = rx.recv().await;
+                if let Some(entry) = next {
+                    entries.insert(0, entry);
+
+                    if entries.len() >= limit {
+                        db.insert_repository_logs(true, uuid.clone(), std::mem::take(&mut entries))
+                            .await?;
+                    }
+                } else {
+                    break;
+                }
+            }
+            if !entries.is_empty() {
+                // tracing::info!("Inserting remaining {:#?} entries into database", entries);
+                db.insert_repository_logs(true, uuid.clone(), std::mem::take(&mut entries))
+                    .await?;
+            }
+
+            error::ok(())
+        });
+
+        let log_options = LogOptions {
+            targets: vec![url.clone()],
+            peg_revision: Revision::Head,
+            limit: 0,
+            revisions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
+            discover_changed_paths: true,
+            strict_node_history: false,
+            include_merged_revisions: true,
+            revisions_properties: None,
+        };
+
+        self.log_next(log_options, receiver.into_arc()).await?;
+
+        joiner
+            .await
+            .with_any_context(|e| format!("Unexpected task error: {}", e))?
+    }
+
+    pub async fn log_cache_fill(
+        &self,
+        db: Arc<db::SeaDatabaseConnection>,
+        uuid: &str,
+        url: &str,
+        start: Option<u32>,
+        limit: Option<u32>,
     ) -> error::Result<Vec<IndexedLogEntry>> {
-        tracing::info!("Loading repository logs from database with start={:?}, limit={:?}", start, limit);
-        let mut logs = db.repository_logs(&uuid, start, limit, false).await?;
+        if limit.is_some_and(|v| v == 0) {
+            return Ok(Default::default());
+        }
 
-        tracing::info!("Cachce from database: {}", logs.len());
+        tracing::info!("log cache fill: uuid={}, url={}", uuid, url);
 
-        let mut count = 0u64;
-        let mut parents = 0;
+        let mut logs = db.repository_logs(uuid, start, limit, true).await?;
 
-        let mut last_id = logs.last().map(|e| e.id);
+        tracing::info!("Cache from database: {}", logs.len());
+        tracing::info!("Cache from database: first={:#?}, last={:#?}", logs.first(), logs.last());
+        
+        let start = if let Some(start) = start {
+            start
+        } else {
+            let ra = self
+                .open_repository_access_session(url.to_string(), None)
+                .await?;
+            ra.get_latest_revision_number().await?
+        };
+        
+        // 10 9 8 7 6 5 4 3 2 1 0
+        tracing::info!("start={}", start);
 
-        let mut last_revision: Option<u32> = None;
+        let end = if let Some(limit) = limit {
+            start.saturating_sub(limit)
+        } else {
+            0
+        };
 
-        let mut new = vec![];
+        tracing::info!("end={}", end);
 
-        // let mut database_is_empty = logs.len() <;
+        let mut targets: Vec<_> = (end+1..=start).rev().map(|v| v.into_option_some()).collect();
 
-        let mut database_is_empty = limit.is_none_or(|_| logs.is_empty());
+        // tracing::info!("initial targets: {:?}", targets);
 
-        loop {
-            if logs.is_empty() {
-                let mut cache = vec![];
-                if !database_is_empty {
-                    cache = db
-                        .repository_logs(&uuid, last_id, 100.into_option_some(), false)
-                        .await?;
-                }
-
-                if cache.is_empty() {
-                    database_is_empty = true;
-                    let log_options = LogOptions {
-                        targets: vec![url.clone()],
-                        peg_revision: Revision::Head,
-                        limit: 100,
-                        revisions: vec![RevisionRange::new(
-                            if let Some(revision) = last_revision {
-                                Revision::Number(revision + 1)
-                            } else {
-                                Revision::Head
-                            },
-                            Revision::Number(0),
-                        )],
-                        discover_changed_paths: true,
-                        strict_node_history: false,
-                        include_merged_revisions: true,
-                        revisions_properties: None,
-                    };
-
-                    let log_result = self.log(log_options).await?;
-
-                    cache = db
-                        .insert_repository_logs(true, uuid.clone(), log_result.log_entries)
-                        .await?;
-                }
-                snafu::ensure!(
-                    !cache.is_empty(),
-                    builder::CacheBroken { uuid: uuid.clone() }
-                );
-
-                logs.extend(cache);
-            }
-
-            let i = logs.remove(0);
-
-            if i.entry.revision.is_none() {
-                parents -= 1;
-            } else if i.entry.has_children {
-                parents += 1;
-                count += 1;
-            } else if parents == 0 {
-                count += 1;
-                last_revision = i.entry.revision;
-            }
-
-            let revision = i.entry.revision;
-
-            last_id = Some(i.id);
-            new.push(i);
-
-            if revision == 0.into_option_some() {
-                break;
-            }
-
-            if parents == 0 && count.into_option_some() >= limit {
-                break;
+        for i in &logs {
+            // targets.retain(|v| *v == i.entry.revision);
+            if let Some(index) = targets.iter().position(|v| *v == i.entry.revision) {
+                targets[index] = None;
             }
         }
 
-        Ok(new)
-    }
 
-    pub async fn update_repository_logs(
-        &self,
-        db: Arc<db::SeaDatabaseConnection>,
-        uuid: String,
-        url: String,
-    ) -> error::Result<Vec<IndexedLogEntry>> {
-        let logs = db
-            .repository_logs(&uuid, None, 1.into_option_some(), false)
-            .await?;
+        let targets: Vec<Vec<_>> = targets
+            .split(|x| x.is_none())
+            .filter(|chunk| !chunk.is_empty())
+            .map(|chunk| {
+                chunk
+                    .iter()
+                    .filter_map(|&x| x) // Some(i32) -> i32，None 会被过滤
+                    .collect()
+            })
+            .collect();
 
-        if let Some(first) = logs.first() {
-            let revision = first
-                .entry
-                .revision
-                .context(builder::CacheBroken { uuid: uuid.clone() })?;
 
-            // let log_options = LogOptions {
-            //     targets: vec![url.clone()],
-            //     peg_revision: Revision::Head,
-            //     limit: 0,
-            //     revsions: vec![RevisionRange::new(
-            //         Revision::Head,
-            //         Revision::Number(revision),
-            //     )],
-            //     discover_changed_paths: true,
-            //     strict_node_history: false,
-            //     include_merged_revisions: true,
-            //     revisions_properties: None,
-            // };
+        // tracing::info!("left targets: {:?}", targets);
 
-            // let log_result = self.log(log_options).await?;
-
-            // let rev = log_result.log_entries.last().map(|e| e.revision).flatten().with_any_context(|| "Unexpected log received")?;
-
-            // let entries = db.insert_repository_logs(false, uuid.clone(), log_result.log_entries).await?;
-
+        for i in targets {
+            let start = *i.first().unwrap();
+            let end = *i.last().unwrap();
+            tracing::info!("Log from repository: start={}, end={}", start, end);
             let log_options = LogOptions {
-                targets: vec![url],
+                targets: vec![url.to_string()],
                 peg_revision: Revision::Head,
                 limit: 0,
                 revisions: vec![RevisionRange::new(
-                    Revision::Number(revision + 1),
-                    Revision::Head,
+                    Revision::Number(start),
+                    Revision::Number(end),
                 )],
                 discover_changed_paths: true,
                 strict_node_history: false,
-                include_merged_revisions: true,
+                include_merged_revisions: false,
                 revisions_properties: None,
             };
 
-            let (tx, mut rx) = mpsc::unbounded_channel();
+            let log_result = self.log(log_options).await?;
 
-            let receiver = LogReceiverClosure::new(move |entry| {
-                let result = tx.send(entry);
-                if let Err(err) = result {
-                    tracing::error!("Failed to send log entry: {}", err);
-                }
-                Ok(())
-            });
+            let inserted = db
+                .insert_repository_logs(true, uuid.to_string(), log_result.log_entries)
+                .await?;
 
-            let joiner = tokio::spawn(async move {
-                let limit = 100;
-
-                let mut entries = Vec::with_capacity(limit);
-                let mut indexed_entries = vec![];
-                loop {
-                    let next = rx.recv().await;
-                    if let Some(entry) = next {
-                        entries.insert(0, entry);
-
-                        if entries.len() >= limit {
-                            indexed_entries = db
-                                .insert_repository_logs(
-                                    false,
-                                    uuid.clone(),
-                                    std::mem::take(&mut entries),
-                                )
-                                .await?;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-                if !entries.is_empty() {
-                    // tracing::info!("Inserting remaining {:#?} entries into database", entries);
-                    let mut indexed = db
-                        .insert_repository_logs(false, uuid.clone(), std::mem::take(&mut entries))
-                        .await?;
-
-                    indexed.extend(indexed_entries);
-                    indexed.truncate(limit);
-
-                    indexed_entries = indexed;
-                }
-
-                error::ok(indexed_entries)
-            });
-
-            self.log_next(log_options, receiver.into_arc()).await?;
-
-            // let receiver = LogReceiverImpl::new(db, false, uuid.clone()).into_arc();
-
-            // receiver.join().await?;
-            //
-            joiner
-                .await
-                .with_any_context(|e| format!("Unexpected task error: {}", e))?
-        } else {
-            let log_options = LogOptions {
-                targets: vec![url],
-                peg_revision: Revision::Head,
-                limit: 100,
-                revisions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
-                discover_changed_paths: true,
-                strict_node_history: false,
-                include_merged_revisions: true,
-                revisions_properties: None,
-            };
-
-            let result = self.log(log_options).await?;
-
-            db.insert_repository_logs(true, uuid, result.log_entries)
-                .await
+            logs.extend(inserted);
         }
 
-        // let revision = logs
-        //     .first()
-        //     .map(|e| e.revision.unwrap_or_default())
-        //     .unwrap_or_default();
+        // if !targets.is_empty() {
+        //     let start = *targets.first().unwrap();
+        // }
 
-        // self.call_async(|context| {
-        //     todo!()
-        // }).await;
+        logs.sort_by(|v1, v2| v2.entry.revision.cmp(&v1.entry.revision));
+
+        // let mut try_again = false;
+        // if logs.is_empty() {
+        //     try_again = true;
+        // } else if let Some(limit) = limit {
+        //     if (logs.len() as u64) < limit
+        //         && logs.last().unwrap().entry.revision != 0.into_option_some()
+        //     {
+        //         try_again = true;
+        //     }
+        // }
+
+        // if try_again {
+        //     let log_options = LogOptions {
+        //         targets: vec![url.to_string()],
+        //         peg_revision: Revision::Head,
+        //         limit: limit.unwrap_or(0).try_into().unwrap_or(0),
+        //         revisions: vec![RevisionRange::new(
+        //             if let Some(start) = start {
+        //                 Revision::Number(start)
+        //             } else {
+        //                 Revision::Head
+        //             },
+        //             Revision::Number(0),
+        //         )],
+        //         discover_changed_paths: true,
+        //         strict_node_history: false,
+        //         include_merged_revisions: false,
+        //         revisions_properties: None,
+        //     };
+
+        //     let log_result = self.log(log_options).await?;
+
+        //     db.delete_repository_logs(uuid, logs.iter().map(|e| e.id).collect())
+        //         .await?;
+
+        //     logs = db
+        //         .insert_repository_logs(true, uuid.to_string(), log_result.log_entries)
+        //         .await?;
+        // }
+        Ok(logs)
     }
+
+    pub async fn log_cache(
+        &self,
+        db: Arc<db::SeaDatabaseConnection>,
+        uuid: &str,
+        url: &str,
+        start: Option<u32>,
+        limit: Option<u32>,
+    ) -> error::Result<Vec<IndexedLogEntry>> {
+        if limit.is_some_and(|v| v == 0) {
+            return Ok(Default::default());
+        }
+
+        let mut logs = db.repository_logs(uuid, start, limit, true).await?;
+
+        let mut try_again = false;
+        if logs.is_empty() {
+            try_again = true;
+        } else if let Some(limit) = limit {
+            if (logs.len() as u32) < limit
+                && logs.last().unwrap().entry.revision != 0.into_option_some()
+            {
+                try_again = true;
+            }
+        }
+
+        if try_again {
+            let log_options = LogOptions {
+                targets: vec![url.to_string()],
+                peg_revision: Revision::Head,
+                limit: limit.unwrap_or(0),
+                revisions: vec![RevisionRange::new(
+                    if let Some(start) = start {
+                        Revision::Number(start)
+                    } else {
+                        Revision::Head
+                    },
+                    Revision::Number(0),
+                )],
+                discover_changed_paths: true,
+                strict_node_history: false,
+                include_merged_revisions: false,
+                revisions_properties: None,
+            };
+
+            let log_result = self.log(log_options).await?;
+
+            db.delete_repository_logs(uuid, logs.iter().map(|e| e.id).collect())
+                .await?;
+
+            logs = db
+                .insert_repository_logs(true, uuid.to_string(), log_result.log_entries)
+                .await?;
+        }
+        Ok(logs)
+    }
+
+    // pub async fn update_and_repository_logs_from_database(
+    //     &self,
+    //     db: Arc<db::SeaDatabaseConnection>,
+    //     uuid: String,
+    //     start: Option<i64>,
+    //     limit: Option<u64>,
+    // ) -> error::Result<Vec<IndexedLogEntry>> {
+    //     let mut logs = db.repository_logs(&uuid, start, limit, false).await?;
+
+    //     if logs.is_empty() {
+    //         let log_options = LogOptions {
+    //             targets: vec![],
+    //             peg_revision: Revision::Head,
+    //             limit: limit.unwrap_or(0).try_into().unwrap_or(0),
+    //             revisions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
+    //             discover_changed_paths: true,
+    //             strict_node_history: false,
+    //             include_merged_revisions: false,
+    //             revisions_properties: None,
+    //         };
+
+    //         let log_result = self.log(log_options).await?;
+
+    //         logs = db
+    //             .insert_repository_logs(true, uuid, log_result.log_entries)
+    //             .await?;
+    //     } else {
+    //     }
+
+    //     todo!()
+    // }
+    // pub async fn load_repository_logs_from_database(
+    //     &self,
+    //     db: Arc<db::SeaDatabaseConnection>,
+    //     uuid: String,
+    //     start: Option<u32>,
+    //     limit: Option<u64>,
+    // ) -> error::Result<Vec<IndexedLogEntry>> {
+    //     let mut logs = db.repository_logs(&uuid, start, limit, false).await?;
+
+    //     if logs.is_empty() {
+    //         let log_options = LogOptions {
+    //             targets: vec![],
+    //             peg_revision: Revision::Head,
+    //             limit: limit.unwrap_or(0).try_into().unwrap_or(0),
+    //             revisions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
+    //             discover_changed_paths: true,
+    //             strict_node_history: false,
+    //             include_merged_revisions: false,
+    //             revisions_properties: None,
+    //         };
+
+    //         let log_result = self.log(log_options).await?;
+
+    //         logs = db
+    //             .insert_repository_logs(true, uuid, log_result.log_entries)
+    //             .await?;
+    //     } else {
+    //         let revision = logs.last().unwrap().entry.revision.unwrap_or_default();
+    //         if (logs.len() as u64) < limit.unwrap_or(0) && revision != 0 {
+    //             let log_options = LogOptions {
+    //                 targets: vec![],
+    //                 peg_revision: Revision::Head,
+    //                 limit: (if let Some(limit) = limit {
+    //                     limit - logs.len() as u64
+    //                 } else {
+    //                     0
+    //                 })
+    //                 .try_into()
+    //                 .unwrap(),
+    //                 revisions: vec![RevisionRange::new(
+    //                     Revision::Number(revision - 1),
+    //                     Revision::Number(0),
+    //                 )],
+    //                 discover_changed_paths: true,
+    //                 strict_node_history: false,
+    //                 include_merged_revisions: false,
+    //                 revisions_properties: None,
+    //             };
+
+    //             let log_result = self.log(log_options).await?;
+
+    //             logs.extend(
+    //                 db.insert_repository_logs(true, uuid, log_result.log_entries)
+    //                     .await?,
+    //             );
+    //         }
+    //     }
+
+    //     Ok(logs)
+    // }
+
+    // pub async fn load_repository_logs(
+    //     &self,
+    //     db: Arc<db::SeaDatabaseConnection>,
+    //     start: Option<i64>,
+    //     limit: Option<u64>,
+    //     uuid: String,
+    //     url: String,
+    // ) -> error::Result<Vec<IndexedLogEntry>> {
+    //     tracing::info!(
+    //         "Loading repository logs from database with start={:?}, limit={:?}",
+    //         start,
+    //         limit
+    //     );
+    //     let mut logs = db.repository_logs(&uuid, start, limit, false).await?;
+
+    //     tracing::info!("Cachce from database: {}", logs.len());
+
+    //     let mut count = 0u64;
+    //     let mut parents = 0;
+
+    //     let mut last_id = logs.last().map(|e| e.id);
+
+    //     let mut last_revision: Option<u32> = None;
+
+    //     let mut new = vec![];
+
+    //     // let mut database_is_empty = logs.len() <;
+
+    //     let mut database_is_empty = limit.is_none_or(|_| logs.is_empty());
+
+    //     loop {
+    //         if logs.is_empty() {
+    //             let mut cache = vec![];
+    //             if !database_is_empty {
+    //                 cache = db
+    //                     .repository_logs(&uuid, last_id, 100.into_option_some(), false)
+    //                     .await?;
+    //             }
+
+    //             if cache.is_empty() {
+    //                 database_is_empty = true;
+    //                 let log_options = LogOptions {
+    //                     targets: vec![url.clone()],
+    //                     peg_revision: Revision::Head,
+    //                     limit: 100,
+    //                     revisions: vec![RevisionRange::new(
+    //                         if let Some(revision) = last_revision {
+    //                             Revision::Number(revision + 1)
+    //                         } else {
+    //                             Revision::Head
+    //                         },
+    //                         Revision::Number(0),
+    //                     )],
+    //                     discover_changed_paths: true,
+    //                     strict_node_history: false,
+    //                     include_merged_revisions: true,
+    //                     revisions_properties: None,
+    //                 };
+
+    //                 let log_result = self.log(log_options).await?;
+
+    //                 cache = db
+    //                     .insert_repository_logs(true, uuid.clone(), log_result.log_entries)
+    //                     .await?;
+    //             }
+    //             snafu::ensure!(
+    //                 !cache.is_empty(),
+    //                 builder::CacheBroken { uuid: uuid.clone() }
+    //             );
+
+    //             logs.extend(cache);
+    //         }
+
+    //         let i = logs.remove(0);
+
+    //         if i.entry.revision.is_none() {
+    //             parents -= 1;
+    //         } else if i.entry.has_children {
+    //             parents += 1;
+    //             count += 1;
+    //         } else if parents == 0 {
+    //             count += 1;
+    //             last_revision = i.entry.revision;
+    //         }
+
+    //         let revision = i.entry.revision;
+
+    //         last_id = Some(i.id);
+    //         new.push(i);
+
+    //         if revision == 0.into_option_some() {
+    //             break;
+    //         }
+
+    //         if parents == 0 && count.into_option_some() >= limit {
+    //             break;
+    //         }
+    //     }
+
+    //     Ok(new)
+    // }
+
+    // pub async fn update_repository_logs(
+    //     &self,
+    //     db: Arc<db::SeaDatabaseConnection>,
+    //     uuid: String,
+    //     url: String,
+    // ) -> error::Result<Vec<IndexedLogEntry>> {
+    //     let logs = db
+    //         .repository_logs(&uuid, None, 1.into_option_some(), false)
+    //         .await?;
+
+    //     if let Some(first) = logs.first() {
+    //         let revision = first
+    //             .entry
+    //             .revision
+    //             .context(builder::CacheBroken { uuid: uuid.clone() })?;
+
+    //         let log_options = LogOptions {
+    //             targets: vec![url],
+    //             peg_revision: Revision::Head,
+    //             limit: 0,
+    //             revisions: vec![RevisionRange::new(
+    //                 Revision::Number(revision + 1),
+    //                 Revision::Head,
+    //             )],
+    //             discover_changed_paths: true,
+    //             strict_node_history: false,
+    //             include_merged_revisions: true,
+    //             revisions_properties: None,
+    //         };
+
+    //         let (tx, mut rx) = mpsc::unbounded_channel();
+
+    //         let receiver = LogReceiverClosure::new(move |entry| {
+    //             let result = tx.send(entry);
+    //             if let Err(err) = result {
+    //                 tracing::error!("Failed to send log entry: {}", err);
+    //             }
+    //             Ok(())
+    //         });
+
+    //         let joiner = tokio::spawn(async move {
+    //             let limit = 100;
+
+    //             let mut entries = Vec::with_capacity(limit);
+    //             let mut indexed_entries = vec![];
+    //             loop {
+    //                 let next = rx.recv().await;
+    //                 if let Some(entry) = next {
+    //                     entries.insert(0, entry);
+
+    //                     if entries.len() >= limit {
+    //                         indexed_entries = db
+    //                             .insert_repository_logs(
+    //                                 false,
+    //                                 uuid.clone(),
+    //                                 std::mem::take(&mut entries),
+    //                             )
+    //                             .await?;
+    //                     }
+    //                 } else {
+    //                     break;
+    //                 }
+    //             }
+    //             if !entries.is_empty() {
+    //                 // tracing::info!("Inserting remaining {:#?} entries into database", entries);
+    //                 let mut indexed = db
+    //                     .insert_repository_logs(false, uuid.clone(), std::mem::take(&mut entries))
+    //                     .await?;
+
+    //                 indexed.extend(indexed_entries);
+    //                 indexed.truncate(limit);
+
+    //                 indexed_entries = indexed;
+    //             }
+
+    //             error::ok(indexed_entries)
+    //         });
+
+    //         self.log_next(log_options, receiver.into_arc()).await?;
+
+    //         joiner
+    //             .await
+    //             .with_any_context(|e| format!("Unexpected task error: {}", e))?
+    //     } else {
+    //         let log_options = LogOptions {
+    //             targets: vec![url],
+    //             peg_revision: Revision::Head,
+    //             limit: 100,
+    //             revisions: vec![RevisionRange::new(Revision::Head, Revision::Number(0))],
+    //             discover_changed_paths: true,
+    //             strict_node_history: false,
+    //             include_merged_revisions: true,
+    //             revisions_properties: None,
+    //         };
+
+    //         let result = self.log(log_options).await?;
+
+    //         db.insert_repository_logs(true, uuid, result.log_entries)
+    //             .await
+    //     }
+
+    // }
 
     pub async fn open_repository_access_session(
         &self,
@@ -543,6 +865,7 @@ impl AsyncContext {
 
     #[uniffi::constructor]
     pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
+        tracing::info!("Creating AsyncContext with options");
         let context = ContextFactory::instance()?.create_context(opts)?;
         let context = Arc::new(parking_lot::FairMutex::new(context));
         Ok(AsyncContext { context })

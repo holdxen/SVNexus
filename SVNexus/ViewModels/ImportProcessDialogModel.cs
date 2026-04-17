@@ -1,15 +1,20 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Irihi.Avalonia.Shared.Contracts;
+using SVNexus.Engine;
+using SVNexus.Extension;
+using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
-public partial class ImportProcessDialogModel : ViewModelBase, IDialogContext
+public partial class ImportProcessDialogModel(ViewModelBase parent) : ViewModelMore(parent) , IDialogContext
 {
     public override Type? ViewType { get; set; } = typeof(ImportProcessDialog);
 
@@ -58,9 +63,6 @@ public partial class ImportProcessDialogModel : ViewModelBase, IDialogContext
     
     public bool CancelButtonVisible => !IsCompleted && Error is null;
     
-    public required WeakReferenceMessenger Messenger { get; init; }
-
-
     [RelayCommand]
     private void Cancel()
     {
@@ -83,4 +85,113 @@ public partial class ImportProcessDialogModel : ViewModelBase, IDialogContext
     }
 
     public event EventHandler<object?>? RequestClose;
+
+    
+    public required InitializeRepositoryOptions Options { get; init; }
+
+    protected override async Task LoadOnce()
+    {
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+
+        var context = EngineBackend.Instance.SimpleContext(hostId);
+        
+        try
+        {
+
+            await context.InitializeRepository(Options, new InitializeRepositoryNotifierDelegate
+            {
+                OnBackupAction = () =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Steps.LastOrDefault()?.State =
+                            StepState.Success;
+                        Steps.Add(new StepItemViewModel()
+                        {
+                            Content = "Backup",
+                            DateTime = DateTime.Now,
+                            State = StepState.Loading,
+                            Title = "Backup"
+                        });
+                    });
+                },
+                OnBackupFinishedAction = path =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        var last = Steps.LastOrDefault();
+                        last?.State =
+                            StepState.Success;
+                        last?.DateTime = DateTime.Now;
+                        last?.Content = $"Backup finished: {path}";
+                    });
+                },
+                OnCheckoutAction = () =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Steps.LastOrDefault()?.State =
+                            StepState.Success;
+                        Steps.Add(new StepItemViewModel()
+                        {
+                            Title = "Checkout",
+                            Content = $"Checkout from {Options.Remote}",
+                            State = StepState.Loading,
+                            DateTime = DateTime.Now
+                        });
+                    });
+                },
+                OnCheckoutDirectlyAction = () =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Steps.Add(new StepItemViewModel()
+                        {
+                            Title = "Checkout",
+                            DateTime = DateTime.Now,
+                            State = StepState.Loading,
+                        });
+                    });
+                },
+                OnFinishedAction = () =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Steps.LastOrDefault()?.State =
+                            StepState.Success;
+                    });
+                },
+                OnImportAction = () =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Steps.Add(new StepItemViewModel()
+                        {
+                            Title = "Import",
+                            Content = "Import",
+                            State = StepState.Loading,
+                            DateTime = DateTime.Now
+                        });
+                    });
+                }
+            });
+            IsCompleted = true;
+        }
+        catch (System.Exception e)
+        {
+            Console.WriteLine(e);
+            var last = Steps.LastOrDefault();
+            last?.State = StepState.Error;
+            last?.Content = e.HumanReadableMessage;
+            Error = e.HumanReadableMessage;
+        }
+        finally
+        {
+            context.Dispose();
+            IsCanceling = false;
+        }
+
+
+    }
 }

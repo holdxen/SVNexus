@@ -21,7 +21,7 @@ namespace SVNexus.ViewModels.WorkingCopy;
 
 public partial class WorkingCopyViewModel : ViewModelBase,
     IRecipient<OnWorkingCopyViewEnabled>, 
-    IRecipient<OnNotWorkingCopy>,
+    // IRecipient<OnNotWorkingCopy>,
     IRecipient<OnGetWorkingCopyPath>
 {
 
@@ -120,130 +120,11 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     {
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId());
-        var contextNotifierDelegate = new ContextNotifierDelegate
+
+        var importProcessDialogModel = new ImportProcessDialogModel(this)
         {
-            DialogHostId = hostId,
+            Options = message,
         };
-
-        var messenger = new WeakReferenceMessenger();
-
-        var importProcessDialogModel = new ImportProcessDialogModel()
-        {
-            Messenger = messenger
-        };
-        
-        messenger.Register<OnCancel>(contextNotifierDelegate, (recipient, cancel) =>
-        {
-            (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
-        });
-
-
-        
-        Task.Run(async () =>
-        {
-            var context = AsyncContext.Create(Engine.EngineBackend.Instance.MakeCreateContextOptions(contextNotifierDelegate));
-
-            try
-            {
-
-                await context.InitializeRepository(message, new InitializeRepositoryNotifierDelegate
-                {
-                    OnBackupAction = () =>
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            importProcessDialogModel.Steps.LastOrDefault()?.State =
-                                ImportProcessDialogModel.StepState.Success;
-                            importProcessDialogModel.Steps.Add(new ImportProcessDialogModel.StepItemViewModel()
-                            {
-                                Content = "Backup",
-                                DateTime = DateTime.Now,
-                                State = ImportProcessDialogModel.StepState.Loading,
-                                Title = "Backup"
-                            });
-                        });
-                    },
-                    OnBackupFinishedAction = path =>
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            var last = importProcessDialogModel.Steps.LastOrDefault();
-                            last?.State =
-                                ImportProcessDialogModel.StepState.Success;
-                            last?.DateTime = DateTime.Now;
-                            last?.Content = $"Backup finished: {path}";
-                        });
-                    },
-                    OnCheckoutAction = () =>
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            importProcessDialogModel.Steps.LastOrDefault()?.State =
-                                ImportProcessDialogModel.StepState.Success;
-                            importProcessDialogModel.Steps.Add(new ImportProcessDialogModel.StepItemViewModel()
-                            {
-                                Title = "Checkout",
-                                Content = $"Checkout from {message.Remote}",
-                                State = ImportProcessDialogModel.StepState.Loading,
-                                DateTime = DateTime.Now
-                            });
-                        });
-                    },
-                    OnCheckoutDirectlyAction = () =>
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            importProcessDialogModel.Steps.Add(new ImportProcessDialogModel.StepItemViewModel()
-                            {
-                                Title = "Checkout",
-                                DateTime = DateTime.Now,
-                                State = ImportProcessDialogModel.StepState.Loading,
-                            });
-                        });
-                    },
-                    OnFinishedAction = () =>
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            importProcessDialogModel.Steps.LastOrDefault()?.State =
-                                ImportProcessDialogModel.StepState.Success;
-                        });
-                    },
-                    OnImportAction = () =>
-                    {
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            importProcessDialogModel.Steps.Add(new ImportProcessDialogModel.StepItemViewModel()
-                            {
-                                Title = "Import",
-                                Content = "Import",
-                                State = ImportProcessDialogModel.StepState.Loading,
-                                DateTime = DateTime.Now
-                            });
-                        });
-                    }
-                });
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    importProcessDialogModel.IsCompleted = true;
-                });
-            }
-            catch (System.Exception e)
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    var last = importProcessDialogModel.Steps.LastOrDefault();
-                    last?.State = ImportProcessDialogModel.StepState.Error;
-                    last?.Content = e.HumanReadableMessage;
-                    importProcessDialogModel.Error = e.HumanReadableMessage;
-                });
-            }
-            finally
-            {
-                context.Dispose();
-            }
-        });
-
 
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
@@ -263,40 +144,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
 
     }
 
-    public void Receive(OnNotWorkingCopy message)
-    {
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
-        var hostId = SendMessage(new OnGetDialogHostId());
-        Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            var result = await MessageBox.ShowOverlayAsync(title: "Error", hostId: hostId, message: "Not a working copy, initialize now", button: MessageBoxButton.YesNo);
-            if (result is MessageBoxResult.No)
-            {
-                // Manager.MainWindow.Send(new OnRemoveTabByLocalViewModel(this));
-                // Manager.Default.Send(new OnRemoveTab(_tabService.Token), Manager.MainWindowToken);
-                SendMessage(new OnRemoveTabModel());
-            }
-            else
-            {
-                var dialogOptions = new OverlayDialogOptions
-                {
-                    Title = "Test",
-                    IsCloseButtonVisible = true,
-                    Buttons = DialogButton.None
-                };
-                var importDialogModel = new ImportDialogModel()
-                {
-                    Path = Path,
-                };
-                await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
-                if (importDialogModel.Options is not null)
-                {
-                    Receive(importDialogModel.Options);
-                }
-            }
 
-        });
-    }
 
     public void Receive(OnGetWorkingCopyPath message)
     {

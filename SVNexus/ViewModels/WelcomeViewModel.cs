@@ -27,7 +27,8 @@ namespace SVNexus.ViewModels;
 public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(parent), 
     IRecipient<WelcomeViewModel.OnRemoveHistory>,
     IRecipient<WelcomeViewModel.OnHistoryStateChanged>,
-    IRecipient<WelcomeViewModel.OnUpdateHistoryGroup>
+    IRecipient<WelcomeViewModel.OnUpdateHistoryGroup>,
+    IRecipient<OnCancel>
 {
 
     public const int AllIndex = 0;
@@ -936,7 +937,9 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             // }
         });
     }
-    
+
+
+    private readonly Dictionary<object, ContextNotifierDelegate> _contextNotifiers = [];
     
     [RelayCommand]
     private async Task ShowCheckoutDialog()
@@ -997,54 +1000,96 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
 
     public void Receive(CheckoutOptions message)
     {
+        // var hostId = SendMessage(new OnGetDialogHostId());
+        // // var messenger = new WeakReferenceMessenger();
+        // var model = new ProcessDialogModel(this)
+        // {
+        //     Url = message.Url,
+        //     Path = message.Path,
+        //     // Messenger = messenger
+        // };
+        //
+        //
+        //
+        // var contextNotifier = new ContextNotifierDelegate()
+        // {
+        //     WorkingCopyNotifyAction = notify =>
+        //     {
+        //         Dispatcher.UIThread.Invoke(() =>
+        //         {
+        //             var path = notify.Path.TrimStartString(message.Path);
+        //             model.ProcessLogItems.Add(new ProcessDialogModel.ProcessLogItemViewModel()
+        //             {
+        //                 Action = notify.Action.ToString(),
+        //                 MimeType =  notify.MimeType ?? "",
+        //                 Path = path
+        //             });
+        //             model.CurrentFile = path;
+        //         });
+        //     },
+        //     ProgressNotifyAction = (downloaded, total) =>
+        //     {
+        //         Dispatcher.UIThread.Invoke(() =>
+        //         {
+        //             model.Total = total;
+        //             model.Downloaded = downloaded;
+        //         });
+        //     },
+        //     DialogHostId = hostId
+        // };
+        //
+        // _contextNotifiers[model] = contextNotifier;
+        //
+        //
+        // var createContextOptions = EngineBackend.Instance.MakeCreateContextOptions(contextNotifier);
+        //
+        // var context = AsyncContext.Create(createContextOptions);
+        //
+        // // messenger.Register<OnCancel>(contextNotifier, (recipient, cancel) =>
+        // // {
+        // //     (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
+        // // });
+        //
+        // Dispatcher.UIThread.InvokeAsync(async () =>
+        // {
+        //     var options = new OverlayDialogOptions
+        //     {
+        //         Title = "Checkout",
+        //         IsCloseButtonVisible = false,
+        //         Buttons = DialogButton.None
+        //     };
+        //     Console.WriteLine("Show dialog");
+        //     await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
+        // });
+        //
+        // Task.Run(async () =>
+        // {
+        //     try
+        //     {
+        //
+        //         Console.WriteLine("Checkout now");
+        //         await context.Checkout(message);
+        //         Console.WriteLine("Checkout now finished");
+        //         Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
+        //     }
+        //     catch (System.Exception e)
+        //     {
+        //         model.Error = e.HumanReadableMessage;
+        //     }
+        //     finally
+        //     {
+        //         context.Dispose();
+        //     }
+        // });
+
+
+        var model = new CheckoutProcessDialogModel(this)
+        {
+            Options = message
+        };
+        
         var hostId = SendMessage(new OnGetDialogHostId());
-        var messenger = new WeakReferenceMessenger();
-        var model = new CheckoutOrExportProcessDialogModel
-        {
-            Url = message.Url,
-            Path = message.Path,
-            Messenger = messenger
-        };
         
-
-
-        var contextNotifier = new ContextNotifierDelegate()
-        {
-            WorkingCopyNotifyAction = notify =>
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    var path = notify.Path.TrimStart(message.Path).ToString();
-                    model.ProcessLogItems.Add(new CheckoutOrExportProcessDialogModel.ProcessLogItemViewModel()
-                    {
-                        Action = notify.Action.ToString(),
-                        MimeType =  notify.MimeType ?? "",
-                        Path = path
-                    });
-                    model.CurrentFile = path;
-                });
-            },
-            ProgressNotifyAction = (downloaded, total) =>
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    model.Total = total;
-                    model.Downloaded = downloaded;
-                });
-            },
-            DialogHostId = hostId
-        };
-        
-        
-        var createContextOptions = EngineBackend.Instance.MakeCreateContextOptions(contextNotifier);
-
-        var context = AsyncContext.Create(createContextOptions);
-        
-        messenger.Register<OnCancel>(contextNotifier, (recipient, cancel) =>
-        {
-            (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
-        });
-
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var options = new OverlayDialogOptions
@@ -1054,29 +1099,8 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: hostId, options: options);
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
         });
-        
-        Task.Run(async () =>
-        {
-            try
-            {
-        
-                Console.WriteLine("Checkout now");
-                await context.Checkout(message);
-                Console.WriteLine("Checkout now finished");
-                Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
-            }
-            catch (System.Exception e)
-            {
-                model.Error = e.HumanReadableMessage;
-            }
-            finally
-            {
-                context.Dispose();
-            }
-        });
-        
         
         
 
@@ -1110,84 +1134,101 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     public void Receive(ExportOptions message)
     {
         
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        var options = new OverlayDialogOptions
+        {
+            Title = "Export",
+            IsCloseButtonVisible = false,
+            Buttons = DialogButton.None
+        };
+        Console.WriteLine("Show dialog");
+        var model = new ExportProcessDialogModel(this)
+        {
+            Options = message
+        };
         var hostId = SendMessage(new OnGetDialogHostId());
-        var messenger = new WeakReferenceMessenger();
-        var model = new CheckoutOrExportProcessDialogModel
-        {
-            Url = message.FromPathOrUrl,
-            Path = message.ToPath,
-            Messenger = messenger
-        };
-        
-
-
-        var contextNotifier = new ContextNotifierDelegate()
-        {
-            WorkingCopyNotifyAction = notify =>
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    var path = notify.Path.TrimStart(message.ToPath).ToString();
-                    model.ProcessLogItems.Add(new CheckoutOrExportProcessDialogModel.ProcessLogItemViewModel()
-                    {
-                        Action = notify.Action.ToString(),
-                        MimeType =  notify.MimeType ?? "",
-                        Path = path
-                    });
-                    model.CurrentFile = path;
-                });
-            },
-            ProgressNotifyAction = (downloaded, total) =>
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    model.Total = total;
-                    model.Downloaded = downloaded;
-                });
-            },
-            DialogHostId = hostId
-        };
-        
-        
-        var createContextOptions = EngineBackend.Instance.MakeCreateContextOptions(contextNotifier);
-
-        var context = AsyncContext.Create(createContextOptions);
-        
-        messenger.Register<OnCancel>(contextNotifier, (recipient, cancel) =>
-        {
-            (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
-        });
-
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            var options = new OverlayDialogOptions
-            {
-                Title = "Export",
-                IsCloseButtonVisible = false,
-                Buttons = DialogButton.None
-            };
-            Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, CheckoutOrExportProcessDialogModel>(model, hostId: hostId, options: options);
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
         });
         
-        Task.Run(async () =>
-        {
-            try
-            {
-                await context.Export(message);
-                Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
-            }
-            catch (System.Exception e)
-            {
-                model.Error = e.HumanReadableMessage;
-            }
-            finally
-            {
-                context.Dispose();
-            }
-        });
-        
+        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
+        // var hostId = SendMessage(new OnGetDialogHostId());
+        // // var messenger = new WeakReferenceMessenger();
+        // var model = new ProcessDialogModel(this)
+        // {
+        //     Url = message.FromPathOrUrl,
+        //     Path = message.ToPath,
+        // };
+        //
+        //
+        //
+        // var contextNotifier = new ContextNotifierDelegate()
+        // {
+        //     WorkingCopyNotifyAction = notify =>
+        //     {
+        //         Dispatcher.UIThread.Invoke(() =>
+        //         {
+        //             var path = notify.Path.TrimStart(message.ToPath).ToString();
+        //             model.ProcessLogItems.Add(new ProcessDialogModel.ProcessLogItemViewModel()
+        //             {
+        //                 Action = notify.Action.ToString(),
+        //                 MimeType =  notify.MimeType ?? "",
+        //                 Path = path
+        //             });
+        //             model.CurrentFile = path;
+        //         });
+        //     },
+        //     ProgressNotifyAction = (downloaded, total) =>
+        //     {
+        //         Dispatcher.UIThread.Invoke(() =>
+        //         {
+        //             model.Total = total;
+        //             model.Downloaded = downloaded;
+        //         });
+        //     },
+        //     DialogHostId = hostId
+        // };
+        //
+        // _contextNotifiers[model] = contextNotifier;
+        //
+        // var createContextOptions = EngineBackend.Instance.MakeCreateContextOptions(contextNotifier);
+        //
+        // var context = AsyncContext.Create(createContextOptions);
+        //
+        // // messenger.Register<OnCancel>(contextNotifier, (recipient, cancel) =>
+        // // {
+        // //     (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
+        // // });
+        //
+        // Dispatcher.UIThread.InvokeAsync(async () =>
+        // {
+        //     var options = new OverlayDialogOptions
+        //     {
+        //         Title = "Export",
+        //         IsCloseButtonVisible = false,
+        //         Buttons = DialogButton.None
+        //     };
+        //     Console.WriteLine("Show dialog");
+        //     await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
+        // });
+        //
+        // Task.Run(async () =>
+        // {
+        //     try
+        //     {
+        //         await context.Export(message);
+        //         Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
+        //     }
+        //     catch (System.Exception e)
+        //     {
+        //         model.Error = e.HumanReadableMessage;
+        //     }
+        //     finally
+        //     {
+        //         context.Dispose();
+        //     }
+        // });
+        //
     }
 
     public void Receive(OnRemoveHistory message)
@@ -1210,5 +1251,17 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         {
             await ReloadWorkspaceHistoryGroups();
         });
+    }
+
+    public void Receive(OnCancel message)
+    {
+        if (Sender is null)
+        {
+            return;
+        }
+        if (_contextNotifiers.TryGetValue(Sender, out var value))
+        {
+            value.CancelMessage = "User cancel";
+        }
     }
 }

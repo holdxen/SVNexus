@@ -96,7 +96,7 @@ impl SeaDatabaseConnection {
     }
 }
 
-#[derive(uniffi::Record, Clone)]
+#[derive(uniffi::Record, Clone, Debug)]
 pub struct IndexedLogEntry {
     pub id: i64,
     pub entry: LogEntry,
@@ -124,6 +124,14 @@ impl SeaDatabaseConnection {
         let connection = sea_orm::Database::connect(opt).await?;
         migration::Migrator::up(&connection, None).await?;
         Ok(Self { connection })
+    }
+
+    pub async fn truncate_repository_logs(&self, repository_uuid: &str) -> error::Result<()> {
+        log_entry::Entity::delete_many()
+            .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
+            .exec(&self.connection)
+            .await?;
+        Ok(())
     }
 
     pub async fn insert_repository_logs(
@@ -229,45 +237,44 @@ impl SeaDatabaseConnection {
             .map_err(Into::into)
     }
 
+    pub async fn delete_repository_logs(
+        &self,
+        repository_uuid: &str,
+        ids: Vec<i64>,
+    ) -> error::Result<u64> {
+        if ids.is_empty() {
+            return Ok(0);
+        }
+
+        let result = log_entry::Entity::delete_many()
+            .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
+            .filter(log_entry::Column::Id.is_in(ids))
+            .exec(&self.connection)
+            .await?;
+
+        Ok(result.rows_affected)
+    }
+
     pub async fn repository_logs(
         &self,
         repository_uuid: &str,
-        start: Option<i64>,
-        limit: Option<u64>,
+        start: Option<u32>,
+        limit: Option<u32>,
         reverse: bool,
     ) -> error::Result<Vec<IndexedLogEntry>> {
-        {
-            let s = log_entry::Entity::find()
-                .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
-                .if_some(start, |this, start| {
-                    this.filter(log_entry::Column::Id.gt(start))
-                })
-                .find_also_related(property::Entity)
-                .find_also_related(log_changed_path_entry::Entity)
-                .if_or(
-                    reverse,
-                    |this| this.order_by_desc(log_entry::Column::Id),
-                    |this| this.order_by_asc(log_entry::Column::Id),
-                )
-                .limit(limit)
-                .build(sea_orm::DbBackend::Sqlite)
-                .to_string();
-
-            tracing::info!("Generated SQL: {}", s);
-        }
         let logs = log_entry::Entity::find()
             .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
             .if_some(start, |this, start| {
-                this.filter(log_entry::Column::Id.gt(start))
+                this.filter(log_entry::Column::Revision.lte(start))
             })
             // .find_also_related(property::Entity)
             // .find_also_related(log_changed_path_entry::Entity)
             .if_or(
                 reverse,
-                |this| this.order_by_desc(log_entry::Column::Id),
-                |this| this.order_by_asc(log_entry::Column::Id),
+                |this| this.order_by_desc(log_entry::Column::Revision),
+                |this| this.order_by_asc(log_entry::Column::Revision),
             )
-            .limit(limit)
+            .limit(limit.map(|v| v as u64))
             // .consolidate()
             .all(&self.connection)
             .await?;

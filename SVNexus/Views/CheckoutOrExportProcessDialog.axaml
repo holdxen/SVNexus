@@ -5,9 +5,15 @@
              xmlns:vm="clr-namespace:SVNexus.ViewModels"
              xmlns:u="https://irihi.tech/ursa"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="vm:CheckoutOrExportProcessDialogModel"
+             x:DataType="vm:ProcessDialogModel"
              MinWidth="500"
              x:Class="SVNexus.Views.CheckoutOrExportProcessDialog">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <UserControl.Styles>
         <Style Selector="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
@@ -70,7 +76,7 @@
             <Expander Header="详细日志">
                 <ListBox MaxHeight="250" ItemsSource="{Binding ProcessLogItems}">
                     <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="vm:CheckoutOrExportProcessDialogModel+ProcessLogItemViewModel">
+                        <DataTemplate x:DataType="vm:ProcessDialogModel+ProcessLogItemViewModel">
                             <Grid ColumnDefinitions="Auto, *, Auto">
                                 <TextBlock Margin="0 0 5 0" Grid.Column="0" Text="{Binding Action}"></TextBlock>
                                 <HyperlinkButton Grid.Column="1" Content="{Binding Path}"></HyperlinkButton>

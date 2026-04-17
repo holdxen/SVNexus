@@ -53,7 +53,7 @@ impl Drop for ContextInner {
 // #[uniffi::export(async_runtime = "tokio")]
 #[uniffi::export(name = "RepositoryAccessAsyncContext", async_runtime = "tokio")]
 impl AsyncContext {
-    async fn get_latest_revision_number(&self) -> error::Result<u32> {
+    pub async fn get_latest_revision_number(&self) -> error::Result<u32> {
         self.call_async(|session| unsafe {
             let mut number: ffi::svn_revnum_t = 0;
             let mut pool = Pool::create();

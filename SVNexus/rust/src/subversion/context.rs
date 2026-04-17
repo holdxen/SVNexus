@@ -2261,6 +2261,8 @@ impl Context {
         self.ptr
     }
 
+    
+
     fn cancelled(&self) -> error::Result<()> {
         let msg = self.inner.context_notifier.cancel().map_err(|e| {
             builder::General {

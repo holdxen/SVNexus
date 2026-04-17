@@ -136,71 +136,115 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             Url = url,
             Revision = revision,
         };
-        // {
-        //     // Messenger = Messenger,
-        //     Revision = commitItem.Revision is null ? new Revision.Head() : new Revision.Number(commitItem.Revision.GetValueOrDefault()),
-        //     Url = ThisEntry.Url
-        // };
-        if (commitItem.Revision is not null)
-        {
-            if (value == CommitItems.Count - 1)
-            {
-                Dispatcher.UIThread.InvokeAsync(async () =>
-                {
-                    while (SelectedCommitItemIndex == value)
-                    {
-                        await Log(10);
-                        if (CommitItems.Count - 1 > value)
-                        {
-                            break;
-                        }
-                    }
 
-                    if (SelectedCommitItemIndex != value)
-                    {
-                        return;
-                    }
-                    var item = CommitItems[value + 1];
-                    if (item.Revision is null)
-                    {
-                        return;
-                    }
-                    
-                    ChangesViewModel = new HistoryChangesViewModel
-                    {
-                        CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
-                        CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
-                        RelateToRoot = relateToRoot,
-                        LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                        CurrentPath = string.Empty,
-                    };
-                    ChangesViewModel.Update();
-                    
-                });
+        if (commitItem.Revision is null)
+        {
+            ChangesViewModel = null;
+            return;
+        }
+        
+        // 对比视图，需要找到对比的revision
+        if (value == CommitItems.Count - 1)
+        {
+            // 最后一个，需要加载更多的历史
+
+            if (commitItem.Revision == 0)
+            {
+                ChangesViewModel = new HistoryChangesViewModel()
+                {
+                    CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                    CompareRevision = null,
+                    RelateToRoot = relateToRoot,
+                    CurrentPath = string.Empty,
+                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+                };
             }
             else
             {
-                var item = CommitItems[value + 1];
-                if (item.Revision is null)
+                Dispatcher.UIThread.InvokeAsync(async () =>
                 {
-                    return;
-                }
-                    
-                ChangesViewModel = new HistoryChangesViewModel
-                {
-                    CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
-                    CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
-                    RelateToRoot = relateToRoot,
-                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                    CurrentPath = string.Empty,
-                };
-                ChangesViewModel.Update();
+                    while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
+                    {
+                        await Log(10);
+                        if (CommitItems.Count > value + 1 && SelectedCommitItemIndex == value)
+                        {
+                            ChangesViewModel = new HistoryChangesViewModel()
+                            {
+                                CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                                CompareRevision = CommitItems[value + 1].Revision,
+                                RelateToRoot = relateToRoot,
+                                CurrentPath = string.Empty,
+                                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+                            };
+                            break;
+                        }
+                    }
+                });
             }
         }
-        else
-        {
-            ChangesViewModel = null;
-        }
+
+
+
+        // if (commitItem.Revision is not null)
+        // {
+        //     if (value == CommitItems.Count - 1)
+        //     {
+        //         Dispatcher.UIThread.InvokeAsync(async () =>
+        //         {
+        //             while (SelectedCommitItemIndex == value)
+        //             {
+        //                 await Log(10);
+        //                 if (CommitItems.Count - 1 > value)
+        //                 {
+        //                     break;
+        //                 }
+        //             }
+        //
+        //             if (SelectedCommitItemIndex != value)
+        //             {
+        //                 return;
+        //             }
+        //             var item = CommitItems[value + 1];
+        //             if (item.Revision is null)
+        //             {
+        //                 return;
+        //             }
+        //             
+        //             ChangesViewModel = new HistoryChangesViewModel
+        //             {
+        //                 CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
+        //                 CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
+        //                 RelateToRoot = relateToRoot,
+        //                 LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+        //                 CurrentPath = string.Empty,
+        //             };
+        //             ChangesViewModel.Update();
+        //             
+        //         });
+        //     }
+        //     else
+        //     {
+        //         var item = CommitItems[value + 1];
+        //         if (item.Revision is null)
+        //         {
+        //             return;
+        //         }
+        //             
+        //         ChangesViewModel = new HistoryChangesViewModel
+        //         {
+        //             CurrentRevision = new Revision.Number(commitItem.Revision.GetValueOrDefault()),
+        //             CompareRevision = new Revision.Number(item.Revision.GetValueOrDefault()),
+        //             RelateToRoot = relateToRoot,
+        //             LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+        //             CurrentPath = string.Empty,
+        //         };
+        //         ChangesViewModel.Update();
+        //     }
+        // }
+        // else
+        // {
+        //     ChangesViewModel = null;
+        // }
     }
 
     // public void UpdateViewModel(int commitItemIndex, int viewIndex)
@@ -225,10 +269,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     public void OnDataGridVerticalScrollValueChanged(double value, double maximum)
     {
         if (!((maximum - value) / maximum < 0.1)) return;
-        if (!IsLoading)
-        {
-            Dispatcher.UIThread.InvokeAsync(async () => await Log(20));
-        }
+        LogCommand.Execute(20);
     }
 
 
@@ -360,8 +401,77 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         }
     }
 
-    private Tuple<long, long>? _logsRange; 
+    private Tuple<uint, uint>? _logsRange; 
+    //
+    // private async Task LogCache()
+    // {
+    //     await CheckUrl();
+    //     if (ThisEntry is null)
+    //     {
+    //         return;
+    //     }
+    //
+    //     var hostId = SendMessage(new OnGetDialogHostId());
+    //     var context = EngineBackend.Instance.SimpleContext(hostId);
+    //     if (_logsRange is null)
+    //     {
+    //         var logs = await SeaDatabaseConnection.Default.RepositoryLogs(ThisEntry.RepositoryUuid, null, 100, false);
+    //
+    //         Logger.Info($"Logs from database: {logs.Length}");
+    //
+    //         if (logs.Length == 0)
+    //         {
+    //             logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
+    //         }
+    //         else
+    //         {
+    //             _ = Dispatcher.UIThread.InvokeAsync(async () =>
+    //             {
+    //                 logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
+    //
+    //                 var items = new List<CommitItemViewModel>();
+    //                 var parentStack = new Stack<CommitItemViewModel>();
+    //                 HandleLogEntries(logs.Select(i => i.Entry).ToArray(), items, parentStack);
+    //
+    //                 
+    //                 items.AddRange(CommitItems);
+    //
+    //                 CommitItems = new ObservableCollection<CommitItemViewModel>(items);
+    //                 
+    //                 if (logs.Length > 1)
+    //                 {
+    //                     _logsRange = _logsRange == null ? new Tuple<long, long>(logs.First().Id, logs.Last().Id) : new Tuple<long, long>(logs.First().Id, _logsRange.Item2);
+    //                 }
+    //                 
+    //             });
+    //         }
+    //
+    //         if (logs.Length > 1)
+    //         {
+    //             _logsRange = new Tuple<long, long>(logs.First().Id, logs.Last().Id);
+    //         }
+    //     
+    //         HandleLogEntries(logs.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
+    //     }
+    //     else
+    //     {
+    //         for (var i = 0; i < 10; i++)
+    //         {
+    //             var logs = await context.LoadRepositoryLogs(SeaDatabaseConnection.Default, _logsRange.Item2, 10, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
+    //
+    //             if (logs.Length > 1)
+    //             {
+    //                 _logsRange = new Tuple<long, long>(_logsRange.Item1, logs.Last().Id);
+    //             }
+    //             HandleLogEntries(logs.Select(e => e.Entry).ToArray(), CommitItems, _parentStack);
+    //         }
+    //     }
+    //
+    //
+    // }
 
+
+    [RelayCommand]
     private async Task LogCache()
     {
         await CheckUrl();
@@ -369,66 +479,59 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         {
             return;
         }
-
-        var hostId = SendMessage(new OnGetDialogHostId());
-        var context = EngineBackend.Instance.SimpleContext(hostId);
-        if (_logsRange is null)
-        {
-            var logs = await SeaDatabaseConnection.Default.RepositoryLogs(ThisEntry.RepositoryUuid, null, 100, false);
-
-            Logger.Info($"Logs from database: {logs.Length}");
-
-            if (logs.Length == 0)
-            {
-                logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
-            }
-            else
-            {
-                _ = Dispatcher.UIThread.InvokeAsync(async () =>
-                {
-                    logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
-
-                    var items = new List<CommitItemViewModel>();
-                    var parentStack = new Stack<CommitItemViewModel>();
-                    HandleLogEntries(logs.Select(i => i.Entry).ToArray(), items, parentStack);
-
-                    
-                    items.AddRange(CommitItems);
-
-                    CommitItems = new ObservableCollection<CommitItemViewModel>(items);
-                    
-                    if (logs.Length > 1)
-                    {
-                        _logsRange = _logsRange == null ? new Tuple<long, long>(logs.First().Id, logs.Last().Id) : new Tuple<long, long>(logs.First().Id, _logsRange.Item2);
-                    }
-                    
-                });
-            }
-
-            if (logs.Length > 1)
-            {
-                _logsRange = new Tuple<long, long>(logs.First().Id, logs.Last().Id);
-            }
         
-            HandleLogEntries(logs.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
-        }
-        else
+        
+        var hostId = SendMessage(new OnGetDialogHostId());
+        using var context = EngineBackend.Instance.SimpleContext(hostId);
+
+
+        var logs = await context.LogCacheFill(SeaDatabaseConnection.Default, 
+            ThisEntry.RepositoryUuid, 
+            ThisEntry.RepositoryRootUrl,
+            _logsRange?.Item2 - 1, 
+            512);
+
+        if (logs.Length == 0)
         {
-            for (var i = 0; i < 10; i++)
-            {
-                var logs = await context.LoadRepositoryLogs(SeaDatabaseConnection.Default, _logsRange.Item2, 10, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
-
-                if (logs.Length > 1)
-                {
-                    _logsRange = new Tuple<long, long>(_logsRange.Item1, logs.Last().Id);
-                }
-                HandleLogEntries(logs.Select(e => e.Entry).ToArray(), CommitItems, _parentStack);
-            }
+            return;
         }
+        
+        _logsRange = new Tuple<uint, uint>(_logsRange?.Item1 ?? logs.First().Entry.Revision.GetValueOrDefault(), logs.Last().Entry.Revision.GetValueOrDefault());
+        
+        var path = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
 
+        uint? until = null;
+        
+        CommitItems.AddRange(logs.Where(i =>
+        {
+            if (until is not null && until < i.Entry.Revision)
+            {
+                return false;
+            }
+            string? newPath = null;
+            foreach (var change in i.Entry.ChangedPathEntries)
+            {
+                if (change.Value.CopyFromPath is not null && change.Value.CopyFromRevision is not null && path.StartsWith(change.Key))
+                {
+                    newPath = change.Value.CopyFromPath + path[change.Key.Length..];
+                    until = change.Value.CopyFromRevision.GetValueOrDefault();
+                }
+                if (change.Key.StartsWith(path))
+                {
+                    return true;
+                }
+            }
 
+            if (newPath is not null)
+            {
+                path = newPath;
+            }
+            return false;
+        }).Select(i => new CommitItemViewModel()
+        {
+            Entry = i.Entry
+        }));
     }
-
 
 
     [RelayCommand]
@@ -462,7 +565,10 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             {
                 return;
             }
-            if (!await CheckUrl())
+
+            await CheckUrl();
+            
+            if (ThisEntry is null)
             {
                 return;
             }
@@ -474,7 +580,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
 
             var logOptions = new LogOptions(
-                Targets: [ThisEntry!.Url],
+                Targets: [ThisEntry.Url],
                 PegRevision: new Revision.Head(),
                 Limit: limit,
                 Revisions:

@@ -155,7 +155,7 @@ impl LogEntry {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Self::RepositoryUuid).string().not_null())
-                    .col(ColumnDef::new(Self::Revision).integer().null())
+                    .col(ColumnDef::new(Self::Revision).unsigned().null())
                     .col(ColumnDef::new(Self::Date).integer().null())
                     .col(ColumnDef::new(Self::Author).string().null())
                     .col(ColumnDef::new(Self::Message).string().null())

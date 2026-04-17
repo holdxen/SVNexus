@@ -26,7 +26,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
     IRecipient<OnGetContext>,
     IRecipient<OnGetWorkingCopyRoot>,
     IRecipient<OnGetWorkspaceHistory>,
-    IRecipient<OnSetWorkspaceHistory>
+    IRecipient<OnSetWorkspaceHistory>,
+    IRecipient<OnNotWorkingCopy>
 {
 
     public class OnItemIsExpandedChanged()
@@ -702,7 +703,36 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 var result = await MessageBox.ShowOverlayAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                        
+                    var dialogOptions = new OverlayDialogOptions
+                    {
+                        Title = "Test",
+                        IsCloseButtonVisible = true,
+                        Buttons = DialogButton.None
+                    };
+                    var importDialogModel = new ImportDialogModel()
+                    {
+                        Path = WorkspacePath,
+                    };
+                    await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
+                    if (importDialogModel.Options is not null)
+                    {
+                        var importProcessDialogModel = new ImportProcessDialogModel(this)
+                        {
+                            Options = importDialogModel.Options,
+                        };
+
+                        var options = new OverlayDialogOptions
+                        {
+                            Title = "Initialize repository",
+                            IsCloseButtonVisible = false,
+                            Buttons = DialogButton.None
+                        };
+
+                        await OverlayDialog.ShowModal<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
+                        if (importProcessDialogModel.Error is null)
+                        {
+                        }
+                    }
                 }
                 else
                 {
@@ -777,7 +807,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             }
 
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Manager.Default.Send(new OnShowToast
             {
@@ -838,5 +868,16 @@ public partial class WorkspaceViewModel : ViewModelBase,
             });
         });
 
+    }
+    
+    
+    public void Receive(OnNotWorkingCopy message)
+    {
+        var hostId = SendMessage(new OnGetDialogHostId());
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await MessageBox.ShowOverlayAsync(title: "Error", hostId: hostId, message: "Not a working copy", button: MessageBoxButton.OK);
+            SendMessage(new OnRemoveTabModel());
+        });
     }
 }
