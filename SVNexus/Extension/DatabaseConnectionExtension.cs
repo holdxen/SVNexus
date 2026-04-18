@@ -4,7 +4,7 @@ using SVNexus.Generated;
 
 namespace SVNexus.Extension;
 
-public static class DatabaseManagerExtension
+public static class DatabaseConnectionExtension
 {
     private static SeaDatabaseConnection? _databaseManager;
 

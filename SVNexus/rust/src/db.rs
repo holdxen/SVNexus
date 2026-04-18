@@ -17,7 +17,7 @@ use sea_orm::{
 use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
 
-#[derive(uniffi::Object)]
+#[derive(uniffi::Object, Debug)]
 pub struct SeaDatabaseConnection {
     connection: DatabaseConnection,
 }
@@ -132,6 +132,32 @@ impl SeaDatabaseConnection {
             .exec(&self.connection)
             .await?;
         Ok(())
+    }
+
+    pub async fn repository_logs_with_revisions(&self, repository_uuid: &str, revisions: Vec<u32>) -> error::Result<Vec<IndexedLogEntry>> {
+        let logs = log_entry::Entity::find()
+            .filter(log_entry::Column::RepositoryUuid.eq(repository_uuid))
+            .filter(log_entry::Column::Revision.is_in(revisions))
+            .all(&self.connection)
+            .await?;
+
+        let mut entries = Vec::with_capacity(logs.len());
+
+        for i in logs {
+            let properties = property::Entity::find()
+                .filter(property::Column::LogEntryId.eq(i.id))
+                .all(&self.connection)
+                .await?;
+
+            let changed_paths = log_changed_path_entry::Entity::find()
+                .filter(log_changed_path_entry::Column::LogEntryId.eq(i.id))
+                .all(&self.connection)
+                .await?;
+
+            entries.push((i, properties, changed_paths));
+        }
+
+        self.entities_to_entries(entries)
     }
 
     pub async fn insert_repository_logs(

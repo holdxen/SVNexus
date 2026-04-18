@@ -69,8 +69,4 @@
     <ItemGroup>
       <ProjectReference Include="..\Tabalonia\Tabalonia.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\" />
-    </ItemGroup>
 </Project>

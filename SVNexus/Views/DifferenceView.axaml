@@ -1,0 +1,183 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:viewModel="clr-namespace:SVNexus.ViewModels"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:u="https://irihi.tech/ursa"
+             x:DataType="viewModel:DifferenceViewModel"
+             x:Class="SVNexus.Views.DifferenceView">
+    <!-- <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}" -->
+    <!--                            CornerRadius="{DynamicResource RadiusCardCornerRadius}" -->
+    <!--                            State="{Binding LoadingOrErrorState}"> -->
+    <!--     <Border Theme="{DynamicResource CardBorder}"> -->
+    <!--         <Border.Resources> -->
+    <!--             <Thickness x:Key="ThicknessCardMargin">0</Thickness> -->
+    <!--         </Border.Resources> -->
+    <!--         <Grid> -->
+    <!--             <Grid ColumnDefinitions="*, Auto, *"> -->
+    <!--                 <components:OldDifferenceEditor x:Name="LeftEditor" -->
+    <!--                                          Grid.Column="0" -->
+    <!--                                          ShowLineNumbers="True" -->
+    <!--                                          IsReadOnly="True" -->
+    <!--                                          HorizontalScrollBarVisibility="Auto" -->
+    <!--                                          VerticalScrollBarVisibility="Auto"> -->
+    <!--                 </components:OldDifferenceEditor> -->
+    <!-- -->
+    <!--                 <Border Grid.Column="1" Width="16" Background="Transparent"> -->
+    <!--                     <Canvas x:Name="LinkCanvas"/> -->
+    <!--                 </Border> -->
+    <!--                 <components:NewDifferenceEditor x:Name="RightEditor" -->
+    <!--                                          Grid.Column="2" -->
+    <!--                                          ShowLineNumbers="True" -->
+    <!--                                          IsReadOnly="True" -->
+    <!--                                          HorizontalScrollBarVisibility="Auto" -->
+    <!--                                          VerticalScrollBarVisibility="Auto"> -->
+    <!--                 </components:NewDifferenceEditor> -->
+    <!--             </Grid> -->
+    <!--         </Grid> -->
+    <!--     </Border> -->
+    <!-- </components:LoadingOrError> -->
+
+
+    <components:LoadingOrError
+        Margin="{DynamicResource ThicknessCardMargin}"
+        CornerRadius="{DynamicResource RadiusCardCornerRadius}"
+        State="{Binding LoadingOrErrorState}">
+        <Border Theme="{DynamicResource CardBorder}" Padding="0">
+            <Border.Resources>
+                <Thickness x:Key="ThicknessCardMargin">0</Thickness>
+                <Thickness x:Key="ThicknessCardPadding">0</Thickness>
+            </Border.Resources>
+            <Grid RowDefinitions="*, Auto, Auto">
+                <Grid>
+                    <Grid ColumnDefinitions="*, Auto, *" IsVisible="{Binding IsTextView}">
+                        <Grid Grid.Column="0">
+                            <components:OldDifferenceEditor
+                                Name="OldTextEditor"
+                                IsVisible="{Binding !IsOldBinary}"
+                                ShowLineNumbers="True"
+                                IsReadOnly="True"
+                                Lines="{Binding OldLines}"
+                                HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto">
+                            </components:OldDifferenceEditor>
+                            <Grid IsVisible="{Binding IsOldBinary}">
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center">
+                                    <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}">
+                                    </components:SvgRender>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+
+                        <Border Grid.Column="1" Width="16" Background="Transparent">
+                            <Canvas x:Name="LinkCanvas" />
+                        </Border>
+                        <Grid Grid.Column="2">
+                            <components:NewDifferenceEditor
+                                Name="NewTextEditor"
+                                IsVisible="{Binding !IsNewBinary}"
+                                ShowLineNumbers="True"
+                                IsReadOnly="True"
+                                Lines="{Binding NewLines}"
+                                HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto">
+                            </components:NewDifferenceEditor>
+                            <Grid IsVisible="{Binding IsNewBinary}">
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center">
+                                    <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}">
+                                    </components:SvgRender>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <DataGrid IsVisible="{Binding IsPropertyView}">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Property" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <!-- <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel"> -->
+                                    <!--     <TextBlock Classes="VCenter" Text="{Binding Name}"></TextBlock> -->
+                                    <!-- </DataTemplate> -->
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn CanUserResize="True" CanUserReorder="False" Width="*"
+                                                    Header="Old value">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <!-- <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel"> -->
+                                    <!--     <TextBlock Classes="VCenter" Text="{Binding Value}"></TextBlock> -->
+                                    <!-- </DataTemplate> -->
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="New value"></DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Status">
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <!-- <Grid> -->
+                    <!--     <Grid.IsVisible> -->
+                    <!--         <MultiBinding Converter="{x:Static BoolConverters.And}"> -->
+                    <!--             <Binding Path="!IsText" /> -->
+                    <!--             <Binding Path="IsTextView" /> -->
+                    <!--         </MultiBinding> -->
+                    <!--     </Grid.IsVisible> -->
+                    <!--     <StackPanel  -->
+                    <!--         VerticalAlignment="Center"  -->
+                    <!--         HorizontalAlignment="Center" > -->
+                    <!--         <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}"> -->
+                    <!--         </components:SvgRender> -->
+                    <!--         <Label Content="{Binding SelectedFileName}"  -->
+                    <!--                Classes="Large VCenter HCenter"  -->
+                    <!--                Theme="{StaticResource TagLabel}"></Label> -->
+                    <!--     </StackPanel> -->
+                    <!-- </Grid> -->
+                </Grid>
+                <u:Divider Grid.Row="1"></u:Divider>
+                <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
+                    <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                        <components:LucideIconButton
+                            Command="{Binding SwitchToTextViewCommand}"
+                            Classes.Selected="{Binding IsTextView}"
+                            LucideKind="BookOpenText">
+                        </components:LucideIconButton>
+                        <components:LucideIconButton
+                            Command="{Binding SwitchToPropertyViewCommand}"
+                            Classes.Selected="{Binding !IsTextView}"
+                            LucideKind="Table">
+                        </components:LucideIconButton>
+                        <StackPanel.Styles>
+                            <Style Selector="components|LucideIconButton.Selected">
+                                <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
+                            </Style>
+                        </StackPanel.Styles>
+                    </StackPanel>
+                    <Rectangle Grid.Column="1"></Rectangle>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                        <!-- <Label Classes="VCenter Ghost Grey"  -->
+                        <!--            Theme="{StaticResource TagLabel}" -->
+                        <!--            IsVisible="{Binding SelectedItemLastAuthor, Converter={x:Static ObjectConverters.IsNotNull}}" -->
+                        <!--            Content="{Binding SelectedItemLastAuthor}"></Label> -->
+                        <!-- <Label Classes="VCenter Ghost Grey"  -->
+                        <!--            Theme="{StaticResource TagLabel}" -->
+                        <!--            IsVisible="{Binding SelectedFileName, Converter={x:Static ObjectConverters.IsNotNull}}" -->
+                        <!--            Content="{Binding SelectedFileName}"></Label> -->
+                        <!-- <Label Classes="VCenter Ghost Grey"  -->
+                        <!--            Theme="{StaticResource TagLabel}" -->
+                        <!--            IsVisible="{Binding SelectedFileSizeText, Converter={x:Static ObjectConverters.IsNotNull}}" -->
+                        <!--            Content="{Binding SelectedFileSizeText}"></Label> -->
+                        <!-- <Label Classes="VCenter Ghost Grey"  -->
+                        <!--            Theme="{StaticResource TagLabel}" -->
+                        <!--            IsVisible="{Binding SelectedFileEncodingName, Converter={x:Static ObjectConverters.IsNotNull}}" -->
+                        <!--            Content="{Binding SelectedFileEncodingName}"></Label> -->
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+    </components:LoadingOrError>
+</UserControl>

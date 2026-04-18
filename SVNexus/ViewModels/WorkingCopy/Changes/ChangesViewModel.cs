@@ -14,6 +14,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Messages;
+using SVNexus.Models;
 using SVNexus.Utils;
 using SVNexus.Views;
 using Ursa.Controls;
@@ -34,6 +35,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     {
         Limit = 20
     };
+
+    private readonly LimitedDictionary<string, DifferenceViewModel> _differenceViewModels = new()
+    {
+        Limit = 20,
+    };
+
+    [ObservableProperty] public partial DifferenceViewModel DifferenceViewModel { get; set; }
 
     public const int ListViewIndex = 0;
     public const int TreeViewIndex = 1;
@@ -97,6 +105,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         // ChangesListViewModel = serviceProvider.GetRequiredService<ChangesListViewModel>();
         ChangesTreeViewModel = new ChangesTreeViewModel(this);
         ChangesListViewModel = new ChangesListViewModel(this);
+        DifferenceViewModel = new DifferenceViewModel(this);
         
         // Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
     }
@@ -585,13 +594,25 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         if (message.Value is not StatusEntry statusEntry) return;
         SelectedItem = statusEntry.Path;
         
-        TryCompareStatusEntry(statusEntry);
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await DifferenceViewModel.CompareWorkingCopyEntry(statusEntry);
+        });
+
+        
+        // TryCompareStatusEntry(statusEntry);
     }
 
 
     [RelayCommand]
     private void TryCompareStatusEntry(StatusEntry statusEntry)
     {
+        if (statusEntry.NodeKind is NodeKind.Directory)
+        {
+            Difference = new Difference();
+            EditorState = LoadingOrErrorState.MakeNone();
+            return;
+        }
         var contains = _differences.TryGetValue(statusEntry.Path, out var difference);
         if (contains)
         {

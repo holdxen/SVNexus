@@ -2,111 +2,110 @@ using System;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Styling;
-using AvaloniaEdit;
 using AvaloniaEdit.Rendering;
+using SVNexus.Models;
 
 namespace SVNexus.Components;
 
-public class Difference
-{
-    public List<DifferenceLine> Original { get; set; } = [];
-    
-    public List<DifferenceLine> Modified { get; set; } = [];
-    
-}
+// public class Difference
+// {
+//     public List<DifferenceLine> Original { get; set; } = [];
+//     
+//     public List<DifferenceLine> Modified { get; set; } = [];
+//     
+// }
+//
+// public class DifferenceLine
+// {
+//     public enum Kind 
+//     {
+//         Unchanged,
+//         Added,
+//         Add,
+//         Removed,
+//         Remove,
+//         Modified,
+//     }
+//     public Kind DifferenceKind { get; set; }
+//
+//     public string Content { get; set; } = string.Empty;
+// }
 
-public class DifferenceLine
-{
-    public enum Kind 
-    {
-        Unchanged,
-        Added,
-        Add,
-        Removed,
-        Remove,
-        Modified,
-    }
-    public Kind DifferenceKind { get; set; }
+// public class DifferenceColor
+// {
+//     public IBrush Background { get; set; } = Brushes.Transparent;
+//     public IBrush HighLight { get; set; } = Brushes.Transparent;
+//     public IBrush Mark { get; set; } = Brushes.Transparent;
+//
+// }
 
-    public string Content { get; set; } = string.Empty;
-}
-
-public class DifferenceColor
-{
-    public IBrush Background { get; set; } = Brushes.Transparent;
-    public IBrush HighLight { get; set; } = Brushes.Transparent;
-    public IBrush Mark { get; set; } = Brushes.Transparent;
-
-}
-
-public class DifferenceColorCollection
-{
-    public DifferenceColor Added { get; set; } = new();
-    public DifferenceColor Removed { get; set; } = new();
-    public DifferenceColor Modified { get; set; } = new();
-    public DifferenceColor Placeholder { get; set; } = new();
-    
-    
-    public static readonly DifferenceColorCollection Light = new()
-    {
-        Added = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#EAFBF1")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#C7EFD8")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#2DA44E")),
-        },
-        Removed = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#FFF1F0")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#FFD6D2")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#D1242F")),
-        },
-        Modified = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#FFF8E1")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#FFE7A3")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#D4A72C")),
-        },
-        Placeholder = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#EEF6FF")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#D6E9FF")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#1F6FEB")),
-        },
-    };
-    public static readonly DifferenceColorCollection Dark = new()
-    {
-        Added = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#0F2419")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#123222")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#3FB950")),
-        },
-        Removed = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#2A1215")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#472326")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#F85149")),
-        },
-        Modified = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#2B230A")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#4A3A0A")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#E3B341")),
-        },
-        Placeholder = new DifferenceColor
-        {
-            Background = new ImmutableSolidColorBrush(Color.Parse("#0D2238")),
-            HighLight = new ImmutableSolidColorBrush(Color.Parse("#14304A")),
-            Mark = new ImmutableSolidColorBrush(Color.Parse("#58A6FF")),
-        },
-    };
-}
-
+// public class DifferenceColorCollection
+// {
+//     public DifferenceColor Added { get; set; } = new();
+//     public DifferenceColor Removed { get; set; } = new();
+//     public DifferenceColor Modified { get; set; } = new();
+//     public DifferenceColor Placeholder { get; set; } = new();
+//     
+//     
+//     public static readonly DifferenceColorCollection Light = new()
+//     {
+//         Added = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#EAFBF1")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#C7EFD8")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#2DA44E")),
+//         },
+//         Removed = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#FFF1F0")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#FFD6D2")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#D1242F")),
+//         },
+//         Modified = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#FFF8E1")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#FFE7A3")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#D4A72C")),
+//         },
+//         Placeholder = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#EEF6FF")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#D6E9FF")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#1F6FEB")),
+//         },
+//     };
+//     public static readonly DifferenceColorCollection Dark = new()
+//     {
+//         Added = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#0F2419")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#123222")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#3FB950")),
+//         },
+//         Removed = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#2A1215")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#472326")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#F85149")),
+//         },
+//         Modified = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#2B230A")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#4A3A0A")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#E3B341")),
+//         },
+//         Placeholder = new DifferenceColor
+//         {
+//             Background = new ImmutableSolidColorBrush(Color.Parse("#0D2238")),
+//             HighLight = new ImmutableSolidColorBrush(Color.Parse("#14304A")),
+//             Mark = new ImmutableSolidColorBrush(Color.Parse("#58A6FF")),
+//         },
+//     };
+// }
+//
 public class DifferenceLineBackgroundRenderer: IBackgroundRenderer
 {
 
@@ -293,21 +292,21 @@ public partial class DifferenceEditor : UserControl
         set => SetValue(DifferenceProperty, value);
     }
     
-    private readonly TextEditor _leftEditor;
+    // private readonly TextEditor _leftEditor;
     private readonly DifferenceLineBackgroundRenderer _leftEditorBackgroundRenderer = new();
     
-    private readonly TextEditor _rightEditor;
+    // private readonly TextEditor _rightEditor;
     private readonly DifferenceLineBackgroundRenderer _rightEditorBackgroundRenderer = new();
     
     public DifferenceEditor()
     {
         InitializeComponent();
-        _leftEditor = this.FindControl<TextEditor>("LeftEditor")!;
-        _rightEditor = this.FindControl<TextEditor>("RightEditor")!;
+        // _leftEditor = this.FindControl<TextEditor>("LeftEditor")!;
+        // _rightEditor = this.FindControl<TextEditor>("RightEditor")!;
         
         
-        _leftEditor.TextArea.TextView.BackgroundRenderers.Add(_leftEditorBackgroundRenderer);
-        _rightEditor.TextArea.TextView.BackgroundRenderers.Add(_rightEditorBackgroundRenderer);
+        LeftEditor.TextArea.TextView.BackgroundRenderers.Add(_leftEditorBackgroundRenderer);
+        RightEditor.TextArea.TextView.BackgroundRenderers.Add(_rightEditorBackgroundRenderer);
         
     }
 
@@ -344,7 +343,7 @@ public partial class DifferenceEditor : UserControl
         }
         
         target._leftEditorBackgroundRenderer.Lines = value.Original;
-        target._leftEditor.Document.Text = string.Join(Environment.NewLine, lines);
+        target.LeftEditor.Document.Text = string.Join(Environment.NewLine, lines);
         
         
         lines.Clear();
@@ -371,7 +370,7 @@ public partial class DifferenceEditor : UserControl
         }
         
         target._rightEditorBackgroundRenderer.Lines = value.Modified;
-        target._rightEditor.Document.Text = string.Join(Environment.NewLine, lines);
+        target.RightEditor.Document.Text = string.Join(Environment.NewLine, lines);
         
         
         

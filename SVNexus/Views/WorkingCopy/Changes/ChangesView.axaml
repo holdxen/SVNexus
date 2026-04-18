@@ -8,7 +8,7 @@
              xmlns:u="https://irihi.tech/ursa"
              xmlns:workingCopyView="clr-namespace:SVNexus.ViewModels.WorkingCopy.Changes"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
+             xmlns:views="clr-namespace:SVNexus.Views"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesView">
     <UserControl.Styles>
         <Style Selector="components|SvgButton.Selected">
@@ -116,31 +116,19 @@
         <Grid Grid.Column="2"
               MinWidth="2"
               RowDefinitions="*, Auto">
-            <!-- <Border CornerRadius="5" -->
-            <!--         BorderThickness="1" -->
-            <!--         Grid.Row="0" -->
-            <!--         Margin="2" -->
-            <!--         Background="{DynamicResource SemiColorTertiaryLight}"> -->
-            <!--     <avaloniaEdit:TextEditor -->
-            <!--         FontFamily="Cascadia Code,Consolas,Menlo,Monospace" -->
-            <!--         FontSize="14" -->
-            <!--         FontWeight="Light" -->
-            <!--         IsReadOnly="True" -->
-            <!--         ShowLineNumbers="True"> -->
-            <!--     </avaloniaEdit:TextEditor> -->
-            <!-- </Border> -->
-            <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}"
-                                       CornerRadius="{DynamicResource RadiusCardCornerRadius}"
-                                       State="{Binding EditorState}">
-                <Border Theme="{DynamicResource CardBorder}">
-                    <Border.Resources>
-                        <Thickness x:Key="ThicknessCardMargin">0</Thickness>
-                    </Border.Resources>
-                    <Grid>
-                        <components:DifferenceEditor Difference="{Binding Difference}"></components:DifferenceEditor>
-                    </Grid>
-                </Border>
-            </components:LoadingOrError>
+            <!-- <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}" -->
+            <!--                            CornerRadius="{DynamicResource RadiusCardCornerRadius}" -->
+            <!--                            State="{Binding EditorState}"> -->
+            <!--     <Border Theme="{DynamicResource CardBorder}"> -->
+            <!--         <Border.Resources> -->
+            <!--             <Thickness x:Key="ThicknessCardMargin">0</Thickness> -->
+            <!--         </Border.Resources> -->
+            <!--         <Grid> -->
+            <!--             <components:DifferenceEditor Difference="{Binding Difference}"></components:DifferenceEditor> -->
+            <!--         </Grid> -->
+            <!--     </Border> -->
+            <!-- </components:LoadingOrError> -->
+            <ContentControl Content="{Binding DifferenceViewModel}"></ContentControl>
             <Grid
                 IsVisible="False"
                 Grid.Row="1"

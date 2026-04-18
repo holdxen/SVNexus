@@ -24,7 +24,7 @@ internal static class Program
     public static void Main(string[] args)
     {
         EngineMethods.EngineInitialize();
-        DatabaseManagerExtension.Create().Wait();
+        DatabaseConnectionExtension.Create().Wait();
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

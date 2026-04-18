@@ -161,6 +161,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             }
             else
             {
+                ChangesViewModel = null;
                 Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
@@ -181,6 +182,17 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                     }
                 });
             }
+        }
+        else
+        {
+            ChangesViewModel = new HistoryChangesViewModel()
+            {
+                CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                CompareRevision = CommitItems[value + 1].Revision.GetValueOrDefault(),
+                RelateToRoot = relateToRoot,
+                CurrentPath = string.Empty,
+                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
+            };
         }
 
 
@@ -269,7 +281,10 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     public void OnDataGridVerticalScrollValueChanged(double value, double maximum)
     {
         if (!((maximum - value) / maximum < 0.1)) return;
-        LogCommand.Execute(20);
+        if (LogCommand.CanExecute(20))
+        {
+            LogCommand.Execute(20);
+        }
     }
 
 
@@ -342,16 +357,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
     }
 
-    private async Task LoadDirectlyCache()
-    {
-
-
-
-
-    }
-
     private readonly Stack<CommitItemViewModel> _parentStack = [];
-
 
     private static void HandleLogEntries(LogEntry[] logs, IList<CommitItemViewModel> commitItems, Stack<CommitItemViewModel> parentStack)
     {
@@ -402,73 +408,6 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     }
 
     private Tuple<uint, uint>? _logsRange; 
-    //
-    // private async Task LogCache()
-    // {
-    //     await CheckUrl();
-    //     if (ThisEntry is null)
-    //     {
-    //         return;
-    //     }
-    //
-    //     var hostId = SendMessage(new OnGetDialogHostId());
-    //     var context = EngineBackend.Instance.SimpleContext(hostId);
-    //     if (_logsRange is null)
-    //     {
-    //         var logs = await SeaDatabaseConnection.Default.RepositoryLogs(ThisEntry.RepositoryUuid, null, 100, false);
-    //
-    //         Logger.Info($"Logs from database: {logs.Length}");
-    //
-    //         if (logs.Length == 0)
-    //         {
-    //             logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
-    //         }
-    //         else
-    //         {
-    //             _ = Dispatcher.UIThread.InvokeAsync(async () =>
-    //             {
-    //                 logs = await context.UpdateRepositoryLogs(SeaDatabaseConnection.Default, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
-    //
-    //                 var items = new List<CommitItemViewModel>();
-    //                 var parentStack = new Stack<CommitItemViewModel>();
-    //                 HandleLogEntries(logs.Select(i => i.Entry).ToArray(), items, parentStack);
-    //
-    //                 
-    //                 items.AddRange(CommitItems);
-    //
-    //                 CommitItems = new ObservableCollection<CommitItemViewModel>(items);
-    //                 
-    //                 if (logs.Length > 1)
-    //                 {
-    //                     _logsRange = _logsRange == null ? new Tuple<long, long>(logs.First().Id, logs.Last().Id) : new Tuple<long, long>(logs.First().Id, _logsRange.Item2);
-    //                 }
-    //                 
-    //             });
-    //         }
-    //
-    //         if (logs.Length > 1)
-    //         {
-    //             _logsRange = new Tuple<long, long>(logs.First().Id, logs.Last().Id);
-    //         }
-    //     
-    //         HandleLogEntries(logs.Select(i => i.Entry).ToArray(), CommitItems, _parentStack);
-    //     }
-    //     else
-    //     {
-    //         for (var i = 0; i < 10; i++)
-    //         {
-    //             var logs = await context.LoadRepositoryLogs(SeaDatabaseConnection.Default, _logsRange.Item2, 10, ThisEntry.RepositoryUuid, ThisEntry.RepositoryRootUrl);
-    //
-    //             if (logs.Length > 1)
-    //             {
-    //                 _logsRange = new Tuple<long, long>(_logsRange.Item1, logs.Last().Id);
-    //             }
-    //             HandleLogEntries(logs.Select(e => e.Entry).ToArray(), CommitItems, _parentStack);
-    //         }
-    //     }
-    //
-    //
-    // }
 
 
     [RelayCommand]
@@ -485,11 +424,12 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         using var context = EngineBackend.Instance.SimpleContext(hostId);
 
 
-        var logs = await context.LogCacheFill(SeaDatabaseConnection.Default, 
-            ThisEntry.RepositoryUuid, 
-            ThisEntry.RepositoryRootUrl,
+        var logs = await context.LogCacheFillLocal(
+            SeaDatabaseConnection.Default, 
+            ThisEntry.RepositoryUuid,
+            SendMessage(new OnGetWorkingCopyPath()),
             _logsRange?.Item2 - 1, 
-            512);
+            64);
 
         if (logs.Length == 0)
         {
@@ -498,36 +438,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
         _logsRange = new Tuple<uint, uint>(_logsRange?.Item1 ?? logs.First().Entry.Revision.GetValueOrDefault(), logs.Last().Entry.Revision.GetValueOrDefault());
         
-        var path = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
-
-        uint? until = null;
-        
-        CommitItems.AddRange(logs.Where(i =>
-        {
-            if (until is not null && until < i.Entry.Revision)
-            {
-                return false;
-            }
-            string? newPath = null;
-            foreach (var change in i.Entry.ChangedPathEntries)
-            {
-                if (change.Value.CopyFromPath is not null && change.Value.CopyFromRevision is not null && path.StartsWith(change.Key))
-                {
-                    newPath = change.Value.CopyFromPath + path[change.Key.Length..];
-                    until = change.Value.CopyFromRevision.GetValueOrDefault();
-                }
-                if (change.Key.StartsWith(path))
-                {
-                    return true;
-                }
-            }
-
-            if (newPath is not null)
-            {
-                path = newPath;
-            }
-            return false;
-        }).Select(i => new CommitItemViewModel()
+        CommitItems.AddRange(logs.Select(i => new CommitItemViewModel()
         {
             Entry = i.Entry
         }));
@@ -540,17 +451,12 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         // await LogDirectly(limit);
         try
         {
-            IsLoading = true;
             await LogCache();
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
-        }
-        finally
-        {
-            IsLoading = false;
         }
     }
 
@@ -560,7 +466,6 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         AsyncContext? context = null;
         try
         {
-            IsLoading = true;
             if (_startRevision <= 1)
             {
                 return;
@@ -654,7 +559,6 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         }
         finally
         {
-            IsLoading = false;
             context?.Dispose();
         }
 

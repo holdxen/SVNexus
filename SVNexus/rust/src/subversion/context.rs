@@ -99,6 +99,13 @@ pub struct Context {
     ra_sessions: HashMap<i32, AutoPool<*mut ffi::svn_ra_session_t>>,
 }
 
+impl std::fmt::Debug for Context {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Context")
+            .finish()
+    }
+}
+
 unsafe impl Send for AutoPool<*mut ffi::svn_ra_session_t> {}
 unsafe impl Send for Context {}
 
@@ -1919,33 +1926,38 @@ impl DifferenceFileOptions {
 pub struct DifferenceOptions {
     pub original: Vec<u8>,
     pub modified: Vec<u8>,
-    pub options: DifferenceFileOptions,
+    pub options: Option<DifferenceFileOptions>,
 }
 
 #[uniffi::export]
 impl DifferenceOptions {
     pub fn exec(self) -> error::Result<DifferenceResult> {
-        let options = self;
         unsafe {
             let mut pool = apr::Pool::create();
 
             let original = ffi::svn_string_ncreate(
-                options.original.as_ptr() as _,
-                options.original.len().try_into().unwrap(),
+                self.original.as_ptr() as _,
+                self.original.len().try_into().unwrap(),
                 pool.as_mut_ptr(),
             );
 
             let modified = ffi::svn_string_ncreate(
-                options.modified.as_ptr() as _,
-                options.modified.len().try_into().unwrap(),
+                self.modified.as_ptr() as _,
+                self.modified.len().try_into().unwrap(),
                 pool.as_mut_ptr(),
             );
 
             let mut diff = std::ptr::null_mut::<ffi::svn_diff_t>();
 
-            let file_options = ffi::svn_diff_file_options_create(pool.as_mut_ptr());
+            let file_options = if let Some(options) = self.options {
+                let file_options = ffi::svn_diff_file_options_create(pool.as_mut_ptr());
 
-            options.options.setup(file_options.as_mut().unwrap());
+                options.setup(file_options.as_mut().unwrap());
+                file_options
+            } else {
+                std::ptr::null_mut()
+            };
+
 
             // let options: ffi::svn_diff_file_options_t = options.options.into();
 

@@ -15,7 +15,7 @@ use crate::{
 
 use super::context::*;
 
-#[derive(uniffi::Object)]
+#[derive(uniffi::Object, Debug)]
 pub struct AsyncContext {
     context: Arc<parking_lot::FairMutex<Context>>,
 }
@@ -190,6 +190,125 @@ impl AsyncContext {
             .with_any_context(|e| format!("Unexpected task error: {}", e))?
     }
 
+    #[tracing::instrument(skip(self, db))]
+    pub async fn log_cache_fill_local(
+        &self,
+        db: Arc<db::SeaDatabaseConnection>,
+        uuid: &str,
+        path: &str,
+        start: Option<u32>,
+        limit: Option<u32>,
+    ) -> error::Result<Vec<IndexedLogEntry>> {
+
+        let start = if let Some(start) = start {
+            Revision::Number(start)
+        } else {
+            Revision::Head
+        };
+
+        let log_options = LogOptions {
+            targets: vec![path.to_string()],
+            peg_revision: Revision::Working,
+            limit: limit.unwrap_or_default(),
+            revisions: vec![RevisionRange::new(start, Revision::Number(0))],
+            discover_changed_paths: false,
+            strict_node_history: false,
+            include_merged_revisions: false,
+            revisions_properties: vec![].into_option_some(),
+        };
+
+        let log_result = self.log(log_options).await?;
+
+        let mut revisions: Vec<_> = log_result
+            .log_entries
+            .iter()
+            .map(|v| v.revision)
+            .collect();
+
+        let mut logs = db
+            .repository_logs_with_revisions(uuid, revisions.iter().filter_map(|v| *v).collect())
+            .await?;
+
+        for i in logs.iter() {
+            if let Some(index) = revisions.iter().position(|v| *v == i.entry.revision) {
+                revisions[index] = None;
+            }
+        }
+
+        revisions.push(None);
+
+        let mut tmp = vec![];
+
+        for i in revisions {
+            let start;
+            let end;
+            if let Some(revision) = i {
+                tmp.push(revision);
+                continue;
+            } else {
+                if tmp.is_empty() {
+                    continue;
+                }
+                start = *tmp.first().unwrap();
+                end = *tmp.last().unwrap();
+                tmp.clear();
+            }
+
+            tracing::info!("Log from repository: start={}, end={}", start, end);
+            let log_options = LogOptions {
+                targets: vec![path.to_string()],
+                peg_revision: Revision::Working,
+                limit: 0,
+                revisions: vec![RevisionRange::new(
+                    Revision::Number(start),
+                    Revision::Number(end),
+                )],
+                discover_changed_paths: true,
+                strict_node_history: false,
+                include_merged_revisions: false,
+                revisions_properties: None,
+            };
+
+            let log_result = self.log(log_options).await?;
+
+            let extra = db
+                .insert_repository_logs(true, uuid.to_string(), log_result.log_entries)
+                .await?;
+
+            logs.extend(extra);
+        }
+
+        // if !revisions.is_empty() {
+        //     let ranges = revisions
+        //         .into_iter()
+        //         .map(|v| RevisionRange::new(Revision::Number(v), Revision::Number(v)))
+        //         .collect();
+
+        //     let log_options = LogOptions {
+        //         targets: vec![path.to_string()],
+        //         peg_revision: Revision::Working,
+        //         limit: limit.unwrap_or_default(),
+        //         revisions: ranges,
+        //         discover_changed_paths: true,
+        //         strict_node_history: false,
+        //         include_merged_revisions: false,
+        //         revisions_properties: None,
+        //     };
+
+        //     let extra = self.log(log_options).await?;
+
+        //     let extra = db
+        //         .insert_repository_logs(true, uuid.to_string(), extra.log_entries)
+        //         .await?;
+
+        //     logs.extend(extra);
+        // }
+
+        logs.sort_by(|v1, v2| v2.entry.revision.cmp(&v1.entry.revision));
+
+        Ok(logs)
+    }
+
     pub async fn log_cache_fill(
         &self,
         db: Arc<db::SeaDatabaseConnection>,
@@ -207,8 +326,12 @@ impl AsyncContext {
         let mut logs = db.repository_logs(uuid, start, limit, true).await?;
 
         tracing::info!("Cache from database: {}", logs.len());
-        tracing::info!("Cache from database: first={:#?}, last={:#?}", logs.first(), logs.last());
-        
+        tracing::info!(
+            "Cache from database: first={:#?}, last={:#?}",
+            logs.first(),
+            logs.last()
+        );
+
         let start = if let Some(start) = start {
             start
         } else {
@@ -217,7 +340,7 @@ impl AsyncContext {
                 .await?;
             ra.get_latest_revision_number().await?
         };
-        
+
         // 10 9 8 7 6 5 4 3 2 1 0
         tracing::info!("start={}", start);
 
@@ -229,7 +352,10 @@ impl AsyncContext {
 
         tracing::info!("end={}", end);
 
-        let mut targets: Vec<_> = (end+1..=start).rev().map(|v| v.into_option_some()).collect();
+        let mut targets: Vec<_> = (end + 1..=start)
+            .rev()
+            .map(|v| v.into_option_some())
+            .collect();
 
         // tracing::info!("initial targets: {:?}", targets);
 
@@ -239,7 +365,6 @@ impl AsyncContext {
                 targets[index] = None;
             }
         }
-
 
         let targets: Vec<Vec<_>> = targets
             .split(|x| x.is_none())
@@ -251,7 +376,6 @@ impl AsyncContext {
                     .collect()
             })
             .collect();
-
 
         // tracing::info!("left targets: {:?}", targets);
 
@@ -282,51 +406,8 @@ impl AsyncContext {
             logs.extend(inserted);
         }
 
-        // if !targets.is_empty() {
-        //     let start = *targets.first().unwrap();
-        // }
-
         logs.sort_by(|v1, v2| v2.entry.revision.cmp(&v1.entry.revision));
 
-        // let mut try_again = false;
-        // if logs.is_empty() {
-        //     try_again = true;
-        // } else if let Some(limit) = limit {
-        //     if (logs.len() as u64) < limit
-        //         && logs.last().unwrap().entry.revision != 0.into_option_some()
-        //     {
-        //         try_again = true;
-        //     }
-        // }
-
-        // if try_again {
-        //     let log_options = LogOptions {
-        //         targets: vec![url.to_string()],
-        //         peg_revision: Revision::Head,
-        //         limit: limit.unwrap_or(0).try_into().unwrap_or(0),
-        //         revisions: vec![RevisionRange::new(
-        //             if let Some(start) = start {
-        //                 Revision::Number(start)
-        //             } else {
-        //                 Revision::Head
-        //             },
-        //             Revision::Number(0),
-        //         )],
-        //         discover_changed_paths: true,
-        //         strict_node_history: false,
-        //         include_merged_revisions: false,
-        //         revisions_properties: None,
-        //     };
-
-        //     let log_result = self.log(log_options).await?;
-
-        //     db.delete_repository_logs(uuid, logs.iter().map(|e| e.id).collect())
-        //         .await?;
-
-        //     logs = db
-        //         .insert_repository_logs(true, uuid.to_string(), log_result.log_entries)
-        //         .await?;
-        // }
         Ok(logs)
     }
 

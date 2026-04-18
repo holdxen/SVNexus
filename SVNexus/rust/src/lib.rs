@@ -23,6 +23,7 @@ fn engine_initialize() {
     let normal_layer = fmt::layer()
         .with_file(true) // 全局开启行号+文件名
         .with_line_number(true)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
         // ↓ 把你原来的所有其他配置（颜色、时间、target、pretty 等）全部复制到这里
         .with_ansi(true)
         // .with_timer(...)           // 你原来的 timer 配置

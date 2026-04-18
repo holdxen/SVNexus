@@ -87,7 +87,7 @@
             <u:LoadingIcon Margin="0 0 10 10" 
                            HorizontalAlignment="Right" 
                            VerticalAlignment="Bottom"
-                           IsVisible="{Binding IsLoading}" />
+                           IsVisible="{Binding LogCommand.IsRunning}" />
         </Grid>
 
         <GridSplitter Grid.Row="1"></GridSplitter>

@@ -31,12 +31,6 @@
                           ShowDefaultCloseButton="True"
                           LeftThumbWidth="0"
                           Margin="0 8 0 0">
-        <Interaction.Behaviors>
-            <EventTriggerBehavior EventName="TabClosed">
-                <InvokeCommandAction Command="{Binding RemovedItemCommand}" PassEventArgsToCommand="True">
-                </InvokeCommandAction>
-            </EventTriggerBehavior>
-        </Interaction.Behaviors>
         <TabControl.ItemTemplate>
             <DataTemplate DataType="vm:MainWindowViewModel+TabItemViewModel">
                 <TextBlock Foreground="{DynamicResource SemiColorText0}" Padding="4 0" Text="{Binding Text}" />

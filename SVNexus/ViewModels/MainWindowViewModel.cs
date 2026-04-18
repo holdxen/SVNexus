@@ -128,23 +128,21 @@ public partial class MainWindowViewModel : ViewModelBase,
 
     private void RemoveIndexItem(int index)
     {
-        if (index == -1 || SelectedIndex != index)
+        if (index == -1)
         {
             return;
         }
 
         Tabs.RemoveAt(index);
+
+        if (SelectedIndex != index) return;
         
         if (index != 0)
         {
             index--;
         }
         SelectedIndex = index;
-    }
 
-    [RelayCommand]
-    private void RemovedItem(TabClosedEventArgs args)
-    {
     }
 
     public void Receive(OnRemoveTab message)

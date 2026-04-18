@@ -111,6 +111,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             {
                 Item = this
             });
+            SendMessage(new OnHistoryStateChanged());
         }
         
         [RelayCommand]
