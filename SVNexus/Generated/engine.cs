@@ -38138,7 +38138,7 @@ public record PropertyListOptions (
     Revision Revision, 
     Depth Depth, 
     string[]? Changelists, 
-    bool Inerited
+    bool Inherited
 ) {
 }
 
@@ -38152,7 +38152,7 @@ class FfiConverterTypePropertyListOptions: FfiConverterRustBuffer<PropertyListOp
             Revision: FfiConverterTypeRevision.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
             Changelists: FfiConverterOptionalSequenceString.INSTANCE.Read(stream),
-            Inerited: FfiConverterBoolean.INSTANCE.Read(stream)
+            Inherited: FfiConverterBoolean.INSTANCE.Read(stream)
         );
     }
 
@@ -38163,7 +38163,7 @@ class FfiConverterTypePropertyListOptions: FfiConverterRustBuffer<PropertyListOp
             + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
             + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Changelists)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Inerited);
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Inherited);
     }
 
     public override void Write(PropertyListOptions value, BigEndianStream stream) {
@@ -38172,7 +38172,7 @@ class FfiConverterTypePropertyListOptions: FfiConverterRustBuffer<PropertyListOp
             FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
             FfiConverterOptionalSequenceString.INSTANCE.Write(value.Changelists, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Inerited, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.Inherited, stream);
     }
 }
 

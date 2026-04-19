@@ -1671,7 +1671,7 @@ pub struct PropertyListOptions {
     revision: Revision,
     depth: Depth,
     changelists: Option<Vec<String>>,
-    inerited: bool,
+    inherited: bool,
 }
 
 #[derive(Debug, Default, uniffi::Record)]
@@ -2408,7 +2408,7 @@ impl Context {
                 revision.pointer(),
                 opts.depth.into(),
                 changelists,
-                opts.inerited.into(),
+                opts.inherited.into(),
                 Some(receiver),
                 result.pointer_mut() as _,
                 self.ctx(),

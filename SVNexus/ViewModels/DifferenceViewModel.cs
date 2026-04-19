@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,12 +28,14 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
         public required string PropertyName { get; set; }
         public string? PropertyOldValue { get; set; }
         public string? PropertyNewValue { get; set; }
-        
-        public bool IsDelete { get; set; }
-        public bool Modified { get; set; }
-        public bool IsAdded { get; set; }
-        public bool IsConflicted { get; set; }
+
+        public bool IsDelete => PropertyNewValue is null && PropertyOldValue is not null;
+        public bool IsModified => PropertyNewValue is not null && PropertyOldValue is not null;
+        public bool IsAdded => PropertyNewValue is not null && PropertyOldValue is null;
     }
+
+    [ObservableProperty]
+    public partial ObservableCollection<PropertyItemViewModel> PropertyItemViewModels { get; set; } = [];
     
     [ObservableProperty]
     public partial LoadingOrErrorState LoadingOrErrorState { get; set; } = LoadingOrErrorState.MakeNone();
@@ -69,6 +72,8 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
     [NotifyPropertyChangedFor(nameof(IsPropertyView))]
     public partial int SelectedViewIndex { get; set; } = TextViewIndex;
 
+    public Encoding TextEncoding { get; set; } = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
 
     [RelayCommand]
     private void SwitchToPropertyView()
@@ -80,6 +85,115 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
     private void SwitchToTextView()
     {
         SelectedViewIndex = TextViewIndex;
+    }
+
+    public async Task CompareProperty(string target, Revision peg, Revision oldRevision, Revision newRevision)
+    {
+        PropertyItemViewModels.Clear();
+        var context = SendMessage(new OnGetContext()).Response;
+        Dictionary<string, string>? oldProperties;
+        {
+            var propertyListOptions = new PropertyListOptions(target, peg, oldRevision, Depth.Empty, null, false);
+            oldProperties = (await context.PropertyList(propertyListOptions)).Entries.FirstOrDefault()?.Properties;
+        }
+
+
+        Dictionary<string, string>? newProperties;
+        {
+            var propertyListOptions = new PropertyListOptions(target, peg, newRevision, Depth.Empty, null, false);
+            newProperties = (await context.PropertyList(propertyListOptions)).Entries.FirstOrDefault()?.Properties;
+        }
+
+        // var added = new Dictionary<string, string>();
+
+        // var modified = new Dictionary<string, string>();
+        newProperties ??= [];
+        oldProperties ??= [];
+        
+
+        foreach (var (key, value) in oldProperties)
+        {
+            if (newProperties.TryGetValue(key, out var v))
+            {
+                if (v != value)
+                {
+                    PropertyItemViewModels.Add(new PropertyItemViewModel()
+                    {
+                        PropertyName = key,
+                        PropertyNewValue = v,
+                        PropertyOldValue = value
+                    });
+                }
+
+                newProperties.Remove(key);
+            }
+            else
+            {
+                PropertyItemViewModels.Add(new PropertyItemViewModel()
+                {
+                    PropertyName = key,
+                    PropertyNewValue = null,
+                    PropertyOldValue = value
+                });
+            }
+        }
+
+        foreach (var (key, value) in newProperties)
+        {
+            PropertyItemViewModels.Add(new PropertyItemViewModel()
+            {
+                PropertyName = key,
+                PropertyNewValue = value
+            });
+        }
+
+        
+        PropertyModified = oldProperties != newProperties;
+        
+    }
+
+    public async Task Compare(string target, Revision peg, Revision oldRevision, Revision newRevision)
+    {
+        var context = SendMessage(new OnGetContext()).Response;
+
+
+        string? oldText = null;
+        byte[]? oldBytes = null;
+
+        try
+        {
+            var catOptions = new CatOptions(target, peg, oldRevision, true, false);
+            oldBytes = (await context.Cat(catOptions)).Content;
+            
+            oldText = TextEncoding.GetString(oldBytes);
+        }
+        catch (DecoderFallbackException)
+        {
+            IsOldBinary = true;
+        }
+        
+        
+
+        string? newText = null;
+        byte[]? newBytes = null;
+
+        try
+        {
+            var catOptions = new CatOptions(target, peg, newRevision, true, false);
+            newBytes = (await context.Cat(catOptions)).Content;
+            
+            newText = TextEncoding.GetString(newBytes);
+        }
+        catch (DecoderFallbackException)
+        {
+            IsNewBinary = true;
+        }
+
+        if (oldText is not null && newText is not null)
+        {
+            HandleContent(oldText, newText);
+        }
+
     }
 
     public void HandleContent(string oldContent, string newContent)
@@ -248,7 +362,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
             var resultModified = await catModified(); 
             var resultOriginal = await catOriginal();
             
-            HandleContent(Encoding.UTF8.GetString(resultOriginal.Content), Encoding.UTF8.GetString(resultModified.Content));
+            HandleContent(TextEncoding.GetString(resultOriginal.Content), TextEncoding.GetString(resultModified.Content));
                 
             // var modified = Encoding.UTF8.GetString(resultModified.Content).Split("\n").Select(e =>
             //     new DifferenceLine()
