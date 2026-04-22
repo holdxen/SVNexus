@@ -5,12 +5,11 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Irihi.Avalonia.Shared.Contracts;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Views;
-using Notification = Ursa.Controls.Notification;
+using OperationDepth = SVNexus.Generated.Depth;
 
 
 namespace SVNexus.ViewModels;
@@ -20,6 +19,14 @@ namespace SVNexus.ViewModels;
 public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
 {
     // public required WeakReferenceMessenger Messenger { get; init; }
+    
+    public enum ValidDepth
+    {
+        Empty = OperationDepth.Empty,
+        Files =  OperationDepth.Files,
+        Immediates =  OperationDepth.Immediates,
+        Infinity = OperationDepth.Infinity,
+    }
 
     public override Type? ViewType { get; set; } = typeof(CheckoutOrExportDialog);
 
@@ -31,8 +38,8 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
     }
 
     public event EventHandler<object?>? RequestClose;
-    
-    
+
+
     // [ObservableProperty]
     // [NotifyPropertyChangedFor(nameof(IsHead))]
     // private Revision _revision = new Revision.Head();
@@ -51,39 +58,41 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
     // public bool IsPrevious => Revision is Revision.Previous;
 
 
-    [ObservableProperty] private bool _isHead = true;
+    [ObservableProperty]
+    public partial bool IsHead { get; set; } = true;
 
-    [ObservableProperty] private bool _isNumber;
-    
-    [ObservableProperty] private bool _isDate;
-    
-    [ObservableProperty] private bool _isCommitted;
-    
-    [ObservableProperty] private bool _isPrevious;
-    
-    
-    
-    [ObservableProperty] private uint _number;
+    [ObservableProperty]
+    public partial bool IsNumber { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsDate { get; set; }
 
-    [ObservableProperty] private DateTime _dateTime = DateTime.Now;
+    [ObservableProperty]
+    public partial bool IsCommitted { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsPrevious { get; set; }
 
-    [ObservableProperty] private Depth _depth = Depth.Infinity;
-    
-    
-    
-    public Type DepthType => typeof(Depth);
+    [ObservableProperty]
+    public partial uint Number { get; set; }
+
+    [ObservableProperty]
+    public partial DateTime DateTime { get; set; } = DateTime.Now;
+
+    [ObservableProperty]
+    public partial ValidDepth Depth { get; set; } = ValidDepth.Infinity;
+
+    public Type DepthType => typeof(ValidDepth);
 
 
     [ObservableProperty]
-    private bool _ignoreExternal;
+    public partial bool IgnoreExternal { get; set; }
 
+    [ObservableProperty]
+    public partial string Path { get; set; } = string.Empty;
 
-    [ObservableProperty] private string _path = string.Empty;
-
-    [ObservableProperty] private string _url = string.Empty;
-
+    [ObservableProperty]
+    public partial string Url { get; set; } = string.Empty;
     public CheckoutOptions? Options { get; set; }
 
     [RelayCommand]
@@ -147,7 +156,7 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
             path,
             revision,
             revision,
-            Depth,
+            (OperationDepth)Depth,
             IgnoreExternal,
             false,
             null

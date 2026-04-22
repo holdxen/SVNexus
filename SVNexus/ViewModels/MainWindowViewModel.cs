@@ -82,11 +82,15 @@ public partial class MainWindowViewModel : ViewModelBase,
 
     partial void OnSelectedIndexChanged(int value)
     {
-        var index = 0;
-        foreach (var tab in Tabs)
+        // var index = 0;
+        // foreach (var tab in Tabs)
+        // {
+        //     tab.IsSelected = index == value;
+        //     index++;
+        // }
+        for (var i = 0; i < Tabs.Count; i++)
         {
-            tab.IsSelected = index == value;
-            index++;
+            Tabs[i].IsSelected = i == value;
         }
     }
 

@@ -5,13 +5,12 @@
              xmlns:u="https://irihi.tech/ursa"
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
-             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="local:LocalViewModel"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
     <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding LoadedCommand}">
+        <EventTriggerBehavior EventName="Show">
+            <InvokeCommandAction Command="{Binding ShowCommand}">
             </InvokeCommandAction>
         </EventTriggerBehavior>
     </Interaction.Behaviors>
@@ -66,6 +65,7 @@
                     Padding="0"
                     ItemsSource="{Binding TreeItems}"
                     SelectedItems="{Binding SelectedTreeItems}"
+                    SelectedItem="{Binding SelectedTreeItem}"
                     AutoScrollToSelectedItem="False">
                     <TreeView.Styles>
                         <Style Selector="components|AdvancedTreeViewItem"
@@ -85,42 +85,11 @@
                                           ItemsSource="{Binding Children}">
                             <components:StatusEntryItem FileName="{Binding Name}"
                                                         IsDelete="{Binding IsDelete}"
+                                                        IsLocked="{Binding IsLocked}"
                                                         KindIcon="{Binding NodeKindIcon}"
                                                         StatusToolTip="{Binding StatusToolTip}"
                                                         StatusIcon="{Binding StatusIcon}">
                             </components:StatusEntryItem>
-                            <!-- <Grid ColumnDefinitions="Auto, *, Auto" -->
-                            <!--       IsHitTestVisible="True" -->
-                            <!--       Background="Transparent"> -->
-                            <!--     <Grid.ContextMenu> -->
-                            <!--         <ContextMenu ItemsSource="{Binding MenuItems, Mode=OneWay}"> -->
-                            <!--             <Interaction.Behaviors> -->
-                            <!--                 <behaviors:ContextMenuBehavior AllowToOpen="False" /> -->
-                            <!--             </Interaction.Behaviors> -->
-                            <!--         </ContextMenu> -->
-                            <!--     </Grid.ContextMenu> -->
-                            <!-- -->
-                            <!--     <components:SvgRender Grid.Column="0" -->
-                            <!--                           HorizontalAlignment="Center" -->
-                            <!--                           VerticalAlignment="Center" -->
-                            <!--                           Size="18" -->
-                            <!--                           Source="{Binding NodeKindIcon, Mode=OneWay}"> -->
-                            <!--     </components:SvgRender> -->
-                            <!--     <TextBlock Grid.Column="1" -->
-                            <!--                x:Name="TreeItemText" -->
-                            <!--                Classes.Delete="{Binding IsDelete}" -->
-                            <!--                VerticalAlignment="Center" -->
-                            <!--                FontSize="14" -->
-                            <!--                LineHeight="20" -->
-                            <!--                Text="{Binding Name}"> -->
-                            <!--     </TextBlock> -->
-                            <!-- -->
-                            <!--     <components:SvgRender Grid.Column="2" -->
-                            <!--                           ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}" -->
-                            <!--                           Size="18" -->
-                            <!--                           Source="{Binding StatusIcon, Mode=OneWay}"> -->
-                            <!--     </components:SvgRender> -->
-                            <!-- </Grid> -->
                         </TreeDataTemplate>
                     </TreeView.DataTemplates>
                 </components:AdvancedTreeView>
@@ -131,18 +100,19 @@
             </Grid>
         </Grid>
         <GridSplitter Grid.Column="1"></GridSplitter>
-        <Grid Grid.Column="2">
-            <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}"
-                                       CornerRadius="{DynamicResource RadiusCardCornerRadius}">
-                <Border Theme="{DynamicResource CardBorder}">
-                    <Border.Resources>
-                        <Thickness x:Key="ThicknessCardMargin">0</Thickness>
-                    </Border.Resources>
-                    <Grid>
-                        <components:DifferenceEditor></components:DifferenceEditor>
-                    </Grid>
-                </Border>
-            </components:LoadingOrError>
-        </Grid>
+        <ContentControl Grid.Column="2" Content="{Binding DifferenceViewModel}"></ContentControl>
+        <!-- <Grid Grid.Column="2"> -->
+        <!--     <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}" -->
+        <!--                                CornerRadius="{DynamicResource RadiusCardCornerRadius}"> -->
+        <!--         <Border Theme="{DynamicResource CardBorder}"> -->
+        <!--             <Border.Resources> -->
+        <!--                 <Thickness x:Key="ThicknessCardMargin">0</Thickness> -->
+        <!--             </Border.Resources> -->
+        <!--             <Grid> -->
+        <!--                 <components:DifferenceEditor></components:DifferenceEditor> -->
+        <!--             </Grid> -->
+        <!--         </Border> -->
+        <!--     </components:LoadingOrError> -->
+        <!-- </Grid> -->
     </Grid>
 </UserControl>

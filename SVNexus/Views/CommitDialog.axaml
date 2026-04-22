@@ -9,7 +9,7 @@
              xmlns:components="clr-namespace:SVNexus.Components"
              x:DataType="viewModels:CommitDialogModel"
              Width="800"
-             IsEnabled="{Binding !IsCommitting}"
+             IsEnabled="{Binding !CommitCommand.IsRunning}"
              x:Class="SVNexus.Views.CommitDialog">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
@@ -33,16 +33,16 @@
                     <Grid RowDefinitions="Auto, Auto, Auto, *"></Grid>
                 </ItemsPanelTemplate>
             </u:Form.ItemsPanel>
-            <u:FormItem Grid.Row="0" Label="To be committed:">
+            <u:FormItem Grid.Row="0" Label="Items:">
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
-                        <ListBox Height="150" ItemsSource="{Binding ToBeCommittedItems}">
+                        <ListBox Height="150" ItemsSource="{Binding TargetItems}">
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="viewModels:CommitDialogModel+ToBeCommittedItem">
-                                    <components:StatusEntryItem KindIcon="{Binding NodeKindIcon}"
-                                                                FileName="{Binding Name}"
-                                                                StatusIcon="{Binding NodeStatusIcon}"
-                                                                StatusToolTip="{Binding StatusEntry.NodeStatus}"
+                                <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel">
+                                    <components:StatusEntryItem KindIcon="{Binding KindIcon}"
+                                                                FileName="{Binding FileName}"
+                                                                StatusIcon="{Binding  StatusIcon}"
+                                                                StatusToolTip="{Binding StatusToolTip}"
                                                                 >
                                         
                                     </components:StatusEntryItem>
@@ -102,8 +102,8 @@
             <u:IconButton Grid.Column="3"
                     Classes="Primary"
                     Theme="{StaticResource SolidIconButton}"
-                    IsLoading="{Binding IsCommitting}"
-                    Command="{Binding CommitCommand}"
+                    IsLoading="{Binding ConfirmCommand.IsRunning}"
+                    Command="{Binding ConfirmCommand}"
                     Content="确定">
             </u:IconButton>
         </Grid>

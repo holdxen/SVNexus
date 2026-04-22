@@ -26,7 +26,7 @@ public partial class HistoryView : UserControl
                 {
                     vm.OnDataGridVerticalScrollValueChanged(args.NewValue, scrollBar.Maximum);
                 }
-                Console.WriteLine("OnDataGridVerticalScroll: NewValue={0}, OldValue={1} Maximum={2}", args.NewValue, args.OldValue, scrollBar.Maximum);
+                // Console.WriteLine("OnDataGridVerticalScroll: NewValue={0}, OldValue={1} Maximum={2}", args.NewValue, args.OldValue, scrollBar.Maximum);
             };
             break;
         }

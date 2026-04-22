@@ -351,7 +351,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                var options = new CleanupOptions(WorkspaceRoot, false, true, true, true, true);
+                var options = new CleanupOptions(WorkspaceRoot, true, true, true, true, true);
                 
                 await _context.Value.Cleanup(options);
                 
@@ -600,7 +600,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
         var commitDialogModel = new CommitDialogModel(this)
         {
-            Targets = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToArray()
+            Targets = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToArray(),
+            RelateTo = WorkspaceRoot ?? string.Empty
         };
         var hostId = SendMessage(new OnGetDialogHostId());
 
@@ -613,6 +614,10 @@ public partial class WorkspaceViewModel : ViewModelBase,
         };
         
         await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
+        if (commitDialogModel.Accept)
+        {
+            await RefreshTreeItems();
+        }
     }
 
 
@@ -784,27 +789,54 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 return;
             }
 
-            var updateOptions = new UpdateOptions(
-                SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
-                new Revision.Head(),
-                Depth.Infinity,
-                false,
-                false,
-                true,
-                true,
-                true
-            );
-        
-
-            var revisions = await _context.Value.Update(updateOptions);
-            foreach (var revision in revisions)
+            var model = new UpdateDialogModel(this)
             {
-                Manager.Default.Send(new OnShowToast()
-                {
-                    Type =  NotificationType.Success,
-                    Content = revision is null ? "Update skipped" : $"Updated Successfully to r{revision}"
-                }, Manager.MainWindowToken);
+                RelateTo = WorkspaceRoot ?? string.Empty,
+                TargetEntries = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!.Path).ToList(),
+                Path = WorkspaceRoot ?? string.Empty,
+            };
+
+
+
+            var hostId = SendMessage(new OnGetDialogHostId());
+
+            var dialogOptions = new OverlayDialogOptions()
+            {
+                Title = "Update",
+                IsCloseButtonVisible = false,
+                Buttons = DialogButton.None
+            };
+            
+            
+            await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, dialogOptions);
+
+            if (model.Accept)
+            {
+                await RefreshTreeItems();
             }
+
+            //
+            // var updateOptions = new UpdateOptions(
+            //     SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
+            //     new Revision.Head(),
+            //     Depth.Infinity,
+            //     false,
+            //     false,
+            //     true,
+            //     true,
+            //     true
+            // );
+            //
+            //
+            // var revisions = await _context.Value.Update(updateOptions);
+            // foreach (var revision in revisions)
+            // {
+            //     Manager.Default.Send(new OnShowToast()
+            //     {
+            //         Type =  NotificationType.Success,
+            //         Content = revision is null ? "Update skipped" : $"Updated Successfully to r{revision}"
+            //     }, Manager.MainWindowToken);
+            // }
 
         }
         catch (Exception e)

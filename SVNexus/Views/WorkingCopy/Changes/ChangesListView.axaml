@@ -40,6 +40,7 @@
                 <components:StatusEntryItem
                     KindIcon="{Binding KindIcon}"
                     FileName="{Binding FileName}"
+                    IsLocked="{Binding IsLocked}"
                     ShowRelateDirectory="True"
                     RelativeDirectory="{Binding RelativeDirectory}"
                     TextToolTip="{Binding AbsolutePath}"

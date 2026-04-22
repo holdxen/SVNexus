@@ -47,12 +47,16 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsReal))]
         [NotifyPropertyChangedFor(nameof(HasChild))]
+        [NotifyPropertyChangedFor(nameof(IsLocked))]
         public required partial StatusEntry? StatusEntry { get; set; }
+        
+        
+        public bool IsLocked => StatusEntry?.Lock is not null;
         
         public bool HasChild => StatusEntry?.NodeKind is NodeKind.Directory;
 
 
-        public string KindIcon => StatusEntry?.NodeKind.Icon() ?? NodeKind.Directory.Icon();
+        public string KindIcon => (StatusEntry?.NodeKind ?? NodeKind.Directory).Icon();
 
 
         public string Text

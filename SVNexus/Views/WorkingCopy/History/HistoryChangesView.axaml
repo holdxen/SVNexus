@@ -9,26 +9,9 @@
              x:DataType="remote:HistoryChangesViewModel"
              x:Class="SVNexus.Views.WorkingCopy.History.HistoryChangesView">
     <UserControl.DataTemplates>
-        <DataTemplate DataType="remote:HistoryChangesViewModel+ListViewModel">
-            <ListBox ItemsSource="{Binding Items}">
-                <ListBox.Styles>
-                    <Style Selector="ListBoxItem">
-                        <Setter Property="CornerRadius" Value="5"></Setter>
-                        <Setter Property="Padding" Value="0"></Setter>
-                    </Style>
-                    <Style Selector="ListBoxItem:pressed">
-                        <Setter Property="Background" Value="{DynamicResource ListBoxItemPointeroverBackground}"></Setter>
-                    </Style>
-                    <Style Selector="ListBoxItem:selected">
-                        <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" />
-                        <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedBackground}" />
-                        <Style Selector="^:pointerover">
-                            <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedPointeroverBackground}" />
-                        </Style>
-                    </Style>
-                </ListBox.Styles>
-            </ListBox>
-        </DataTemplate>
+        <!-- <DataTemplate DataType="remote:HistoryChangesViewModel+ListViewModel"> -->
+        <!-- -->
+        <!-- </DataTemplate> -->
         <DataTemplate DataType="remote:HistoryChangesViewModel+ListItemViewModel">
             <Grid x:Name="ItemRoot"
                   Margin="2 4"
@@ -39,8 +22,9 @@
                                       Size="20"
                                       Source="{Binding NodeKindIcon}">
                 </components:SvgRender>
-                <Grid Grid.Column="1" ToolTip.Tip="{Binding RelativePath}">
-                    <Grid ColumnDefinitions="Auto, *">
+                <Grid Grid.Column="1" Background="Transparent" 
+                      ToolTip.Tip="{Binding RelativePath}">
+                    <Grid ColumnDefinitions="Auto, *" ClipToBounds="True">
                         <TextBlock Grid.Column="0"
                                    MaxLines="1"
                                    x:Name="ListItemText"
@@ -68,72 +52,102 @@
             </Grid>
         </DataTemplate>
     </UserControl.DataTemplates>
-    <Grid ColumnDefinitions="* , Auto, 3*">
+    <Grid 
+        >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding LeftPartWidth, Mode=TwoWay}"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" RowDefinitions="Auto, Auto, *">
             <Grid Grid.Row="0" Margin="2" ColumnDefinitions="Auto, *, Auto">
                 <StackPanel Grid.Column="0"
-                            IsVisible="{Binding IsListView}"
                             Orientation="Horizontal">
                 </StackPanel>
-                <StackPanel Grid.Column="0"
-                            Spacing="2"
-                            IsVisible="{Binding IsTreeView}"
-                            Orientation="Horizontal">
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Expand"
-                                          Size="14" Source="{StaticResource Icons.TreeExpand}">
-                    </components:SvgButton>
-                    <components:SvgButton Classes="ToolButton"
-                                          ToolTip.Tip="Collapse"
-                                          Size="14" Source="{StaticResource Icons.TreeCollapse}">
-                    </components:SvgButton>
-                </StackPanel>
+                <!-- <StackPanel Grid.Column="0" -->
+                <!--             Spacing="2" -->
+                <!--             IsVisible="{Binding IsTreeView}" -->
+                <!--             Orientation="Horizontal"> -->
+                <!--     <components:SvgButton Classes="ToolButton" -->
+                <!--                           ToolTip.Tip="Expand" -->
+                <!--                           Size="14" Source="{StaticResource Icons.TreeExpand}"> -->
+                <!--     </components:SvgButton> -->
+                <!--     <components:SvgButton Classes="ToolButton" -->
+                <!--                           ToolTip.Tip="Collapse" -->
+                <!--                           Size="14" Source="{StaticResource Icons.TreeCollapse}"> -->
+                <!--     </components:SvgButton> -->
+                <!-- </StackPanel> -->
                 <Border Grid.Column="1"></Border>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
-                    <components:SvgButton
-                        Command="{Binding SwitchToListViewCommand}"
-                        Classes.Selected="{Binding IsListView}"
-                        Source="{StaticResource Icons.List}">
-                    </components:SvgButton>
-                    <components:SvgButton
-                        Command="{Binding SwitchToTreeViewCommand}"
-                        Classes.Selected="{Binding IsTreeView}"
-                        Source="{StaticResource Icons.FolderTree}">
-                    </components:SvgButton>
-                    <StackPanel.Styles>
-                        <Style Selector="components|SvgButton.Selected">
-                            <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
-                        </Style>
-                        <Style Selector="components|SvgButton">
-                            <Setter Property="Size" Value="14"></Setter>
-                            <Setter Property="Spacing" Value="2"></Setter>
-                        </Style>
-                    </StackPanel.Styles>
+                    <!-- <components:SvgButton -->
+                    <!--     Command="{Binding SwitchToListViewCommand}" -->
+                    <!--     Classes.Selected="{Binding IsListView}" -->
+                    <!--     Source="{StaticResource Icons.List}"> -->
+                    <!-- </components:SvgButton> -->
+                    <!-- <components:SvgButton -->
+                    <!--     Command="{Binding SwitchToTreeViewCommand}" -->
+                    <!--     Classes.Selected="{Binding IsTreeView}" -->
+                    <!--     Source="{StaticResource Icons.FolderTree}"> -->
+                    <!-- </components:SvgButton> -->
+                    <!-- <StackPanel.Styles> -->
+                    <!--     <Style Selector="components|SvgButton.Selected"> -->
+                    <!--         <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter> -->
+                    <!--     </Style> -->
+                    <!--     <Style Selector="components|SvgButton"> -->
+                    <!--         <Setter Property="Size" Value="14"></Setter> -->
+                    <!--         <Setter Property="Spacing" Value="2"></Setter> -->
+                    <!--     </Style> -->
+                    <!-- </StackPanel.Styles> -->
+                    
+                    <CheckBox Content="Children Only" IsChecked="{Binding ShowChildrenOnly}"></CheckBox>
                 </StackPanel>
             </Grid>
             <u:Divider Grid.Row="1" Orientation="Horizontal"></u:Divider>
-            <Grid Grid.Row="2">
-                <ContentControl IsVisible="{Binding IsTreeView}"
-                                Content="{Binding ChangedTreeViewViewModel}">
-                </ContentControl>
-                <ContentControl IsVisible="{Binding IsListView}"
-                                Content="{Binding ChangedListViewModel}">
-                </ContentControl>
-            </Grid>
+            
+            <ListBox SelectedIndex="{Binding SelectedChangedItemIndex}" Grid.Row="2" ItemsSource="{Binding ChangedItems}">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="CornerRadius" Value="5"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                    <Style Selector="ListBoxItem:pressed">
+                        <Setter Property="Background" Value="{DynamicResource ListBoxItemPointeroverBackground}"></Setter>
+                    </Style>
+                    <Style Selector="ListBoxItem:selected">
+                        <Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectedForeground}" />
+                        <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedBackground}" />
+                        <Style Selector="^:pointerover">
+                            <Setter Property="Background" Value="{DynamicResource ListBoxItemSelectedPointeroverBackground}" />
+                        </Style>
+                    </Style>
+                    <Style Selector="ListBoxItem" x:DataType="remote:HistoryChangesViewModel+ListItemViewModel">
+                        <Setter Property="IsVisible" Value="{Binding IsVisible}"></Setter>
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+            <!-- <Grid Grid.Row="2"> -->
+            <!--     <ContentControl IsVisible="{Binding IsTreeView}" -->
+            <!--                     Content="{Binding ChangedTreeViewViewModel}"> -->
+            <!--     </ContentControl> -->
+            <!--     <ContentControl IsVisible="{Binding IsListView}" -->
+            <!--                     Content="{Binding ChangedListViewModel}"> -->
+            <!--     </ContentControl> -->
+            <!-- </Grid> -->
         </Grid>
-        <GridSplitter Grid.Column="1" Background="Transparent"></GridSplitter>
+        <GridSplitter Grid.Column="1" Background="Transparent" ResizeBehavior="PreviousAndNext"></GridSplitter>
         <!-- <components:DifferenceEditor Grid.Column="2" /> -->
-        <components:LoadingOrError Grid.Column="2" Margin="{DynamicResource ThicknessCardMargin}"
-                                   CornerRadius="{DynamicResource RadiusCardCornerRadius}"
-                                   >
-            <Border Theme="{DynamicResource CardBorder}">
-                <Border.Resources>
-                    <Thickness x:Key="ThicknessCardMargin">0</Thickness>
-                </Border.Resources>
-                <Grid>
-                    <components:DifferenceEditor ></components:DifferenceEditor>
-                </Grid>
-            </Border>
-        </components:LoadingOrError>
+        <!-- <components:LoadingOrError Grid.Column="2" Margin="{DynamicResource ThicknessCardMargin}" -->
+        <!--                            CornerRadius="{DynamicResource RadiusCardCornerRadius}" -->
+        <!--                            > -->
+        <!--     <Border Theme="{DynamicResource CardBorder}"> -->
+        <!--         <Border.Resources> -->
+        <!--             <Thickness x:Key="ThicknessCardMargin">0</Thickness> -->
+        <!--         </Border.Resources> -->
+        <!--         <Grid> -->
+        <!--             <components:DifferenceEditor ></components:DifferenceEditor> -->
+        <!--         </Grid> -->
+        <!--     </Border> -->
+        <!-- </components:LoadingOrError> -->
+        <ContentControl Grid.Column="2" Content="{Binding DifferenceViewModel}"></ContentControl>
     </Grid>
 </UserControl>

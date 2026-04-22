@@ -98,25 +98,49 @@
                             </Grid>
                         </Grid>
                     </Grid>
-                    <DataGrid IsVisible="{Binding IsPropertyView}">
+                    <DataGrid IsVisible="{Binding IsPropertyView}" 
+                              ItemsSource="{Binding PropertyItemViewModels}">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Property" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <!-- <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel"> -->
-                                    <!--     <TextBlock Classes="VCenter" Text="{Binding Name}"></TextBlock> -->
-                                    <!-- </DataTemplate> -->
+                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                        <TextBlock Classes="VCenter" Text="{Binding PropertyName}"></TextBlock>
+                                    </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn CanUserResize="True" CanUserReorder="False" Width="*"
                                                     Header="Old value">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <!-- <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel"> -->
-                                    <!--     <TextBlock Classes="VCenter" Text="{Binding Value}"></TextBlock> -->
-                                    <!-- </DataTemplate> -->
+                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                        <TextBlock Classes="VCenter" Text="{Binding PropertyOldValue}"></TextBlock>
+                                    </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="New value"></DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Status">
+                            <DataGridTemplateColumn Header="New value" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                        <TextBlock Classes="VCenter" Text="{Binding PropertyNewValue}"></TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Status" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                        <Grid>
+                                            <Grid.Styles>
+                                                <Style Selector="Label">
+                                                    <Setter Property="Theme" Value="{StaticResource TagLabel}"></Setter>
+                                                </Style>
+                                            </Grid.Styles>
+                                            <Label IsVisible="{Binding IsDelete}" Classes="Red" Content="Delete">
+                                            </Label>
+                                            <Label IsVisible="{Binding IsAdded}" Classes="Green" Content="Add">
+                                            </Label>
+                                            <Label IsVisible="{Binding IsModified}" Classes="Yello" Content="Add">
+                                            </Label>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
@@ -141,18 +165,28 @@
                 <u:Divider Grid.Row="1"></u:Divider>
                 <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
                     <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
-                        <components:LucideIconButton
-                            Command="{Binding SwitchToTextViewCommand}"
-                            Classes.Selected="{Binding IsTextView}"
-                            LucideKind="BookOpenText">
-                        </components:LucideIconButton>
-                        <components:LucideIconButton
-                            Command="{Binding SwitchToPropertyViewCommand}"
-                            Classes.Selected="{Binding !IsTextView}"
-                            LucideKind="Table">
-                        </components:LucideIconButton>
+                        <components:SvgButton Command="{Binding SwitchToTextViewCommand}" 
+                                              Classes.Selected="{Binding IsTextView}"
+                                              Classes="ButtonBackground"
+                                              Source="{StaticResource Icons.TextView}">
+                        </components:SvgButton>
+                        <components:SvgButton Command="{Binding SwitchToPropertyViewCommand}" 
+                                              Classes.Selected="{Binding !IsTextView}"
+                                              Classes="ButtonBackground"
+                                              Source="{StaticResource Icons.PropertyView}">
+                        </components:SvgButton>
+                        <!-- <components:LucideIconButton -->
+                        <!--     Command="{Binding SwitchToTextViewCommand}" -->
+                        <!--     Classes.Selected="{Binding IsTextView}" -->
+                        <!--     LucideKind="BookOpenText"> -->
+                        <!-- </components:LucideIconButton> -->
+                        <!-- <components:LucideIconButton -->
+                        <!--     Command="{Binding SwitchToPropertyViewCommand}" -->
+                        <!--     Classes.Selected="{Binding !IsTextView}" -->
+                        <!--     LucideKind="Table"> -->
+                        <!-- </components:LucideIconButton> -->
                         <StackPanel.Styles>
-                            <Style Selector="components|LucideIconButton.Selected">
+                            <Style Selector="components|SvgButton.Selected">
                                 <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
                             </Style>
                         </StackPanel.Styles>

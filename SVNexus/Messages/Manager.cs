@@ -36,6 +36,8 @@ public static class Manager
     public static Guid MainWindowToken { get; } = Guid.NewGuid();
     
     public static Guid AppToken { get; } = Guid.NewGuid();
+    
+    public static Guid BroadcastToken { get; } = Guid.NewGuid();
 
     extension(WeakReferenceMessenger messenger)
     {

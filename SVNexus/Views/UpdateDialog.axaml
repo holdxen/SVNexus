@@ -2,38 +2,63 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:u="https://irihi.tech/ursa"
-             xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
-             x:DataType="viewModels:CheckoutOrExportDialogModel"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
-             MinWidth="500"
-             x:Class="SVNexus.Views.CheckoutOrExportDialog">
+             xmlns:components="clr-namespace:SVNexus.Components"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             MinWidth="450"
+             x:DataType="viewModels:UpdateDialogModel"
+             x:Class="SVNexus.Views.UpdateDialog">
     <UserControl.Resources>
-        <Thickness x:Key="RadioButtonContentMargin">2 0 4 0</Thickness>
+        <Thickness x:Key="ThicknessCardMargin">0</Thickness>
     </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="ListBoxItem">
+            <Setter Property="CornerRadius" Value="5"></Setter>
+            <Setter Property="Padding" Value="0"></Setter>
+        </Style>
+    </UserControl.Styles>
     <Grid RowDefinitions="*, Auto">
-
-        <u:Form Grid.Row="0" HorizontalAlignment="Stretch" LabelPosition="Top">
-            <!-- <u:Form.ItemsPanel> -->
-            <!--     <ItemsPanelTemplate> -->
-            <!--         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *" /> -->
-            <!--     </ItemsPanelTemplate> -->
-            <!-- </u:Form.ItemsPanel> -->
-            <u:FormItem Label="Url:">
-                <TextBox Text="{Binding Url}"></TextBox>
-            </u:FormItem>
-            <u:FormItem Label="Path:">
-                <Grid ColumnDefinitions="*, Auto">
-                    <TextBox Grid.Column="0" Text="{Binding Path}"></TextBox>
-                    <components:SvgButton Classes="Button" 
-                                          Command="{Binding SelectFolderCommand}" 
-                                          Grid.Column="1"
-                                          Source="{StaticResource Icons.FolderPlus}" />
+        <u:Form HorizontalAlignment="Stretch">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid RowDefinitions="Auto, Auto, Auto, Auto"></Grid>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Grid.Row="0" Label="Targets:">
+                <Grid>
+                    <Border Theme="{StaticResource CardBorder}" Padding="5">
+                        <ListBox Height="60" ItemsSource="{Binding TargetItems}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="viewModels:UpdateDialogModel+TargetItemViewModel">
+                                    <Grid ColumnDefinitions="Auto, *" Margin="2 4">
+                                        <components:SvgRender Size="18" 
+                                                              Source="{StaticResource Icons.Directory-Close}">
+                                            
+                                        </components:SvgRender>
+                                        <TextBlock Grid.Column="1" Text="{Binding Path}"></TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
                 </Grid>
             </u:FormItem>
-            <u:FormItem Label="Revision:">
+            <u:FormItem Grid.Row="1" Label="Depth:">
+                <u:EnumSelector HorizontalAlignment="Stretch"
+                                EnumType="{x:Static viewModels:UpdateDialogModel.DepthType}"
+                                Value="{Binding Depth}">
+                </u:EnumSelector>
+            </u:FormItem>
+            <u:FormItem Grid.Row="2" Label="Options:">
+                <StackPanel>
+                    <CheckBox Content="Ingore externals" IsChecked="{Binding IgnoreExternals}"></CheckBox>
+                    <CheckBox Content="Allow unversioned obstructions" IsChecked="{Binding AllowUnversionedObstructions}"></CheckBox>
+                    <CheckBox Content="Adds as modification" IsChecked="{Binding AddAsModification}"></CheckBox>
+                    <CheckBox Content="Make parents" IsChecked="{Binding MakeParents}"></CheckBox>
+                </StackPanel>
+            </u:FormItem>
+            <u:FormItem Grid.Row="3" Label="Revision:">
                 <Border BorderThickness="1" Padding="4" CornerRadius="4">
                     <Grid RowDefinitions="Auto, Auto, Auto, Auto">
                         <Grid ColumnDefinitions="*, *, *, *, *">
@@ -74,25 +99,18 @@
                     </Grid>
                 </Border>
             </u:FormItem>
-            <u:FormItem Label="Settings">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <u:EnumSelector Width="200" Value="{Binding Depth}" 
-                                    EnumType="{Binding DepthType}"
-                                    DisplayDescription="True">
-                    </u:EnumSelector>
-                    <CheckBox VerticalAlignment="Center" 
-                              Content="Ignore External" 
-                              IsChecked="{Binding IgnoreExternal}"></CheckBox>
-                </StackPanel>
-            </u:FormItem>
         </u:Form>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">
             <Border Grid.Column="0"></Border>
             <Button Grid.Column="1" Content="取消" Command="{Binding CloseCommand}"></Button>
             <Border Grid.Column="2" Width="4"></Border>
-            <Button Grid.Column="3" Classes="Primary" Theme="{StaticResource SolidButton}" Content="确定"
-                    Command="{Binding ConfirmCommand}">
-            </Button>
+            <u:IconButton Grid.Column="3"
+                    Classes="Primary"
+                    Theme="{StaticResource SolidIconButton}"
+                    IsLoading="{Binding ConfirmCommand.IsRunning}"
+                    Command="{Binding ConfirmCommand}"
+                    Content="确定">
+            </u:IconButton>
         </Grid>
     </Grid>
 </UserControl>

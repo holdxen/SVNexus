@@ -347,12 +347,12 @@ pub struct StatusEntry {
     conflicted: bool,
     node_status: WorkingCopyStatus,
     text_status: WorkingCopyStatus,
-    prop_status: WorkingCopyStatus,
+    property_status: WorkingCopyStatus,
     wc_is_locked: bool,
     copied: bool,
-    repos_root_url: Option<String>,
-    repos_uuid: Option<String>,
-    repos_relpath: Option<String>,
+    repository_root_url: Option<String>,
+    repository_uuid: Option<String>,
+    repository_relpath: Option<String>,
     revision: Option<RevisionNumber>,
     last_changed_revision: Option<RevisionNumber>,
     last_changed_date: i64,
@@ -363,10 +363,10 @@ pub struct StatusEntry {
     changelist: Option<String>,
     depth: Depth,
     out_of_date_kind: NodeKind,
-    repos_node_status: WorkingCopyStatus,
-    repos_text_status: WorkingCopyStatus,
-    repos_prop_status: WorkingCopyStatus,
-    repos_lock: Option<Lock>,
+    repository_node_status: WorkingCopyStatus,
+    repository_text_status: WorkingCopyStatus,
+    repository_property_status: WorkingCopyStatus,
+    repository_lock: Option<Lock>,
     out_of_date_changed_revision: Option<RevisionNumber>,
     out_of_date_changed_date: Option<i64>,
     out_of_date_changed_author: Option<String>,
@@ -526,10 +526,20 @@ pub struct Lock {
     path: String,
     token: String,
     owner: String,
-    comment: String,
+    comment: Option<String>,
     is_dav_comment: bool,
     creation_date: i64,
     expiration_date: i64,
+}
+
+pub struct BlameOptions {
+    path: String,
+    peg_revision: Revision,
+    start_revision: Revision,
+    end_revision: Revision,
+    difference_options: DifferenceOptions,
+    ignore_mime_type: bool,
+    include_merged_revisions: bool,
 }
 
 impl Default for Revision {
@@ -685,7 +695,7 @@ impl From<*const ffi::svn_lock_t> for Lock {
 
             let owner = lock.owner.to_str().to_string();
 
-            let comment = lock.comment.to_str().to_string();
+            let comment = lock.comment.to_nullable_string();
 
             let is_dav_comment = lock.is_dav_comment != 0;
 
@@ -734,17 +744,17 @@ impl StatusEntry {
 
             let text_status = WorkingCopyStatus::try_from(entry.text_status).unwrap();
 
-            let prop_status = WorkingCopyStatus::try_from(entry.prop_status).unwrap();
+            let property_status = WorkingCopyStatus::try_from(entry.prop_status).unwrap();
 
             let wc_is_locked = entry.wc_is_locked != 0;
 
             let copied = entry.copied != 0;
 
-            let repos_root_url = entry.repos_root_url.to_nullable_string();
+            let repository_root_url = entry.repos_root_url.to_nullable_string();
 
-            let repos_uuid = entry.repos_uuid.to_nullable_string();
+            let repository_uuid = entry.repos_uuid.to_nullable_string();
 
-            let repos_relpath = entry.repos_relpath.to_nullable_string();
+            let repository_relpath = entry.repos_relpath.to_nullable_string();
 
             let revision = RevisionNumber::try_from(entry.revision).ok();
 
@@ -766,13 +776,13 @@ impl StatusEntry {
 
             let out_of_date_kind = NodeKind::try_from(entry.ood_kind).unwrap();
 
-            let repos_node_status = WorkingCopyStatus::try_from(entry.repos_node_status).unwrap();
+            let repository_node_status = WorkingCopyStatus::try_from(entry.repos_node_status).unwrap();
 
-            let repos_text_status = WorkingCopyStatus::try_from(entry.repos_text_status).unwrap();
+            let repository_text_status = WorkingCopyStatus::try_from(entry.repos_text_status).unwrap();
 
-            let repos_prop_status = WorkingCopyStatus::try_from(entry.repos_prop_status).unwrap();
+            let repository_property_status = WorkingCopyStatus::try_from(entry.repos_prop_status).unwrap();
 
-            let repos_lock = entry.repos_lock.map(Lock::from);
+            let repository_lock = entry.repos_lock.map(Lock::from);
 
             let out_of_date_changed_revision = entry.ood_changed_rev.try_into().ok();
 
@@ -797,12 +807,12 @@ impl StatusEntry {
                 conflicted,
                 node_status,
                 text_status,
-                prop_status,
+                property_status,
                 wc_is_locked,
                 copied,
-                repos_root_url,
-                repos_uuid,
-                repos_relpath,
+                repository_root_url,
+                repository_uuid,
+                repository_relpath,
                 revision,
                 last_changed_revision,
                 last_changed_date,
@@ -813,10 +823,10 @@ impl StatusEntry {
                 changelist,
                 depth,
                 out_of_date_kind,
-                repos_node_status,
-                repos_text_status,
-                repos_prop_status,
-                repos_lock,
+                repository_node_status,
+                repository_text_status,
+                repository_property_status,
+                repository_lock,
                 out_of_date_changed_revision,
                 out_of_date_changed_date,
                 out_of_date_changed_author,
@@ -1066,7 +1076,7 @@ unsafe extern "C" fn on_notify(
 
         let notify = WorkingCopyNotify::from(notify);
 
-        // tracing::info!("Notify: {:#?}", notify);
+        tracing::info!("Notify: {:#?}", notify);
 
         let result = this.context_notifier.working_copy_notify(notify);
         if let Err(e) = result {
@@ -1414,6 +1424,7 @@ unsafe extern "C" fn on_authenticate(
             Ok(v) => v,
             Err(e) => return e.native_error(),
         };
+        tracing::info!("Authenticate result: {:?}", v);
         if let Some(result) = v {
             *cred = pool.malloc();
 
@@ -1631,7 +1642,7 @@ pub struct UpdateOptions {
     depth_is_sticky: bool,
     ignore_externals: bool,
     allow_unver_obstructions: bool,
-    adds_ad_modification: bool,
+    adds_as_modification: bool,
     make_parents: bool,
 }
 
@@ -2519,7 +2530,7 @@ impl Context {
 
         let revision = opts.revision.to_opt_revision();
 
-        tracing::info!("status options={:#?}", opts);
+        // tracing::info!("status options={:#?}", opts);
 
         unsafe {
             let mut pool = apr::Pool::create();
@@ -3279,7 +3290,7 @@ impl Context {
                 opts.depth_is_sticky.into(),
                 opts.ignore_externals.into(),
                 opts.allow_unver_obstructions.into(),
-                opts.adds_ad_modification.into(),
+                opts.adds_as_modification.into(),
                 opts.make_parents.into(),
                 self.ctx(),
                 pool.as_mut_ptr(),
@@ -3693,7 +3704,7 @@ impl Context {
             );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
-            Ok(result.try_into().expect("Unexpected number"))
+            Ok(result.try_into().expect("Unexpected revision"))
         }
     }
 

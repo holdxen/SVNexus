@@ -41,28 +41,39 @@ public partial class MainWindow : Window,
     {
         Dispatcher.UIThread.UnhandledException += (sender, args) =>
         {
-            Receive(new OnShowToast()
+            Dispatcher.UIThread.Invoke(() =>
             {
-                Content = $"Unhandled Exception: {args.Exception.Message}",
-                Type = NotificationType.Error
+                Receive(new OnShowToast()
+                {
+                    Content = $"Unhandled Exception: {args.Exception.Message}",
+                    Type = NotificationType.Error,
+                    Expiration = TimeSpan.FromMinutes(2)
+                });
             });
         };
 
         TaskScheduler.UnobservedTaskException += (sender, args) =>
         {
-            Receive(new OnShowToast()
+            Dispatcher.UIThread.Invoke(() =>
             {
-                Content =  $"Unobserved Exception: {args.Exception.Message}",
-                Type = NotificationType.Error
+                Receive(new OnShowToast()
+                {
+                    Content =  $"Unobserved Exception: {args.Exception.Message}",
+                    Type = NotificationType.Error,
+                    Expiration = TimeSpan.FromMinutes(2)
+                });
             });
         };
 
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
-            Receive(new OnShowToast()
+            Dispatcher.UIThread.Invoke(() =>
             {
-                Content = $"App domain unhandled Exception: {args.ExceptionObject}",
-                Type = NotificationType.Error
+                Receive(new OnShowToast()
+                {
+                    Content = $"App domain unhandled Exception: {args.ExceptionObject}",
+                    Type = NotificationType.Error
+                });
             });
         };
     }

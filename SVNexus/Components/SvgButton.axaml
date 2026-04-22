@@ -23,6 +23,22 @@
         </Style>
     </Style>
     
+    <Style Selector="components|SvgButton.ButtonBackground">
+        <Setter Property="Background" Value="Transparent"></Setter>
+        <Style Selector="^[IsEnabled=False]">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorDisabledText}"></Setter>
+            <Setter Property="Opacity" Value="0.35"></Setter>
+        </Style>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPointeroverBackground}"></Setter>
+        </Style>
+
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ButtonDefaultPressedBackground}"></Setter>
+        </Style>
+    </Style>
+    
+    
     <Style Selector="components|SvgButton.ToolButton">
         <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
         <Setter Property="Size" Value="20"></Setter>

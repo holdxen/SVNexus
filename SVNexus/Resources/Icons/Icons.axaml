@@ -597,6 +597,27 @@
 </svg>
 ]]>
     </system:String>
+    <system:String x:Key="Icons.TextView">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open-text-icon lucide-book-open-text"><path d="M12 7v14"/><path d="M16 12h2"/><path d="M16 8h2"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/><path d="M6 12h2"/><path d="M6 8h2"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.PropertyView">
+        <![CDATA[
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-table-icon lucide-table"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.StatusLocked">
+        <![CDATA[
+        <svg viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 28 52 L 28 32 Q 28 8 50 8 Q 72 8 72 32 L 72 52" fill="none" stroke="#FAC775" stroke-width="8" stroke-linecap="round" />
+  <rect x="8" y="50" width="84" height="58" rx="8" fill="#EF9F27" stroke="#FAC775" stroke-width="5" />
+  <circle cx="50" cy="72" r="6" fill="#FAEEDA" />
+  <path d="M 50 76 L 50 92" stroke="#FAEEDA" stroke-width="5" stroke-linecap="round" />
+</svg>
+]]>
+    </system:String>
+    
     <!-- <system:String></system:String> -->
     <!-- <StreamGeometry> -->
     <!--     <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"> -->

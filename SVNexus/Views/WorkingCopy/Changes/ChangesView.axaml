@@ -8,7 +8,6 @@
              xmlns:u="https://irihi.tech/ursa"
              xmlns:workingCopyView="clr-namespace:SVNexus.ViewModels.WorkingCopy.Changes"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:views="clr-namespace:SVNexus.Views"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesView">
     <UserControl.Styles>
         <Style Selector="components|SvgButton.Selected">
@@ -16,8 +15,8 @@
         </Style>
     </UserControl.Styles>
     <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding LoadedCommand}">
+        <EventTriggerBehavior EventName="Show">
+            <InvokeCommandAction Command="{Binding ShowCommand}">
             </InvokeCommandAction>
         </EventTriggerBehavior>
     </Interaction.Behaviors>

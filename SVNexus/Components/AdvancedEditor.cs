@@ -12,7 +12,7 @@ namespace SVNexus.Components;
 public class AdvancedEditor: TextEditor
 {
     public static readonly StyledProperty<List<DifferenceLine>> LinesProperty = AvaloniaProperty.Register<AdvancedEditor, List<DifferenceLine>>(
-        nameof(Lines));
+        nameof(Lines), defaultValue: []);
 
     public List<DifferenceLine> Lines
     {

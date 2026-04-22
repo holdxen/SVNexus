@@ -81,7 +81,7 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
     public partial LoadingOrErrorState TreeViewState { get; set; } = new LoadingOrErrorState.None();
     
     
-    public required string Url { get; set; }
+    public required string CurrentUrl { get; set; }
     
     public required Revision Revision { get; set; }
     
@@ -181,7 +181,7 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
         _cache[entry.Path] = null;
             
         var catOptions = new CatOptions(
-            Path: Url + "/" + entry.Path,
+            Path: CurrentUrl + "/" + entry.Path,
             PegRevision: new Revision.Head(),
             Revision: Revision,
             ExpandKeywords: false,
@@ -395,9 +395,9 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
 
         try
         {
-            Console.WriteLine("List: url={0}", Url);
+            Console.WriteLine("List: url={0}", CurrentUrl);
             var listOptions = new ListOptions(
-                Path: Url, 
+                Path: CurrentUrl, 
                 PegRevision: new Revision.Head(), 
                 Revision: Revision, 
                 Patterns: null, 

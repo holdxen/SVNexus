@@ -15,6 +15,7 @@ public partial class StatusEntryItemViewModel(ViewModelBase? parent = null): Vie
     [NotifyPropertyChangedFor(nameof(IsDelete))]
     [NotifyPropertyChangedFor(nameof(RelativePath))]
     [NotifyPropertyChangedFor(nameof(RelativeDirectory))]
+    [NotifyPropertyChangedFor(nameof(IsLocked))]
     public required partial StatusEntry Entry { get; set; }
 
     
@@ -23,8 +24,10 @@ public partial class StatusEntryItemViewModel(ViewModelBase? parent = null): Vie
     [NotifyPropertyChangedFor(nameof(RelativeDirectory))]
     public required partial string RelateTo { get; set; }
 
+
+    public bool IsLocked => Entry.Lock is not null;
     
-    public string FileName => Entry.Path.GetFileName();
+    public string FileName => Entry.Path == RelateTo ? "/" : Entry.Path.GetFileName();
 
     public string StatusIcon => Entry.NodeStatus.Icon();
     
@@ -46,7 +49,8 @@ public partial class StatusEntryItemViewModel(ViewModelBase? parent = null): Vie
             }
             var contain = Entry.Path.TrimStartString(RelateTo)
                 .TrimStartPathSeparatorChar().GetDirectoryName();
-            return string.IsNullOrEmpty(contain) ? "/" : contain;
+            // return string.IsNullOrEmpty(contain) ? "/" : contain;
+            return contain;
         }
     }
     

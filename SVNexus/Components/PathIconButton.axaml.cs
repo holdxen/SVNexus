@@ -60,10 +60,10 @@ public class PathIconButton : TemplatedControl
     
     
     public static readonly StyledProperty<ICommand?> CommandProperty =
-        AvaloniaProperty.Register<LucideIconButton, ICommand?>(nameof(Command));
+        AvaloniaProperty.Register<PathIconButton, ICommand?>(nameof(Command));
 
     public static readonly StyledProperty<object?> CommandParameterProperty =
-        AvaloniaProperty.Register<LucideIconButton, object?>(nameof(CommandParameter));
+        AvaloniaProperty.Register<PathIconButton, object?>(nameof(CommandParameter));
 
     public ICommand? Command
     {

@@ -24,11 +24,6 @@
         <Setter Property="HorizontalAlignment" Value="Center"></Setter>
     </Style>
     
-    
-    <Style Selector="components|LucideIconButton.ToolBarIconButton">
-        <Setter Property="Size" Value="22"></Setter>
-    </Style>
-    
     <Style Selector="MenuItem.Thin">
         <Setter Property="Padding" Value="4 2"></Setter>
     </Style>

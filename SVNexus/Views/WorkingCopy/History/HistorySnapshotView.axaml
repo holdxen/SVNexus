@@ -109,17 +109,22 @@
                     <u:Divider Grid.Row="1"></u:Divider>
                     <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
                         <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
-                            <components:LucideIconButton 
-                                Command="{Binding SelectTextViewCommand}"
-                                Classes.Selected="{Binding IsTextView}" 
-                                LucideKind="BookOpenText"></components:LucideIconButton>
-                            <components:LucideIconButton 
-                                Command="{Binding SelectPropertyViewCommand}"
-                                Classes.Selected="{Binding !IsTextView}" 
-                                LucideKind="Table"></components:LucideIconButton>
+                            <components:SvgButton Command="{Binding SelectTextViewCommand}" 
+                                                  Classes.Selected="{Binding IsTextView}"
+                                                  Classes="ButtonBackground"
+                                                  Source="{StaticResource Icons.TextView}">
+                            </components:SvgButton>
+                            <components:SvgButton Command="{Binding SelectPropertyViewCommand}" 
+                                                  Classes.Selected="{Binding !IsTextView}"
+                                                  Classes="ButtonBackground"
+                                                  Source="{StaticResource Icons.PropertyView}">
+                            </components:SvgButton>
                             <StackPanel.Styles>
-                                <Style Selector="components|LucideIconButton.Selected">
+                                <Style Selector="components|SvgButton.Selected">
                                     <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
+                                </Style>
+                                <Style Selector="components|SvgButton">
+                                    <Setter Property="Size" Value="12"></Setter>
                                 </Style>
                             </StackPanel.Styles>
                         </StackPanel>

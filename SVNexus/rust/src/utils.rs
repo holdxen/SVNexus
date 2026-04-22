@@ -351,27 +351,136 @@ impl FormatSizeOptions {
     }
 }
 
+
+const PROJECT_DIR: &str = env!("CARGO_MANIFEST_DIR");
+
+#[easy_ext::ext]
+impl<'a> &'a str {
+    fn project_relative_path(self) -> Option<&'a str> {
+        let path = std::path::Path::new(self);
+
+        let project_dir = std::path::Path::new(PROJECT_DIR).parent()?.parent()?;
+        
+
+        path.strip_prefix(project_dir).ok()?.to_str()
+
+
+        // self.strip_prefix(PROJECT_DIR)
+        //     .unwrap_or(self)
+        //     .strip_prefix("/")
+        //     .unwrap_or(self)
+    }
+}
+
+const LOG_TARGET: &str = "avalonia";
+
 #[uniffi::export]
 fn log_info(line: i32, file: &str, member: &str, content: &str) {
-    tracing::info!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+    let file = file.project_relative_path().unwrap_or(file);
+
+    use log::{Record, Level};
+
+    let content = format_args!("{}", content);
+
+    let rec = Record::builder()
+        .args(content)
+        .level(Level::Info)
+        .target(LOG_TARGET)
+        .file(Some(file))
+        .line(Some(line as u32))
+        .build();
+
+    let logger = log::logger();
+    if logger.enabled(rec.metadata()) {
+        logger.log(&rec);
+    }
 }
 
 #[uniffi::export]
 fn log_error(line: i32, file: &str, member: &str, content: &str) {
-    tracing::error!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+    let file = file.project_relative_path().unwrap_or(file);
+
+    use log::{Record, Level};
+
+    let content = format_args!("{}", content);
+
+    let rec = Record::builder()
+        .args(content)
+        .level(Level::Error)
+        .target(LOG_TARGET)
+        .file(Some(file))
+        .line(Some(line as u32))
+        .build();
+
+    let logger = log::logger();
+    if logger.enabled(rec.metadata()) {
+        logger.log(&rec);
+    }
 }
 
 #[uniffi::export]
 fn log_trace(line: i32, file: &str, member: &str, content: &str) {
-    tracing::trace!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+    let file = file.project_relative_path().unwrap_or(file);
+
+    use log::{Record, Level};
+
+    let content = format_args!("{}", content);
+
+    let rec = Record::builder()
+        .args(content)
+        .level(Level::Trace)
+        .target(LOG_TARGET)
+        .file(Some(file))
+        .line(Some(line as u32))
+        .build();
+
+    let logger = log::logger();
+    if logger.enabled(rec.metadata()) {
+        logger.log(&rec);
+    }
 }
 
 #[uniffi::export]
 fn log_debug(line: i32, file: &str, member: &str, content: &str) {
-    tracing::debug!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+    let file = file.project_relative_path().unwrap_or(file);
+
+    use log::{Record, Level};
+
+    let content = format_args!("{}", content);
+
+    let rec = Record::builder()
+        .args(content)
+        .level(Level::Debug)
+        .target(LOG_TARGET)
+        .file(Some(file))
+        .line(Some(line as u32))
+        .build();
+
+    let logger = log::logger();
+    if logger.enabled(rec.metadata()) {
+        logger.log(&rec);
+    }
 }
+
 
 #[uniffi::export]
 fn log_warn(line: i32, file: &str, member: &str, content: &str) {
-    tracing::warn!(target: "uniffi", "{}:{}:{}: {}", file, member, line, content);
+    let file = file.project_relative_path().unwrap_or(file);
+
+    use log::{Record, Level};
+
+    let content = format_args!("{}", content);
+
+    let rec = Record::builder()
+        .args(content)
+        .level(Level::Warn)
+        .target(LOG_TARGET)
+        .file(Some(file))
+        .line(Some(line as u32))
+        .build();
+
+    let logger = log::logger();
+    if logger.enabled(rec.metadata()) {
+        logger.log(&rec);
+    }
 }

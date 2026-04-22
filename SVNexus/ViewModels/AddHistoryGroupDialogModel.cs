@@ -11,6 +11,7 @@ using SVNexus.Messages;
 
 namespace SVNexus.ViewModels;
 
+
 public partial class AddHistoryGroupDialogModel: ViewModelMore, IDialogContext
 {
     [ObservableProperty]

@@ -220,8 +220,8 @@
         </DataTemplate>
     </UserControl.DataTemplates>
     <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding LoadedCommand}">
+        <EventTriggerBehavior EventName="Show">
+            <InvokeCommandAction Command="{Binding ShowCommand}">
             </InvokeCommandAction>
         </EventTriggerBehavior>
     </Interaction.Behaviors>

@@ -2,16 +2,31 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace SVNexus.ViewModels;
 
-public interface IRelativeViewModel
-{
-    
-}
+// public abstract partial class ViewModelEvent(ViewModelBase? parent = null) : ViewModelBase(parent)
+// {
+//     [ObservableProperty]
+//     public partial bool IsVisible { get; set; }
+//
+//     partial void OnIsVisibleChanged(bool value)
+//     {
+//         if (value)
+//         {
+//             Dispatcher.UIThread.InvokeAsync(async () =>
+//             {
+//                 await ShowEvent();
+//             });
+//         }
+//     }
+//
+//     public abstract Task ShowEvent();
+// }
 
 public abstract class ViewModelBase (ViewModelBase? parent = null) : ObservableObject
 {

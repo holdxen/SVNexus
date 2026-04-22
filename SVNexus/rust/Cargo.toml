@@ -34,6 +34,8 @@ humansize = "2.1.3"
 sea-orm = { version = "2.0.0-rc.37", features = ["sqlx-sqlite", "runtime-tokio", "macros", "with-chrono", "with-uuid"] }
 sea-query = "=1.0.0-rc.33"
 migration = { path = "./migration" }
+tracing-log = "0.2.0"
+log = "0.4.29"
 
 
 

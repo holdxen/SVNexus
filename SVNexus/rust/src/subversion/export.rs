@@ -210,7 +210,7 @@ impl AsyncContext {
             targets: vec![path.to_string()],
             peg_revision: Revision::Working,
             limit: limit.unwrap_or_default(),
-            revisions: vec![RevisionRange::new(start, Revision::Number(0))],
+            revisions: vec![RevisionRange::new(start, Revision::Number(1))],
             discover_changed_paths: false,
             strict_node_history: false,
             include_merged_revisions: false,
@@ -786,10 +786,12 @@ impl AsyncContext {
             .await
     }
 
+    #[tracing::instrument(skip(self), ret, err)]
     pub async fn lock(&self, opts: LockOptions) -> error::Result<()> {
         self.call_async(|mut context| context.lock(opts)).await
     }
 
+    #[tracing::instrument(skip(self), ret, err)]
     pub async fn unlock(&self, opts: UnlockOptions) -> error::Result<()> {
         self.call_async(|mut context| context.unlock(opts)).await
     }

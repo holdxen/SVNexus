@@ -114,6 +114,18 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
     //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
     // }
 
+    private void SetHistoryChangesViewModel(HistoryChangesViewModel vm)
+    {
+        var leftPartWidth = ChangesViewModel?.LeftPartRealWidth;
+        ChangesViewModel = vm;
+        ChangesViewModel.Update();
+        if (leftPartWidth != null)
+        {
+            // ChangesViewModel.LeftPartWidth = new GridLength(leftPartWidth.Value.Value,  GridUnitType.Pixel);
+            ChangesViewModel.LeftPartWidth = leftPartWidth.Value;
+        }
+    }
+
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
@@ -133,7 +145,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
         SnapshotViewModel = new HistorySnapshotViewModel(this)
         {
-            Url = url,
+            CurrentUrl = url,
             Revision = revision,
         };
 
@@ -148,16 +160,16 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         {
             // 最后一个，需要加载更多的历史
 
-            if (commitItem.Revision == 0)
+            if (commitItem.Revision == 1)
             {
-                ChangesViewModel = new HistoryChangesViewModel()
+                SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
                 {
                     CurrentRevision = commitItem.Revision.GetValueOrDefault(),
                     CompareRevision = null,
                     RelateToRoot = relateToRoot,
-                    CurrentPath = string.Empty,
-                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
-                };
+                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                    RootUrl = ThisEntry.RepositoryRootUrl,
+                });
             }
             else
             {
@@ -167,32 +179,30 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                     while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
                     {
                         await Log(10);
-                        if (CommitItems.Count > value + 1 && SelectedCommitItemIndex == value)
+                        if (CommitItems.Count <= value + 1 || SelectedCommitItemIndex != value) continue;
+                        SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
                         {
-                            ChangesViewModel = new HistoryChangesViewModel()
-                            {
-                                CurrentRevision = commitItem.Revision.GetValueOrDefault(),
-                                CompareRevision = CommitItems[value + 1].Revision,
-                                RelateToRoot = relateToRoot,
-                                CurrentPath = string.Empty,
-                                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
-                            };
-                            break;
-                        }
+                            CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                            CompareRevision = CommitItems[value + 1].Revision,
+                            RelateToRoot = relateToRoot,
+                            LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                            RootUrl = ThisEntry.RepositoryRootUrl,
+                        });
+                        break;
                     }
                 });
             }
         }
         else
         {
-            ChangesViewModel = new HistoryChangesViewModel()
+            SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
             {
                 CurrentRevision = commitItem.Revision.GetValueOrDefault(),
                 CompareRevision = CommitItems[value + 1].Revision.GetValueOrDefault(),
                 RelateToRoot = relateToRoot,
-                CurrentPath = string.Empty,
-                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries
-            };
+                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                RootUrl = ThisEntry.RepositoryRootUrl,
+            });
         }
 
 
@@ -418,11 +428,17 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         {
             return;
         }
+
+        if (_logsRange?.Item2 <= 2)
+        {
+            return;
+        }
         
         
         var hostId = SendMessage(new OnGetDialogHostId());
         using var context = EngineBackend.Instance.SimpleContext(hostId);
 
+        Logger.Info($"Range: {_logsRange}");
 
         var logs = await context.LogCacheFillLocal(
             SeaDatabaseConnection.Default, 
@@ -430,6 +446,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             SendMessage(new OnGetWorkingCopyPath()),
             _logsRange?.Item2 - 1, 
             64);
+        
 
         if (logs.Length == 0)
         {

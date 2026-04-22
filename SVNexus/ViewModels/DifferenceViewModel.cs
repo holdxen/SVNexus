@@ -12,6 +12,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Models;
+using SVNexus.Utils;
 
 namespace SVNexus.ViewModels;
 
@@ -87,18 +88,20 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
         SelectedViewIndex = TextViewIndex;
     }
 
-    public async Task CompareProperty(string target, Revision peg, Revision oldRevision, Revision newRevision)
+    public async Task CompareProperty(string target, Revision peg, Revision? oldRevision, Revision? newRevision)
     {
         PropertyItemViewModels.Clear();
         var context = SendMessage(new OnGetContext()).Response;
-        Dictionary<string, string>? oldProperties;
+        Dictionary<string, string>? oldProperties = null;
+        if (oldRevision is not null)
         {
             var propertyListOptions = new PropertyListOptions(target, peg, oldRevision, Depth.Empty, null, false);
             oldProperties = (await context.PropertyList(propertyListOptions)).Entries.FirstOrDefault()?.Properties;
         }
 
 
-        Dictionary<string, string>? newProperties;
+        Dictionary<string, string>? newProperties = null;
+        if (newRevision is not null)
         {
             var propertyListOptions = new PropertyListOptions(target, peg, newRevision, Depth.Empty, null, false);
             newProperties = (await context.PropertyList(propertyListOptions)).Entries.FirstOrDefault()?.Properties;
@@ -152,166 +155,194 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
         
     }
 
-    public async Task Compare(string target, Revision peg, Revision oldRevision, Revision newRevision)
+    public async Task Compare(string target, Revision peg, Revision? oldRevision, Revision? newRevision)
     {
-        var context = SendMessage(new OnGetContext()).Response;
-
-
-        string? oldText = null;
-        byte[]? oldBytes = null;
-
         try
         {
-            var catOptions = new CatOptions(target, peg, oldRevision, true, false);
-            oldBytes = (await context.Cat(catOptions)).Content;
+            LoadingOrErrorState = LoadingOrErrorState.MakeLoading();
+            var context = SendMessage(new OnGetContext()).Response;
+
+
+            string? oldText = null;
+            byte[]? oldBytes = null;
+
+            try
+            {
+                if (oldRevision is not null)
+                {
+                    var catOptions = new CatOptions(target, peg, oldRevision, true, false);
+                    oldBytes = (await context.Cat(catOptions)).Content;
             
-            oldText = TextEncoding.GetString(oldBytes);
-        }
-        catch (DecoderFallbackException)
-        {
-            IsOldBinary = true;
-        }
-        
-        
-
-        string? newText = null;
-        byte[]? newBytes = null;
-
-        try
-        {
-            var catOptions = new CatOptions(target, peg, newRevision, true, false);
-            newBytes = (await context.Cat(catOptions)).Content;
-            
-            newText = TextEncoding.GetString(newBytes);
-        }
-        catch (DecoderFallbackException)
-        {
-            IsNewBinary = true;
-        }
-
-        if (oldText is not null && newText is not null)
-        {
-            HandleContent(oldText, newText);
-        }
-
-    }
-
-    public void HandleContent(string oldContent, string newContent)
-    {
-        var modified = newContent.Split("\n").Select(e =>
-            new DifferenceLine()
-            {
-                Content = e,
-                DifferenceKind = DifferenceLine.Kind.Unchanged
-            }).ToList();
-        if (modified.Count > 0 && string.IsNullOrEmpty(modified.Last().Content))
-        {
-            modified.RemoveAt(modified.Count - 1);
-        }
-
-        var original = oldContent.Split("\n")
-            .Select(e => new DifferenceLine()
-            {
-                Content = e,
-                DifferenceKind = DifferenceLine.Kind.Unchanged
-            }).ToList();
-                
-        if (original.Count > 0 && string.IsNullOrEmpty(original.Last().Content))
-        {
-            original.RemoveAt(original.Count - 1);
-        }
-
-
-        var diffOptions =
-            new DifferenceOptions(Original: Encoding.UTF8.GetBytes(oldContent), Modified: Encoding.UTF8.GetBytes(newContent),
-                Options: new DifferenceFileOptions(DiffFileIgnoreSpace.None, false, false, 0));
-
-        var changes = diffOptions.Exec().Modified;
-
-        foreach (var change in changes)
-        {
-            switch (change.Original.Len)
-            {
-                // Console.WriteLine("Go change: {0}", change);
-                // added
-                case 0 when change.Modified.Len > 0:
-                {
-                    original.InsertRange(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add]),
-                        Enumerable.Repeat(new DifferenceLine()
-                        {
-                            Content = "",
-                            DifferenceKind = DifferenceLine.Kind.Add
-                        }, (int)change.Modified.Len));
-
-
-                    foreach (var differenceLine in modified
-                                 .Skip(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]))
-                                 .Take((int)change.Modified.Len))
-                    {
-                        differenceLine.DifferenceKind = DifferenceLine.Kind.Added;
-                    }
-
-                    break;
-                }
-                // remove
-                case > 0 when change.Modified.Len == 0:
-                {
-                    foreach (var differenceLine in original
-                                 .Skip(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add])).Take((int)change.Original.Len))
-                    {
-                        differenceLine.DifferenceKind = DifferenceLine.Kind.Remove;
-                    }
-
-                    modified.InsertRange(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]),
-                        Enumerable.Repeat(new DifferenceLine()
-                        {
-                            Content = "",
-                            DifferenceKind = DifferenceLine.Kind.Removed
-                        }, (int)change.Original.Len));
-                    break;
-                }
-                case > 0 when change.Modified.Len > 0:
-                {
-                    {
-                        var pos = (int)change.Original.Pos;
-                        var len = (int)change.Original.Len;
-                        foreach (var differenceLine in original
-                                     .Skip(original.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Add]))
-                                     .Take(len))
-                        {
-                            differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
-                        }
-                    }
-                    {
-                        var pos = (int)change.Modified.Pos;
-                        var len = (int)change.Modified.Len;
-                        foreach (var differenceLine in modified
-                                     .Skip(modified.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Removed]))
-                                     .Take(len))
-                        {
-                            differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
-                        }
-                    }
-                    break;
+                    Logger.Info("Start decoding");
+                    oldText = TextEncoding.GetString(oldBytes);
+                    Logger.Info("Finish decoding");
                 }
             }
+            catch (DecoderFallbackException)
+            {
+                IsOldBinary = true;
+            }
+        
+        
+
+            string? newText = null;
+            byte[]? newBytes = null;
+
+            try
+            {
+                if (newRevision is not null)
+                {
+                    var catOptions = new CatOptions(target, peg, newRevision, true, false);
+                    newBytes = (await context.Cat(catOptions)).Content;
+            
+                    newText = TextEncoding.GetString(newBytes);
+                }
+            }
+            catch (DecoderFallbackException)
+            {
+                IsNewBinary = true;
+            }
+
+            await HandleContent(oldText ?? string.Empty, newText ?? string.Empty);
+
+            await CompareProperty(target, peg, oldRevision, newRevision);
         }
+        finally
+        {
+            LoadingOrErrorState = new LoadingOrErrorState.None();
+        }
+    }
+
+    public async Task HandleContent(string oldContent, string newContent)
+    {
+        var (original, modified) = await Task.Run(() =>
+        {
+            var modified = newContent.Split("\n").Select(e =>
+                new DifferenceLine()
+                {
+                    Content = e,
+                    DifferenceKind = DifferenceLine.Kind.Unchanged
+                }).ToList();
+            if (modified.Count > 0 && string.IsNullOrEmpty(modified.Last().Content))
+            {
+                modified.RemoveAt(modified.Count - 1);
+            }
+
+            var original = oldContent.Split("\n")
+                .Select(e => new DifferenceLine()
+                {
+                    Content = e,
+                    DifferenceKind = DifferenceLine.Kind.Unchanged
+                }).ToList();
+                
+            if (original.Count > 0 && string.IsNullOrEmpty(original.Last().Content))
+            {
+                original.RemoveAt(original.Count - 1);
+            }
+
+
+            var diffOptions =
+                new DifferenceOptions(Original: Encoding.UTF8.GetBytes(oldContent), Modified: Encoding.UTF8.GetBytes(newContent),
+                    Options: new DifferenceFileOptions(DiffFileIgnoreSpace.None, false, false, 0));
+
+            var changes = diffOptions.Exec().Modified;
+
+            foreach (var change in changes)
+            {
+                switch (change.Original.Len)
+                {
+                    // Console.WriteLine("Go change: {0}", change);
+                    // added
+                    case 0 when change.Modified.Len > 0:
+                    {
+                        original.InsertRange(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add]),
+                            Enumerable.Repeat(new DifferenceLine()
+                            {
+                                Content = "",
+                                DifferenceKind = DifferenceLine.Kind.Add
+                            }, (int)change.Modified.Len));
+
+
+                        foreach (var differenceLine in modified
+                                     .Skip(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]))
+                                     .Take((int)change.Modified.Len))
+                        {
+                            differenceLine.DifferenceKind = DifferenceLine.Kind.Added;
+                        }
+
+                        break;
+                    }
+                    // remove
+                    case > 0 when change.Modified.Len == 0:
+                    {
+                        foreach (var differenceLine in original
+                                     .Skip(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add])).Take((int)change.Original.Len))
+                        {
+                            differenceLine.DifferenceKind = DifferenceLine.Kind.Remove;
+                        }
+
+                        modified.InsertRange(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]),
+                            Enumerable.Repeat(new DifferenceLine()
+                            {
+                                Content = "",
+                                DifferenceKind = DifferenceLine.Kind.Removed
+                            }, (int)change.Original.Len));
+                        break;
+                    }
+                    case > 0 when change.Modified.Len > 0:
+                    {
+                        {
+                            var pos = (int)change.Original.Pos;
+                            var len = (int)change.Original.Len;
+                            foreach (var differenceLine in original
+                                         .Skip(original.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Add]))
+                                         .Take(len))
+                            {
+                                differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
+                            }
+                        }
+                        {
+                            var pos = (int)change.Modified.Pos;
+                            var len = (int)change.Modified.Len;
+                            foreach (var differenceLine in modified
+                                         .Skip(modified.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Removed]))
+                                         .Take(len))
+                            {
+                                differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            return new Tuple<List<DifferenceLine>, List<DifferenceLine>>(original, modified);
+        });
         OldLines = original;
         NewLines = modified;
     }
+
 
     [RelayCommand]
     public async Task CompareWorkingCopyEntry(StatusEntry statusEntry)
     {
         
         TextModified = statusEntry.TextStatus is WorkingCopyStatus.Modified or WorkingCopyStatus.Conflicted;
-        PropertyModified = statusEntry.PropStatus is WorkingCopyStatus.Modified or WorkingCopyStatus.Conflicted;
+        PropertyModified = statusEntry.PropertyStatus is WorkingCopyStatus.Modified or WorkingCopyStatus.Conflicted;
         
         if (statusEntry.NodeKind == NodeKind.Directory)
         {
             LoadingOrErrorState = new LoadingOrErrorState.None();
             OldLines = [];
             NewLines = [];
+            if (statusEntry.NodeStatus != WorkingCopyStatus.Unversioned)
+            {
+                await CompareProperty(statusEntry.Path, 
+                    new Revision.Base(), 
+                    statusEntry.NodeStatus == WorkingCopyStatus.Added ? null : new Revision.Base(), 
+                    statusEntry.NodeStatus == WorkingCopyStatus.Deleted ? null : new Revision.Working()
+                );
+            }
+
             return;
         }
         
@@ -341,7 +372,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
                         var content = await File.ReadAllBytesAsync(statusEntry.Path);
                         return new  CatResult(content, []);
                     };
-                    catOriginal = () => Task.FromResult(new  CatResult([], []));
+                    catOriginal = () => Task.FromResult(new CatResult([], []));
                     break;
                 default:
                     catModified = () =>
@@ -362,8 +393,18 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
             var resultModified = await catModified(); 
             var resultOriginal = await catOriginal();
             
-            HandleContent(TextEncoding.GetString(resultOriginal.Content), TextEncoding.GetString(resultModified.Content));
-                
+            await HandleContent(TextEncoding.GetString(resultOriginal.Content), TextEncoding.GetString(resultModified.Content));
+
+            if (statusEntry.NodeStatus != WorkingCopyStatus.Unversioned)
+            {
+                await CompareProperty(statusEntry.Path, 
+                    new Revision.Base(), 
+                    statusEntry.NodeStatus == WorkingCopyStatus.Added ? null : new Revision.Base(), 
+                    statusEntry.NodeStatus == WorkingCopyStatus.Deleted ? null : new Revision.Working()
+                );
+            }
+
+
             // var modified = Encoding.UTF8.GetString(resultModified.Content).Split("\n").Select(e =>
             //     new DifferenceLine()
             //     {
@@ -392,6 +433,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
             //     new DifferenceOptions(Original: resultOriginal.Content, Modified: resultModified.Content,
             //         Options: new DifferenceFileOptions(DiffFileIgnoreSpace.None, false, false, 0));
             //
+            // var changes = diffOptions.Exec().Modified;
             // var changes = diffOptions.Exec().Modified;
             //
             // // changes = [

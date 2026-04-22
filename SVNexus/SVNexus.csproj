@@ -25,7 +25,6 @@
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
         <PackageReference Include="Irihi.Ursa.Themes.Semi" Version="1.15.0" />
-        <PackageReference Include="Lucide.Avalonia" Version="0.1.55" />
         <PackageReference Include="Semi.Avalonia" Version="11.3.7.3" />
         <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.2" />
         <PackageReference Include="Semi.Avalonia.ColorPicker" Version="11.3.7.3" />
@@ -68,5 +67,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Tabalonia\Tabalonia.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="ViewModels\WorkingCopy\Remote\" />
     </ItemGroup>
 </Project>

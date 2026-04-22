@@ -1,28 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
-using SVNexus.Engine;
-using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
 
 namespace SVNexus.ViewModels;
 
-public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent), IDialogContext
+public partial class UnlockDialogModel(ViewModelBase parent): ViewModelBase(parent), IDialogContext
 {
-    
     public bool Accept { get; set; }
-
+    
     public class TargetItemViewModel: StatusEntryItemViewModel
     {
         
     }
-
 
     public required string RelateTo { get; set; }
 
@@ -35,34 +32,8 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
             Entry = i,
             RelateTo = RelateTo
         }).ToList();
-
-
-    [ObservableProperty]
-    public partial bool StealLock { get; set; }
-
-
-    [ObservableProperty] public partial string Comment { get; set; } = string.Empty;
     
-    
-    [ObservableProperty]
-    public partial bool HasComment { get; set; }
-
-    [RelayCommand]
-    private async Task Confirm()
-    {
-        var context = SendMessage(new OnGetContext()).Response;
-        
-        
-        var lockOptions = new LockOptions(Targets.Select(i => i.Entry.Path).ToArray(), HasComment ? Comment : null, StealLock);
-
-        
-        await context.Lock(lockOptions);
-        
-        
-        
-        Accept = true;
-        RequestClose?.Invoke(this, null);
-    }
+    public bool BreakLock { get; set; }
     
     [RelayCommand]
     public void Close()
@@ -72,4 +43,18 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
     }
 
     public event EventHandler<object?>? RequestClose;
+
+
+    [RelayCommand]
+    private async Task Confirm()
+    {
+        var context = SendMessage(new OnGetContext()).Response;
+
+        var options = new UnlockOptions(Targets.Select(i => i.Entry.Path).ToArray(), BreakLock);
+
+        await context.Unlock(options);
+        
+        Accept = true;
+        RequestClose?.Invoke(this, null);
+    }
 }

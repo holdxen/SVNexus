@@ -38,7 +38,6 @@
              <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
          </Style>
          <StyleInclude Source="Components/LoadingOrError.axaml"></StyleInclude>
-         <StyleInclude Source="Components/LucideIconButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/PathIconButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/SvgButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/LoadingSvgButton.axaml"></StyleInclude>

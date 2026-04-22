@@ -60,6 +60,25 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     
     [ObservableProperty] public partial bool IsEnabled { get; set; } = true;
 
+    //
+    // partial void OnSelectedViewIndexChanged(int value)
+    // {
+    //     switch (value)
+    //     {
+    //         case ChangesViewIndex:
+    //             Dispatcher.UIThread.InvokeAsync(async () =>
+    //             {
+    //                 await ChangesViewModel.Status();
+    //             });
+    //             break;
+    //         case LocalViewIndex:
+    //             Dispatcher.UIThread.InvokeAsync(async () =>
+    //             {
+    //                 await LocalViewModel.RefreshCommand.ExecuteOrNothingAsync(null);
+    //             });
+    //             break;
+    //     }
+    // }
 
     [RelayCommand]
     private async Task Update()
@@ -68,7 +87,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
         {
             var context = SendMessage(new OnGetContext()).Response;
             
-            var opts = new UpdateOptions(Paths: [Path], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAdModification: false, MakeParents: true);
+            var opts = new UpdateOptions(Paths: [Path], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAsModification: false, MakeParents: true);
             
             await context.Update(opts);
         }
@@ -81,6 +100,8 @@ public partial class WorkingCopyViewModel : ViewModelBase,
             }, Manager.MainWindowToken);
         }
     }
+
+    
 
     // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
     // private readonly Services.ITabService  _tabService;

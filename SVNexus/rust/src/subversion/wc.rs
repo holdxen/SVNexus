@@ -732,6 +732,7 @@ pub enum WorkingCopyNotifyAction {
     SkipConflicted = ffi::svn_wc_notify_action_t_svn_wc_notify_skip_conflicted,
     UpdateBrokenLock = ffi::svn_wc_notify_action_t_svn_wc_notify_update_broken_lock,
     FailedObstruction = ffi::svn_wc_notify_action_t_svn_wc_notify_failed_obstruction,
+    ConflictResolverStarting = ffi::svn_wc_notify_action_t_svn_wc_notify_conflict_resolver_starting,
     ConflictResolverDone = ffi::svn_wc_notify_action_t_svn_wc_notify_conflict_resolver_done,
     LeftLocalModifications = ffi::svn_wc_notify_action_t_svn_wc_notify_left_local_modifications,
     ForeignCopyBegin = ffi::svn_wc_notify_action_t_svn_wc_notify_foreign_copy_begin,

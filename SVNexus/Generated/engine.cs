@@ -37532,7 +37532,7 @@ public record Lock (
     string Path, 
     string Token, 
     string Owner, 
-    string Comment, 
+    string? Comment, 
     bool IsDavComment, 
     long CreationDate, 
     long ExpirationDate
@@ -37547,7 +37547,7 @@ class FfiConverterTypeLock: FfiConverterRustBuffer<Lock> {
             Path: FfiConverterString.INSTANCE.Read(stream),
             Token: FfiConverterString.INSTANCE.Read(stream),
             Owner: FfiConverterString.INSTANCE.Read(stream),
-            Comment: FfiConverterString.INSTANCE.Read(stream),
+            Comment: FfiConverterOptionalString.INSTANCE.Read(stream),
             IsDavComment: FfiConverterBoolean.INSTANCE.Read(stream),
             CreationDate: FfiConverterInt64.INSTANCE.Read(stream),
             ExpirationDate: FfiConverterInt64.INSTANCE.Read(stream)
@@ -37559,7 +37559,7 @@ class FfiConverterTypeLock: FfiConverterRustBuffer<Lock> {
             + FfiConverterString.INSTANCE.AllocationSize(value.Path)
             + FfiConverterString.INSTANCE.AllocationSize(value.Token)
             + FfiConverterString.INSTANCE.AllocationSize(value.Owner)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Comment)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Comment)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IsDavComment)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.CreationDate)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.ExpirationDate);
@@ -37569,7 +37569,7 @@ class FfiConverterTypeLock: FfiConverterRustBuffer<Lock> {
             FfiConverterString.INSTANCE.Write(value.Path, stream);
             FfiConverterString.INSTANCE.Write(value.Token, stream);
             FfiConverterString.INSTANCE.Write(value.Owner, stream);
-            FfiConverterString.INSTANCE.Write(value.Comment, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Comment, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IsDavComment, stream);
             FfiConverterInt64.INSTANCE.Write(value.CreationDate, stream);
             FfiConverterInt64.INSTANCE.Write(value.ExpirationDate, stream);
@@ -38569,12 +38569,12 @@ public record StatusEntry (
     bool Conflicted, 
     WorkingCopyStatus NodeStatus, 
     WorkingCopyStatus TextStatus, 
-    WorkingCopyStatus PropStatus, 
+    WorkingCopyStatus PropertyStatus, 
     bool WcIsLocked, 
     bool Copied, 
-    string? ReposRootUrl, 
-    string? ReposUuid, 
-    string? ReposRelpath, 
+    string? RepositoryRootUrl, 
+    string? RepositoryUuid, 
+    string? RepositoryRelpath, 
     uint? Revision, 
     uint? LastChangedRevision, 
     long LastChangedDate, 
@@ -38585,10 +38585,10 @@ public record StatusEntry (
     string? Changelist, 
     Depth Depth, 
     NodeKind OutOfDateKind, 
-    WorkingCopyStatus ReposNodeStatus, 
-    WorkingCopyStatus ReposTextStatus, 
-    WorkingCopyStatus ReposPropStatus, 
-    Lock? ReposLock, 
+    WorkingCopyStatus RepositoryNodeStatus, 
+    WorkingCopyStatus RepositoryTextStatus, 
+    WorkingCopyStatus RepositoryPropertyStatus, 
+    Lock? RepositoryLock, 
     uint? OutOfDateChangedRevision, 
     long? OutOfDateChangedDate, 
     string? OutOfDateChangedAuthor, 
@@ -38610,12 +38610,12 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             Conflicted: FfiConverterBoolean.INSTANCE.Read(stream),
             NodeStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
             TextStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
-            PropStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            PropertyStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
             WcIsLocked: FfiConverterBoolean.INSTANCE.Read(stream),
             Copied: FfiConverterBoolean.INSTANCE.Read(stream),
-            ReposRootUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
-            ReposUuid: FfiConverterOptionalString.INSTANCE.Read(stream),
-            ReposRelpath: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RepositoryRootUrl: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RepositoryUuid: FfiConverterOptionalString.INSTANCE.Read(stream),
+            RepositoryRelpath: FfiConverterOptionalString.INSTANCE.Read(stream),
             Revision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             LastChangedRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             LastChangedDate: FfiConverterInt64.INSTANCE.Read(stream),
@@ -38626,10 +38626,10 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             Changelist: FfiConverterOptionalString.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
             OutOfDateKind: FfiConverterTypeNodeKind.INSTANCE.Read(stream),
-            ReposNodeStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
-            ReposTextStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
-            ReposPropStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
-            ReposLock: FfiConverterOptionalTypeLock.INSTANCE.Read(stream),
+            RepositoryNodeStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            RepositoryTextStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            RepositoryPropertyStatus: FfiConverterTypeWorkingCopyStatus.INSTANCE.Read(stream),
+            RepositoryLock: FfiConverterOptionalTypeLock.INSTANCE.Read(stream),
             OutOfDateChangedRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             OutOfDateChangedDate: FfiConverterOptionalInt64.INSTANCE.Read(stream),
             OutOfDateChangedAuthor: FfiConverterOptionalString.INSTANCE.Read(stream),
@@ -38648,12 +38648,12 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Conflicted)
             + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.NodeStatus)
             + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.TextStatus)
-            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.PropStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.PropertyStatus)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.WcIsLocked)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Copied)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposRootUrl)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposUuid)
-            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.ReposRelpath)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RepositoryRootUrl)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RepositoryUuid)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RepositoryRelpath)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.LastChangedRevision)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.LastChangedDate)
@@ -38664,10 +38664,10 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Changelist)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
             + FfiConverterTypeNodeKind.INSTANCE.AllocationSize(value.OutOfDateKind)
-            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.ReposNodeStatus)
-            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.ReposTextStatus)
-            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.ReposPropStatus)
-            + FfiConverterOptionalTypeLock.INSTANCE.AllocationSize(value.ReposLock)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.RepositoryNodeStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.RepositoryTextStatus)
+            + FfiConverterTypeWorkingCopyStatus.INSTANCE.AllocationSize(value.RepositoryPropertyStatus)
+            + FfiConverterOptionalTypeLock.INSTANCE.AllocationSize(value.RepositoryLock)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.OutOfDateChangedRevision)
             + FfiConverterOptionalInt64.INSTANCE.AllocationSize(value.OutOfDateChangedDate)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.OutOfDateChangedAuthor)
@@ -38684,12 +38684,12 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             FfiConverterBoolean.INSTANCE.Write(value.Conflicted, stream);
             FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.NodeStatus, stream);
             FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.TextStatus, stream);
-            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.PropStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.PropertyStatus, stream);
             FfiConverterBoolean.INSTANCE.Write(value.WcIsLocked, stream);
             FfiConverterBoolean.INSTANCE.Write(value.Copied, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.ReposRootUrl, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.ReposUuid, stream);
-            FfiConverterOptionalString.INSTANCE.Write(value.ReposRelpath, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RepositoryRootUrl, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RepositoryUuid, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.RepositoryRelpath, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.Revision, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.LastChangedRevision, stream);
             FfiConverterInt64.INSTANCE.Write(value.LastChangedDate, stream);
@@ -38700,10 +38700,10 @@ class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
             FfiConverterOptionalString.INSTANCE.Write(value.Changelist, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.OutOfDateKind, stream);
-            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.ReposNodeStatus, stream);
-            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.ReposTextStatus, stream);
-            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.ReposPropStatus, stream);
-            FfiConverterOptionalTypeLock.INSTANCE.Write(value.ReposLock, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.RepositoryNodeStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.RepositoryTextStatus, stream);
+            FfiConverterTypeWorkingCopyStatus.INSTANCE.Write(value.RepositoryPropertyStatus, stream);
+            FfiConverterOptionalTypeLock.INSTANCE.Write(value.RepositoryLock, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.OutOfDateChangedRevision, stream);
             FfiConverterOptionalInt64.INSTANCE.Write(value.OutOfDateChangedDate, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.OutOfDateChangedAuthor, stream);
@@ -39035,7 +39035,7 @@ public record UpdateOptions (
     bool DepthIsSticky, 
     bool IgnoreExternals, 
     bool AllowUnverObstructions, 
-    bool AddsAdModification, 
+    bool AddsAsModification, 
     bool MakeParents
 ) {
 }
@@ -39051,7 +39051,7 @@ class FfiConverterTypeUpdateOptions: FfiConverterRustBuffer<UpdateOptions> {
             DepthIsSticky: FfiConverterBoolean.INSTANCE.Read(stream),
             IgnoreExternals: FfiConverterBoolean.INSTANCE.Read(stream),
             AllowUnverObstructions: FfiConverterBoolean.INSTANCE.Read(stream),
-            AddsAdModification: FfiConverterBoolean.INSTANCE.Read(stream),
+            AddsAsModification: FfiConverterBoolean.INSTANCE.Read(stream),
             MakeParents: FfiConverterBoolean.INSTANCE.Read(stream)
         );
     }
@@ -39064,7 +39064,7 @@ class FfiConverterTypeUpdateOptions: FfiConverterRustBuffer<UpdateOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.DepthIsSticky)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreExternals)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.AllowUnverObstructions)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.AddsAdModification)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.AddsAsModification)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.MakeParents);
     }
 
@@ -39075,7 +39075,7 @@ class FfiConverterTypeUpdateOptions: FfiConverterRustBuffer<UpdateOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.DepthIsSticky, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
             FfiConverterBoolean.INSTANCE.Write(value.AllowUnverObstructions, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.AddsAdModification, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.AddsAsModification, stream);
             FfiConverterBoolean.INSTANCE.Write(value.MakeParents, stream);
     }
 }
@@ -40913,6 +40913,7 @@ public enum WorkingCopyNotifyAction: int {
     SkipConflicted,
     UpdateBrokenLock,
     FailedObstruction,
+    ConflictResolverStarting,
     ConflictResolverDone,
     LeftLocalModifications,
     ForeignCopyBegin,

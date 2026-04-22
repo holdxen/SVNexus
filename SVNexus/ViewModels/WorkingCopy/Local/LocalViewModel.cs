@@ -42,11 +42,21 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         
         public ObservableCollection<MenuItemViewModel> MenuItems { get; set; } = [];
 
-        public required StatusEntry StatusEntry { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasChild))]
+        [NotifyPropertyChangedFor(nameof(IsDelete))]
+        [NotifyPropertyChangedFor(nameof(NodeKindIcon))]
+        [NotifyPropertyChangedFor(nameof(Name))]
+        [NotifyPropertyChangedFor(nameof(StatusToolTip))]
+        [NotifyPropertyChangedFor(nameof(StatusIcon))]
+        [NotifyPropertyChangedFor(nameof(IsLocked))]
+        public required partial StatusEntry StatusEntry { get; set; }
         
         public bool HasChild => StatusEntry.NodeKind == NodeKind.Directory;
         
-        public bool IsReal => StatusEntry.NodeStatus is not (WorkingCopyStatus.None or WorkingCopyStatus.Normal);
+        // public bool IsReal => StatusEntry.NodeStatus is not (WorkingCopyStatus.None or WorkingCopyStatus.Normal);
+        
+        public bool IsLocked =>  StatusEntry.Lock is not null;
         
         public bool IsDelete => StatusEntry.NodeStatus == WorkingCopyStatus.Deleted;
 
@@ -72,23 +82,33 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             }
         }
 
-        public async Task RefreshChildren()
+        public async Task RefreshChildren(bool includeSelf = false)
         {
-            if (IsLoading || !HasLoaded || !HasChild)
+            if (IsLoading || (!HasLoaded && !includeSelf))
             {
                 return;
             }
             IsLoading = true;
+            Logger.Info($"{StatusEntry.Path} Loading children...");
             try
             {
 
                 // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
                 var hostId = SendMessage(new OnGetDialogHostId());
 
-                var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
+                var context = EngineBackend.Instance.SimpleContext(hostId);
 
-                var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true,
-                    true, true, false, false, false, null);
+                var statusOptions = new StatusOptions(
+                    StatusEntry.Path, 
+                    new Revision.Working(), 
+                    HasLoaded ? Depth.Immediates : Depth.Empty, 
+                    true,
+                    false, 
+                    false, 
+                    false, 
+                    false, 
+                    false, 
+                    null);
 
                 var children = new List<TreeItemViewModel>();
                 var receiver = new StatusReceiverDelegate()
@@ -101,6 +121,10 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                             {
                                 if (entry.Path == StatusEntry.Path)
                                 {
+                                    if (includeSelf)
+                                    {
+                                        StatusEntry = entry;
+                                    }
                                     return;
                                 }
 
@@ -108,7 +132,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                                 if (index >= 0)
                                 {
                                     Children[index].StatusEntry = entry;
-                                    children.Add(Children[index]);
+                                    Children[index].Parent = Parent;
                                 }
                                 else
                                 {
@@ -121,7 +145,6 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                                     SendMessage(new OnCreatedItem(item));
                                 }
 
-                                Children = new ObservableCollection<TreeItemViewModel>(children);
                             });
                         }
                         catch (System.Exception e)
@@ -130,9 +153,27 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                         }
                     }
                 };
+                
+                foreach (var child in Children)
+                {
+                    child.Parent = null;
+                }
 
                 await context.StatusNext(statusOptions, receiver);
-                HasLoaded = true;
+
+                for (var i = Children.Count - 1; i >= 0; i--)
+                {
+                    if (Children[i].Parent is null)
+                    {
+                        Children.RemoveAt(i);
+                    }
+                }
+
+                Children.AddRange(children);
+                
+                Logger.Info($"Loaded children: {Children.Count}");
+                
+                // HasLoaded = true;
             }
             catch (System.Exception e)
             {
@@ -157,7 +198,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             
             var hostId = SendMessage(new OnGetDialogHostId());
             
-            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
+            var context = EngineBackend.Instance.SimpleContext(hostId);
 
             var statusOptions = new StatusOptions(StatusEntry.Path, new Revision.Working(), Depth.Immediates, true, false, false, false, false, false, null);
 
@@ -197,14 +238,34 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         }
     }
 
-    // [ObservableProperty]
-    // public partial string WorkingCopyPath { get; set; } = string.Empty;
-
-    private readonly List<WeakReference<TreeItemViewModel>> _weakTreeItems = [];
+    private readonly LimitedDictionary<string, DifferenceViewModel> _differences = new()
+    {
+        Limit = 20
+    };
     
-    public ObservableCollection<TreeItemViewModel> TreeItems { get; set; } = [];
+    private readonly List<WeakReference<TreeItemViewModel>> _weakTreeItems = [];
+
+    [ObservableProperty]
+    public partial DifferenceViewModel DifferenceViewModel { get; set; }
+
+    public ObservableCollection<TreeItemViewModel> TreeItems
+    {
+        get
+        {
+            if (Root is null)
+            {
+                return [];
+            }
+
+            return ShowRoot ? [Root] : Root.Children;
+        }
+    }
+
+    [ObservableProperty]
+    public partial TreeItemViewModel? SelectedTreeItem { get; set; }
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TreeItems))]
     public partial bool ShowRoot { get; set; }
     
     [ObservableProperty]
@@ -232,25 +293,56 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     
     public bool IsMkdirButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().StatusEntry.NodeKind == NodeKind.Directory && SelectedTreeItems.First().StatusEntry.NodeStatus != WorkingCopyStatus.Unversioned;
     
-    public bool IsLockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeKind == NodeKind.File);
+    public bool IsLockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry is { NodeKind: NodeKind.File, Lock: null });
     
-    public bool IsUnlockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeKind != NodeKind.Directory);
+    public bool IsUnlockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeKind != NodeKind.Directory && i.StatusEntry.Lock is not null);
     
-    
+    public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned);
+
+
     // private Dictionary<string, StatusEntry> _checkedItems = [];
     // private HashSet<string> _expandedItems = [];
 
-    private TreeItemViewModel? _root;
-    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TreeItems))]
+    public partial TreeItemViewModel? Root { get; set; }
+
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
     /// <inheritdoc/>
     public LocalViewModel(ViewModelBase parent) : base(parent)
     {
-        SelectedTreeItems.CollectionChanged += (sender, args) =>
+        SelectedTreeItems?.CollectionChanged += (sender, args) =>
         {
             NotifyProperties();
         };
+
+        DifferenceViewModel = new DifferenceViewModel(this);
+    }
+
+    partial void OnSelectedTreeItemChanged(TreeItemViewModel? value)
+    {
+        if (value is null)
+        {
+            DifferenceViewModel = new DifferenceViewModel(this);
+        }
+        else
+        {
+            if (_differences.TryGetValue(value.StatusEntry.Path, out var model))
+            {
+                DifferenceViewModel = model;
+            }
+            else
+            {
+                DifferenceViewModel = new DifferenceViewModel(this);
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await DifferenceViewModel.CompareWorkingCopyEntry(value.StatusEntry);
+                });
+                
+                _differences.Add(value.StatusEntry.Path, DifferenceViewModel);
+            }
+        }
     }
 
 
@@ -266,9 +358,105 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         OnPropertyChanged(nameof(IsMkdirButtonEnable));
         OnPropertyChanged(nameof(IsLockButtonEnable));
         OnPropertyChanged(nameof(IsUnlockButtonEnable));
+        OnPropertyChanged(nameof(IsCommitButtonEnable));
     }
 
+    // public async Task ExecuteRefreshCommand()
+    // {
+    //     if (RefreshCommand.CanExecute(null))
+    //     {
+    //         await RefreshCommand.ExecuteAsync(null);
+    //     }
+    // }
 
+    [RelayCommand]
+    private async Task Commit()
+    {
+        if (!IsCommitButtonEnable)
+        {
+            return;
+        }
+
+        var commitDialogModel = new CommitDialogModel(this)
+        {
+            Targets = SelectedTreeItems.Select(i => i.StatusEntry).ToArray(),
+            RelateTo = SendMessage(new OnGetWorkingCopyPath())
+        };
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+        var dialogOptions = new OverlayDialogOptions()
+        {
+            StyleClass = "Fixed",
+            IsCloseButtonVisible = false,
+            Buttons = DialogButton.None,
+            CanDragMove = true,
+        };
+        
+        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
+    }
+
+    [RelayCommand]
+    private async Task Mkdir()
+    {
+        if (!IsMkdirButtonEnable)
+        {
+            return;
+        }
+
+        try
+        {
+            var mkdirDialogModel = new MkdirDialogModel
+            {
+                ParentDirectory = SelectedTreeItems.First().StatusEntry.Path,
+            };
+            
+            var context = SendMessage(new OnGetContext()).Response;
+
+            var dialogOptions = new OverlayDialogOptions
+            {
+                IsCloseButtonVisible = false,
+                Buttons = DialogButton.None,
+                CanDragMove = true,
+                Mode = DialogMode.Question,
+                Title = "Create a versioned directory",
+            };
+        
+            await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        
+            var path = mkdirDialogModel.ParentDirectory + "/" + mkdirDialogModel.Name;
+        
+            var options = new MkdirOptions([path], true, null, string.Empty);
+            await context.Mkdir(options);
+            await RefreshCommand.ExecuteOrNothingAsync(null);
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to create directory:\n{e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
+        }
+    }
+
+    [RelayCommand]
+    private async Task Delete()
+    {
+        if (!IsDeleteButtonEnable)
+        {
+            return;
+        }
+        
+        var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(), false,  false,  null);
+
+        var context = SendMessage(new OnGetContext()).Response;
+        
+        await context.Delete(deleteOptions);
+
+        await RefreshCommand.ExecuteOrNothingAsync(null);
+    }
+
+    [RelayCommand]
     private async Task Unlock()
     {
         if (!IsUnlockButtonEnable)
@@ -276,8 +464,39 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             return;
         }
 
+        // foreach (var item in SelectedTreeItems)
+        // {
+        //     Logger.Info($"{item.StatusEntry.Path} is {item.StatusEntry.Lock is null}");
+        // }
+        //
+        var unlockDialogModel = new UnlockDialogModel(this)
+        {
+            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
+            TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry).ToList()
+        };
 
-        // var unlockOptions = new UnlockOptions();
+        var dialogOptions = new OverlayDialogOptions()
+        {
+            IsCloseButtonVisible = false,
+            Buttons = DialogButton.None,
+            CanDragMove = true,
+            StyleClass = "Fixed",
+            Title = "Unlock"
+        };
+        
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowModal<UnlockDialog, UnlockDialogModel>(unlockDialogModel, hostId, dialogOptions);
+        
+        Logger.Info($"Unlock complete: {unlockDialogModel.Accept}");
+
+        if (unlockDialogModel.Accept)
+        {
+            await RefreshCommand.ExecuteOrNothingAsync(null);
+            // await ExecuteRefreshCommand();
+            // NotifyProperties();
+        }
+
     }
 
     [RelayCommand]
@@ -305,6 +524,11 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         var hostId = SendMessage(new OnGetDialogHostId());
         
         await OverlayDialog.ShowModal<LockDialog, LockDialogModel>(lockDialogModel, hostId, dialogOptions);
+        if (lockDialogModel.Accept)
+        {
+            await Refresh();
+            // NotifyProperties();
+        }
         // var lockOptions = new LockOptions();
     }
 
@@ -335,27 +559,49 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         
     }
 
+
     [RelayCommand]
     private async Task Revert()
     {
-        if (!IsRevertButtonEnable)
+        try
         {
-            return;
-        }
+            if (!IsRevertButtonEnable)
+            {
+                return;
+            }
+
+            var hostId = SendMessage(new OnGetDialogHostId());
+            var context = SendMessage(new OnGetContext()).Response;
+
+
+            var result = await MessageBox.ShowOverlayAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            var revertOptions = new RevertOptions(
+                SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
+                Depth.Infinity,
+                null,
+                false,
+                false,
+                true
+            );
         
-        var revertOptions = new RevertOptions(
-            SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
-            Depth.Infinity,
-            [],
-            false,
-            false,
-            true
-        );
+        
+            await context.Revert(revertOptions);
 
-        var context = SendMessage(new OnGetContext()).Response;
-
-        await context.Revert(revertOptions);
-
+            await Refresh();
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to revert:\n{e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
+        }
     }
 
     [RelayCommand]
@@ -381,6 +627,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         var context = SendMessage(new OnGetContext()).Response;
 
         await context.Update(updateOptions);
+        await Refresh();
     }
 
     [RelayCommand]
@@ -398,6 +645,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
 
             await context.Add(addOptions);
         }
+        await Refresh();
     }
 
     private void CleanWeakTreeItems()
@@ -434,27 +682,27 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         ForEachWeakTreeItem(item => item.IsExpanded = true);
     }
 
-    partial void OnShowRootChanged(bool value)
-    {
-        if (_root is null)
-        {
-            return;
-        }
-        
-        TreeItems.Clear();
-        if (value)
-        {
-            TreeItems.Add(_root);
-        }
-        else
-        {
-            TreeItems.AddRange(_root.Children);
-        }
-    }
+    // partial void OnShowRootChanged(bool value)
+    // {
+    //     if (Root is null)
+    //     {
+    //         return;
+    //     }
+    //     
+    //     TreeItems.Clear();
+    //     if (value)
+    //     {
+    //         TreeItems.Add(Root);
+    //     }
+    //     else
+    //     {
+    //         TreeItems.AddRange(Root.Children);
+    //     }
+    // }
 
     private async Task RefreshItem(TreeItemViewModel item)
     {
-        await item.RefreshChildren();
+        await item.RefreshChildren(true);
         foreach (var child in item.Children)
         {
             _ = Dispatcher.UIThread.InvokeAsync(async () =>
@@ -464,27 +712,53 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         }
     }
 
+    
+    [RelayCommand]
+    private async Task RefreshSelectedItem()
+    {
+        if (SelectedTreeItems.Count == 0)
+        {
+            await Refresh();
+        }
+        else
+        {
+            foreach (var item in SelectedTreeItems)
+            {
+                if (item.Parent == this)
+                {
+                    await item.RefreshChildren(true);
+                }
+            }
+            NotifyProperties();
+        }
+        // OnShowRootChanged(ShowRoot);
+    }
+    
     [RelayCommand]
     private async Task Refresh()
     {
-        await _singleTaskQueue.Run(async token =>
+        await _singleTaskQueue.RunAndWait(async token =>
         {
-            if (_root is null)
+            if (Root is null)
             {
                 if (!IsLoading)
                 {
                     token.ThrowIfCancellationRequested();
                     await LoadRoot();
+                    NotifyProperties();
                 }
             }
             token.ThrowIfCancellationRequested();
 
-            if (_root is not null)
+            if (Root is not null)
             {
-                await RefreshItem(_root);
+                await RefreshItem(Root);
+                NotifyProperties();
             }
             CleanWeakTreeItems();
+            // OnShowRootChanged(ShowRoot);
         });
+        
     }
 
     private async Task LoadAllChildren(TreeItemViewModel item)
@@ -508,18 +782,18 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     {
         await _singleTaskQueue.Run(async token =>
         {
-            if (_root is null && !IsLoading)
+            if (Root is null && !IsLoading)
             { 
                 token.ThrowIfCancellationRequested();
                 await LoadRoot();
             }
 
-            if (_root is null)
+            if (Root is null)
             {
                 return;
             }
             token.ThrowIfCancellationRequested();
-            await LoadAllChildren(_root);
+            await LoadAllChildren(Root);
             CleanWeakTreeItems();
         }, false);
     }
@@ -534,7 +808,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             var hostId = SendMessage(new OnGetDialogHostId());
             var path = SendMessage(new OnGetWorkingCopyPath());
 
-            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
+            var context = EngineBackend.Instance.SimpleContext(hostId);
 
             var statusOptions = new StatusOptions(
                 path,
@@ -556,12 +830,12 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             {
                 if (entry.Path == path)
                 {
-                    _root = new TreeItemViewModel(this)
+                    Root = new TreeItemViewModel(this)
                     {
                         StatusEntry = entry,
                     };
                     
-                    Receive(new OnCreatedItem(_root));
+                    Receive(new OnCreatedItem(Root));
                 }
                 else
                 {
@@ -574,10 +848,10 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                 }
             }
 
-            _root?.Children.AddRange(children);
-            _root?.HasLoaded = true;
-            _root?.IsExpanded = true;
-            OnShowRootChanged(ShowRoot);
+            Root?.Children.AddRange(children);
+            Root?.HasLoaded = true;
+            Root?.IsExpanded = true;
+            // OnShowRootChanged(ShowRoot);
         }
         catch (System.Exception e)
         {
@@ -593,14 +867,20 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         }
     }
 
-    [RelayCommand]
-    private async Task OnLoaded()
-    {
-        await _singleTaskQueue.Run(async _ => await LoadRoot());
-    }
+    // [RelayCommand]
+    // private async Task OnLoaded()
+    // {
+    //     await RefreshCommand.ExecuteOrNothingAsync(null);
+    // }
 
     public void Receive(OnCreatedItem message)
     {
         _weakTreeItems.Add(new WeakReference<TreeItemViewModel>(message.Value));
+    }
+
+    [RelayCommand]
+    private async Task OnShow()
+    {
+        await RefreshCommand.ExecuteOrNothingAsync(null);
     }
 }

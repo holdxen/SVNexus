@@ -1,26 +1,25 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
 using SVNexus.Generated;
+using SVNexus.Utils;
 using SystemPath = System.IO.Path;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryChangesViewModel : ViewModelLite
+public partial class HistoryChangesViewModel : ViewModelBase
 {
-
-    public partial class ListViewModel : ViewModelBase
-    {
-        [ObservableProperty]
-        public partial ObservableCollection<ListItemViewModel> Items { get; set; } = [];
-    }
     
     public partial class ListItemViewModel: ViewModelBase
     {
+        [ObservableProperty] public partial bool IsVisible { get; set; } = true;
+        
         [ObservableProperty]
         public partial string Path { get; set; } = string.Empty;
 
@@ -46,18 +45,16 @@ public partial class HistoryChangesViewModel : ViewModelLite
                 //
                 // return SystemPath.GetRelativePath(Current, Path.GetDirectoryName() ?? string.Empty);
                 
-                var directory = Path.GetDirectoryName();
-                if (directory == null)
+                if (RelateToRoot == Path)
                 {
                     return string.Empty;
                 }
 
-                if (!directory.StartsWith(RelateToRoot)) return SystemPath.GetRelativePath(RelateToRoot, directory);
+                var relate = SystemPath.GetRelativePath(RelateToRoot, Path);
                 
                 
-                directory = directory.TrimStartString(RelateToRoot);
-                
-                return directory == "/" ? directory : directory.TrimStartPathSeparatorChar();
+                return relate.GetDirectoryName() ?? string.Empty;
+                // return Path.StartsWith(RelateToRoot) ? Path[RelateToRoot.Length..].TrimStartPathSeparatorChar() : SystemPath.GetRelativePath(RelateToRoot, Path);
 
             }
         }
@@ -76,29 +73,26 @@ public partial class HistoryChangesViewModel : ViewModelLite
 
         public string NodeKindIcon => Entry.NodeKind.Icon();
     }
+
     
-    public partial class TreeViewModel: ViewModelBase
+    public required string RootUrl { get; set; }
+
+    private readonly LimitedDictionary<string, DifferenceViewModel> _differenceViewModels = new()
     {
-        
-    }
+        Limit = 20
+    };
 
-
-    public const int ListViewIndex = 0;
-    public const int TreeViewIndex = 1;
+    [ObservableProperty] 
+    public partial int SelectedChangedItemIndex { get; set; } = -1;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsTreeView))]
-    [NotifyPropertyChangedFor(nameof(IsListView))]
-    public partial int SelectedViewIndex { get; set; } = ListViewIndex;
-    
-    public bool IsTreeView => SelectedViewIndex == TreeViewIndex;
-    
-    public bool IsListView => SelectedViewIndex == ListViewIndex;
+    public partial DifferenceViewModel DifferenceViewModel { get; set; }
 
-    public ListViewModel ChangedListViewModel { get; } = new();
+    [ObservableProperty]
+    public partial ObservableCollection<ListItemViewModel> ChangedItems { get; set; } = [];
     
-    public TreeViewModel ChangedTreeViewViewModel { get; } = new();
-    
+    [ObservableProperty]
+    public partial bool ShowChildrenOnly { get; set; }
     
     [ObservableProperty]
     public required partial Dictionary<string, LogChangedPathEntry> LogChangedPathEntries { get; set; }
@@ -109,12 +103,67 @@ public partial class HistoryChangesViewModel : ViewModelLite
     public required uint? CompareRevision { get; set; }
     
     public required string RelateToRoot { get; set; }
+
+    [ObservableProperty]
+    public partial GridLength LeftPartWidth { get; set; } = new(1, GridUnitType.Star);
+
     
-    public required string CurrentPath { get; set; } = string.Empty;
+    public GridLength LeftPartRealWidth => _leftPartWidthValid ? new GridLength(LeftPartWidth.Value, GridUnitType.Pixel) : LeftPartWidth;
+
+    private bool _leftPartWidthValid;
+
+    /// <inheritdoc/>
+    public HistoryChangesViewModel(ViewModelBase parent) : base(parent)
+    {
+        DifferenceViewModel = new DifferenceViewModel(this);
+    }
+    
+
+    partial void OnSelectedChangedItemIndexChanged(int value)
+    {
+        if (value < 0 || value >= ChangedItems.Count) return;
+        var path = ChangedItems[value].Path;
+        if (_differenceViewModels.TryGetValue(path, out var differenceViewModel))
+        {
+            DifferenceViewModel = differenceViewModel;
+        }
+        else
+        {
+            DifferenceViewModel = new DifferenceViewModel(this);
+            _differenceViewModels.Add(path, DifferenceViewModel);
+            Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                await DifferenceViewModel.Compare(RootUrl +  path, new Revision.Number(CurrentRevision), CompareRevision?.Map(v => new Revision.Number(v)), new Revision.Number(CurrentRevision));
+            });
+        }
+    }
+    
+    partial void OnLeftPartWidthChanged(GridLength value)
+    {
+        _leftPartWidthValid = true;
+    }
+
+    partial void OnShowChildrenOnlyChanged(bool value)
+    {
+        if (value)
+        {
+            foreach (var item in ChangedItems)
+            {
+                item.IsVisible = item.Path.StartsWith(item.RelateToRoot);
+            }
+        }
+        else
+        {
+            foreach (var item in ChangedItems)
+            {
+                item.IsVisible = true;
+            }
+        }
+    }
 
     public void Update()
     {
-        ChangedListViewModel.Items = new ObservableCollection<ListItemViewModel>(LogChangedPathEntries.Select(i => new ListItemViewModel()
+        ChangedItems = new ObservableCollection<ListItemViewModel>(LogChangedPathEntries.Select(i => new ListItemViewModel()
         {
             Entry = i.Value,
             RelateToRoot = RelateToRoot,
@@ -123,15 +172,15 @@ public partial class HistoryChangesViewModel : ViewModelLite
         
     }
 
-    [RelayCommand]
-    private void SwitchToListView()
-    {
-        SelectedViewIndex = ListViewIndex;
-    }
-
-    [RelayCommand]
-    private void SwitchToTreeView()
-    {
-        SelectedViewIndex = TreeViewIndex;
-    }
+    // [RelayCommand]
+    // private void SwitchToListView()
+    // {
+    //     SelectedViewIndex = ListViewIndex;
+    // }
+    //
+    // [RelayCommand]
+    // private void SwitchToTreeView()
+    // {
+    //     SelectedViewIndex = TreeViewIndex;
+    // }
 }

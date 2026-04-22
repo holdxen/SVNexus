@@ -30,6 +30,45 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     IRecipient<WelcomeViewModel.OnUpdateHistoryGroup>,
     IRecipient<OnCancel>
 {
+    
+    // [ObservableProperty]
+    // public partial bool IsVisible { get; set; }
+
+    [RelayCommand]
+    public async Task OnShow()
+    {
+        await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+        {
+            var historyItems = await SeaDatabaseConnection.Default.WorkspaceHistories();
+        
+            HistoryItems = new ObservableCollection<HistoryItemViewModel>(historyItems.Select<WorkspaceHistory, HistoryItemViewModel>(i =>
+            {
+                return i switch
+                {
+                    WorkspaceHistory.WorkingCopy workingCopy => new WorkingCopyItemViewModel(this)
+                    {
+                        History = workingCopy,
+                    },
+                    WorkspaceHistory.Repository repository =>
+                        new RepositoryItemViewModel(this) { History = repository },
+                    _ => throw new UnreachableException()
+                };
+            }));
+
+            var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
+            foreach (var item in HistoryItems)
+            {
+                item.HistoryGroups = historyGroups;
+            }
+            
+            HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
+            {
+                HistoryGroup = i
+            }));
+            ApplyFilter();
+        });
+    }
+
 
     public const int AllIndex = 0;
     public const int StarIndex = 1;
@@ -42,22 +81,9 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         public required HistoryItemViewModel Item { get; set; }
     }
 
-    // public class OnUpdateHistoryGroup(List<WorkspaceHistoryGroup> value)
-    //     : ValueChangedMessage<List<WorkspaceHistoryGroup>>(value);
-
     public class OnUpdateHistoryGroup;
     
     public class OnHistoryStateChanged;
-
-    // public partial class GroupMenuItemViewModel: ViewModelBase
-    // {
-    //     public string Name { get; set; } = string.Empty;
-    //
-    //     [ObservableProperty]
-    //     public partial bool IsChecked { get; set; } 
-    //     
-    //
-    // }
     
     public abstract partial class HistoryItemViewModel(ViewModelBase parent): ViewModelMore(parent)
     {
@@ -417,7 +443,15 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             {
                 var opts = new StatusOptions(History.WorkingCopyRoot, new Revision.Working(), Depth.Infinity, false,
                     false, false, false, false, false, null);
-                await context.StatusNext(opts, receiver);
+
+                try
+                {
+                    await context.StatusNext(opts, receiver);
+                }
+                catch (System.Exception e)
+                {
+                    IsInvalid = !e.Handle(svnExceptionHandler: error => error.Code == SvnErrnoConstants.Default.CeaseInvocationValue());
+                }
                 IsModified = isModified;
                 IsConflict = isConflict;
 
@@ -897,51 +931,42 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         //     SelectedKindIndex = AllIndex;
         // }
     }
-
-    [RelayCommand]
-    private async Task OnLoaded()
-    {
-        await EngineBackend.Instance.DatabaseQueue.Run(async token =>
-        {
-            var historyItems = await SeaDatabaseConnection.Default.WorkspaceHistories();
-        
-            HistoryItems = new ObservableCollection<HistoryItemViewModel>(historyItems.Select<WorkspaceHistory, HistoryItemViewModel>(i =>
-            {
-                return i switch
-                {
-                    WorkspaceHistory.WorkingCopy workingCopy => new WorkingCopyItemViewModel(this)
-                    {
-                        History = workingCopy,
-                    },
-                    WorkspaceHistory.Repository repository =>
-                        new RepositoryItemViewModel(this) { History = repository },
-                    _ => throw new UnreachableException()
-                };
-            }));
-
-            var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
-            foreach (var item in HistoryItems)
-            {
-                item.HistoryGroups = historyGroups;
-            }
-            
-            HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
-            {
-                HistoryGroup = i
-            }));
-            // foreach (var item in HistoryItems)
-            // { 
-            //     _ = Dispatcher.UIThread.InvokeAsync(async () =>
-            //     {
-            //         await item.Detect();
-            //     });
-            // }
-        });
-    }
-
-
-    private readonly Dictionary<object, ContextNotifierDelegate> _contextNotifiers = [];
     
+
+    // [RelayCommand]
+    // private async Task OnLoaded()
+    // {
+    //     await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+    //     {
+    //         var historyItems = await SeaDatabaseConnection.Default.WorkspaceHistories();
+    //     
+    //         HistoryItems = new ObservableCollection<HistoryItemViewModel>(historyItems.Select<WorkspaceHistory, HistoryItemViewModel>(i =>
+    //         {
+    //             return i switch
+    //             {
+    //                 WorkspaceHistory.WorkingCopy workingCopy => new WorkingCopyItemViewModel(this)
+    //                 {
+    //                     History = workingCopy,
+    //                 },
+    //                 WorkspaceHistory.Repository repository =>
+    //                     new RepositoryItemViewModel(this) { History = repository },
+    //                 _ => throw new UnreachableException()
+    //             };
+    //         }));
+    //
+    //         var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
+    //         foreach (var item in HistoryItems)
+    //         {
+    //             item.HistoryGroups = historyGroups;
+    //         }
+    //         
+    //         HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
+    //         {
+    //             HistoryGroup = i
+    //         }));
+    //     });
+    // }
+
     [RelayCommand]
     private async Task ShowCheckoutDialog()
     {
@@ -1151,85 +1176,6 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         {
             await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
         });
-        
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
-        // var hostId = SendMessage(new OnGetDialogHostId());
-        // // var messenger = new WeakReferenceMessenger();
-        // var model = new ProcessDialogModel(this)
-        // {
-        //     Url = message.FromPathOrUrl,
-        //     Path = message.ToPath,
-        // };
-        //
-        //
-        //
-        // var contextNotifier = new ContextNotifierDelegate()
-        // {
-        //     WorkingCopyNotifyAction = notify =>
-        //     {
-        //         Dispatcher.UIThread.Invoke(() =>
-        //         {
-        //             var path = notify.Path.TrimStart(message.ToPath).ToString();
-        //             model.ProcessLogItems.Add(new ProcessDialogModel.ProcessLogItemViewModel()
-        //             {
-        //                 Action = notify.Action.ToString(),
-        //                 MimeType =  notify.MimeType ?? "",
-        //                 Path = path
-        //             });
-        //             model.CurrentFile = path;
-        //         });
-        //     },
-        //     ProgressNotifyAction = (downloaded, total) =>
-        //     {
-        //         Dispatcher.UIThread.Invoke(() =>
-        //         {
-        //             model.Total = total;
-        //             model.Downloaded = downloaded;
-        //         });
-        //     },
-        //     DialogHostId = hostId
-        // };
-        //
-        // _contextNotifiers[model] = contextNotifier;
-        //
-        // var createContextOptions = EngineBackend.Instance.MakeCreateContextOptions(contextNotifier);
-        //
-        // var context = AsyncContext.Create(createContextOptions);
-        //
-        // // messenger.Register<OnCancel>(contextNotifier, (recipient, cancel) =>
-        // // {
-        // //     (recipient as ContextNotifierDelegate)!.CancelMessage = "User cancel";
-        // // });
-        //
-        // Dispatcher.UIThread.InvokeAsync(async () =>
-        // {
-        //     var options = new OverlayDialogOptions
-        //     {
-        //         Title = "Export",
-        //         IsCloseButtonVisible = false,
-        //         Buttons = DialogButton.None
-        //     };
-        //     Console.WriteLine("Show dialog");
-        //     await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
-        // });
-        //
-        // Task.Run(async () =>
-        // {
-        //     try
-        //     {
-        //         await context.Export(message);
-        //         Dispatcher.UIThread.Invoke(() => { model.IsCompleted = true; });
-        //     }
-        //     catch (System.Exception e)
-        //     {
-        //         model.Error = e.HumanReadableMessage;
-        //     }
-        //     finally
-        //     {
-        //         context.Dispose();
-        //     }
-        // });
-        //
     }
 
     public void Receive(OnRemoveHistory message)
@@ -1256,13 +1202,5 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
 
     public void Receive(OnCancel message)
     {
-        if (Sender is null)
-        {
-            return;
-        }
-        if (_contextNotifiers.TryGetValue(Sender, out var value))
-        {
-            value.CancelMessage = "User cancel";
-        }
     }
 }

@@ -17,27 +17,28 @@ using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
+using SVNexus.ViewModels.WorkingCopy;
 using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
-public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(parent), IDialogContext
+public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(parent)
 {
-    public partial class ToBeCommittedItem: ViewModelBase
+    public partial class TargetItemViewModel: StatusEntryItemViewModel
     {
-        public required StatusEntry StatusEntry { get; set; }
+        // public required StatusEntry StatusEntry { get; set; }
         
-        [ObservableProperty]
-        public partial string WorkingCopyPath { get; set; } = string.Empty;
+        // [ObservableProperty]
+        // public partial string WorkingCopyPath { get; set; } = string.Empty;
 
 
-        public string NodeKindIcon => StatusEntry.NodeKind.Icon();
+        // public string NodeKindIcon => StatusEntry.NodeKind.Icon();
+        //
+        // public string NodeStatusIcon => StatusEntry.NodeStatus.Icon();
+        //
+        // public string Name => StatusEntry.Path.GetFileName();
         
-        public string NodeStatusIcon => StatusEntry.NodeStatus.Icon();
-
-        public string Name => StatusEntry.Path.GetFileName();
-        
-        public string RelativePath { get; set; } = string.Empty;
+        // public string RelativePath { get; set; } = string.Empty;
     }
     
     public override Type? ViewType { get; set; } = typeof(CommitDialog);
@@ -52,13 +53,15 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
     
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
-    public ObservableCollection<ToBeCommittedItem> ToBeCommittedItems { get; } = [];
+    public ObservableCollection<TargetItemViewModel> TargetItems { get; } = [];
 
     // [ObservableProperty] 
     // public partial bool DeleteMissing { get; set; } = true;
     //
     // [ObservableProperty]
     // public partial bool AddUnversioned { get; set; } = true;
+    
+    public required string RelateTo { get; init; } = string.Empty;
 
     [ObservableProperty]
     public partial bool NoLock { get; set; }
@@ -89,8 +92,8 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
         
     private Dictionary<string, StatusEntry> _entries = [];
 
-    [ObservableProperty]
-    public partial bool IsCommitting { get; set; }
+    // [ObservableProperty]
+    // public partial bool IsCommitting { get; set; }
 
     // private Services.ITabService _tabService;
     // public CommitDialogModel(IServiceProvider serviceProvider)
@@ -159,12 +162,10 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
             return;
         }
         
-        await _singleTaskQueue.Run(async token =>
+        await _singleTaskQueue.RunAndWait(async token =>
         {
             try
             {
-                IsCommitting = true;
-
                 var hostId = SendMessage(new OnGetDialogHostId());
             
                 var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
@@ -192,11 +193,6 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
                     Type =  NotificationType.Error,
                 }, Manager.MainWindowToken);
             }
-            finally
-            {
-                IsCommitting = false;
-            }
-
 
         });
     }
@@ -248,19 +244,18 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
                 return;
             }
 
-            ToBeCommittedItems.Clear();
+            TargetItems.Clear();
 
-            var containsUnavaliable = false;
             foreach (var entry in entries.Values)
             {
-                if (entry.NodeStatus is WorkingCopyStatus.Missing or WorkingCopyStatus.Unversioned)
+                if (entry.NodeStatus is WorkingCopyStatus.Missing or WorkingCopyStatus.Unversioned or WorkingCopyStatus.Normal or WorkingCopyStatus.None)
                 {
-                    containsUnavaliable = true;
                     continue;
                 }
-                ToBeCommittedItems.Add(new ToBeCommittedItem()
+                TargetItems.Add(new TargetItemViewModel()
                 {
-                    StatusEntry = entry,
+                    Entry = entry,
+                    RelateTo = RelateTo
                 });
             }
 
@@ -289,11 +284,8 @@ public partial class CommitDialogModel(ViewModelBase parent): ViewModelBase(pare
         await _singleTaskQueue.Run(LoadCommitItems);
     }
 
-    [RelayCommand]
-    public void Close()
+    public override Task OnConfirm()
     {
-        RequestClose?.Invoke(this, EventArgs.Empty);
+        return Commit();
     }
-
-    public event EventHandler<object?>? RequestClose;
 }

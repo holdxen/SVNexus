@@ -48,7 +48,8 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid inject:Ambient.Guid="{Binding Id}" IsVisible="{Binding IsSelected}">
+                        <Grid inject:Ambient.Guid="{Binding Id}" 
+                              IsVisible="{Binding IsSelected}">
                             <ContentControl Content="{Binding Content}"/>
                             <components:UniqueOverlayDialogHost DialogHostId="{Binding DialogHostId}"/>
                         </Grid>

@@ -122,12 +122,11 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         SelectedViewIndex = TreeViewIndex;
     }
 
-    [RelayCommand]
-    private async Task OnLoaded()
-    {
-        // await CheckWorkingCopyRoot();
-        await Status();
-    }
+    // [RelayCommand]
+    // private async Task OnLoaded()
+    // {
+    //     await Status();
+    // }
 
 
 
@@ -411,7 +410,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                 DepthIsSticky: false, 
                 IgnoreExternals: false, 
                 AllowUnverObstructions: true, 
-                AddsAdModification: false, 
+                AddsAsModification: false, 
                 MakeParents: true);
             
             await context.Update(opts);
@@ -461,7 +460,8 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
 
         var model = new CommitDialogModel(this)
         {
-            Targets = items.Values.ToArray()
+            Targets = items.Values.ToArray(),
+            RelateTo = SendMessage(new OnGetWorkingCopyPath())
         };
 
         var dialogOptions = new OverlayDialogOptions()
@@ -880,5 +880,11 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     public void Receive(OnRefreshWorkingCopy message)
     {
         Dispatcher.UIThread.InvokeAsync(async () => await Status());
+    }
+
+    [RelayCommand]
+    private async Task OnShow()
+    {
+        await Status();
     }
 }

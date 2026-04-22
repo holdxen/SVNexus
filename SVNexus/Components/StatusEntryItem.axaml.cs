@@ -78,4 +78,13 @@ public class StatusEntryItem : TemplatedControl
         get => GetValue(IsDeleteProperty);
         set => SetValue(IsDeleteProperty, value);
     }
+
+    public static readonly StyledProperty<bool> IsLockedProperty = AvaloniaProperty.Register<StatusEntryItem, bool>(
+        nameof(IsLocked), defaultValue: false);
+
+    public bool IsLocked
+    {
+        get => GetValue(IsLockedProperty);
+        set => SetValue(IsLockedProperty, value);
+    }
 }

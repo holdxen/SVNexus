@@ -36,6 +36,7 @@
             <TreeDataTemplate x:DataType="changes:ChangesTreeViewModel+TreeItemViewModel" 
                               ItemsSource="{Binding Children}">
                 <components:StatusEntryItem FileName="{Binding Text}" 
+                                            IsLocked="{Binding IsLocked}"
                                             KindIcon="{Binding KindIcon}"
                                             IsDelete="{Binding IsDelete}"
                                             StatusIcon="{Binding StatusIcon}"

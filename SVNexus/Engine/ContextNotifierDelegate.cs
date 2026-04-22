@@ -1,4 +1,5 @@
 using System;
+using System.Security;
 using Avalonia.Threading;
 using SVNexus.Generated;
 using SVNexus.ViewModels;
@@ -29,11 +30,12 @@ public sealed class ContextNotifierDelegate : ContextNotifier
         AuthenticateFunc = OnAuthenticate;
         SslServerTrustPromptFunc = OnSslServerTrustPrompt;
         ConflictFunc = OnConflict;
+        MaySavePasswordAsPlainTextFunc = OnMaySavePasswordAsPlainText;
     }
 
     private WorkingCopyConflictResult OnConflict(WorkingCopyConflictDescription description)
     {
-        return new WorkingCopyConflictResult(WorkingCopyConflictChoice.Postpone, null,  false, null);
+        return new WorkingCopyConflictResult(WorkingCopyConflictChoice.Postpone, null, false, null);
     }
     
     private readonly Lock _lock = new();
@@ -118,6 +120,17 @@ public sealed class ContextNotifierDelegate : ContextNotifier
             return authenticateDialogModel.Accept ? new Authentication(Username: authenticateDialogModel.Username, Password: authenticateDialogModel.Password, Save: authenticateDialogModel.Save) : null;
         }).Result;
         
+    }
+
+
+    private bool OnMaySavePasswordAsPlainText(string realm)
+    {
+        return Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var result = await MessageBox.ShowOverlayAsync(realm, "Whether to save password as plain text", DialogHostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
+
+            return result == MessageBoxResult.Yes;
+        }).Result;
     }
     
 
