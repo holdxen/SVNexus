@@ -1,20 +1,14 @@
 /*
- * Copyright 1995-2021 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2017 The OpenSSL Project Authors. All Rights Reserved.
  *
- * Licensed under the Apache License 2.0 (the "License").  You may not use
+ * Licensed under the OpenSSL license (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
 
-#ifndef OPENSSL_STACK_H
-# define OPENSSL_STACK_H
-# pragma once
-
-# include <openssl/macros.h>
-# ifndef OPENSSL_NO_DEPRECATED_3_0
-#  define HEADER_STACK_H
-# endif
+#ifndef HEADER_STACK_H
+# define HEADER_STACK_H
 
 #ifdef  __cplusplus
 extern "C" {
@@ -24,7 +18,6 @@ typedef struct stack_st OPENSSL_STACK; /* Use STACK_OF(...) instead */
 
 typedef int (*OPENSSL_sk_compfunc)(const void *, const void *);
 typedef void (*OPENSSL_sk_freefunc)(void *);
-typedef void (*OPENSSL_sk_freefunc_thunk)(OPENSSL_sk_freefunc, void *);
 typedef void *(*OPENSSL_sk_copyfunc)(const void *);
 
 int OPENSSL_sk_num(const OPENSSL_STACK *);
@@ -35,10 +28,9 @@ void *OPENSSL_sk_set(OPENSSL_STACK *st, int i, const void *data);
 OPENSSL_STACK *OPENSSL_sk_new(OPENSSL_sk_compfunc cmp);
 OPENSSL_STACK *OPENSSL_sk_new_null(void);
 OPENSSL_STACK *OPENSSL_sk_new_reserve(OPENSSL_sk_compfunc c, int n);
-OPENSSL_STACK *OPENSSL_sk_set_thunks(OPENSSL_STACK *st, OPENSSL_sk_freefunc_thunk f_thunk);
 int OPENSSL_sk_reserve(OPENSSL_STACK *st, int n);
 void OPENSSL_sk_free(OPENSSL_STACK *);
-void OPENSSL_sk_pop_free(OPENSSL_STACK *st, OPENSSL_sk_freefunc func);
+void OPENSSL_sk_pop_free(OPENSSL_STACK *st, void (*func) (void *));
 OPENSSL_STACK *OPENSSL_sk_deep_copy(const OPENSSL_STACK *,
                                     OPENSSL_sk_copyfunc c,
                                     OPENSSL_sk_freefunc f);
@@ -47,7 +39,6 @@ void *OPENSSL_sk_delete(OPENSSL_STACK *st, int loc);
 void *OPENSSL_sk_delete_ptr(OPENSSL_STACK *st, const void *p);
 int OPENSSL_sk_find(OPENSSL_STACK *st, const void *data);
 int OPENSSL_sk_find_ex(OPENSSL_STACK *st, const void *data);
-int OPENSSL_sk_find_all(OPENSSL_STACK *st, const void *data, int *pnum);
 int OPENSSL_sk_push(OPENSSL_STACK *st, const void *data);
 int OPENSSL_sk_unshift(OPENSSL_STACK *st, const void *data);
 void *OPENSSL_sk_shift(OPENSSL_STACK *st);
@@ -59,7 +50,7 @@ OPENSSL_STACK *OPENSSL_sk_dup(const OPENSSL_STACK *st);
 void OPENSSL_sk_sort(OPENSSL_STACK *st);
 int OPENSSL_sk_is_sorted(const OPENSSL_STACK *st);
 
-# ifndef OPENSSL_NO_DEPRECATED_1_1_0
+# if OPENSSL_API_COMPAT < 0x10100000L
 #  define _STACK OPENSSL_STACK
 #  define sk_num OPENSSL_sk_num
 #  define sk_value OPENSSL_sk_value

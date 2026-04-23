@@ -145,7 +145,7 @@ fn main() {
     #[cfg(all(unix, not(target_os = "macos")))]
     {
         // rpath = directory containing this cdylib
-        println!("cargo:rustc-link-arg-cdylib=-Wl,-rpath,$ORIGIN");
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-rpath,$ORIGIN/svn/lib");
         // 如果依赖在子目录，比如 lib/：
         // println!("cargo:rustc-link-arg-cdylib=-Wl,-rpath,$ORIGIN/lib");
     }

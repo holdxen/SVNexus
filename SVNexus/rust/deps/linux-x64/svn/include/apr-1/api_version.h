@@ -1,4 +1,4 @@
-/* Copyright 2000-2019 The Apache Software Foundation
+/* Copyright 2000-2017 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,14 +58,14 @@
  * The Patch Level never includes API changes, simply bug fixes.
  * Reset to 0 when upgrading API_MINOR_VERSION
  */
-#define API_PATCH_VERSION       3
+#define API_PATCH_VERSION       2
 
 /** 
  * The symbol API_IS_DEV_VERSION is only defined for internal,
  * "development" copies of API.  It is undefined for released versions
  * of API.
  */
-#define API_IS_DEV_VERSION
+/* #undef API_IS_DEV_VERSION */
 
 
 #if defined(API_IS_DEV_VERSION) || defined(DOXYGEN)
