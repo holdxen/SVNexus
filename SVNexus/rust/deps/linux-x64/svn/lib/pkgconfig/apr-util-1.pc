@@ -1,4 +1,4 @@
-prefix=/usr/local/svn
+prefix=/home/noname/Documents/build/svn
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 APRUTIL_MAJOR_VERSION=1
@@ -6,8 +6,8 @@ includedir=${prefix}/include/apr-${APRUTIL_MAJOR_VERSION}
 
 Name: APR Utils
 Description: Companion library for APR
-Version: 1.7.0
+Version: 1.6.3
 # assume that apr-util requires libapr of same major version
 Requires: apr-1
-Libs: -L${libdir} -laprutil-${APRUTIL_MAJOR_VERSION}  /home/noname/Documents/Build/apr-util/../apr-iconv/lib/libapriconv.la                               -lexpat
+Libs: -L${libdir} -laprutil-${APRUTIL_MAJOR_VERSION}  /home/noname/Documents/build/apr-util-1.6.3/../apr-iconv-1.2.2/lib/libapriconv.la                               -lexpat -liconv
 Cflags: -I${includedir}

@@ -45,7 +45,7 @@
 
 <p>Unless the <b>CMS_REUSE_DIGEST</b> flag is set the returned CMS_ContentInfo structure is not complete and must be finalized either by streaming (if applicable) or a call to CMS_final().</p>
 
-<p>The CMS_SignerInfo_sign() function explicitly signs a CMS_SignerInfo structure, its main use is when the <b>CMS_REUSE_DIGEST</b> and <b>CMS_PARTIAL</b> flags are both set.</p>
+<p>The CMS_SignerInfo_sign() function will explicitly sign a CMS_SignerInfo structure, its main use is when <b>CMS_REUSE_DIGEST</b> and <b>CMS_PARTIAL</b> flags are both set.</p>
 
 <h1 id="NOTES">NOTES</h1>
 
@@ -59,7 +59,7 @@
 
 <p>If <b>CMS_NOCERTS</b> is set the signer&#39;s certificate will not be included in the CMS_ContentInfo structure, the signer&#39;s certificate must still be supplied in the <b>signcert</b> parameter though. This can reduce the size of the signature if the signers certificate can be obtained by other means: for example a previously signed message.</p>
 
-<p>The SignedData structure includes several CMS signedAttributes including the signing time, the CMS content type and the supported list of ciphers in an SMIMECapabilities attribute. If <b>CMS_NOATTR</b> is set then no signedAttributes will be used at all. If <b>CMS_NOSMIMECAP</b> is set then the SMIMECapabilities will be omitted. If <b>CMS_NO_SIGNING_TIME</b> is set then the signing time will be omitted.</p>
+<p>The SignedData structure includes several CMS signedAttributes including the signing time, the CMS content type and the supported list of ciphers in an SMIMECapabilities attribute. If <b>CMS_NOATTR</b> is set then no signedAttributes will be used. If <b>CMS_NOSMIMECAP</b> is set then just the SMIMECapabilities are omitted.</p>
 
 <p>OpenSSL will by default identify signing certificates using issuer name and serial number. If <b>CMS_USE_KEYID</b> is set it will use the subject key identifier value instead. An error occurs if the signing certificate does not have a subject key identifier extension.</p>
 
@@ -71,8 +71,6 @@
 
 <p>CMS_add1_signer() returns an internal pointer to the CMS_SignerInfo structure just added or NULL if an error occurs.</p>
 
-<p>CMS_SignerInfo_sign() returns 1 on success, 0 on failure.</p>
-
 <h1 id="SEE-ALSO">SEE ALSO</h1>
 
 <p><a href="../man3/ERR_get_error.html">ERR_get_error(3)</a>, <a href="../man3/CMS_sign.html">CMS_sign(3)</a>, <a href="../man3/CMS_final.html">CMS_final(3)</a>,</p>
@@ -81,7 +79,7 @@
 
 <p>Copyright 2014-2016 The OpenSSL Project Authors. All Rights Reserved.</p>
 
-<p>Licensed under the Apache License 2.0 (the &quot;License&quot;). You may not use this file except in compliance with the License. You can obtain a copy in the file LICENSE in the source distribution or at <a href="https://www.openssl.org/source/license.html">https://www.openssl.org/source/license.html</a>.</p>
+<p>Licensed under the OpenSSL license (the &quot;License&quot;). You may not use this file except in compliance with the License. You can obtain a copy in the file LICENSE in the source distribution or at <a href="https://www.openssl.org/source/license.html">https://www.openssl.org/source/license.html</a>.</p>
 
 
 </body>
