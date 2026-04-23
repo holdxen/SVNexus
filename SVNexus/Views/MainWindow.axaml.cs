@@ -41,11 +41,12 @@ public partial class MainWindow : Window,
     {
         Dispatcher.UIThread.UnhandledException += (sender, args) =>
         {
+            Logger.Error($"Unhandled exception: {args.Exception}\n{args.Exception.StackTrace}");
             Dispatcher.UIThread.Invoke(() =>
             {
                 Receive(new OnShowToast()
                 {
-                    Content = $"Unhandled Exception: {args.Exception.Message}",
+                    Content = $"Unhandled exception: {args.Exception.Message}",
                     Type = NotificationType.Error,
                     Expiration = TimeSpan.FromMinutes(2)
                 });
@@ -54,11 +55,12 @@ public partial class MainWindow : Window,
 
         TaskScheduler.UnobservedTaskException += (sender, args) =>
         {
+            Logger.Error($"Unobserved exception: {args.Exception}\n{args.Exception.StackTrace}");
             Dispatcher.UIThread.Invoke(() =>
             {
                 Receive(new OnShowToast()
                 {
-                    Content =  $"Unobserved Exception: {args.Exception.Message}",
+                    Content =  $"Unobserved exception: {args.Exception.Message}",
                     Type = NotificationType.Error,
                     Expiration = TimeSpan.FromMinutes(2)
                 });
@@ -67,11 +69,12 @@ public partial class MainWindow : Window,
 
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
+            Logger.Error($"App domain unhandled exception: {args.ExceptionObject}");
             Dispatcher.UIThread.Invoke(() =>
             {
                 Receive(new OnShowToast()
                 {
-                    Content = $"App domain unhandled Exception: {args.ExceptionObject}",
+                    Content = $"App domain unhandled exception: {args.ExceptionObject}",
                     Type = NotificationType.Error
                 });
             });
