@@ -18,21 +18,22 @@ using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
+using SVNexus.Views;
+using Ursa.Controls;
 using Exception = System.Exception;
 using Notification = Ursa.Controls.Notification;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(parent)
+public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(parent)
 {
 
     public const int DetailViewIndex = 0;
     public const int ChangesViewIndex = 1;
     public const int SnapshotViewIndex = 2;
     
-    public partial class CommitItemViewModel: ViewModelLite
+    public partial class CommitItemViewModel(ViewModelBase parent): ViewModelBase(parent)
     {
-        
         [ObservableProperty]
         public required partial LogEntry Entry { get; set; }
         
@@ -59,6 +60,79 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
         public ObservableCollection<CommitItemViewModel> Children { get; } = [];
 
+        public ObservableCollection<MenuItemViewModel> MenuItems =>
+        [
+            new()
+            {
+                Header = "Copy revision",
+                Command = CopyRevisionCommand
+            },
+            new()
+            {
+                Header = "Copy message",
+                Command = CopyMessageCommand
+            },
+            new()
+            {
+                Header = "Copy author",
+                Command = CopyAuthorCommand
+            },
+            new()
+            {
+                Header = "Update to this",
+                Command = UpdateToThisCommand
+            }
+        ];
+
+        [RelayCommand]
+        private async Task UpdateToThis()
+        {
+            var hostId = SendMessage(new OnGetDialogHostId());
+            var path = SendMessage(new OnGetWorkingCopyPath());
+
+            var model = new UpdateDialogModel(this)
+            {
+                TargetEntries = [path],
+                IsNumber = true,
+                Number = Revision ?? 0
+            };
+
+            var options = new OverlayDialogOptions()
+            {
+                IsCloseButtonVisible = false,
+                Buttons = DialogButton.None,
+                Title = "Update",
+            };
+            
+            await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, options);
+        }
+
+        [RelayCommand]
+        private async Task CopyRevision()
+        {
+            await Manager.Default.Send(new ClipBoardMessages.SetText()
+            {
+                Text = Revision?.ToString() ?? string.Empty
+            }, Manager.MainWindowToken);
+        }
+
+        [RelayCommand]
+        private async Task CopyMessage()
+        {
+            await Manager.Default.Send(new ClipBoardMessages.SetText()
+            {
+                Text = Entry.Message ?? string.Empty,
+            }, Manager.MainWindowToken);
+        }
+
+        [RelayCommand]
+        private async Task CopyAuthor()
+        {
+            await Manager.Default.Send(new ClipBoardMessages.SetText()
+            {
+                Text = Entry.Author ?? string.Empty,
+            }, Manager.MainWindowToken);
+        }
     }
 
 
@@ -369,7 +443,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
 
     private readonly Stack<CommitItemViewModel> _parentStack = [];
 
-    private static void HandleLogEntries(LogEntry[] logs, IList<CommitItemViewModel> commitItems, Stack<CommitItemViewModel> parentStack)
+    private void HandleLogEntries(LogEntry[] logs, IList<CommitItemViewModel> commitItems, Stack<CommitItemViewModel> parentStack)
     {
         foreach (var entry in logs)
         {
@@ -379,7 +453,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             } 
             else if (entry.HasChildren)
             {
-                var item = new CommitItemViewModel()
+                var item = new CommitItemViewModel(this)
                 {
                     Entry = entry
                 };
@@ -402,14 +476,14 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
             }
             else if (parentStack.Count > 0)
             {
-                parentStack.Last().Children.Add(new CommitItemViewModel()
+                parentStack.Last().Children.Add(new CommitItemViewModel(this)
                 {
                     Entry = entry,
                 });
             }
             else
             {
-                commitItems.Add(new CommitItemViewModel()
+                commitItems.Add(new CommitItemViewModel(this)
                 {
                     Entry = entry
                 });
@@ -455,7 +529,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
         
         _logsRange = new Tuple<uint, uint>(_logsRange?.Item1 ?? logs.First().Entry.Revision.GetValueOrDefault(), logs.Last().Entry.Revision.GetValueOrDefault());
         
-        CommitItems.AddRange(logs.Select(i => new CommitItemViewModel()
+        CommitItems.AddRange(logs.Select(i => new CommitItemViewModel(this)
         {
             Entry = i.Entry
         }));
@@ -530,7 +604,7 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                         } 
                         else if (entry.HasChildren)
                         {
-                            var item = new CommitItemViewModel()
+                            var item = new CommitItemViewModel(this)
                             {
                                 Entry = entry
                             };
@@ -549,14 +623,14 @@ public partial class HistoryViewModel(ViewModelBase? parent): ViewModelMore(pare
                         }
                         else if (_parentStack.Count > 0)
                         {
-                            _parentStack.Last().Children.Add(new CommitItemViewModel()
+                            _parentStack.Last().Children.Add(new CommitItemViewModel(this)
                             {
                                 Entry = entry,
                             });
                         }
                         else
                         {
-                            CommitItems.Add(new CommitItemViewModel()
+                            CommitItems.Add(new CommitItemViewModel(this)
                             {
                                 Entry = entry
                             });

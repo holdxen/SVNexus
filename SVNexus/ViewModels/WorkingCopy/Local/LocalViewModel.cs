@@ -403,40 +403,18 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             return;
         }
 
-        try
+        var mkdirDialogModel = new MkdirDialogModel(this)
         {
-            var mkdirDialogModel = new MkdirDialogModel
-            {
-                ParentDirectory = SelectedTreeItems.First().StatusEntry.Path,
-            };
+            ParentDirectory = SelectedTreeItems.First().StatusEntry.Path,
+        };
             
-            var context = SendMessage(new OnGetContext()).Response;
-
-            var dialogOptions = new OverlayDialogOptions
-            {
-                IsCloseButtonVisible = false,
-                Buttons = DialogButton.None,
-                CanDragMove = true,
-                Mode = DialogMode.Question,
-                Title = "Create a versioned directory",
-            };
+        await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), mkdirDialogModel.OverlayDialogOptions);
         
-            await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
-        
-            var path = mkdirDialogModel.ParentDirectory + "/" + mkdirDialogModel.Name;
-        
-            var options = new MkdirOptions([path], true, null, string.Empty);
-            await context.Mkdir(options);
+        if (mkdirDialogModel.Accept)
+        {
             await RefreshCommand.ExecuteOrNothingAsync(null);
         }
-        catch (System.Exception e)
-        {
-            Manager.Default.Send(new OnShowToast()
-            {
-                Content = $"Failed to create directory:\n{e.HumanReadableMessage}",
-                Type = NotificationType.Error
-            }, Manager.MainWindowToken);
-        }
+
     }
 
     [RelayCommand]

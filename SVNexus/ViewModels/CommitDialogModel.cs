@@ -184,6 +184,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
 
 
                 await context.Commit(commitOptions);
+                Ok();
             }
             catch (System.Exception e)
             {
@@ -284,7 +285,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
         await _singleTaskQueue.Run(LoadCommitItems);
     }
 
-    public override Task OnConfirm()
+    protected override Task OnConfirm()
     {
         return Commit();
     }

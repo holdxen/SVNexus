@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
@@ -50,18 +51,29 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
     [RelayCommand]
     private async Task Confirm()
     {
-        var context = SendMessage(new OnGetContext()).Response;
+
+        try
+        {
+
+            var context = SendMessage(new OnGetContext()).Response;
         
         
-        var lockOptions = new LockOptions(Targets.Select(i => i.Entry.Path).ToArray(), HasComment ? Comment : null, StealLock);
+            var lockOptions = new LockOptions(Targets.Select(i => i.Entry.Path).ToArray(), HasComment ? Comment : null, StealLock);
 
         
-        await context.Lock(lockOptions);
+            await context.Lock(lockOptions);
         
-        
-        
-        Accept = true;
-        RequestClose?.Invoke(this, null);
+            Accept = true;
+            RequestClose?.Invoke(this, null);
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = $"Failed to lock\n{string.Join("\n", Targets.Select(i => i.Entry.Path))}\n{e.HumanReadableMessage}",
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
+        }
     }
     
     [RelayCommand]

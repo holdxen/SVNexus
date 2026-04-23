@@ -43,7 +43,7 @@ public partial class UpdateDialogModel(ViewModelBase parent): DialogModelBase(pa
     [ObservableProperty]
     public partial string Path { get; set; } = string.Empty;
     
-    public required string RelateTo { get; set; }
+    // public required string RelateTo { get; set; }
     
     public required List<string> TargetEntries { get; set; }
     
@@ -79,8 +79,8 @@ public partial class UpdateDialogModel(ViewModelBase parent): DialogModelBase(pa
 
     [ObservableProperty]
     public partial DateTime DateTime { get; set; } = DateTime.Now;
-    
-    public override async Task OnConfirm()
+
+    protected override async Task OnConfirm()
     {
         Revision? revision = null;
 
@@ -112,5 +112,7 @@ public partial class UpdateDialogModel(ViewModelBase parent): DialogModelBase(pa
         var context = SendMessage(new OnGetContext()).Response;
 
         await context.Update(updateOptions);
+        
+        Ok();
     }
 }

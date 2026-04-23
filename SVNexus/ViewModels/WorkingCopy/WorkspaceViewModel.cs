@@ -461,37 +461,16 @@ public partial class WorkspaceViewModel : ViewModelBase,
             return;
         }
 
-        try
+        var mkdirDialogModel = new MkdirDialogModel(this)
         {
-            var mkdirDialogModel = new MkdirDialogModel
-            {
-                ParentDirectory = SelectedTreeItems.First().AbsolutePath,
-            };
+            ParentDirectory = SelectedTreeItems.First().AbsolutePath,
+        };
 
-            var dialogOptions = new OverlayDialogOptions
-            {
-                IsCloseButtonVisible = false,
-                Buttons = DialogButton.None,
-                CanDragMove = true,
-                Mode = DialogMode.Question,
-                Title = "Create a versioned directory",
-            };
-        
-            await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
-        
-            var path = mkdirDialogModel.ParentDirectory + "/" + mkdirDialogModel.Name;
-        
-            var options = new MkdirOptions([path], true, null, string.Empty);
-            await _context.Value.Mkdir(options);
-            await RefreshTreeItems();
-        }
-        catch (Exception e)
+        await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), mkdirDialogModel.OverlayDialogOptions);
+    
+        if (mkdirDialogModel.Accept)
         {
-            Manager.Default.Send(new OnShowToast()
-            {
-                Content = $"Failed to create directory:\n{e.HumanReadableMessage}",
-                Type = NotificationType.Error
-            });
+            await RefreshTreeItems();
         }
     }
 
@@ -791,7 +770,6 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
             var model = new UpdateDialogModel(this)
             {
-                RelateTo = WorkspaceRoot ?? string.Empty,
                 TargetEntries = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!.Path).ToList(),
                 Path = WorkspaceRoot ?? string.Empty,
             };

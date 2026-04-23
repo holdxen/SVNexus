@@ -1,7 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
+using SVNexus.Messages;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
@@ -10,20 +13,18 @@ namespace SVNexus.ViewModels;
 public abstract partial class DialogModelBase(ViewModelBase? parent = null) : ViewModelBase(parent), IDialogContext
 {
 
-    public abstract Task OnConfirm();
+    public void Ok()
+    {
+        Accept = true;
+        RequestClose?.Invoke(this, null);
+    }
+
+    protected abstract Task OnConfirm();
     
     [RelayCommand]
-    public async Task Confirm()
+    private async Task Confirm()
     {
-        try
-        {
-            await OnConfirm();
-        }
-        finally
-        {
-            Accept = true;
-            RequestClose?.Invoke(this, null);
-        }
+        await OnConfirm();
     }
     
     public bool Accept { get; set; }
@@ -36,4 +37,14 @@ public abstract partial class DialogModelBase(ViewModelBase? parent = null) : Vi
     }
 
     public event EventHandler<object?>? RequestClose;
+    
+    
+    public virtual OverlayDialogOptions OverlayDialogOptions { get; } = new();
+
+    public async Task ShowModalDialog(Func<string?, OverlayDialogOptions, Task> func)
+    {
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await func(hostId, OverlayDialogOptions);
+    }
 }

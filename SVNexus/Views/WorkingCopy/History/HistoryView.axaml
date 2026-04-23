@@ -2,11 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:remote="clr-namespace:SVNexus.ViewModels.WorkingCopy.History"
+             xmlns:history="clr-namespace:SVNexus.ViewModels.WorkingCopy.History"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:converters="clr-namespace:SVNexus.Converters"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="remote:HistoryViewModel"
+             x:DataType="history:HistoryViewModel"
              x:Class="SVNexus.Views.WorkingCopy.History.HistoryView">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
@@ -37,6 +38,30 @@
                       SelectionMode="Single"
                       TemplateApplied="DataGrid_OnTemplateApplied"
                       ItemsSource="{Binding CommitItems}">
+                <DataGrid.Styles>
+                    <Style Selector="DataGridRow" x:DataType="history:HistoryViewModel+CommitItemViewModel">
+                        <Setter Property="ContextMenu">
+                            <ContextMenu ItemsSource="{Binding MenuItems}">
+                                <ContextMenu.ItemContainerTheme>
+                                    <ControlTheme TargetType="MenuItem"
+                                                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                  x:DataType="viewModels:MenuItemViewModel">
+                                        <Setter Property="Icon" Value="{Binding Icon}"></Setter>
+                                        <Setter Property="Padding" Value="4 2"></Setter>
+                                        <Setter Property="Header" Value="{Binding Header}" />
+                                        <Setter Property="ItemsSource"
+                                                Value="{Binding Children}" />
+                                        <Setter Property="Command" Value="{Binding Command}" />
+                                        <Setter Property="CommandParameter"
+                                                Value="{Binding CommandParameter}" />
+                                        <Setter Property="IsEnabled"
+                                                Value="{Binding IsEnabled}" />
+                                    </ControlTheme>
+                                </ContextMenu.ItemContainerTheme>
+                            </ContextMenu>
+                        </Setter>
+                    </Style>
+                </DataGrid.Styles>
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Width="6*">
                         <DataGridTemplateColumn.HeaderTemplate>
@@ -45,7 +70,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate DataType="remote:HistoryViewModel+CommitItemViewModel">
+                            <DataTemplate DataType="history:HistoryViewModel+CommitItemViewModel">
                                 <TextBlock HorizontalAlignment="Left"
                                            VerticalAlignment="Center"
                                            Classes="Cell"
@@ -56,7 +81,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Author" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate DataType="remote:HistoryViewModel+CommitItemViewModel">
+                            <DataTemplate DataType="history:HistoryViewModel+CommitItemViewModel">
                                 <TextBlock VerticalAlignment="Center" 
                                            Classes="Cell"
                                            Text="{Binding Author}"></TextBlock>
@@ -100,13 +125,13 @@
             </TabStrip>   
             <ContentControl Grid.Row="1" 
                             Content="{Binding DetailViewModel}"
-                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:HistoryViewModel.DetailViewIndex}}"></ContentControl>
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static history:HistoryViewModel.DetailViewIndex}}"></ContentControl>
             <ContentControl Grid.Row="1" 
                             Content="{Binding ChangesViewModel}"
-                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:HistoryViewModel.ChangesViewIndex}}"></ContentControl>
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static history:HistoryViewModel.ChangesViewIndex}}"></ContentControl>
             <ContentControl Grid.Row="1" 
                             Content="{Binding SnapshotViewModel}"
-                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static remote:HistoryViewModel.SnapshotViewIndex}}"></ContentControl>
+                            IsVisible="{Binding SelectedViewIndex, Converter={StaticResource EqualsConverter}, ConverterParameter={x:Static history:HistoryViewModel.SnapshotViewIndex}}"></ContentControl>
         </Grid>
     </Grid>
 </UserControl>

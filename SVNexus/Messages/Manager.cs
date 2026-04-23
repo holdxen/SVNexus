@@ -63,6 +63,7 @@ public static class Manager
             (target as IRecipient<OnSetChecked>)?.Register(messenger, token);
             (target as IRecipient<OnFilePickerOpen>)?.Register(messenger, token);
             (target as IRecipient<OnFilePickerSave>)?.Register(messenger, token);
+            (target as IRecipient<ClipBoardMessages.SetText>)?.Register(messenger, token);
         }
         
         public void UnregisterAllMessages(object target)
@@ -84,6 +85,7 @@ public static class Manager
             (target as IRecipient<OnSetChecked>)?.Unregister(messenger);
             (target as IRecipient<OnFilePickerOpen>)?.Unregister(messenger);
             (target as IRecipient<OnFilePickerSave>)?.Unregister(messenger);
+            (target as IRecipient<ClipBoardMessages.SetText>)?.Unregister(messenger);
         }
     }
 
