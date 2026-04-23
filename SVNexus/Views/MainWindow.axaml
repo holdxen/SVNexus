@@ -10,7 +10,7 @@
         xmlns:inject="clr-namespace:SVNexus.Inject"
         xmlns:messages="clr-namespace:SVNexus.Messages"
         xmlns:components="clr-namespace:SVNexus.Components"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/svnexus-icon.ico"
         Title="SVNexus"
         Background="{DynamicResource TabControlWindowActiveBackgroundBrush}">
     <Window.Resources>

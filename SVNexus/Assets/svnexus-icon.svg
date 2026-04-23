@@ -1,0 +1,70 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="60%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0f0f23"/>
+    </linearGradient>
+    <radialGradient id="nexusCore" cx="50%" cy="45%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="20%" stop-color="#fef3c7"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="85%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </radialGradient>
+    <radialGradient id="nexusHalo" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.55"/>
+      <stop offset="40%" stop-color="#f59e0b" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyanNode" cx="40%" cy="40%">
+      <stop offset="0%" stop-color="#cffafe"/>
+      <stop offset="50%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0e7490"/>
+    </radialGradient>
+    <radialGradient id="purpleNode" cx="40%" cy="40%">
+      <stop offset="0%" stop-color="#ede9fe"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </radialGradient>
+    <linearGradient id="innerHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect width="512" height="512" rx="112" fill="url(#innerHighlight)"/>
+
+  <circle cx="256" cy="256" r="220" fill="url(#nexusHalo)"/>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M 100,100 Q 180,180 256,256" stroke="#0e7490" stroke-width="10" opacity="0.35"/>
+    <path d="M 412,100 Q 332,180 256,256" stroke="#5b21b6" stroke-width="10" opacity="0.35"/>
+    <path d="M 100,412 Q 180,332 256,256" stroke="#5b21b6" stroke-width="10" opacity="0.35"/>
+    <path d="M 412,412 Q 332,332 256,256" stroke="#0e7490" stroke-width="10" opacity="0.35"/>
+
+    <path d="M 100,100 Q 180,180 256,256" stroke="#22d3ee" stroke-width="5"/>
+    <path d="M 412,100 Q 332,180 256,256" stroke="#a78bfa" stroke-width="5"/>
+    <path d="M 100,412 Q 180,332 256,256" stroke="#a78bfa" stroke-width="5"/>
+    <path d="M 412,412 Q 332,332 256,256" stroke="#22d3ee" stroke-width="5"/>
+  </g>
+
+  <circle cx="100" cy="100" r="22" fill="url(#cyanNode)"/>
+  <circle cx="412" cy="100" r="22" fill="url(#purpleNode)"/>
+  <circle cx="100" cy="412" r="22" fill="url(#purpleNode)"/>
+  <circle cx="412" cy="412" r="22" fill="url(#cyanNode)"/>
+
+  <circle cx="180" cy="180" r="11" fill="#22d3ee"/>
+  <circle cx="180" cy="180" r="4" fill="#ecfeff"/>
+  <circle cx="332" cy="180" r="11" fill="#a78bfa"/>
+  <circle cx="332" cy="180" r="4" fill="#f5f3ff"/>
+  <circle cx="180" cy="332" r="11" fill="#a78bfa"/>
+  <circle cx="180" cy="332" r="4" fill="#f5f3ff"/>
+  <circle cx="332" cy="332" r="11" fill="#22d3ee"/>
+  <circle cx="332" cy="332" r="4" fill="#ecfeff"/>
+
+  <circle cx="256" cy="256" r="80" fill="#fbbf24" opacity="0.22"/>
+  <circle cx="256" cy="256" r="58" fill="url(#nexusCore)"/>
+  <ellipse cx="248" cy="244" rx="22" ry="16" fill="#ffffff" opacity="0.55"/>
+</svg>
