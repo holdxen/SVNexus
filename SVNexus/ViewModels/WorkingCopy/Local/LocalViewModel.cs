@@ -561,8 +561,6 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             var revertOptions = new RevertOptions(
                 SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
                 Depth.Infinity,
-                null,
-                false,
                 false,
                 true
             );

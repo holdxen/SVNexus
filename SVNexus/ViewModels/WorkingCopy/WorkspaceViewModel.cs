@@ -503,10 +503,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
             var revertOptions = new RevertOptions(
                 SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
                 Depth.Infinity,
-                null,
                 false,
-                false,
-                true
+                false
             );
         
         

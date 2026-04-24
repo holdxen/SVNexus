@@ -70,14 +70,6 @@
                                               Source="{StaticResource Icons.OperationRevert}"
                                               Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Diff and export"
-                                              Source="{StaticResource Icons.OperationDiff}"
-                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Apply patch"
-                                              Source="{StaticResource Icons.OperationPatch}"
-                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Lock"
                                               Source="{StaticResource Icons.OperationLock}"
                                               Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>

@@ -56,7 +56,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
         
         
-        public string DateTimeText => DateTimeOffset.FromUnixTimeMilliseconds(Entry.Date.GetValueOrDefault() / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss");
+        public string? DateTimeText => Entry.Date?.Map(d => DateTimeOffset.FromUnixTimeMilliseconds(d / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
         
         public ObservableCollection<CommitItemViewModel> Children { get; } = [];
 
@@ -94,17 +94,10 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
             {
                 TargetEntries = [path],
                 IsNumber = true,
-                Number = Revision ?? 0
-            };
-
-            var options = new OverlayDialogOptions()
-            {
-                IsCloseButtonVisible = false,
-                Buttons = DialogButton.None,
-                Title = "Update",
+                Number = Revision ?? 1
             };
             
-            await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, options);
+            await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);
         }
 
         [RelayCommand]
@@ -546,8 +539,11 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = "Failed to log repository: " + e.HumanReadableMessage,
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
         }
     }
 

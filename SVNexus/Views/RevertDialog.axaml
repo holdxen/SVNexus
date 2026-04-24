@@ -2,21 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:u="https://irihi.tech/ursa"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
+             xmlns:u="https://irihi.tech/ursa"
              xmlns:components="clr-namespace:SVNexus.Components"
-             x:DataType="viewModels:CommitDialogModel"
-             Width="800"
-             IsEnabled="{Binding !CommitCommand.IsRunning}"
-             x:Class="SVNexus.Views.CommitDialog">
-    <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding LoadedCommand}">
-            </InvokeCommandAction>
-        </EventTriggerBehavior>
-    </Interaction.Behaviors>
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:RevertDialogModel"
+             x:Class="SVNexus.Views.RevertDialog">
     <UserControl.Resources>
         <Thickness x:Key="ThicknessCardMargin">0</Thickness>
     </UserControl.Resources>
@@ -50,10 +41,6 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </Border>
-                    <u:LoadingIcon Margin="0 0 10 10" 
-                                   HorizontalAlignment="Right" 
-                                   VerticalAlignment="Bottom"
-                                   IsVisible="{Binding IsLoading}" />
                 </Grid>
             </u:FormItem>
             <u:FormItem Grid.Row="1" Label="Depth:">

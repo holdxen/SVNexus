@@ -15,7 +15,7 @@ enum RevisionPropertyName {
     Lock,
     FromUrl,
     FromUuid,
-    LastMergeRevision,
+    LastMergedRevision,
     CurrentCopying
 }
 
@@ -38,7 +38,7 @@ impl RevisionPropertyName {
             RevisionPropertyName::Lock => cbytes_as_str(ffi::SVN_PROP_REVISION_LOG),
             RevisionPropertyName::FromUrl => cbytes_as_str(ffi::SVNSYNC_PROP_FROM_URL),
             RevisionPropertyName::FromUuid => cbytes_as_str(ffi::SVNSYNC_PROP_FROM_UUID),
-            RevisionPropertyName::LastMergeRevision => cbytes_as_str(ffi::SVNSYNC_PROP_LAST_MERGED_REV),
+            RevisionPropertyName::LastMergedRevision => cbytes_as_str(ffi::SVNSYNC_PROP_LAST_MERGED_REV),
             RevisionPropertyName::CurrentCopying => cbytes_as_str(ffi::SVNSYNC_PROP_CURRENTLY_COPYING),
         }
     }

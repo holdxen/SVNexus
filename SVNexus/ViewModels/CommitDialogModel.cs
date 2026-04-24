@@ -19,26 +19,24 @@ using SVNexus.Messages;
 using SVNexus.Utils;
 using SVNexus.ViewModels.WorkingCopy;
 using SVNexus.Views;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
 public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(parent)
 {
-    public partial class TargetItemViewModel: StatusEntryItemViewModel
+    public override OverlayDialogOptions OverlayDialogOptions { get; } =  new()
     {
-        // public required StatusEntry StatusEntry { get; set; }
-        
-        // [ObservableProperty]
-        // public partial string WorkingCopyPath { get; set; } = string.Empty;
+        IsCloseButtonVisible = false,
+        Title = "Commit",
+        Buttons = DialogButton.None,
+        CanDragMove = true,
+        CanResize = true,
+        StyleClass = "Fixed"
+    };
 
-
-        // public string NodeKindIcon => StatusEntry.NodeKind.Icon();
-        //
-        // public string NodeStatusIcon => StatusEntry.NodeStatus.Icon();
-        //
-        // public string Name => StatusEntry.Path.GetFileName();
-        
-        // public string RelativePath { get; set; } = string.Empty;
+    public class TargetItemViewModel: StatusEntryItemViewModel
+    {
     }
     
     public override Type? ViewType { get; set; } = typeof(CommitDialog);
@@ -54,12 +52,6 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
     public ObservableCollection<TargetItemViewModel> TargetItems { get; } = [];
-
-    // [ObservableProperty] 
-    // public partial bool DeleteMissing { get; set; } = true;
-    //
-    // [ObservableProperty]
-    // public partial bool AddUnversioned { get; set; } = true;
     
     public required string RelateTo { get; init; } = string.Empty;
 
@@ -79,84 +71,15 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
         set => SetProperty(ref field, value);
     } = string.Empty;
 
-
-    // public bool Ready
-    // {
-    //     get
-    //     {
-    //         if (!DeleteMissing && !AddUnversioned) return true;
-    //         return !IsLoading;
-    //     }
-    // }
-    //
-        
-    private Dictionary<string, StatusEntry> _entries = [];
-
-    // [ObservableProperty]
-    // public partial bool IsCommitting { get; set; }
-
-    // private Services.ITabService _tabService;
-    // public CommitDialogModel(IServiceProvider serviceProvider)
-    // {
-    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-    // }
-    //
     partial void OnDepthChanged(Depth value)
     {
         _singleTaskQueue.Run(LoadCommitItems);
     }
 
 
-    // private async Task CommitDirectly(CancellationToken token)
-    // {
-    //         
-    // }
-    //
-    // private async Task CommitDelay()
-    // {
-    //     if (IsLoading)
-    //     {
-    //         return;
-    //     }
-    //     
-    //     var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()));
-    //
-    //     var tobeDelete = new List<string>();
-    //     foreach (var entry in _entries.Values)
-    //     {
-    //         if (entry.NodeStatus == NodeStatus.Missing)
-    //         {
-    //             tobeDelete.Add(entry.Path);
-    //         }
-    //
-    //         var addOptions = new AddOptions(entry.Path, Depth.Infinity, false, false, false, true);
-    //         await context.Add(addOptions);
-    //     }
-    //
-    //     await context.Delete(new DeleteOptions(tobeDelete.ToArray(), false, false, []));
-    //
-    //     var commitOptions = new CommitOptions(Targets.ToArray(), Depth, true, true, true, true, true, [], [], CommitMessage);
-    //     
-    //     await context.Commit(commitOptions);
-    //     
-    //     IsCommitting = false;
-    // }
-
     [RelayCommand]
     private async Task Commit()
     {
-        // if (IsLoading)
-        // {
-        //     IsCommitting = true;
-        //     _singleTaskQueue.QueueEmpty += CommitDelay;
-        // }
-        // else
-        // {
-        //     IsCommitting = true;
-        //     await _singleTaskQueue.Run(CommitDirectly);
-        // }
-        //
-
         if (!ValidateAllProperty(out _))
         {
             return;
@@ -177,7 +100,6 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                     true,
                     IncludeExternals,
                     IncludeExternals,
-                    null,
                     null,
                     CommitMessage
                 );
@@ -260,7 +182,6 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                 });
             }
 
-            _entries = entries;
         }
         catch (System.Exception e)
         {

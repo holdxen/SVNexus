@@ -134,7 +134,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     // [ObservableProperty]
     // public partial string WorkingCopyPath { get; set; } = string.Empty;
 
-    public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
+    // public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
     
     public List<string> ExpandedItems { get; set; } = [];
 
@@ -165,6 +165,10 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
     // }
 
+
+    [ObservableProperty]
+    public partial ObservableCollection<TreeItemViewModel> SelectedItems { get; set; } = [];
+
     partial void OnShowRootChanged(bool value)
     {
         if (_root is null)
@@ -176,24 +180,24 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         if (value)
         {
             Items.Add(_root);
-            if (_root.StatusEntry is not null)
-            {
-                if (_root.IsChecked)
-                {
-                    CheckedItems[_root.StatusEntry.Path] = _root.StatusEntry;
-                }
-
-                ItemCount++;
-            }
+            // if (_root.StatusEntry is not null)
+            // {
+            //     if (_root.IsChecked)
+            //     {
+            //         CheckedItems[_root.StatusEntry.Path] = _root.StatusEntry;
+            //     }
+            //
+            //     ItemCount++;
+            // }
         }
         else
         {
             Items.AddRange(_root.Children);
-            if (_root.StatusEntry is not null)
-            {
-                CheckedItems.Remove(_root.StatusEntry.Path);
-                ItemCount--;
-            }
+            // if (_root.StatusEntry is not null)
+            // {
+            //     CheckedItems.Remove(_root.StatusEntry.Path);
+            //     ItemCount--;
+            // }
         }
     }
 
@@ -230,7 +234,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
         // Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
-        SendMessage(new OnSelectedItemChanged(value?.StatusEntry));
+        SendMessage(new Messages.OnSelectedItemChanged(value?.StatusEntry));
     }
 
 
@@ -273,10 +277,10 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         var workingCopyPath = SendMessage(new OnGetWorkingCopyPath()).Response;
         Items.Clear();
         var oldExpandedItems = ExpandedItems;
-        var oldCheckedItems = CheckedItems;
+        // var oldCheckedItems = CheckedItems;
 
         ExpandedItems = [];
-        CheckedItems = [];
+        // CheckedItems = [];
         
         var root = new TreeItemViewModel(this)
         {
@@ -303,7 +307,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
             if (statusEntry.Path == workingCopyPath)
             {
                 root.StatusEntry = statusEntry;
-                root.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+                // root.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
 
                 continue;
             }
@@ -338,7 +342,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
                     if (index == parts.Length - 1)
                     {
                         item.StatusEntry = statusEntry;
-                        item.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+                        // item.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
 
                     }
 
@@ -348,7 +352,7 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
                     if (index == parts.Length - 1)
                     {
                         first.StatusEntry = statusEntry;
-                        first.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+                        // first.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
                         first.IsExpanded = oldExpandedItems.Contains(statusEntry.Path);
                         break;
                     }
@@ -408,12 +412,12 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         }
         if (message.IsChecked)
         {
-            CheckedItems.Add(message.Item.StatusEntry.Path, message.Item.StatusEntry);
+            // CheckedItems.Add(message.Item.StatusEntry.Path, message.Item.StatusEntry);
         }
         else
         {
             // CheckedItems.RemoveAll((e) => e == item.StatusEntry.Path);
-            CheckedItems.Remove(message.Item.StatusEntry.Path);
+            // CheckedItems.Remove(message.Item.StatusEntry.Path);
         }
     }
 }

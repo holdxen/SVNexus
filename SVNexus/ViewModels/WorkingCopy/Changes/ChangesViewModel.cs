@@ -21,7 +21,7 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemChanged>, IRecipient<OnRefreshWorkingCopy>
+public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSelectedItemChanged>, IRecipient<OnRefreshWorkingCopy>
 {
     // private readonly IServiceProvider _serviceProvider;
 
@@ -184,20 +184,20 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     [RelayCommand]
     private async Task Revert()
     {
-        Dictionary<string, StatusEntry>? items;
-        if (IsTreeView)
-        {
-            items = ChangesTreeViewModel.CheckedItems;
-        } 
-        else if (IsListView)
-        {
-            items = ChangesListViewModel.CheckedItems;
-        }
-        else
-        {
-            return;
-        }
-
+        Dictionary<string, StatusEntry> items = [];
+        // if (IsTreeView)
+        // {
+        //     items = ChangesTreeViewModel.CheckedItems;
+        // } 
+        // else if (IsListView)
+        // {
+        //     items = ChangesListViewModel.CheckedItems;
+        // }
+        // else
+        // {
+        //     return;
+        // }
+        //
         if (items.Count == 0)
         {
             return;
@@ -351,7 +351,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
                     button: MessageBoxButton.YesNo);
                 if (boxResult == MessageBoxResult.Yes)
                 {
-                    await Update();
+                    // todo: handle update
                     await Status();
                 }
                 else
@@ -395,41 +395,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
     //     await Status(context);
     // }
     //
-    [RelayCommand]
-    private async Task Update()
-    {
-        try
-        {
-            var context = SendMessage(new OnGetContext()).Response;
-            var path = SendMessage(new OnGetWorkingCopyPath());
-            
-            var opts = new UpdateOptions(
-                Paths: [path], 
-                Revision: new Revision.Head(), 
-                Depth: Depth.Infinity, 
-                DepthIsSticky: false, 
-                IgnoreExternals: false, 
-                AllowUnverObstructions: true, 
-                AddsAsModification: false, 
-                MakeParents: true);
-            
-            await context.Update(opts);
-
-            Manager.Default.Send(new OnShowToast()
-            {
-                Content = "Update completed",
-                Type = NotificationType.Success
-            }, Manager.MainWindowToken);
-        }
-        catch (System.Exception e)
-        {
-            Manager.Default.Send(new OnShowToast()
-            {
-                Content = $"Failed to update:\n{e.HumanReadableMessage}",
-                Type = NotificationType.Error,
-            }, Manager.MainWindowToken);
-        }
-    }
 
 
     private void Update(StatusEntry[] statusEntries)
@@ -446,9 +411,9 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId()).Response;
         
-        var items = IsTreeView ? ChangesTreeViewModel.CheckedItems : ChangesListViewModel.CheckedItems;
+        var items = IsTreeView ? ChangesTreeViewModel.SelectedItems.Select(i => i.StatusEntry!).ToArray() : ChangesListViewModel.SelectedItems.Select(i => i.Entry).ToArray();
 
-        if (items.Count == 0)
+        if (items.Length == 0)
         {
             Manager.Default.Send(new OnShowToast()
             {
@@ -460,21 +425,12 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
 
         var model = new CommitDialogModel(this)
         {
-            Targets = items.Values.ToArray(),
+            Targets = items,
             RelateTo = SendMessage(new OnGetWorkingCopyPath())
         };
 
-        var dialogOptions = new OverlayDialogOptions()
-        {
-            IsCloseButtonVisible = false,
-            Title = "Commit",
-            Buttons = DialogButton.None,
-            CanDragMove = true,
-            CanResize = true,
-            StyleClass = "Fixed"
-        };
 
-        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(model, hostId, dialogOptions);
+        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(model, hostId, model.OverlayDialogOptions);
 
     }
 
@@ -589,14 +545,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<OnSelectedItemC
 //
 //     }
 
-    public void Receive(OnSelectedItemChanged message)
+    public void Receive(Messages.OnSelectedItemChanged message)
     {
-        if (message.Value is not StatusEntry statusEntry) return;
-        SelectedItem = statusEntry.Path;
+        SelectedItem = message.Value.Path;
         
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await DifferenceViewModel.CompareWorkingCopyEntry(statusEntry);
+            await DifferenceViewModel.CompareWorkingCopyEntry(message.Value);
         });
 
         

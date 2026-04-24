@@ -95,7 +95,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
         Dictionary<string, string>? oldProperties = null;
         if (oldRevision is not null)
         {
-            var propertyListOptions = new PropertyListOptions(target, peg, oldRevision, Depth.Empty, null, false);
+            var propertyListOptions = new PropertyListOptions(target, peg, oldRevision, Depth.Empty, false);
             oldProperties = (await context.PropertyList(propertyListOptions)).Entries.FirstOrDefault()?.Properties;
         }
 
@@ -103,7 +103,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
         Dictionary<string, string>? newProperties = null;
         if (newRevision is not null)
         {
-            var propertyListOptions = new PropertyListOptions(target, peg, newRevision, Depth.Empty, null, false);
+            var propertyListOptions = new PropertyListOptions(target, peg, newRevision, Depth.Empty, false);
             newProperties = (await context.PropertyList(propertyListOptions)).Entries.FirstOrDefault()?.Properties;
         }
 

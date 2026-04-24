@@ -337,7 +337,7 @@ pub struct AddOptions {
     add_parents: bool,
 }
 
-#[derive(Debug, uniffi::Record)]
+#[derive(Debug, uniffi::Record, svnexus_macro::ToDebugString)]
 pub struct StatusEntry {
     path: String,
     node_kind: NodeKind,
@@ -403,6 +403,7 @@ pub struct CommitOptions {
     commit_as_operations: bool,
     include_file_externals: bool,
     include_dir_externals: bool,
+    #[uniffi(default)]
     changelists: Option<Vec<String>>,
     revision_property_table: Option<HashMap<String, String>>,
     commit_message: String,
@@ -1495,7 +1496,9 @@ pub struct RelocateOptions {
 pub struct RevertOptions {
     paths: Vec<String>,
     depth: Depth,
+    #[uniffi(default)]
     changelists: Option<Vec<String>>,
+    #[uniffi(default)]
     clear_changelists: bool,
     metadata_only: bool,
     added_keep_local: bool,
@@ -1626,6 +1629,7 @@ pub struct InfoOptions {
     fetch_excluded: bool,
     fetch_actual_only: bool,
     include_externals: bool,
+    #[uniffi(default)]
     changelists: Option<Vec<String>>,
 }
 
@@ -1653,6 +1657,7 @@ pub struct PropertyGetOptions {
     peg_revision: Revision,
     revision: Revision,
     depth: Depth,
+    #[uniffi(default)]
     changelists: Vec<String>,
 }
 
@@ -1681,6 +1686,7 @@ pub struct PropertyListOptions {
     peg_revision: Revision,
     revision: Revision,
     depth: Depth,
+    #[uniffi(default)]
     changelists: Option<Vec<String>>,
     inherited: bool,
 }
@@ -1887,14 +1893,24 @@ pub struct ListEntry {
     external_target: Option<String>,
 }
 
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct CopySourceItem {
+    path: String,
+    peg_revision: Revision,
+    revision: Revision,
+}
+
+#[derive(Debug, Clone, new, uniffi::Record)]
 pub struct CopyOptions {
-    sources: Vec<String>,
+    sources: Vec<CopySourceItem>,
     destination: String,
     copy_as_child: bool,
     make_parents: bool,
     ignore_externals: bool,
     metadata_only: bool,
     pin_externals: bool,
+    #[uniffi(default)]
+    commit_message: String,
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_diff_file_ignore_space_t)]
@@ -2148,6 +2164,7 @@ pub struct ClientDifferenceOptions {
     use_git_format: bool,
     pretty_print_merge_info: bool,
     header_encoding: String,
+    #[uniffi(default)]
     changelists: Option<Vec<String>>,
 }
 

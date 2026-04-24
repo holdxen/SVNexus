@@ -7,14 +7,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
-
+using Ursa.Controls;
 using OperationDepth = SVNexus.Generated.Depth;
 
 namespace SVNexus.ViewModels;
 
 public partial class UpdateDialogModel(ViewModelBase parent): DialogModelBase(parent)
 {
-    
     public enum ValidDepth
     {
         Empty = OperationDepth.Empty,
@@ -115,4 +114,11 @@ public partial class UpdateDialogModel(ViewModelBase parent): DialogModelBase(pa
         
         Ok();
     }
+
+    public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
+    {
+        IsCloseButtonVisible = false,
+        Title = "Update",
+        Buttons = DialogButton.None
+    };
 }

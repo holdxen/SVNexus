@@ -341,6 +341,33 @@ pub fn derive_is_methods(input: TokenStream) -> TokenStream {
     .into()
 }
 
+
+#[proc_macro_derive(ToDebugString)]
+pub fn to_debug_string_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    // 支持带泛型参数的类型
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+
+    let expanded = quote! {
+        #[uniffi::export]
+        impl #impl_generics #name #ty_generics #where_clause {
+            #[uniffi::method(default(compact))]
+            pub fn to_debug_string(&self, compact: bool) -> ::std::string::String {
+                if compact {
+                    format!("{:?}", self)
+                } else {
+                    format!("{:#?}", self)
+                }
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}
+
+
 // fn is_i32_type(ty: &Type) -> bool {
 //     match ty {
 //         Type::Path(p) => p

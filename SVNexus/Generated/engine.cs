@@ -2466,6 +2466,7 @@ static class _UniFFILib {
     
     
     
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -11430,6 +11431,17 @@ static class _UniFFILib {
     public static extern
 #endif
      RustBuffer uniffi_engine_fn_method_differenceoptions_exec(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_engine_fn_method_statusentry_to_debug_string(RustBuffer @ptr,sbyte @compact,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -36039,7 +36051,7 @@ public record ClientDifferenceOptions (
     bool UseGitFormat, 
     bool PrettyPrintMergeInfo, 
     string HeaderEncoding, 
-    string[]? Changelists
+    string[]? Changelists = null
 ) {
 }
 
@@ -36253,6 +36265,11 @@ class FfiConverterTypeCommitItem: FfiConverterRustBuffer<CommitItem> {
 
 
 
+/// <remarks>
+/// <b>UniFFI Warning:</b> Optional parameters have been reordered because
+/// of a C# syntax limitation. Use named parameters for compatibility with
+/// future ordering changes.
+/// </remarks>
 public record CommitOptions (
     string[] Targets, 
     Depth Depth, 
@@ -36261,9 +36278,9 @@ public record CommitOptions (
     bool CommitAsOperations, 
     bool IncludeFileExternals, 
     bool IncludeDirExternals, 
-    string[]? Changelists, 
     Dictionary<string, string>? RevisionPropertyTable, 
-    string CommitMessage
+    string CommitMessage, 
+    string[]? Changelists = null
 ) {
 }
 
@@ -36502,6 +36519,94 @@ class FfiConverterTypeConflictWalkResult: FfiConverterRustBuffer<ConflictWalkRes
 
     public override void Write(ConflictWalkResult value, BigEndianStream stream) {
             FfiConverterSequenceTypeConflict.INSTANCE.Write(value.Conflicts, stream);
+    }
+}
+
+
+
+public record CopyOptions (
+    CopySourceItem[] Sources, 
+    string Destination, 
+    bool CopyAsChild, 
+    bool MakeParents, 
+    bool IgnoreExternals, 
+    bool MetadataOnly, 
+    bool PinExternals, 
+    string CommitMessage = ""
+) {
+}
+
+class FfiConverterTypeCopyOptions: FfiConverterRustBuffer<CopyOptions> {
+    public static FfiConverterTypeCopyOptions INSTANCE = new FfiConverterTypeCopyOptions();
+
+    public override CopyOptions Read(BigEndianStream stream) {
+        return new CopyOptions(
+            Sources: FfiConverterSequenceTypeCopySourceItem.INSTANCE.Read(stream),
+            Destination: FfiConverterString.INSTANCE.Read(stream),
+            CopyAsChild: FfiConverterBoolean.INSTANCE.Read(stream),
+            MakeParents: FfiConverterBoolean.INSTANCE.Read(stream),
+            IgnoreExternals: FfiConverterBoolean.INSTANCE.Read(stream),
+            MetadataOnly: FfiConverterBoolean.INSTANCE.Read(stream),
+            PinExternals: FfiConverterBoolean.INSTANCE.Read(stream),
+            CommitMessage: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CopyOptions value) {
+        return 0
+            + FfiConverterSequenceTypeCopySourceItem.INSTANCE.AllocationSize(value.Sources)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Destination)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.CopyAsChild)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MakeParents)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreExternals)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.MetadataOnly)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.PinExternals)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
+    }
+
+    public override void Write(CopyOptions value, BigEndianStream stream) {
+            FfiConverterSequenceTypeCopySourceItem.INSTANCE.Write(value.Sources, stream);
+            FfiConverterString.INSTANCE.Write(value.Destination, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.CopyAsChild, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.MakeParents, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.MetadataOnly, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.PinExternals, stream);
+            FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
+    }
+}
+
+
+
+public record CopySourceItem (
+    string Path, 
+    Revision PegRevision, 
+    Revision Revision
+) {
+}
+
+class FfiConverterTypeCopySourceItem: FfiConverterRustBuffer<CopySourceItem> {
+    public static FfiConverterTypeCopySourceItem INSTANCE = new FfiConverterTypeCopySourceItem();
+
+    public override CopySourceItem Read(BigEndianStream stream) {
+        return new CopySourceItem(
+            Path: FfiConverterString.INSTANCE.Read(stream),
+            PegRevision: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Revision: FfiConverterTypeRevision.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CopySourceItem value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.Path)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.PegRevision)
+            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision);
+    }
+
+    public override void Write(CopySourceItem value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.Path, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.PegRevision, stream);
+            FfiConverterTypeRevision.INSTANCE.Write(value.Revision, stream);
     }
 }
 
@@ -37162,7 +37267,7 @@ public record InfoOptions (
     bool FetchExcluded, 
     bool FetchActualOnly, 
     bool IncludeExternals, 
-    string[]? Changelists
+    string[]? Changelists = null
 ) {
 }
 
@@ -38024,7 +38129,7 @@ public record PropertyGetOptions (
     Revision PegRevision, 
     Revision Revision, 
     Depth Depth, 
-    string[] Changelists
+    string[] Changelists = null
 ) {
 }
 
@@ -38132,13 +38237,18 @@ class FfiConverterTypePropertyListEntry: FfiConverterRustBuffer<PropertyListEntr
 
 
 
+/// <remarks>
+/// <b>UniFFI Warning:</b> Optional parameters have been reordered because
+/// of a C# syntax limitation. Use named parameters for compatibility with
+/// future ordering changes.
+/// </remarks>
 public record PropertyListOptions (
     string Target, 
     Revision PegRevision, 
     Revision Revision, 
     Depth Depth, 
-    string[]? Changelists, 
-    bool Inherited
+    bool Inherited, 
+    string[]? Changelists = null
 ) {
 }
 
@@ -38344,13 +38454,18 @@ class FfiConverterTypeRelocateOptions: FfiConverterRustBuffer<RelocateOptions> {
 
 
 
+/// <remarks>
+/// <b>UniFFI Warning:</b> Optional parameters have been reordered because
+/// of a C# syntax limitation. Use named parameters for compatibility with
+/// future ordering changes.
+/// </remarks>
 public record RevertOptions (
     string[] Paths, 
     Depth Depth, 
-    string[]? Changelists, 
-    bool ClearChangelists, 
     bool MetadataOnly, 
-    bool AddedKeepLocal
+    bool AddedKeepLocal, 
+    string[]? Changelists = null, 
+    bool ClearChangelists = false
 ) {
 }
 
@@ -38595,6 +38710,15 @@ public record StatusEntry (
     string? MovedFromAbsolutePath, 
     string? MovedToAbsolutePath
 ) {
+    
+    public string ToDebugString(bool @compact = false) {
+        return FfiConverterString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_statusentry_to_debug_string(FfiConverterTypeStatusEntry.INSTANCE.Lower(this), FfiConverterBoolean.INSTANCE.Lower(@compact), ref _status)
+));
+    }
+    
+    
 }
 
 class FfiConverterTypeStatusEntry: FfiConverterRustBuffer<StatusEntry> {
@@ -42210,6 +42334,58 @@ class FfiConverterSequenceTypeCommitItem: FfiConverterRustBuffer<CommitItem[]> {
 
         stream.WriteInt(value.Length);
         var writerFn = FfiConverterTypeCommitItem.INSTANCE.Write;
+        value.ForEach(item => writerFn(item, stream));
+    }
+}
+
+
+
+
+class FfiConverterSequenceTypeCopySourceItem: FfiConverterRustBuffer<CopySourceItem[]> {
+    public static FfiConverterSequenceTypeCopySourceItem INSTANCE = new FfiConverterSequenceTypeCopySourceItem();
+
+    public override CopySourceItem[]  Read(BigEndianStream stream) {
+        var length = stream.ReadInt();
+        if (length == 0) {
+            return [];
+        }
+
+        T[] _CreateArray<T>(int length)
+        {
+            return new T[length];
+        }
+
+
+        var result = _CreateArray<CopySourceItem>(length);
+        var readFn = FfiConverterTypeCopySourceItem.INSTANCE.Read;
+        for (int i = 0; i < length; i++) {
+            result[i] = readFn(stream);
+        }
+        return result;
+    }
+
+    public override int AllocationSize(CopySourceItem[]  value) {
+        var sizeForLength = 4;
+
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            return sizeForLength;
+        }
+
+        var allocationSizeFn = FfiConverterTypeCopySourceItem.INSTANCE.AllocationSize;
+        var sizeForItems = value.Sum(item => allocationSizeFn(item));
+        return sizeForLength + sizeForItems;
+    }
+
+    public override void Write(CopySourceItem[] value, BigEndianStream stream) {
+        // details/1-empty-list-as-default-method-parameter.md
+        if (value == null) {
+            stream.WriteInt(0);
+            return;
+        }
+
+        stream.WriteInt(value.Length);
+        var writerFn = FfiConverterTypeCopySourceItem.INSTANCE.Write;
         value.ForEach(item => writerFn(item, stream));
     }
 }

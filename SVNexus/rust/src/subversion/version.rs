@@ -73,13 +73,6 @@ pub struct ExtendedVersion {
     loaded_libraries: Vec<LoadedLibrary>,
 }
 
-pub fn version() -> Version {
-    unsafe {
-        let v = ffi::svn_subr_version().as_ref().unwrap();
-
-        Version::new(v.major, v.minor, v.patch, v.tag.to_nullable_string())
-    }
-}
 
 pub fn extended_version(verbose: bool) -> ExtendedVersion {
     unsafe {

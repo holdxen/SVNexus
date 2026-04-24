@@ -1,27 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
-using Avalonia.Controls.Shapes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
-using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
-using SVNexus.Inject;
 using SVNexus.Messages;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewModelBase(parent)//, IRecipient<ChangesListViewModel.OnItemCheckStateChanged>
+public partial class ChangesListViewModel : ViewModelBase
 {
-    // private readonly IServiceProvider _serviceProvider;
+    /// <inheritdoc/>
+    public ChangesListViewModel(ViewModelBase parent) : base(parent)
+    {
+        SelectedItems?.CollectionChanged += (sender, args) =>
+        {
+        };
+    }
+
     public partial class MenuIconViewModel: ViewModelBase
     {
         [ObservableProperty]
@@ -30,56 +30,8 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
         [ObservableProperty] public partial bool Themable { get; set; } = true;
     }
 
-    // public class OnItemCheckStateChanged
-    // {
-    //     public required ListItemViewModel Item { get; set; }
-    //     public required bool Checked { get; set; }
-    // }
-
     public partial class ListItemViewModel : StatusEntryItemViewModel
     {
-        // [ObservableProperty]
-        // public partial bool IsChecked { get; set; }
-        //
-        //
-        // public string? ContainsDirectory
-        // {
-        //     get
-        //     {
-        //         var path = SendMessage(new OnGetWorkingCopyPath());
-        //         if (path == StatusEntry.Path)
-        //         {
-        //             return null;
-        //         }
-        //         var contain = StatusEntry.Path.TrimStartString(path)
-        //             .TrimStartPathSeparatorChar().GetDirectoryName();
-        //         return string.IsNullOrEmpty(contain) ? "/" : contain;
-        //     }
-        // }
-        //
-        // public string Name => StatusEntry.Path.GetFileName();
-        //
-        //
-        // public string AbsolutePath => StatusEntry.Path;
-        //
-        //
-        //
-        // public string PathSvgIcon => StatusEntry.NodeKind.NodeKindIcon();
-        //
-        // public string StatusSvgIcon => StatusEntry.NodeStatus.NodeStatusIcon();
-        //
-        //
-        // public string StatusToolTip => StatusEntry.NodeStatus.ToString();
-        //
-        //
-        //
-        // [ObservableProperty] 
-        // [NotifyPropertyChangedFor(nameof(Name))]
-        // [NotifyPropertyChangedFor(nameof(ContainsDirectory))]
-        // [NotifyPropertyChangedFor(nameof(AbsolutePath))]
-        // public required partial StatusEntry StatusEntry { get; set; }
-
-
         public List<MenuItemViewModel>? MenuItems
         {
             get
@@ -291,12 +243,15 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
 
     [ObservableProperty]
     public partial ListItemViewModel? SelectedItem { get; set; }
-    
+
+
+    [ObservableProperty] 
+    public partial ObservableCollection<ListItemViewModel> SelectedItems { get; set; } = [];
     
     public ObservableCollection<ListItemViewModel> Items { get; } = [];
     
     
-    public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
+    // public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
     
     [ObservableProperty]
     public partial bool SearchMode { get; set; } 
@@ -306,54 +261,8 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
 
     partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
-        SendMessage(new OnSelectedItemChanged(value?.Entry));
+        SendMessage(new Messages.OnSelectedItemChanged(value?.Entry));
     }
-
-    // private bool BlockSignal { get; set; }
-
-    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    // private readonly Services.TypeService _typeService;
-    // public ChangesListViewModel(IServiceProvider serviceProvider)
-    // {
-    //     _serviceProvider = serviceProvider;
-    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-    
-    
-    // [RelayCommand]
-    // private void CheckAll()
-    // {
-    //     foreach (var item in Items)
-    //     {
-    //         item.IsChecked = true;
-    //     }
-    // }
-    //
-    // [RelayCommand]
-    // private void ClearAll()
-    // {
-    //     foreach (var item in Items)
-    //     {
-    //         item.IsChecked = false;
-    //     }
-    // }
-
-    // partial void OnSelectedItemChanged(ListItemViewModel? value)
-    // {
-    //     SendMessage(new OnSelectedItemChanged(value?.StatusEntry));
-    // }
-
-    // public void Receive(OnLocalListItemSelected message)
-    // {
-    //     if (message.IsSelected)
-    //     {
-    //         SelectedItems.Add(message.ItemModel.StatusEntry.Path);
-    //     }
-    //     else
-    //     {
-    //         SelectedItems.RemoveAll(model => message.ItemModel.StatusEntry.Path == model);
-    //     }
-    // }
 
     public void Update(StatusEntry[] entries)
     {
@@ -380,19 +289,5 @@ public partial class ChangesListViewModel(ViewModelBase? parent = null): ViewMod
 
         SelectedItem = selectedItem;
     
-        // CheckedItems = Items.Where(item => item.IsChecked).ToDictionary(i => i.StatusEntry.Path, i => i.StatusEntry);
-    
     }
-
-    // public void Receive(OnItemCheckStateChanged message)
-    // {
-    //     if (message.Checked)
-    //     {
-    //         CheckedItems.Add(message.Item.Entry.Path, message.Item.Entry);
-    //     }
-    //     else
-    //     {
-    //         CheckedItems.Remove(message.Item.Entry.Path);
-    //     }
-    // }
 }
