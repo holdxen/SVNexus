@@ -85,16 +85,6 @@
                                               ToolTip.Tip="Commit"
                                               Source="{StaticResource Icons.OperationCommit}"
                                               Command="{Binding ChangesViewModel.CommitCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Relocate"
-                                              Source="{StaticResource Icons.OperationUpgrade}"
-                                              IsVisible="{Binding ChangesViewModel.Upgradable}"
-                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Relocate"
-                                              IsVisible="{Binding ChangesViewModel.IsWcRoot}"
-                                              Source="{StaticResource Icons.OperationRelocate}"
-                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
                     <StackPanel 

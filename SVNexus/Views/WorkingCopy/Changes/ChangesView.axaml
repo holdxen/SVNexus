@@ -112,58 +112,6 @@
             Background="Transparent"
             Grid.Column="1">
         </GridSplitter>
-        <Grid Grid.Column="2"
-              MinWidth="2"
-              RowDefinitions="*, Auto">
-            <!-- <components:LoadingOrError Margin="{DynamicResource ThicknessCardMargin}" -->
-            <!--                            CornerRadius="{DynamicResource RadiusCardCornerRadius}" -->
-            <!--                            State="{Binding EditorState}"> -->
-            <!--     <Border Theme="{DynamicResource CardBorder}"> -->
-            <!--         <Border.Resources> -->
-            <!--             <Thickness x:Key="ThicknessCardMargin">0</Thickness> -->
-            <!--         </Border.Resources> -->
-            <!--         <Grid> -->
-            <!--             <components:DifferenceEditor Difference="{Binding Difference}"></components:DifferenceEditor> -->
-            <!--         </Grid> -->
-            <!--     </Border> -->
-            <!-- </components:LoadingOrError> -->
-            <ContentControl Content="{Binding DifferenceViewModel}"></ContentControl>
-            <Grid
-                IsVisible="False"
-                Grid.Row="1"
-                Margin="3"
-                RowDefinitions="*, Auto">
-                <TextBox VerticalContentAlignment="Top"
-                         HorizontalContentAlignment="Left"
-                         MinHeight="100"
-                         Grid.Row="0"
-                         Text="{Binding CommitMessage}"
-                         AcceptsReturn="True">
-                </TextBox>
-                <Grid Grid.Row="1"
-                      Margin="0, 10"
-                      ColumnDefinitions="*, Auto">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
-                        <u:EnumSelector EnumType="{x:Static workingCopyView:ChangesViewModel.DepthType}"
-                                        VerticalAlignment="Center"
-                                        Value="{Binding Depth}">
-                        </u:EnumSelector>
-                        <CheckBox VerticalAlignment="Center"
-                                  IsChecked="{Binding CommitMissingAsDelete}"
-                                  Content="Commit missing as delete">
-                        </CheckBox>
-                        <CheckBox VerticalAlignment="Center"
-                                  IsChecked="{Binding AddUnversionedBeforeCommit}"
-                                  Content="Add unversioned before commit">
-                        </CheckBox>
-                    </StackPanel>
-                    <Button Grid.Column="1"
-                            Command="{Binding CommitCommand}"
-                            Content="提交">
-                    </Button>
-
-                </Grid>
-            </Grid>
-        </Grid>
+        <ContentControl Grid.Column="2" Content="{Binding DifferenceViewModel}"></ContentControl>
     </Grid>
 </UserControl>

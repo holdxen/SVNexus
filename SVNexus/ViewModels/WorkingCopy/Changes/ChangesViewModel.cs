@@ -59,55 +59,17 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
     public ChangesTreeViewModel ChangesTreeViewModel { get; }
 
-
-    [ObservableProperty]
-    public partial string CommitMessage { get; set; } = string.Empty;
-
-    //
-    // [ObservableProperty]
-    // public partial string WorkingCopyPath { get; set; } = string.Empty;
-    
-
     [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
 
     [ObservableProperty] public partial Difference Difference { get; set; } = new();
     
     public string? SelectedItem { get; set; }
-    
-    public static Type DepthType => typeof(Depth);
-    
-    
-    [ObservableProperty]
-    public partial Depth Depth { get; set; } = Depth.Infinity;
 
-    [ObservableProperty] public partial bool CommitMissingAsDelete { get; set; } = true;
-
-    [ObservableProperty] public partial bool AddUnversionedBeforeCommit { get; set; } = true;
-
-    
-    [ObservableProperty]
-    public partial bool IsWcRoot { get; set; }
-    
-    [ObservableProperty]
-    public partial bool Upgradable { get; set; }
-
-    // private readonly Services.ITabService _tabService;
-    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    // private readonly Services.TypeService _typeService;
     public ChangesViewModel(ViewModelBase parent): base(parent)
     {
-        // _serviceProvider = serviceProvider;
-        // _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-        // _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-        // _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-        
-        // ChangesTreeViewModel = serviceProvider.GetRequiredService<ChangesTreeViewModel>();
-        // ChangesListViewModel = serviceProvider.GetRequiredService<ChangesListViewModel>();
         ChangesTreeViewModel = new ChangesTreeViewModel(this);
         ChangesListViewModel = new ChangesListViewModel(this);
         DifferenceViewModel = new DifferenceViewModel(this);
-        
-        // Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
     }
 
     [RelayCommand]
@@ -147,39 +109,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     {
         
     }
-
-
-    // private async Task CheckWorkingCopyVersion()
-    // {
-    //     var path = SendMessage(new OnGetWorkingCopyPath());
-    //     var context = SendMessage(new OnGetContext()).Response;
-    //     using var wc = context.WorkingCopyContext();
-    //     
-    //     var current = await wc.WcVersion(path);
-    //     
-    //     var recommended = await context.DefaultWcVersion();
-    //
-    //     Upgradable = recommended.Compare(current) > 0;
-    // }
-    
-
-    // private async Task CheckWorkingCopyRoot()
-    // {
-    //     try
-    //     {
-    //         var path = SendMessage(new OnGetWorkingCopyPath());
-    //         using var context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
-    //         using var wc = context.WorkingCopyContext();
-    //         var result = await wc.CheckRoot(path);
-    //         IsWcRoot = result.IsWcRoot;
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         IsWcRoot = false;
-    //     }
-    //     
-    // }
-
 
     [RelayCommand]
     private async Task Revert()
