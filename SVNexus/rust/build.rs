@@ -139,7 +139,7 @@ fn main() {
 
     #[cfg(target_os = "macos")]
     {
-        println!("cargo:rustc-link-arg=-Wl,-rpath,@loader_path");
+        println!("cargo:rustc-link-arg=-Wl,-rpath,@loader_path/svn/lib");
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]

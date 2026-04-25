@@ -7,6 +7,7 @@
              xmlns:components="clr-namespace:SVNexus.Components"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:RevertDialogModel"
+             MinWidth="450"
              x:Class="SVNexus.Views.RevertDialog">
     <UserControl.Resources>
         <Thickness x:Key="ThicknessCardMargin">0</Thickness>
@@ -21,7 +22,7 @@
         <u:Form HorizontalAlignment="Stretch">
             <u:Form.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <Grid RowDefinitions="Auto, Auto, Auto, *"></Grid>
+                    <Grid RowDefinitions="Auto, Auto, Auto"></Grid>
                 </ItemsPanelTemplate>
             </u:Form.ItemsPanel>
             <u:FormItem Grid.Row="0" Label="Items:">
@@ -29,10 +30,11 @@
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
                         <ListBox Height="150" ItemsSource="{Binding TargetItems}">
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel">
+                                <DataTemplate DataType="viewModels:RevertDialogModel+TargetItemViewModel">
                                     <components:StatusEntryItem KindIcon="{Binding KindIcon}"
                                                                 FileName="{Binding FileName}"
                                                                 StatusIcon="{Binding  StatusIcon}"
+                                                                IsLocked="{Binding IsLocked}"
                                                                 StatusToolTip="{Binding StatusToolTip}"
                                                                 >
                                         
@@ -46,19 +48,15 @@
             <u:FormItem Grid.Row="1" Label="Depth:">
                 <u:EnumSelector HorizontalAlignment="Stretch"
                                 Value="{Binding Depth}"
-                                EnumType="{x:Static viewModels:CommitDialogModel.DepthType}">
+                                EnumType="{x:Static viewModels:RevertDialogModel.DepthType}">
                 </u:EnumSelector>
             </u:FormItem>
             <u:FormItem Grid.Row="2" Label="Options:">
-                <Grid ColumnDefinitions="*, *">
-                    <CheckBox Grid.Column="0" Content="No lock" IsChecked="{Binding NoLock}"></CheckBox>
-                    <CheckBox Grid.Column="1" Content="Include externals" IsChecked="{Binding IncludeExternals}"></CheckBox>
-                </Grid>
-            </u:FormItem>
-            <u:FormItem Classes="GridLayout" Grid.Row="3" Label="Commit Message:">
-                <TextBox ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True" Text="{Binding CommitMessage}"></TextBox>
+                <StackPanel>
+                    <CheckBox Content="Metadata only" IsChecked="{Binding MetadataOnly}"></CheckBox>
+                    <CheckBox Content="Added keep local" IsChecked="{Binding AddedKeepLocal}"></CheckBox>
+                    <CheckBox Content="Recursively" IsChecked="{Binding Recursively}"></CheckBox>
+                </StackPanel>
             </u:FormItem>
         </u:Form>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">

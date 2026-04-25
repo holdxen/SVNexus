@@ -331,9 +331,8 @@ public partial class HistorySnapshotViewModel(ViewModelBase? parent) : ViewModel
     
     private void HandleException(Exception e)
     {
-        Manager.Default.Send(new OnNotification
+        Manager.Default.Send(new OnShowToast()
         {
-            Title = "Error",
             Content = $"Failed to query: {e.HumanReadableMessage}",
             Type = NotificationType.Error,
         }, Manager.MainWindowToken);

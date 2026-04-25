@@ -16,7 +16,7 @@ uniffi::setup_scaffolding!();
 #[uniffi::export]
 fn engine_initialize() {
     use tracing_subscriber::fmt::format::FmtSpan;
-    use tracing_subscriber::{EnvFilter, filter::filter_fn, fmt, prelude::*};
+    use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
     let env_filter = EnvFilter::from_default_env();
 

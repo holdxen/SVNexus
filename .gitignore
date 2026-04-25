@@ -1,4 +1,5 @@
-bin/
+SVNexus/bin/
+Tabalonia/bin
 obj/
 /packages/
 riderModule.iml

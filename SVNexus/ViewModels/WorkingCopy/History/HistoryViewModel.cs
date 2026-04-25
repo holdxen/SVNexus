@@ -21,7 +21,6 @@ using SVNexus.Utils;
 using SVNexus.Views;
 using Ursa.Controls;
 using Exception = System.Exception;
-using Notification = Ursa.Controls.Notification;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 

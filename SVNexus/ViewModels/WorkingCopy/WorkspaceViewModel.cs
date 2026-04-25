@@ -494,23 +494,34 @@ public partial class WorkspaceViewModel : ViewModelBase,
             var hostId = SendMessage(new OnGetDialogHostId());
 
 
-            var result = await MessageBox.ShowOverlayAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
-            if (result != MessageBoxResult.Yes)
+            // var result = await MessageBox.ShowOverlayAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            // if (result != MessageBoxResult.Yes)
+            // {
+            //     return;
+            // }
+            //
+            // var revertOptions = new RevertOptions(
+            //     SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
+            //     Depth.Infinity,
+            //     false,
+            //     false
+            // );
+            //
+            //
+            // await _context.Value.Revert(revertOptions);
+            //
+
+            var model = new RevertDialogModel(this)
             {
-                return;
+                RelateTo = WorkspaceRoot ?? string.Empty,
+                TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry!).ToList()
+            };
+
+            await OverlayDialog.ShowModal<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
+            if (model.Accept)
+            {
+                await RefreshTreeItems();
             }
-
-            var revertOptions = new RevertOptions(
-                SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
-                Depth.Infinity,
-                false,
-                false
-            );
-        
-        
-            await _context.Value.Revert(revertOptions);
-
-            await RefreshTreeItems();
         }
         catch (Exception e)
         {

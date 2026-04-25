@@ -40776,7 +40776,7 @@ public enum RevisionPropertyName: int {
     Lock,
     FromUrl,
     FromUuid,
-    LastMergeRevision,
+    LastMergedRevision,
     CurrentCopying
 }
 public static class RevisionPropertyNameExtensions {

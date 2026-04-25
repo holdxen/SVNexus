@@ -8,7 +8,7 @@ use crate::{
     subversion::context::{LogChangedPathEntry, LogEntry},
 };
 use migration::MigratorTrait;
-use sea_orm::{ActiveModelTrait, ConnectOptions, QueryTrait};
+use sea_orm::{ActiveModelTrait, ConnectOptions};
 use sea_orm::{
     ActiveValue::{self},
     ColumnTrait, DatabaseConnection, EntityTrait, ModelTrait, QueryFilter, QueryOrder, QuerySelect,

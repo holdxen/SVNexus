@@ -41,6 +41,8 @@ public partial class MkdirDialogModel(ViewModelBase parent): DialogModelBase(par
             var options = new MkdirOptions([path], true, null, string.Empty);
             var context = SendMessage(new OnGetContext()).Response;
             await context.Mkdir(options);
+        
+            Ok();
         }
         catch (System.Exception e)
         {
@@ -49,8 +51,6 @@ public partial class MkdirDialogModel(ViewModelBase parent): DialogModelBase(par
                 Content = "Failed to create directory: " + e.HumanReadableMessage,
             }, Manager.MainWindowToken);
         }
-        
-        Ok();
     }
 
     public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
