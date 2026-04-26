@@ -250,6 +250,7 @@
                             VerticalAlignment="Center">
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Open terminal"
+                                          Command="{Binding OpenTerminalCommand}"
                                           Source="{StaticResource Icons.Terminal}" />
                 </StackPanel>
             </Grid>

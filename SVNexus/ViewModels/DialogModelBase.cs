@@ -1,9 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
-using SVNexus.Messages;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
@@ -40,11 +38,4 @@ public abstract partial class DialogModelBase(ViewModelBase? parent = null) : Vi
     
     
     public virtual OverlayDialogOptions OverlayDialogOptions { get; } = new();
-
-    public async Task ShowModalDialog(Func<string?, OverlayDialogOptions, Task> func)
-    {
-        var hostId = SendMessage(new OnGetDialogHostId());
-        
-        await func(hostId, OverlayDialogOptions);
-    }
 }

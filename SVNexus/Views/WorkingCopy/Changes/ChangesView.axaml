@@ -65,11 +65,13 @@
                     <components:SvgButton
                         Size="20"
                         Command="{Binding SwitchToListViewCommand}"
+                        Classes="ButtonBackground"
                         Classes.Selected="{Binding IsListView}"
                         Source="{StaticResource Icons.List}">
                     </components:SvgButton>
                     <components:SvgButton
                         Size="20"
+                        Classes="ButtonBackground"
                         Command="{Binding SwitchToTreeViewCommand}"
                         Classes.Selected="{Binding IsTreeView}"
                         Source="{StaticResource Icons.FolderTree}">

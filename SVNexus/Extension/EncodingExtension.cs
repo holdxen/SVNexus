@@ -13,7 +13,7 @@ public static class EncodingExtension
             {
                 return encoding.GetString(bytes);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

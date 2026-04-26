@@ -87,4 +87,14 @@ public class StatusEntryItem : TemplatedControl
         get => GetValue(IsLockedProperty);
         set => SetValue(IsLockedProperty, value);
     }
+
+    public static readonly StyledProperty<bool> IsLoadingProperty = AvaloniaProperty.Register<StatusEntryItem, bool>(
+        nameof(IsLoading));
+
+    public bool IsLoading
+    {
+        get => GetValue(IsLoadingProperty);
+        set => SetValue(IsLoadingProperty, value);
+    }
+    
 }

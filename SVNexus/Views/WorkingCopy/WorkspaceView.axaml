@@ -101,6 +101,8 @@
                 Spacing="5">
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Open terminal"
+                                      IsEnabled="{Binding IsOpenTerminalButtonEnable}"
+                                      Command="{Binding OpenTerminalCommand}"
                                       Source="{StaticResource Icons.Terminal}">
                 </components:SvgButton>
                 <components:SvgButton Classes="ToolButton"

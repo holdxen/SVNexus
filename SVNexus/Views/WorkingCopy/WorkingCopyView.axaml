@@ -68,22 +68,22 @@
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Revert"
                                               Source="{StaticResource Icons.OperationRevert}"
+                                              IsEnabled="{Binding ChangesViewModel.IsRevertButtonEnable}"
                                               Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Lock"
                                               Source="{StaticResource Icons.OperationLock}"
-                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
+                                              IsEnabled="{Binding ChangesViewModel.IsLockButtonEnable}"
+                                              Command="{Binding ChangesViewModel.LockCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Unlock"
                                               Source="{StaticResource Icons.OperationUnlock}"
-                                              Command="{Binding ChangesViewModel.RevertCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Relocate"
-                                              Source="{StaticResource Icons.OperationDelete}"
-                                              Command="{Binding ChangesViewModel.RelocateCommand}"></components:SvgButton>
+                                              IsEnabled="{Binding ChangesViewModel.IsUnlockButtonEnable}"
+                                              Command="{Binding ChangesViewModel.UnlockCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Commit"
                                               Source="{StaticResource Icons.OperationCommit}"
+                                              IsEnabled="{Binding ChangesViewModel.IsCommitButtonEnable}"
                                               Command="{Binding ChangesViewModel.CommitCommand}"></components:SvgButton>
                     </StackPanel>
                     <Border Grid.Column="1"></Border>
@@ -196,6 +196,13 @@
                         Grid.Column="2"
                         Orientation="Horizontal" 
                         Spacing="5">
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Open terminal"
+                                              Command="{Binding LocalViewModel.OpenTerminalCommand}"
+                                              IsEnabled="{Binding LocalViewModel.IsOpenTerminalButtonEnable}"
+                                              Source="{StaticResource Icons.Terminal}"
+                        >
+                        </components:SvgButton>
                     </StackPanel>
                 </Grid>
             </Grid>

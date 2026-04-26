@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,6 +20,7 @@ public partial class ChangesListViewModel : ViewModelBase
     {
         SelectedItems?.CollectionChanged += (sender, args) =>
         {
+            NotifySelectedItemsChanged();
         };
     }
 
@@ -251,8 +253,6 @@ public partial class ChangesListViewModel : ViewModelBase
     public ObservableCollection<ListItemViewModel> Items { get; } = [];
     
     
-    // public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
-    
     [ObservableProperty]
     public partial bool SearchMode { get; set; } 
     
@@ -262,6 +262,11 @@ public partial class ChangesListViewModel : ViewModelBase
     partial void OnSelectedItemChanged(ListItemViewModel? value)
     {
         SendMessage(new Messages.OnSelectedItemChanged(value?.Entry));
+    }
+
+    partial void OnSelectedItemsChanged(ObservableCollection<ListItemViewModel> value)
+    {
+        NotifySelectedItemsChanged();
     }
 
     public void Update(StatusEntry[] entries)
@@ -289,5 +294,10 @@ public partial class ChangesListViewModel : ViewModelBase
 
         SelectedItem = selectedItem;
     
+    }
+
+    public void NotifySelectedItemsChanged()
+    {
+        SendMessage(new Messages.OnSelectedItemsChanged(SelectedItems.Select(i => i.Entry).ToList()));
     }
 }

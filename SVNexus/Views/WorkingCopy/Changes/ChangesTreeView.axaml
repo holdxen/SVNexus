@@ -40,7 +40,14 @@
                                             KindIcon="{Binding KindIcon}"
                                             IsDelete="{Binding IsDelete}"
                                             StatusIcon="{Binding StatusIcon}"
+                                            IsLoading="{Binding LoadedCommand.IsRunning}"
                                             ShowRelateDirectory="False">
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="Loaded">
+                            <InvokeCommandAction Command="{Binding LoadedCommand}">
+                            </InvokeCommandAction>
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
                 </components:StatusEntryItem>
                 <!-- <Grid ColumnDefinitions="Auto, *, Auto" -->
                 <!--       Background="Transparent"> -->

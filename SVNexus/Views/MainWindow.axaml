@@ -33,12 +33,13 @@
                           Margin="0 8 0 0">
         <TabControl.ItemTemplate>
             <DataTemplate DataType="vm:MainWindowViewModel+TabItemViewModel">
-                <TextBlock Foreground="{DynamicResource SemiColorText0}" Padding="4 0" Text="{Binding Text}" />
+                <TextBlock Foreground="{DynamicResource SemiColorText0}" 
+                           Padding="4 0" 
+                           Text="{Binding Text}" />
             </DataTemplate>
         </TabControl.ItemTemplate>
         
         <tab:TabsControl.Content>
-            
             <ItemsControl ItemsSource="{Binding Tabs}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

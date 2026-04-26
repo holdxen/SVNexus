@@ -299,6 +299,25 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     
     public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned);
 
+    public bool IsOpenTerminalButtonEnable
+    {
+        get
+        {
+            if (SelectedTreeItems.Count != 1)
+            {
+                return false;
+            }
+
+            var item = SelectedTreeItems.First();
+            if (item.StatusEntry.NodeKind == NodeKind.File)
+            {
+                return true;
+            }
+
+            return item.StatusEntry.NodeStatus is not (WorkingCopyStatus.Missing or WorkingCopyStatus.Deleted);
+        }
+    }
+
 
     // private Dictionary<string, StatusEntry> _checkedItems = [];
     // private HashSet<string> _expandedItems = [];
@@ -359,6 +378,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         OnPropertyChanged(nameof(IsLockButtonEnable));
         OnPropertyChanged(nameof(IsUnlockButtonEnable));
         OnPropertyChanged(nameof(IsCommitButtonEnable));
+        OnPropertyChanged(nameof(IsOpenTerminalButtonEnable));
     }
 
     // public async Task ExecuteRefreshCommand()
@@ -368,6 +388,31 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     //         await RefreshCommand.ExecuteAsync(null);
     //     }
     // }
+
+    [RelayCommand]
+    private async Task OpenTerminal()
+    {
+        if (!IsOpenTerminalButtonEnable)
+        {
+            return;
+        }
+
+        var platform = IPlatform.Create();
+        
+        var item = SelectedTreeItems.First();
+        string path;
+        if (item.StatusEntry.NodeKind == NodeKind.Directory)
+        {
+            path = item.StatusEntry.Path;
+        }
+        else
+        {
+            path = item.StatusEntry.Path.GetDirectoryName() ?? platform.FileSystemRootPath;
+        }
+
+
+        await platform.OpenTerminal(path);
+    }
 
     [RelayCommand]
     private async Task Commit()

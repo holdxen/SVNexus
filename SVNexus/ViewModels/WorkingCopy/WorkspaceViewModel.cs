@@ -134,6 +134,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
     
     public bool IsRelocateButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().AbsolutePath == WorkspaceRoot;
     
+    public bool IsOpenTerminalButtonEnable => SelectedTreeItems.Count == 1;
+    
 
     /// <inheritdoc/>
     public WorkspaceViewModel(string path, ViewModelBase parent) : base(parent)
@@ -143,7 +145,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         _context = new Lazy<AsyncContext>(() =>
         {
             var hostId = SendMessage(new OnGetDialogHostId()); 
-            var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
+            var context = EngineBackend.Instance.SimpleContext(hostId);
             return context;
         });
 
@@ -166,6 +168,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         OnPropertyChanged(nameof(IsSwitchButtonEnable));
         OnPropertyChanged(nameof(IsMergeButtonEnable));
         OnPropertyChanged(nameof(IsRelocateButtonEnable));
+        OnPropertyChanged(nameof(IsOpenTerminalButtonEnable));
     }
 
     partial void OnSelectedTreeItemsChanged(ObservableCollection<TreeItemViewModel> oldValue, ObservableCollection<TreeItemViewModel> newValue)
@@ -188,6 +191,24 @@ public partial class WorkspaceViewModel : ViewModelBase,
             return;
         }
 
+
+        if (History is not null)
+        {
+            
+            EngineBackend.Instance.DatabaseQueue.Run(async _ =>
+            {
+                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(History.Uuid, new UpdateOperationDelegate()
+                {
+                    UpdateFunc = w =>
+                    {
+                        var v = w.ToWorkspaceHistory();
+                        if (v is not WorkspaceHistory.WorkingCopy wc) return w;
+                        v = wc with { WorkingCopyPath = value.AbsolutePath };
+                        return AnyValue.FromWorkspaceHistory(v);
+                    }
+                });
+            });
+        }
 
         if (_workingCopyViewModels.TryGetValue(value.AbsolutePath, out var workingCopyViewModel))
         {
@@ -408,6 +429,18 @@ public partial class WorkspaceViewModel : ViewModelBase,
             SelectedTreeItems = new ObservableCollection<TreeItemViewModel>(newSelectedTreeItems);
         }
 
+    }
+
+
+    [RelayCommand]
+    private async Task OpenTerminal()
+    {
+        if (!IsOpenTerminalButtonEnable)
+        {
+            return;
+        }
+        
+        await IPlatform.Create().OpenTerminal(SelectedTreeItems.First().AbsolutePath);
     }
 
 

@@ -5,7 +5,6 @@
              xmlns:u="https://irihi.tech/ursa"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:components="clr-namespace:SVNexus.Components"
              x:DataType="viewModels:CommitDialogModel"
              Width="800"
@@ -33,10 +32,14 @@
                     <Grid RowDefinitions="Auto, Auto, Auto, *"></Grid>
                 </ItemsPanelTemplate>
             </u:Form.ItemsPanel>
-            <u:FormItem Grid.Row="0" Label="Items:">
+            <u:FormItem Grid.Row="0">
+                <u:FormItem.Label>
+                    <CheckBox IsChecked="{Binding ShowActualTargetItem}"
+                              Content="Actual targets:"></CheckBox>
+                </u:FormItem.Label>
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
-                        <ListBox Height="150" ItemsSource="{Binding TargetItems}">
+                        <ListBox Height="150" ItemsSource="{Binding DisplayTargetItems}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel">
                                     <components:StatusEntryItem KindIcon="{Binding KindIcon}"
@@ -44,7 +47,6 @@
                                                                 StatusIcon="{Binding  StatusIcon}"
                                                                 StatusToolTip="{Binding StatusToolTip}"
                                                                 >
-                                        
                                     </components:StatusEntryItem>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -53,7 +55,14 @@
                     <u:LoadingIcon Margin="0 0 10 10" 
                                    HorizontalAlignment="Right" 
                                    VerticalAlignment="Bottom"
-                                   IsVisible="{Binding IsLoading}" />
+                                   >
+                        <u:LoadingIcon.IsVisible>
+                            <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                <Binding Path="IsLoading"></Binding>
+                                <Binding Path="ShowActualTargetItem"></Binding>
+                            </MultiBinding>
+                        </u:LoadingIcon.IsVisible>
+                    </u:LoadingIcon>
                 </Grid>
             </u:FormItem>
             <u:FormItem Grid.Row="1" Label="Depth:">

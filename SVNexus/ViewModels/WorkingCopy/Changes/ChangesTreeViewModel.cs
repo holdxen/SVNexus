@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
@@ -10,16 +11,18 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using SVNexus.Components;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Inject;
 using SVNexus.Messages;
+using SVNexus.Utils;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewModelBase(parent), 
+public partial class ChangesTreeViewModel : ViewModelBase, 
     IRecipient<ChangesTreeViewModel.OnItemIsExpandedChanged>,
-    IRecipient<ChangesTreeViewModel.OnItemIsCheckedChanged>
+    IRecipient<ChangesTreeViewModel.OnItemUpdated>
 {
 
     public class OnItemIsExpandedChanged
@@ -28,17 +31,10 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         public required bool IsExpanded { get; init; }
     }
 
-    public class OnItemIsCheckedChanged
-    {
-        public required TreeItemViewModel Item { get; init; }
-        public required bool IsChecked { get; init; }
-    }
+    public class OnItemUpdated;
     
     public partial class TreeItemViewModel(ViewModelBase parent): ViewModelBase(parent)
     {
-        
-        // public ChangesTreeViewModel? Root { get; set; }
-        
         [ObservableProperty]
         public partial bool IsExpanded { get; set; }
         
@@ -48,6 +44,11 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         [NotifyPropertyChangedFor(nameof(IsReal))]
         [NotifyPropertyChangedFor(nameof(HasChild))]
         [NotifyPropertyChangedFor(nameof(IsLocked))]
+        [NotifyPropertyChangedFor(nameof(StatusIcon))]
+        [NotifyPropertyChangedFor(nameof(Text))]
+        [NotifyPropertyChangedFor(nameof(KindIcon))]
+        [NotifyPropertyChangedFor(nameof(Path))]
+        [NotifyPropertyChangedFor(nameof(IsDelete))]
         public required partial StatusEntry? StatusEntry { get; set; }
         
         
@@ -77,8 +78,6 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
 
         public bool IsReal => StatusEntry is not null;
         
-        public bool IsCheckable => StatusEntry is not null && StatusEntry.NodeStatus != WorkingCopyStatus.Normal;
-
 
         public string StatusToolTip => StatusEntry?.NodeStatus.ToString() ?? string.Empty;
     
@@ -96,25 +95,6 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
 
         public List<object>? Buttons { get; } = [];
         
-        
-        // public required WeakReferenceMessenger Messenger { get; init; }
-
-
-        partial void OnIsCheckedChanged(bool value)
-        {
-            // Messenger.Send(new OnLocalTreeItemChecked()
-            // {
-            //     IsChecked = value,
-            //     ItemModel = this
-            // });
-            // Root?.OnItemChecked(this, value);
-            SendMessage(new OnItemIsCheckedChanged()
-            {
-                Item = this,
-                IsChecked = value
-            });
-        }
-
         partial void OnIsExpandedChanged(bool value)
         {
             // Root?.OnItemExpanded(this, value);
@@ -124,9 +104,49 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
                 IsExpanded = value
             });
         }
+
+        [RelayCommand]
+        private async Task OnLoaded()
+        {
+            if (StatusEntry is not null)
+            {
+                return;
+            }
+
+            var context = SendMessage(new OnGetContext()).Response;
+
+            var statusOptions = new StatusOptions(Path, new Revision.Working(), Depth.Empty, true, false, false, false, false, false, null);
+
+            var result = await context.Status(statusOptions);
+
+            if (result.Entries.Length != 1)
+            {
+                Logger.Warn($"Unexpected entries length: {result.Entries.Length}");
+                return;
+            }
+            
+            StatusEntry = result.Entries[0];
+
+            SendMessage(new OnItemUpdated());
+        }
     }
+
+    [ObservableProperty] public partial LoadingOrErrorState LoadingState { get; set; } = LoadingOrErrorState.MakeNone();
     
-    public ObservableCollection<TreeItemViewModel> Items { get; set; } = [];
+    // public ObservableCollection<TreeItemViewModel> Items { get; set; } = [];
+
+    public ObservableCollection<TreeItemViewModel> Items
+    {
+        get
+        {
+            if (Root is null)
+            {
+                return [];
+            }
+
+            return ShowRoot ? [Root] : Root.Children;
+        }
+    }
     
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedItem { get; set; }
@@ -150,56 +170,42 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     public List<TreeItemViewModel> DisplayItems { get; set; } = [];
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Items))]
     public partial bool ShowRoot { get; set; }
 
-    
-    private TreeItemViewModel? _root;
 
-    // private readonly Services.TypeService _typeService;
-    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    // public ChangesTreeViewModel(IServiceProvider serviceProvider)
-    // {
-    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-    //     
-    //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
-    // }
+    [ObservableProperty]
+    public partial TreeItemViewModel? Root { get; set; }
 
+    /// <inheritdoc/>
+    public ChangesTreeViewModel(ViewModelBase? parent = null) : base(parent)
+    {
+        SelectedItems?.CollectionChanged += (s, e) =>
+        {
+            NotifySelectedItemsChanged();
+        };
+    }
 
     [ObservableProperty]
     public partial ObservableCollection<TreeItemViewModel> SelectedItems { get; set; } = [];
 
-    partial void OnShowRootChanged(bool value)
-    {
-        if (_root is null)
-        {
-            return;
-        }
-
-        Items.Clear();
-        if (value)
-        {
-            Items.Add(_root);
-            // if (_root.StatusEntry is not null)
-            // {
-            //     if (_root.IsChecked)
-            //     {
-            //         CheckedItems[_root.StatusEntry.Path] = _root.StatusEntry;
-            //     }
-            //
-            //     ItemCount++;
-            // }
-        }
-        else
-        {
-            Items.AddRange(_root.Children);
-            // if (_root.StatusEntry is not null)
-            // {
-            //     CheckedItems.Remove(_root.StatusEntry.Path);
-            //     ItemCount--;
-            // }
-        }
-    }
+    // partial void OnShowRootChanged(bool value)
+    // {
+    //     if (Root is null)
+    //     {
+    //         return;
+    //     }
+    //
+    //     Items.Clear();
+    //     if (value)
+    //     {
+    //         Items.Add(Root);
+    //     }
+    //     else
+    //     {
+    //         Items.AddRange(Root.Children);
+    //     }
+    // }
 
 
     [RelayCommand]
@@ -216,61 +222,15 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
     }
     
 
-
-    // private void SetItemChecked(TreeItemViewModel item, bool value)
-    // {
-    //     if (item.IsReal)
-    //     {
-    //         item.IsChecked = value;
-    //     }
-    //     foreach (var child in item.Children)
-    //     {
-    //         SetItemChecked(child, value);
-    //     }
-    // }
-
-    
+    partial void OnSelectedItemsChanged(ObservableCollection<TreeItemViewModel> value)
+    {
+        NotifySelectedItemsChanged();
+    }
 
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
-        // Manager.Default.Send(new OnSelectedItemChanged(value?.StatusEntry), _typeService.Get<ChangesViewModel>());
         SendMessage(new Messages.OnSelectedItemChanged(value?.StatusEntry));
     }
-
-
-    // public void Receive(OnLocalTreeItemChecked message)
-    // {
-    //     if (message.ItemModel.StatusEntry is null)
-    //     {
-    //         return;
-    //     }
-    //     if (message.IsChecked)
-    //     {
-    //         SelectedItems.Add(message.ItemModel.StatusEntry.Path);
-    //     }
-    //     else
-    //     {
-    //         SelectedItems.RemoveAll((e) => e == message.ItemModel.StatusEntry.Path);
-    //     }
-    // }
-
-    // public void OnItemChecked(TreeItemViewModel item, bool check)
-    // {
-    //     if (item.StatusEntry is null)
-    //     {
-    //         return;
-    //     }
-    //     if (check)
-    //     {
-    //         CheckedItems.Add(item.StatusEntry.Path, item.StatusEntry);
-    //     }
-    //     else
-    //     {
-    //         // CheckedItems.RemoveAll((e) => e == item.StatusEntry.Path);
-    //         CheckedItems.Remove(item.StatusEntry.Path);
-    //     }
-    //     
-    // }
     
     public void Update(StatusEntry[] statusEntries)
     {
@@ -366,14 +326,15 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
 
         }
 
-        if (_root is null)
+        if (Root is null)
         {
             root.IsExpanded = true;
         }
-        _root = root;
+
+        Root = root;
             
             
-        OnShowRootChanged(ShowRoot);
+        // OnShowRootChanged(ShowRoot);
 
         ItemCount = statusEntries.Length;
         
@@ -404,20 +365,13 @@ public partial class ChangesTreeViewModel(ViewModelBase? parent = null): ViewMod
         }
     }
 
-    public void Receive(OnItemIsCheckedChanged message)
+    public void NotifySelectedItemsChanged()
     {
-        if (message.Item.StatusEntry is null)
-        {
-            return;
-        }
-        if (message.IsChecked)
-        {
-            // CheckedItems.Add(message.Item.StatusEntry.Path, message.Item.StatusEntry);
-        }
-        else
-        {
-            // CheckedItems.RemoveAll((e) => e == item.StatusEntry.Path);
-            // CheckedItems.Remove(message.Item.StatusEntry.Path);
-        }
+        SendMessage(new Messages.OnSelectedItemsChanged(SelectedItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToList()));
+    }
+
+    public void Receive(OnItemUpdated message)
+    {
+        NotifySelectedItemsChanged();
     }
 }

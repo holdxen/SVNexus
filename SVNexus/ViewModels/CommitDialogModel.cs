@@ -1,25 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HarfBuzzSharp;
-using Irihi.Avalonia.Shared.Contracts;
 using SVNexus.Extension;
 using SVNexus.Generated;
-using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.Utils;
 using SVNexus.ViewModels.WorkingCopy;
 using SVNexus.Views;
 using Ursa.Controls;
+using OperationDepth = SVNexus.Generated.Depth;
 
 namespace SVNexus.ViewModels;
 
@@ -38,22 +33,50 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     public class TargetItemViewModel: StatusEntryItemViewModel
     {
     }
+
+    public enum ValidDepth
+    {
+        Empty = OperationDepth.Empty,
+        Files = OperationDepth.Files,
+        Immediates = OperationDepth.Immediates,
+        Infinity = OperationDepth.Infinity,
+    }
+    
+    public static Type DepthType { get; } = typeof(ValidDepth);
+
+
     
     public override Type? ViewType { get; set; } = typeof(CommitDialog);
     
-    public static readonly Type DepthType = typeof(Depth);
+    // public static readonly Type DepthType = typeof(Depth);
 
     public required StatusEntry[] Targets { get; init; }
 
     [ObservableProperty]
-    public partial Depth Depth { get; set; } = Depth.Infinity;
+    public partial ValidDepth Depth { get; set; } = ValidDepth.Infinity;
     
     
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
-    public ObservableCollection<TargetItemViewModel> TargetItems { get; } = [];
+    public List<TargetItemViewModel> DisplayTargetItems =>
+        ShowActualTargetItem ? TargetItems : Targets.Select(i => new TargetItemViewModel()
+        {
+            Entry = i,
+            RelateTo = RelateTo
+        }).ToList();
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DisplayTargetItems))]
+    public partial List<TargetItemViewModel> TargetItems { get; set; } = [];
     
     public required string RelateTo { get; init; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DisplayTargetItems))]
+    // [NotifyPropertyChangedFor(nameof(TargetItemText))]
+    public partial bool ShowActualTargetItem { get; set; } = true;
+    
+    // public string TargetItemText => ShowActualTargetItem ? "Actual items:" : "Selected items:";
 
     [ObservableProperty]
     public partial bool NoLock { get; set; }
@@ -71,7 +94,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
         set => SetProperty(ref field, value);
     } = string.Empty;
 
-    partial void OnDepthChanged(Depth value)
+    partial void OnDepthChanged(ValidDepth value)
     {
         _singleTaskQueue.Run(LoadCommitItems);
     }
@@ -94,7 +117,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                 var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
                 var commitOptions = new CommitOptions(Targets.Where(i => i.NodeStatus is not (WorkingCopyStatus.Unversioned or WorkingCopyStatus.Missing)).Select(i => i.Path).ToArray(),
-                    Depth,
+                    (OperationDepth)Depth,
                     NoLock,
                     false,
                     true,
@@ -152,7 +175,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                     return;
                 }
 
-                var statusOptions = new StatusOptions(path.Path, new Revision.Working(), depth, false, false, false, false, includeExternals, false, null);
+                var statusOptions = new StatusOptions(path.Path, new Revision.Working(), (OperationDepth)depth, false, false, false, false, includeExternals, false, null);
 
                 var result = await context.Status(statusOptions);
 
@@ -167,20 +190,27 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                 return;
             }
 
-            TargetItems.Clear();
 
-            foreach (var entry in entries.Values)
+            TargetItems = entries.Values.Where(entry => entry.NodeStatus is not (
+                WorkingCopyStatus.Missing or 
+                WorkingCopyStatus.Unversioned or 
+                WorkingCopyStatus.Normal or 
+                WorkingCopyStatus.None)).Select(i => new TargetItemViewModel()
             {
-                if (entry.NodeStatus is WorkingCopyStatus.Missing or WorkingCopyStatus.Unversioned or WorkingCopyStatus.Normal or WorkingCopyStatus.None)
-                {
-                    continue;
-                }
-                TargetItems.Add(new TargetItemViewModel()
-                {
-                    Entry = entry,
-                    RelateTo = RelateTo
-                });
-            }
+                Entry = i,
+                RelateTo = RelateTo
+            }).ToList();
+
+            // TargetItems.Clear();
+
+            // foreach (var entry in entries.Values.Where(entry => entry.NodeStatus is not (WorkingCopyStatus.Missing or WorkingCopyStatus.Unversioned or WorkingCopyStatus.Normal or WorkingCopyStatus.None)))
+            // {
+            //     TargetItems.Add(new TargetItemViewModel()
+            //     {
+            //         Entry = entry,
+            //         RelateTo = RelateTo
+            //     });
+            // }
 
         }
         catch (System.Exception e)

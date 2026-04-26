@@ -3,9 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Utils;
@@ -31,20 +29,6 @@ public partial class HistoryChangesViewModel : ViewModelBase
         {
             get
             {
-                
-                
-                // if (Path == Current)
-                // {
-                //     return string.Empty;
-                // }
-                //
-                // if (Path.StartsWith(Current))
-                // {
-                //     return Path.TrimStartString(Current).TrimStartPathSeparatorChar();
-                // }
-                //
-                // return SystemPath.GetRelativePath(Current, Path.GetDirectoryName() ?? string.Empty);
-                
                 if (RelateToRoot == Path)
                 {
                     return string.Empty;
@@ -52,10 +36,7 @@ public partial class HistoryChangesViewModel : ViewModelBase
 
                 var relate = SystemPath.GetRelativePath(RelateToRoot, Path);
                 
-                
                 return relate.GetDirectoryName() ?? string.Empty;
-                // return Path.StartsWith(RelateToRoot) ? Path[RelateToRoot.Length..].TrimStartPathSeparatorChar() : SystemPath.GetRelativePath(RelateToRoot, Path);
-
             }
         }
 

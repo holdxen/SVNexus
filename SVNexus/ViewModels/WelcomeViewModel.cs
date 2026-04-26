@@ -968,6 +968,14 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     // }
 
     [RelayCommand]
+    private async Task OpenTerminal()
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        
+        await IPlatform.Create().OpenTerminal(home);
+    }
+
+    [RelayCommand]
     private async Task ShowCheckoutDialog()
     {
         var options = new OverlayDialogOptions

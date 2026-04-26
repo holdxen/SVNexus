@@ -535,7 +535,7 @@ impl From<*const ffi::svn_merge_range_t> for MergeRange {
     }
 }
 
-#[derive(Debug, Clone, uniffi::Record)]
+#[derive(Debug, Clone, uniffi::Record, svnexus_macro::ToDebugString)]
 pub struct WorkingCopyNotify {
     pub path: String,
     pub action: WorkingCopyNotifyAction,
