@@ -36,6 +36,7 @@ sea-query = "=1.0.0-rc.33"
 migration = { path = "./migration" }
 tracing-log = "0.2.0"
 log = "0.4.29"
+which = "8.0.2"
 
 
 

@@ -7,12 +7,13 @@ use std::{
 
 use crate::{
     error::{self, builder},
+    extensions::CommonExtension,
     subversion,
 };
 
 use derive_new::new;
 use resvg::usvg::Transform;
-use snafu::ResultExt;
+use snafu::{OptionExt, ResultExt};
 use tiny_skia::Pixmap;
 
 #[easy_ext::ext(SubversionStringer)]
@@ -351,7 +352,6 @@ impl FormatSizeOptions {
     }
 }
 
-
 const PROJECT_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 #[easy_ext::ext]
@@ -360,10 +360,8 @@ impl<'a> &'a str {
         let path = std::path::Path::new(self);
 
         let project_dir = std::path::Path::new(PROJECT_DIR).parent()?.parent()?;
-        
 
         path.strip_prefix(project_dir).ok()?.to_str()
-
 
         // self.strip_prefix(PROJECT_DIR)
         //     .unwrap_or(self)
@@ -378,7 +376,7 @@ const LOG_TARGET: &str = "avalonia";
 fn log_info(line: i32, file: &str, member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
-    use log::{Record, Level};
+    use log::{Level, Record};
 
     let content = format_args!("{}", content);
 
@@ -400,7 +398,7 @@ fn log_info(line: i32, file: &str, member: &str, content: &str) {
 fn log_error(line: i32, file: &str, member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
-    use log::{Record, Level};
+    use log::{Level, Record};
 
     let content = format_args!("{}", content);
 
@@ -422,7 +420,7 @@ fn log_error(line: i32, file: &str, member: &str, content: &str) {
 fn log_trace(line: i32, file: &str, member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
-    use log::{Record, Level};
+    use log::{Level, Record};
 
     let content = format_args!("{}", content);
 
@@ -444,7 +442,7 @@ fn log_trace(line: i32, file: &str, member: &str, content: &str) {
 fn log_debug(line: i32, file: &str, member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
-    use log::{Record, Level};
+    use log::{Level, Record};
 
     let content = format_args!("{}", content);
 
@@ -462,12 +460,11 @@ fn log_debug(line: i32, file: &str, member: &str, content: &str) {
     }
 }
 
-
 #[uniffi::export]
 fn log_warn(line: i32, file: &str, member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
-    use log::{Record, Level};
+    use log::{Level, Record};
 
     let content = format_args!("{}", content);
 
@@ -483,4 +480,19 @@ fn log_warn(line: i32, file: &str, member: &str, content: &str) {
     if logger.enabled(rec.metadata()) {
         logger.log(&rec);
     }
+}
+
+#[uniffi::export]
+fn find_which(name: &str) -> error::Result<Option<String>> {
+    let path = which::which(name);
+
+    let Ok(path) = path else {
+        return Ok(None);
+    };
+
+    path.to_str()
+        .map(|s| s.to_string().into_option_some())
+        .context(builder::General {
+            detail: "Invalid path",
+        })
 }

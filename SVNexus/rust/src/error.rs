@@ -95,6 +95,12 @@ pub enum Error {
         source: sea_orm::DbErr,
         backtrace: Backtrace,
     },
+
+    #[snafu(display("Failed to find executable: {source}\n{backtrace:#?}"))]
+    WhichError {
+        source: which::Error,
+        backtrace: Backtrace,
+    }
 }
 
 pub fn ok<T>(value: T) -> Result<T, Error> {
@@ -110,6 +116,12 @@ impl From<io::Error> for Error {
 impl From<uuid::Error> for Error {
     fn from(source: uuid::Error) -> Self {
         builder::InvalidID {}.into_error(source)
+    }
+}
+
+impl From<which::Error> for Error {
+    fn from(value: which::Error) -> Self {
+        builder::Which {}.into_error(value)
     }
 }
 

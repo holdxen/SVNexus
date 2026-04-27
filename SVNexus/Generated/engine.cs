@@ -2467,6 +2467,9 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -11463,6 +11466,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     RustBuffer uniffi_engine_fn_method_workingcopynotify_to_debug_string(RustBuffer @ptr,sbyte @compact,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      RustBuffer uniffi_engine_fn_method_formatsizeoptions_format(RustBuffer @ptr,ref UniffiRustCallStatus _uniffi_out_err
     );
 
@@ -11486,6 +11500,17 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_engine_fn_func_engine_initialize(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     RustBuffer uniffi_engine_fn_func_find_which(RustBuffer @name,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -12135,6 +12160,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_func_engine_initialize(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_func_find_which(
     );
 
     #if NET8_0_OR_GREATER
@@ -20851,6 +20887,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_engine_initialize();
             if (checksum != 40660) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_engine_initialize` checksum `40660`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_find_which();
+            if (checksum != 36542) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_find_which` checksum `36542`, library returned `{checksum}`");
             }
         }
         {
@@ -39552,6 +39594,15 @@ public record WorkingCopyNotify (
     uint HunkMatchedLine, 
     uint HunkFuzz
 ) {
+    
+    public string ToDebugString(bool @compact = false) {
+        return FfiConverterString.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_workingcopynotify_to_debug_string(FfiConverterTypeWorkingCopyNotify.INSTANCE.Lower(this), FfiConverterBoolean.INSTANCE.Lower(@compact), ref _status)
+));
+    }
+    
+    
 }
 
 class FfiConverterTypeWorkingCopyNotify: FfiConverterRustBuffer<WorkingCopyNotify> {
@@ -40280,6 +40331,10 @@ public class Exception: UniffiException {
         public DatabaseException(string message): base(message) {}
     }
     
+    public class WhichException: Exception {
+        public WhichException(string message): base(message) {}
+    }
+    
 }
 
 class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusErrorHandler<Exception> {
@@ -40302,6 +40357,7 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
             case 12: return new Exception.CSharpException(FfiConverterString.INSTANCE.Read(stream));
             case 13: return new Exception.CacheBrokenException(FfiConverterString.INSTANCE.Read(stream));
             case 14: return new Exception.DatabaseException(FfiConverterString.INSTANCE.Read(stream));
+            case 15: return new Exception.WhichException(FfiConverterString.INSTANCE.Read(stream));
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Read()", value));
         }
@@ -40354,6 +40410,9 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
                 break;
             case Exception.DatabaseException:
                 stream.WriteInt(14);
+                break;
+            case Exception.WhichException:
+                stream.WriteInt(15);
                 break;
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Write()", value));
@@ -43539,6 +43598,15 @@ public static class EngineMethods {
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_func_engine_initialize( ref _status)
 );
+    }
+
+
+    /// <exception cref="Exception"></exception>
+    public static string? FindWhich(string @name) {
+        return FfiConverterOptionalString.INSTANCE.Lift(
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_find_which(FfiConverterString.INSTANCE.Lower(@name), ref _status)
+));
     }
 
 
