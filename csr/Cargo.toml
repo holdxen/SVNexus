@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow = { version = "1.0.100", features = ["backtrace"] }
 camino = "1.2.2"
+clap = { version = "4.6.1", features = ["derive"] }
 quick-xml = { version = "0.39.0", features = ["serialize"] }
 serde = { version = "1.0.228", features = ["derive"] }
 toml = "0.9.11"
