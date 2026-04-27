@@ -69,6 +69,7 @@ pub impl *const subversion::ffi::svn_string_t {
 
 #[easy_ext::ext(CStringer)]
 pub impl *const c_char {
+    #[track_caller]
     unsafe fn to_str<'a>(self) -> &'a str {
         assert!(!self.is_null(), "Expected non-null pointer");
         unsafe { CStr::from_ptr(self).to_str().expect("Invalid UTF-8 data") }

@@ -80,6 +80,12 @@
                                               Source="{StaticResource Icons.OperationUnlock}"
                                               IsEnabled="{Binding ChangesViewModel.IsUnlockButtonEnable}"
                                               Command="{Binding ChangesViewModel.UnlockCommand}"></components:SvgButton>
+                        <components:LoadingSvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Unlock"
+                                              IsLoading="{Binding ChangesViewModel.InfoCommand.IsRunning}"
+                                              Source="{StaticResource Icons.OperationInfo}"
+                                              IsEnabled="{Binding ChangesViewModel.IsInfoButtonEnable}"
+                                              Command="{Binding ChangesViewModel.InfoCommand}"></components:LoadingSvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Commit"
                                               Source="{StaticResource Icons.OperationCommit}"
@@ -94,7 +100,7 @@
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Open terminal"
                                               Source="{StaticResource Icons.Terminal}"
-                                              Command="{Binding UpdateCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.OpenTerminalCommand}"></components:SvgButton>
                     </StackPanel>
                 </Grid>
                 <Grid ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding IsHistoryView}">
@@ -183,6 +189,12 @@
                                               IsEnabled="{Binding LocalViewModel.IsMkdirButtonEnable}"
                                               Source="{StaticResource Icons.OperationMkdir}">
                         </components:LoadingSvgButton>
+                        <components:LoadingSvgButton Classes="ToolButton" 
+                                                     ToolTip.Tip="Unlock"
+                                                     IsLoading="{Binding LocalViewModel.InfoCommand.IsRunning}"
+                                                     Source="{StaticResource Icons.OperationInfo}"
+                                                     IsEnabled="{Binding LocalViewModel.IsInfoButtonEnable}"
+                                                     Command="{Binding LocalViewModel.InfoCommand}"></components:LoadingSvgButton>
                         <components:SvgButton Classes="ToolButton"
                                               ToolTip.Tip="Commit"
                                               Command="{Binding LocalViewModel.CommitCommand}"

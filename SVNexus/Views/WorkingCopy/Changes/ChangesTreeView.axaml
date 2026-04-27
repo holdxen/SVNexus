@@ -8,12 +8,19 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="True"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesTreeView">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Show">
+            <InvokeCommandAction Command="{Binding ShowCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <components:AdvancedTreeView SelectionMode="Multiple"
-              Margin="0"
-              Padding="0"
-              AutoScrollToSelectedItem="False"
-              SelectedItem="{Binding SelectedItem}"
-              ItemsSource="{Binding Items}">
+                                 Margin="0"
+                                 Padding="0"
+                                 AutoScrollToSelectedItem="False"
+                                 SelectedItems="{Binding SelectedItems}"
+                                 SelectedItem="{Binding SelectedItem}"
+                                 ItemsSource="{Binding Items}">
         <Interaction.Behaviors>
             <EventTriggerBehavior EventName="PointerPressed">
                 <InvokeCommandAction Command="{Binding DeselectCommand}">

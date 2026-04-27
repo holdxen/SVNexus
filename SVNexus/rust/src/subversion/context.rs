@@ -5,6 +5,7 @@ use super::{SVNError, svn_no_error};
 use crate::apr::{self, AprArray, AprPool, AutoPool, Pool};
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
 use crate::extensions::{CommonExtension, OptionExtension};
+use crate::subversion::ffi::{svn_path_is_backpath_present, svn_uri_canonicalize};
 use crate::subversion::version::Version;
 use crate::subversion::{ra, utils};
 use crate::utils::PointerMutMapper;
@@ -101,8 +102,7 @@ pub struct Context {
 
 impl std::fmt::Debug for Context {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Context")
-            .finish()
+        f.debug_struct("Context").finish()
     }
 }
 
@@ -777,11 +777,14 @@ impl StatusEntry {
 
             let out_of_date_kind = NodeKind::try_from(entry.ood_kind).unwrap();
 
-            let repository_node_status = WorkingCopyStatus::try_from(entry.repos_node_status).unwrap();
+            let repository_node_status =
+                WorkingCopyStatus::try_from(entry.repos_node_status).unwrap();
 
-            let repository_text_status = WorkingCopyStatus::try_from(entry.repos_text_status).unwrap();
+            let repository_text_status =
+                WorkingCopyStatus::try_from(entry.repos_text_status).unwrap();
 
-            let repository_property_status = WorkingCopyStatus::try_from(entry.repos_prop_status).unwrap();
+            let repository_property_status =
+                WorkingCopyStatus::try_from(entry.repos_prop_status).unwrap();
 
             let repository_lock = entry.repos_lock.map(Lock::from);
 
@@ -1985,7 +1988,6 @@ impl DifferenceOptions {
                 std::ptr::null_mut()
             };
 
-
             // let options: ffi::svn_diff_file_options_t = options.options.into();
 
             tracing::info!("{}:{}", file!(), line!());
@@ -2246,11 +2248,7 @@ impl *const ffi::svn_client_info2_t {
                 Some(Lock::from(ptr.lock))
             };
 
-            let working_copy_info = if ptr.wc_info.is_null() {
-                None
-            } else {
-                Some(ptr.wc_info.into())
-            };
+            let working_copy_info = ptr.wc_info.map(|v| v.into());
 
             InfoEntry {
                 url,
@@ -2300,8 +2298,6 @@ impl Context {
     pub fn ctx(&mut self) -> *mut ffi::svn_client_ctx_t {
         self.ptr
     }
-
-    
 
     fn cancelled(&self) -> error::Result<()> {
         let msg = self.inner.context_notifier.cancel().map_err(|e| {
@@ -2690,11 +2686,19 @@ impl Context {
 
             let mut revision_number: ffi::svn_revnum_t = 0;
 
-            let from_path_or_url = pool.string(opts.from_path_or_url)?;
+            let from_path_or_url = opts.from_path_or_url.replace('\\', "/");
+
+            let mut from_path_or_url = pool.string(&from_path_or_url)? as *const c_char;
             let to_path = pool.string(opts.to_path)?;
             let to_path = ffi::svn_dirent_canonicalize(to_path, pool.as_mut_ptr());
             let peg_revision = opts.peg_revision.to_opt_revision();
             let revision = opts.revision.to_opt_revision();
+
+
+
+            if ffi::svn_path_is_url(from_path_or_url) != 0 {
+                from_path_or_url = Self::check_url(from_path_or_url, &opts.from_path_or_url, &mut pool)?;
+            }
 
             let error = ffi::svn_client_export5(
                 revision_number.pointer_mut(),
@@ -2712,6 +2716,55 @@ impl Context {
             );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
             Ok(RevisionNumber::try_from(revision_number).expect("Unexpected revision number"))
+        }
+    }
+
+    unsafe fn check_url(url: *const c_char, orignal_url: &str, pool: &mut apr::Pool) -> error::Result<*const c_char> {
+        unsafe {
+            if ffi::svn_path_is_url(url) == 0 {
+                return builder::InvalidArgument {
+                    detail: format!("{} is not a url", orignal_url),
+                }
+                .fail();
+            }
+
+            let target = ffi::svn_path_uri_from_iri(url, pool.as_mut_ptr());
+
+            #[cfg(target_os = "windows")]
+            let mut target = ffi::svn_path_uri_autoescape(target, pool.as_mut_ptr());
+
+            #[cfg(not(target_os = "windows"))]
+            let target = ffi::svn_path_uri_autoescape(target, pool.as_mut_ptr());
+
+            #[cfg(target_os = "windows")]
+            {
+                let mut p = ffi::apr_pstrdup(pool.as_mut_ptr(), target);
+                target = p;
+
+                while *p as u8 != b'\0' {
+                    if *p as u8 == b'\\' {
+                        *p = b'/' as c_char;
+                    }
+                    p = p.add(1);
+                }
+            }
+
+            if svn_path_is_backpath_present(target) != 0 {
+                return builder::InvalidArgument {
+                    detail: format!(".. is not allowed in url: {}", orignal_url),
+                }.fail();
+            }
+
+            let url = svn_uri_canonicalize(target, pool.as_mut_ptr());
+
+            if ffi::svn_uri_is_canonical(url, pool.as_mut_ptr()) == 0 {
+                return builder::InvalidArgument {
+                    detail: format!("{} is invalid", orignal_url),
+                }
+                .fail();
+            }
+
+            Ok(url)
         }
     }
 
@@ -2735,7 +2788,7 @@ impl Context {
 
         let mut pool = unsafe { apr::Pool::create() };
 
-        let url = unsafe { pool.string(opts.url.as_str()) }?;
+        let mut url = unsafe { pool.string(opts.url.as_str()) }? as *const c_char;
 
         let path = unsafe { pool.string(opts.path.as_str()) }?;
 
@@ -2746,6 +2799,8 @@ impl Context {
         //     })?;
 
         // let path = CString::new(opts.path).whatever_context::<_, error::Error>("Invalid path")?;
+
+        if opts.url.contains('\\') {}
 
         let store_pristine = opts
             .store_pristine
@@ -2760,18 +2815,53 @@ impl Context {
 
         tracing::info!("Start checking using c function");
         let error = unsafe {
-            if ffi::svn_path_is_url(url) == 0 {
-                return builder::InvalidArgument {
-                    detail: "Invalid url",
-                }
-                .fail();
-            }
-            if ffi::svn_uri_is_canonical(url, pool.as_mut_ptr()) == 0 {
-                return builder::InvalidArgument {
-                    detail: "Invalid url",
-                }
-                .fail();
-            }
+
+            url = Self::check_url(url, &opts.url, &mut pool)?;
+            // if ffi::svn_path_is_url(url) == 0 {
+            //     return builder::InvalidArgument {
+            //         detail: format!("{} is not a url", opts.url),
+            //     }
+            //     .fail();
+            // }
+
+            // {
+            //     let target = ffi::svn_path_uri_from_iri(url, pool.as_mut_ptr());
+
+
+            //     #[cfg(target_os = "windows")]
+            //     let mut target = ffi::svn_path_uri_autoescape(target, pool.as_mut_ptr());
+
+            //     #[cfg(not(target_os = "windows"))]
+            //     let target = ffi::svn_path_uri_autoescape(target, pool.as_mut_ptr());
+
+            //     #[cfg(target_os = "windows")]
+            //     {
+            //         let mut p = ffi::apr_pstrdup(pool.as_mut_ptr(), target);
+            //         target = p;
+
+            //         while *p as u8 != b'\0' {
+            //             if *p as u8 == b'\\' {
+            //                 *p = b'/' as c_char;
+            //             }
+            //             p = p.add(1);
+            //         }
+            //     }
+
+            //     if svn_path_is_backpath_present(target) != 0 {
+            //         return builder::InvalidArgument {
+            //             detail: ".. is not allowed in url",
+            //         }.fail();
+            //     }
+
+            //     url = svn_uri_canonicalize(target, pool.as_mut_ptr());
+            // }
+
+            // if ffi::svn_uri_is_canonical(url, pool.as_mut_ptr()) == 0 {
+            //     return builder::InvalidArgument {
+            //         detail: format!("{} is invalid", opts.url),
+            //     }
+            //     .fail();
+            // }
 
             // if ffi::svn_dirent_is_absolute(path) == 0 {
             //     return builder::InvalidArgument {

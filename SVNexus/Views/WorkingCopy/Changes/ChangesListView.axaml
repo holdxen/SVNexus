@@ -14,9 +14,16 @@
                                   Source="{Binding Source, Converter={x:Static converters:StaticResourceConverter.Default}}"></components:SvgRender>
         </DataTemplate>
     </UserControl.DataTemplates>
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Show">
+            <InvokeCommandAction Command="{Binding ShowCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <ListBox
         x:Name="ListBox"
         SelectedItem="{Binding SelectedItem}"
+        SelectedItems="{Binding SelectedItems}"
         SelectionMode="Multiple"
         ItemsSource="{Binding Items}">
         <ListBox.Styles>

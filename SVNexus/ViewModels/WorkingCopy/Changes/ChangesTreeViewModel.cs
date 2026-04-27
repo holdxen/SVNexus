@@ -180,6 +180,10 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     /// <inheritdoc/>
     public ChangesTreeViewModel(ViewModelBase? parent = null) : base(parent)
     {
+        if (SelectedItems is null)
+        {
+            Logger.Warn("Unexpected null");
+        }
         SelectedItems?.CollectionChanged += (s, e) =>
         {
             NotifySelectedItemsChanged();
@@ -371,6 +375,12 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     }
 
     public void Receive(OnItemUpdated message)
+    {
+        NotifySelectedItemsChanged();
+    }
+
+    [RelayCommand]
+    private void Show()
     {
         NotifySelectedItemsChanged();
     }

@@ -299,6 +299,8 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     
     public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned);
 
+    public bool IsInfoButtonEnable => SelectedTreeItems.Count == 1;
+
     public bool IsOpenTerminalButtonEnable
     {
         get
@@ -379,6 +381,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         OnPropertyChanged(nameof(IsUnlockButtonEnable));
         OnPropertyChanged(nameof(IsCommitButtonEnable));
         OnPropertyChanged(nameof(IsOpenTerminalButtonEnable));
+        OnPropertyChanged(nameof(IsInfoButtonEnable));
     }
 
     // public async Task ExecuteRefreshCommand()
@@ -388,6 +391,31 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     //         await RefreshCommand.ExecuteAsync(null);
     //     }
     // }
+
+    [RelayCommand]
+    private async Task Info()
+    {
+        if (!IsInfoButtonEnable)
+        {
+            return;
+        }
+
+        var model = new InfoDialogModel(this)
+        {
+            Path = SelectedTreeItems.First().StatusEntry.Path,
+            PegRevision = new Revision.Unspecified(),
+            Revision =  new Revision.Unspecified(),
+        };
+
+        await model.LoadedCommand.ExecuteOrNothingAsync(null);
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+        _ = Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await OverlayDialog.ShowModal<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+        });
+    }
 
     [RelayCommand]
     private async Task OpenTerminal()

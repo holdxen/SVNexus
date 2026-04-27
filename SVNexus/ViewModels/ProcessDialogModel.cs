@@ -67,7 +67,8 @@ public partial class CheckoutProcessDialogModel(ViewModelBase parent) : ProcessD
         try
         {
         
-            await context.Checkout(Options);
+            var number = await context.Checkout(Options);
+            Revision = number.ToString();
             IsCompleted = true;
         }
         catch (System.Exception e)
@@ -145,7 +146,8 @@ public partial class ExportProcessDialogModel(ViewModelBase parent) : ProcessDia
         try
         {
         
-            await context.Export(Options);
+            var number = await context.Export(Options);
+            Revision = number.ToString();
             IsCompleted = true;
         }
         catch (System.Exception e)

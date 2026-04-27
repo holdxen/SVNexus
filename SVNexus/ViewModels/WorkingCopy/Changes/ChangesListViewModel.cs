@@ -300,4 +300,10 @@ public partial class ChangesListViewModel : ViewModelBase
     {
         SendMessage(new Messages.OnSelectedItemsChanged(SelectedItems.Select(i => i.Entry).ToList()));
     }
+    
+    [RelayCommand]
+    private void Show()
+    {
+        NotifySelectedItemsChanged();
+    }
 }

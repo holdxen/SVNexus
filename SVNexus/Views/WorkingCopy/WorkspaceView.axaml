@@ -72,6 +72,13 @@
                                       Command="{Binding MkdirCommand}"
                                       Source="{StaticResource Icons.OperationMkdir}">
                 </components:SvgButton>
+                <components:LoadingSvgButton Classes="ToolButton"
+                                      ToolTip.Tip="Info"
+                                      IsLoading="{Binding InfoCommand.IsRunning}"
+                                      Command="{Binding InfoCommand}"
+                                      IsEnabled="{Binding IsInfoButtonEnable}"
+                                      Source="{StaticResource Icons.OperationInfo}">
+                </components:LoadingSvgButton>
                 <components:SvgButton Classes="ToolButton"
                                       ToolTip.Tip="Commit"
                                       Command="{Binding CommitCommand}"

@@ -389,8 +389,8 @@ pub struct WorkingCopyConflictResult {
 pub struct WorkingCopyInfo {
     schedule: WorkingCopySchedule,
     copy_from_revision: Option<context::RevisionNumber>,
-    check_sum: CheckSum,
-    changelist: String,
+    check_sum: Option<CheckSum>,
+    changelist: Option<String>,
     depth: context::Depth,
     recorded_size: Option<u64>,
     recorded_time: i64,
@@ -407,8 +407,8 @@ impl From<*const ffi::svn_wc_info_t> for WorkingCopyInfo {
             let ptr = value.as_ref().unwrap();
             let schedule = ptr.schedule.try_into().unwrap();
             let copy_from_revision = ptr.copyfrom_rev.try_into().ok();
-            let check_sum = CheckSum::from(ptr.checksum);
-            let changelist = ptr.changelist.to_str().to_string();
+            let check_sum = ptr.checksum.map(|v| CheckSum::from(v));
+            let changelist = ptr.changelist.to_nullable_string();
             let depth = ptr.depth.try_into().unwrap();
             let recorded_size = ptr.recorded_size.try_into().ok();
 

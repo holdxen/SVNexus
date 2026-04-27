@@ -64,6 +64,8 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     [NotifyPropertyChangedFor(nameof(IsLockButtonEnable))]
     [NotifyPropertyChangedFor(nameof(IsUnlockButtonEnable))]
     [NotifyPropertyChangedFor(nameof(IsCommitButtonEnable))]
+    [NotifyPropertyChangedFor(nameof(IsOpenTerminalButtonEnable))]
+    [NotifyPropertyChangedFor(nameof(IsInfoButtonEnable))]
     public partial List<StatusEntry> SelectedStatusEntries { get; set; } = [];
 
     public bool IsRevertButtonEnable => SelectedStatusEntries.Count > 0;
@@ -73,6 +75,30 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     public bool IsUnlockButtonEnable => SelectedStatusEntries.Count > 0 && SelectedStatusEntries.All(i => i.NodeKind != NodeKind.Directory && i.Lock is not null);
 
     public bool IsCommitButtonEnable => SelectedStatusEntries.Count > 0;
+    
+    public bool IsInfoButtonEnable => SelectedStatusEntries.Count == 1;
+    
+    
+    public bool IsOpenTerminalButtonEnable
+    {
+        get
+        {
+            if (SelectedStatusEntries.Count != 1)
+            {
+                return false;
+            }
+
+            var item = SelectedStatusEntries.First();
+            if (item.NodeKind == NodeKind.File)
+            {
+                return true;
+            }
+
+            return item.NodeStatus is not (WorkingCopyStatus.Missing or WorkingCopyStatus.Deleted);
+        }
+    }
+
+
 
     public ChangesViewModel(ViewModelBase parent): base(parent)
     {
@@ -91,6 +117,52 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     private void SwitchToTreeView()
     {
         SelectedViewIndex = TreeViewIndex;
+    }
+
+
+    [RelayCommand]
+    private async Task Info()
+    {
+        var model = new InfoDialogModel(this)
+        {
+            Path = SelectedStatusEntries.First().Path,
+            PegRevision = new Revision.Unspecified(),
+            Revision =  new Revision.Unspecified(),
+        };
+
+        await model.LoadedCommand.ExecuteOrNothingAsync(null);
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+        _ = Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await OverlayDialog.ShowModal<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+        });
+    }
+
+    [RelayCommand]
+    private async Task OpenTerminal()
+    {
+        if (!IsOpenTerminalButtonEnable)
+        {
+            return;
+        }
+
+        var platform = IPlatform.Create();
+        
+        var item = SelectedStatusEntries.First();
+        string path;
+        if (item.NodeKind == NodeKind.Directory)
+        {
+            path = item.Path;
+        }
+        else
+        {
+            path = item.Path.GetDirectoryName() ?? platform.FileSystemRootPath;
+        }
+
+
+        await platform.OpenTerminal(path);
     }
 
     [RelayCommand]

@@ -24,13 +24,12 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
-public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(parent), 
+public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(parent),
     IRecipient<WelcomeViewModel.OnRemoveHistory>,
     IRecipient<WelcomeViewModel.OnHistoryStateChanged>,
     IRecipient<WelcomeViewModel.OnUpdateHistoryGroup>,
     IRecipient<OnCancel>
 {
-    
     // [ObservableProperty]
     // public partial bool IsVisible { get; set; }
 
@@ -40,31 +39,34 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
         {
             var historyItems = await SeaDatabaseConnection.Default.WorkspaceHistories();
-        
-            HistoryItems = new ObservableCollection<HistoryItemViewModel>(historyItems.Select<WorkspaceHistory, HistoryItemViewModel>(i =>
-            {
-                return i switch
+
+            HistoryItems = new ObservableCollection<HistoryItemViewModel>(
+                historyItems.Select<WorkspaceHistory, HistoryItemViewModel>(i =>
                 {
-                    WorkspaceHistory.WorkingCopy workingCopy => new WorkingCopyItemViewModel(this)
+                    return i switch
                     {
-                        History = workingCopy,
-                    },
-                    WorkspaceHistory.Repository repository =>
-                        new RepositoryItemViewModel(this) { History = repository },
-                    _ => throw new UnreachableException()
-                };
-            }));
+                        WorkspaceHistory.WorkingCopy workingCopy => new WorkingCopyItemViewModel(this)
+                        {
+                            History = workingCopy,
+                        },
+                        WorkspaceHistory.Repository repository =>
+                            new RepositoryItemViewModel(this) { History = repository },
+                        _ => throw new UnreachableException()
+                    };
+                }));
 
             var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
             foreach (var item in HistoryItems)
             {
                 item.HistoryGroups = historyGroups;
             }
-            
-            HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
-            {
-                HistoryGroup = i
-            }));
+
+            HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(
+                historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i =>
+                    new HistoryGroupItemViewModel(this)
+                    {
+                        HistoryGroup = i
+                    }));
             ApplyFilter();
         });
     }
@@ -82,50 +84,48 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     }
 
     public class OnUpdateHistoryGroup;
-    
+
     public class OnHistoryStateChanged;
-    
-    public abstract partial class HistoryItemViewModel(ViewModelBase parent): ViewModelMore(parent)
+
+    public abstract partial class HistoryItemViewModel(ViewModelBase parent) : ViewModelMore(parent)
     {
-        [ObservableProperty] 
-        public partial bool IsVisible { get; set; } = true;
-        
+        [ObservableProperty] public partial bool IsVisible { get; set; } = true;
+
         public abstract bool IsStar { get; }
-        
+
         public abstract string HistoryUuid { get; }
-        
+
         public abstract string Icon { get; }
-        
-        [ObservableProperty]
-        public partial bool IsEditing { get; set; }
+
+        [ObservableProperty] public partial bool IsEditing { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MenuItems))]
         public partial List<WorkspaceHistoryGroup> HistoryGroups { get; set; } = [];
-        
+
         public abstract List<MenuItemViewModel> MenuItems { get; }
 
         public abstract WorkspaceHistory RebuildWithIsStar(bool value);
-        
+
         public abstract WorkspaceHistory RebuildWithRemark(string? value);
-        
-                
-        [ObservableProperty]
-        public partial string? Remark { get; set; }
-        
+
+
+        [ObservableProperty] public partial string? Remark { get; set; }
+
         [RelayCommand]
         protected async Task ToggleIsStar()
         {
             var history = RebuildWithIsStar(!IsStar);
-            
+
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
                 // await DatabaseManager.Default.SetWorkspaceHistory(history);
-                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(history.Uuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(history)));
+                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(history.Uuid,
+                    new UpdateOperationValue(AnyValue.FromWorkspaceHistory(history)));
             });
             SendMessage(new OnHistoryStateChanged());
         }
-        
+
         [RelayCommand]
         protected async Task Delete()
         {
@@ -139,7 +139,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             });
             SendMessage(new OnHistoryStateChanged());
         }
-        
+
         [RelayCommand]
         private async Task EditRemark()
         {
@@ -153,10 +153,10 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
 
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
-                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(HistoryUuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(history)));
+                await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(HistoryUuid,
+                    new UpdateOperationValue(AnyValue.FromWorkspaceHistory(history)));
             });
         }
-        
     }
 
     public partial class RepositoryItemViewModel(ViewModelBase parent) : HistoryItemViewModel(parent)
@@ -167,23 +167,24 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
 
 
         public string Name => "Repository";
-        
+
         public string? LastUsedTime => History.LastUsedTime?.Map(seconds =>
         {
             var offset = DateTimeOffset.FromUnixTimeSeconds(seconds);
             return offset.ToLocalTime().DateTime.ToString(CultureInfo.InvariantCulture);
         });
-        
+
         public override bool IsStar => History.Star;
-        
+
         public override string HistoryUuid => History.Uuid;
 
         public string Url => History.RepositoryRootUrl;
 
         public string RepositoryUuid => History.Uuid;
-        
-        
+
+
         public override string Icon => Application.Current?.FindResource("Icons.Repository") as string ?? string.Empty;
+
         public override WorkspaceHistory RebuildWithIsStar(bool value)
         {
             return History = History with { Star = value };
@@ -207,7 +208,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 Command = DeleteCommand
             },
         ];
-        
+
         [RelayCommand]
         private void Open()
         {
@@ -217,7 +218,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     public partial class WorkingCopyItemViewModel(ViewModelBase parent) : HistoryItemViewModel(parent)
     {
         public override string Icon => Application.Current?.FindResource("Icons.WorkingCopy") as string ?? string.Empty;
-        
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsStar))]
         [NotifyPropertyChangedFor(nameof(LastUsedTime))]
@@ -230,21 +231,22 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             var offset = DateTimeOffset.FromUnixTimeSeconds(seconds);
             return offset.ToLocalTime().DateTime.ToString(CultureInfo.InvariantCulture);
         });
-        
+
         public string Path => History.WorkingCopyPath;
-        
+
         public string? RepositoryRootUrl => History.RepositoryRootUrl;
 
         public override bool IsStar => History.Star;
-        
+
         public override string HistoryUuid => History.Uuid;
-        
+
 
         public override List<MenuItemViewModel> MenuItems
         {
             get
             {
-                List<MenuItemViewModel> items = [
+                List<MenuItemViewModel> items =
+                [
                     new()
                     {
                         Header = "Open",
@@ -257,7 +259,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                     }
                 ];
 
-                
+
                 var groups = new List<MenuItemViewModel>();
 
                 foreach (var group in HistoryGroups)
@@ -268,22 +270,21 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                         ToggleType = MenuItemToggleType.CheckBox,
                         IsChecked = group.Children.Contains(HistoryUuid)
                     };
-                    
-                    
+
+
                     item.Command = new AsyncRelayCommand(async () => await JoinGroup(group.Uuid, item));
-                    
+
                     groups.Add(item);
                 }
-                
-                
+
+
                 items.Add(new MenuItemViewModel()
                 {
                     Header = "Group",
                     Children = new ObservableCollection<MenuItemViewModel>(groups)
                 });
-                
-                
-                
+
+
                 // items.Add(new MenuItemViewModel()
                 // {
                 //     Header = "Group",
@@ -336,7 +337,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                     UpdateFunc = value =>
                     {
                         var v = value.ToWorkspaceHistoryGroup() ?? throw new InvalidOperationException();
-                        
+
                         var children = v.Children.ToList();
                         if (item.IsChecked)
                         {
@@ -350,7 +351,6 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                         v = v with { Children = children.ToArray() };
 
                         return AnyValue.FromWorkspaceHistoryGroup(v);
-
                     }
                 });
                 // var children = group.Children.ToList();
@@ -383,12 +383,11 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         // [ObservableProperty]
         // public partial string? Remark { get; set; }
 
-        
+
         // [ObservableProperty]
         // public partial bool IsEditing { get; set; }
         //
-        [ObservableProperty]
-        public partial bool IsInvalid { get; set; }
+        [ObservableProperty] public partial bool IsInvalid { get; set; }
 
         [RelayCommand]
         private void Open()
@@ -406,20 +405,17 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             SendMessage(msg);
         }
 
-        [ObservableProperty]
-        public partial bool IsConflict { get; set; }
-        
-        [ObservableProperty]
-        public partial bool IsModified { get; set; }
-        
-        [ObservableProperty]
-        public partial string Revision { get; set; } = string.Empty;
+        [ObservableProperty] public partial bool IsConflict { get; set; }
+
+        [ObservableProperty] public partial bool IsModified { get; set; }
+
+        [ObservableProperty] public partial string Revision { get; set; } = string.Empty;
 
 
         private async Task Detect()
         {
             using var context = EngineBackend.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()));
-            
+
             var isModified = false;
             var isConflict = false;
             var receiver = new StatusReceiverDelegate()
@@ -431,6 +427,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                     {
                         isConflict = true;
                     }
+
                     if (isModified && isConflict)
                     {
                         throw new CSharpException.SubversionException(SvnErrnoConstants.Default.CeaseInvocationValue(),
@@ -450,8 +447,10 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 }
                 catch (System.Exception e)
                 {
-                    IsInvalid = !e.Handle(svnExceptionHandler: error => error.Code == SvnErrnoConstants.Default.CeaseInvocationValue());
+                    IsInvalid = !e.Handle(svnExceptionHandler: error =>
+                        error.Code == SvnErrnoConstants.Default.CeaseInvocationValue());
                 }
+
                 IsModified = isModified;
                 IsConflict = isConflict;
 
@@ -474,23 +473,20 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 SendMessage(new OnHistoryStateChanged());
             }
         }
-        
+
         protected override Task LoadOnce()
         {
             Remark = History.Remark;
             return Detect();
         }
-
-        
     }
 
 
     public partial class HistoryGroupItemViewModel(ViewModelBase parent) : ViewModelBase(parent)
     {
-        [ObservableProperty]
-        public required partial WorkspaceHistoryGroup HistoryGroup { get; set; }
-        
-        
+        [ObservableProperty] public required partial WorkspaceHistoryGroup HistoryGroup { get; set; }
+
+
         public string Name => HistoryGroup.Name;
 
         public int Count => HistoryGroup.Children.Length;
@@ -499,11 +495,13 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         private async Task Delete()
         {
             var hostId = SendMessage(new OnGetDialogHostId());
-            var result = await MessageBox.ShowOverlayAsync("Whether to delete", title: "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            var result = await MessageBox.ShowOverlayAsync("Whether to delete", title: "Warning", hostId,
+                MessageBoxIcon.Warning, MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)
             {
                 return;
             }
+
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
                 await SeaDatabaseConnection.Default.DeleteHistoryGroup(HistoryGroup.Uuid);
@@ -512,7 +510,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             SendMessage(new OnUpdateHistoryGroup());
         }
     }
-    
+
     // public partial class HistoryItemViewModel(ViewModelBase parent): ViewModelBase(parent)
     // {
     //     public string Name
@@ -733,14 +731,13 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     //     }
     // }
     //
-    
+
     //
     // [ObservableProperty]
     // public partial object? DetailViewModel { get; set; }
-    
-    
-    [ObservableProperty]
-    public partial ObservableCollection<HistoryItemViewModel> HistoryItems { get; set; } = [];
+
+
+    [ObservableProperty] public partial ObservableCollection<HistoryItemViewModel> HistoryItems { get; set; } = [];
 
     [ObservableProperty] public partial int SelectedKindIndex { get; set; } = AllIndex;
 
@@ -750,22 +747,17 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
 
 
     [ObservableProperty]
-    public partial ObservableCollection<HistoryGroupItemViewModel> HistoryGroupItemViewModels
-    {
-        get;
-        set;
-    } = [];
+    public partial ObservableCollection<HistoryGroupItemViewModel> HistoryGroupItemViewModels { get; set; } = [];
 
     public int InvalidCount => HistoryItems.Count(i => i is WorkingCopyItemViewModel { IsInvalid: true });
 
     public int ModifiedCount => HistoryItems.Count(i => i is WorkingCopyItemViewModel { IsModified: true });
-    
+
     public int ConflictCount => HistoryItems.Count(i => i is WorkingCopyItemViewModel { IsConflict: true });
-    
+
     public int StarCount => HistoryItems.Count(i => i.IsStar);
-    
-    [ObservableProperty]
-    public partial HistoryItemViewModel? SelectedHistoryItem { get; set; }
+
+    [ObservableProperty] public partial HistoryItemViewModel? SelectedHistoryItem { get; set; }
 
     partial void OnSelectedKindIndexChanged(int value)
     {
@@ -778,7 +770,6 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         ApplyFilter();
     }
 
-    
 
     partial void OnSelectedGroupIndexChanged(int value)
     {
@@ -803,30 +794,44 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                     {
                         historyItemViewModel.IsVisible = true;
                     }
+
                     break;
                 case ModifiedIndex:
                     foreach (var historyItemViewModel in HistoryItems)
                     {
-                        historyItemViewModel.IsVisible = historyItemViewModel is WorkingCopyItemViewModel { IsModified: true };
+                        historyItemViewModel.IsVisible = historyItemViewModel is WorkingCopyItemViewModel
+                        {
+                            IsModified: true
+                        };
                     }
+
                     break;
                 case ConflictedIndex:
-                    foreach (var historyItemViewModel in HistoryItems) 
+                    foreach (var historyItemViewModel in HistoryItems)
                     {
-                        historyItemViewModel.IsVisible = historyItemViewModel is WorkingCopyItemViewModel { IsConflict: true };
+                        historyItemViewModel.IsVisible = historyItemViewModel is WorkingCopyItemViewModel
+                        {
+                            IsConflict: true
+                        };
                     }
+
                     break;
                 case InvalidIndex:
                     foreach (var historyItemViewModel in HistoryItems)
                     {
-                        historyItemViewModel.IsVisible = historyItemViewModel is WorkingCopyItemViewModel { IsInvalid: true };
+                        historyItemViewModel.IsVisible = historyItemViewModel is WorkingCopyItemViewModel
+                        {
+                            IsInvalid: true
+                        };
                     }
+
                     break;
                 case StarIndex:
                     foreach (var historyItemViewModel in HistoryItems)
                     {
                         historyItemViewModel.IsVisible = historyItemViewModel.IsStar;
                     }
+
                     break;
             }
         }
@@ -880,16 +885,19 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         {
             uuid = HistoryGroupItemViewModels[SelectedGroupIndex].HistoryGroup.Uuid;
         }
+
         var historyGroups = (await SeaDatabaseConnection.Default.HistoryGroups()).ToList();
         foreach (var item in HistoryItems)
         {
             item.HistoryGroups = historyGroups;
         }
-            
-        HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i => new HistoryGroupItemViewModel(this)
-        {
-            HistoryGroup = i
-        }));
+
+        HistoryGroupItemViewModels = new ObservableCollection<HistoryGroupItemViewModel>(
+            historyGroups.Select<WorkspaceHistoryGroup, HistoryGroupItemViewModel>(i =>
+                new HistoryGroupItemViewModel(this)
+                {
+                    HistoryGroup = i
+                }));
 
         if (HistoryGroupItemViewModels.Count == 0)
         {
@@ -897,7 +905,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             {
                 SelectedKindIndex = AllIndex;
             }
-        } 
+        }
         else if (uuid is not null)
         {
             var index = HistoryGroupItemViewModels.FindIndex(e => e.HistoryGroup.Uuid == uuid);
@@ -913,7 +921,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 {
                     selectedIndex = HistoryGroupItemViewModels.Count - 1;
                 }
-                
+
                 SelectedGroupIndex = selectedIndex;
             }
             else
@@ -931,7 +939,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         //     SelectedKindIndex = AllIndex;
         // }
     }
-    
+
 
     // [RelayCommand]
     // private async Task OnLoaded()
@@ -971,7 +979,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     private async Task OpenTerminal()
     {
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        
+
         await IPlatform.Create().OpenTerminal(home);
     }
 
@@ -988,8 +996,9 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         var hostId = SendMessage(new OnGetDialogHostId());
 
         var model = new CheckoutOrExportDialogModel();
-        
-        await OverlayDialog.ShowModal<CheckoutOrExportDialog, CheckoutOrExportDialogModel>(model, hostId, options: options);
+
+        await OverlayDialog.ShowModal<CheckoutOrExportDialog, CheckoutOrExportDialogModel>(model, hostId,
+            options: options);
         if (model.Options is not null)
         {
             Receive(model.Options);
@@ -1005,12 +1014,11 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             AllowMultiple = false,
             Title = "Select a local repository",
         };
-        
-        
+
+
         var result = await Manager.Default.Send(new OnFolderPickerOpen(options), Manager.MainWindowToken);
         if (result.Count == 1)
         {
-            
             var path = result[0].Path.AbsolutePath.TrimEndPathSeparatorChar();
 
 
@@ -1022,7 +1030,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
             // {
             //     item.Content = new WorkspaceViewModel(path, item);
             // });
-            
+
             SendMessage(new OnAddTab
             {
                 Closable = true,
@@ -1121,9 +1129,9 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         {
             Options = message
         };
-        
+
         var hostId = SendMessage(new OnGetDialogHostId());
-        
+
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var options = new OverlayDialogOptions
@@ -1133,12 +1141,9 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
+                options: options);
         });
-        
-        
-
-
     }
 
 
@@ -1146,28 +1151,27 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
     private async Task ShowExportDialog()
     {
         var exportDialogModel = new ExportDialogModel();
-        
+
         var options = new OverlayDialogOptions
         {
             Title = "Export",
             IsCloseButtonVisible = true,
             Buttons = DialogButton.None
         };
-        
+
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId());
-        
-        await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options, hostId: hostId);
+
+        await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options,
+            hostId: hostId);
         if (exportDialogModel.Options is not null)
         {
             Receive(exportDialogModel.Options);
         }
-        
     }
 
     public void Receive(ExportOptions message)
     {
-        
         var options = new OverlayDialogOptions
         {
             Title = "Export",
@@ -1182,7 +1186,8 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
         var hostId = SendMessage(new OnGetDialogHostId());
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
+            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
+                options: options);
         });
     }
 
@@ -1202,10 +1207,7 @@ public partial class WelcomeViewModel(ViewModelBase parent): ViewModelBase(paren
 
     public void Receive(OnUpdateHistoryGroup message)
     {
-        EngineBackend.Instance.DatabaseQueue.Run(async _ =>
-        {
-            await ReloadWorkspaceHistoryGroups();
-        });
+        EngineBackend.Instance.DatabaseQueue.Run(async _ => { await ReloadWorkspaceHistoryGroups(); });
     }
 
     public void Receive(OnCancel message)

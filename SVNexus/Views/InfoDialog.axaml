@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:u="https://irihi.tech/ursa"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:InfoDialogModel"
+             MinWidth="400"
+             x:Class="SVNexus.Views.InfoDialog">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <Grid RowDefinitions="*, Auto">
+        <u:Descriptions HorizontalAlignment="Left">
+            <u:Descriptions.Resources>
+                <Thickness x:Key="DescriptionsItemMargin">0</Thickness>
+                <Thickness x:Key="DescriptionsKeyPadding">0 0 5 0</Thickness>
+            </u:Descriptions.Resources>
+            <u:DescriptionsItem Label="Url" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Url}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Absolute" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Path}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Size" IsVisible="{Binding Size, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" 
+                                     ToolTip.Tip="{Binding Size}"
+                                     Text="{Binding HumanSize}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Kind" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Kind}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Revision" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding RevisionText}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Repository root" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding RepositoryRootUrl}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Repository UUID" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding RepositoryUuid}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Last changed author" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding LastChangedAuthor}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Last changed revision" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding LastChangedRevision}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Last changed date" >
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding LastChangedDate}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Working copy format" IsVisible="{Binding WorkingCopyFormat, Converter={x:Static  ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding WorkingCopyFormat}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+        </u:Descriptions>
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
+            <Border Grid.Column="0"></Border>
+            <Button Grid.Column="1" 
+                    Content="Ok"
+                    Classes="Primary"
+                    Command="{Binding CloseCommand}"
+                    Theme="{StaticResource SolidButton}"
+                    ></Button>
+        </Grid>
+    </Grid>
+</UserControl>

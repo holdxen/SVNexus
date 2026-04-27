@@ -39502,8 +39502,8 @@ class FfiConverterTypeWorkingCopyCreateContextOptions: FfiConverterRustBuffer<Wo
 public record WorkingCopyInfo (
     WorkingCopySchedule Schedule, 
     uint? CopyFromRevision, 
-    CheckSum CheckSum, 
-    string Changelist, 
+    CheckSum? CheckSum, 
+    string? Changelist, 
     Depth Depth, 
     ulong? RecordedSize, 
     long RecordedTime, 
@@ -39522,8 +39522,8 @@ class FfiConverterTypeWorkingCopyInfo: FfiConverterRustBuffer<WorkingCopyInfo> {
         return new WorkingCopyInfo(
             Schedule: FfiConverterTypeWorkingCopySchedule.INSTANCE.Read(stream),
             CopyFromRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
-            CheckSum: FfiConverterTypeCheckSum.INSTANCE.Read(stream),
-            Changelist: FfiConverterString.INSTANCE.Read(stream),
+            CheckSum: FfiConverterOptionalTypeCheckSum.INSTANCE.Read(stream),
+            Changelist: FfiConverterOptionalString.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
             RecordedSize: FfiConverterOptionalUInt64.INSTANCE.Read(stream),
             RecordedTime: FfiConverterInt64.INSTANCE.Read(stream),
@@ -39539,8 +39539,8 @@ class FfiConverterTypeWorkingCopyInfo: FfiConverterRustBuffer<WorkingCopyInfo> {
         return 0
             + FfiConverterTypeWorkingCopySchedule.INSTANCE.AllocationSize(value.Schedule)
             + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.CopyFromRevision)
-            + FfiConverterTypeCheckSum.INSTANCE.AllocationSize(value.CheckSum)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Changelist)
+            + FfiConverterOptionalTypeCheckSum.INSTANCE.AllocationSize(value.CheckSum)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.Changelist)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
             + FfiConverterOptionalUInt64.INSTANCE.AllocationSize(value.RecordedSize)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.RecordedTime)
@@ -39554,8 +39554,8 @@ class FfiConverterTypeWorkingCopyInfo: FfiConverterRustBuffer<WorkingCopyInfo> {
     public override void Write(WorkingCopyInfo value, BigEndianStream stream) {
             FfiConverterTypeWorkingCopySchedule.INSTANCE.Write(value.Schedule, stream);
             FfiConverterOptionalUInt32.INSTANCE.Write(value.CopyFromRevision, stream);
-            FfiConverterTypeCheckSum.INSTANCE.Write(value.CheckSum, stream);
-            FfiConverterString.INSTANCE.Write(value.Changelist, stream);
+            FfiConverterOptionalTypeCheckSum.INSTANCE.Write(value.CheckSum, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.Changelist, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
             FfiConverterOptionalUInt64.INSTANCE.Write(value.RecordedSize, stream);
             FfiConverterInt64.INSTANCE.Write(value.RecordedTime, stream);
@@ -41978,6 +41978,37 @@ class FfiConverterOptionalTypeWorkspaceHistoryGroup: FfiConverterRustBuffer<Work
         } else {
             stream.WriteByte(1);
             FfiConverterTypeWorkspaceHistoryGroup.INSTANCE.Write((WorkspaceHistoryGroup)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeCheckSum: FfiConverterRustBuffer<CheckSum?> {
+    public static FfiConverterOptionalTypeCheckSum INSTANCE = new FfiConverterOptionalTypeCheckSum();
+
+    public override CheckSum? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeCheckSum.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(CheckSum? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeCheckSum.INSTANCE.AllocationSize((CheckSum)value);
+        }
+    }
+
+    public override void Write(CheckSum? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeCheckSum.INSTANCE.Write((CheckSum)value, stream);
         }
     }
 }

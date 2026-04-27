@@ -135,6 +135,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
     public bool IsRelocateButtonEnable => SelectedTreeItems.Count == 1 && SelectedTreeItems.First().AbsolutePath == WorkspaceRoot;
     
     public bool IsOpenTerminalButtonEnable => SelectedTreeItems.Count == 1;
+
+    public bool IsInfoButtonEnable => SelectedTreeItems.Count == 1;
     
 
     /// <inheritdoc/>
@@ -169,6 +171,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         OnPropertyChanged(nameof(IsMergeButtonEnable));
         OnPropertyChanged(nameof(IsRelocateButtonEnable));
         OnPropertyChanged(nameof(IsOpenTerminalButtonEnable));
+        OnPropertyChanged(nameof(IsInfoButtonEnable));
     }
 
     partial void OnSelectedTreeItemsChanged(ObservableCollection<TreeItemViewModel> oldValue, ObservableCollection<TreeItemViewModel> newValue)
@@ -431,6 +434,31 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
     }
 
+
+    [RelayCommand]
+    private async Task Info()
+    {
+        if (!IsInfoButtonEnable)
+        {
+            return;
+        }
+
+        var model = new InfoDialogModel(this)
+        {
+            Path = SelectedTreeItems.First().AbsolutePath,
+            PegRevision = new Revision.Unspecified(),
+            Revision =  new Revision.Unspecified(),
+        };
+
+        await model.LoadedCommand.ExecuteOrNothingAsync(null);
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+        _ = Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await OverlayDialog.ShowModal<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+        });
+    }
 
     [RelayCommand]
     private async Task OpenTerminal()
@@ -758,6 +786,10 @@ public partial class WorkspaceViewModel : ViewModelBase,
                         if (importProcessDialogModel.Error is null)
                         {
                         }
+                    }
+                    else
+                    {
+                        SendMessage(new OnRemoveTabModel());
                     }
                 }
                 else
