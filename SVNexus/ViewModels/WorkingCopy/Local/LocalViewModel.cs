@@ -54,8 +54,6 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         
         public bool HasChild => StatusEntry.NodeKind == NodeKind.Directory;
         
-        // public bool IsReal => StatusEntry.NodeStatus is not (WorkingCopyStatus.None or WorkingCopyStatus.Normal);
-        
         public bool IsLocked =>  StatusEntry.Lock is not null;
         
         public bool IsDelete => StatusEntry.NodeStatus == WorkingCopyStatus.Deleted;
@@ -89,7 +87,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                 return;
             }
             IsLoading = true;
-            Logger.Info($"{StatusEntry.Path} Loading children...");
+            // Logger.Info($"{StatusEntry.Path} Loading children...");
             try
             {
 
@@ -123,6 +121,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                                 {
                                     if (includeSelf)
                                     {
+                                        Logger.Info($"Set MySelf: {entry.Path}, lock: {entry.Lock}");
                                         StatusEntry = entry;
                                     }
                                     return;
@@ -171,7 +170,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
 
                 Children.AddRange(children);
                 
-                Logger.Info($"Loaded children: {Children.Count}");
+                // Logger.Info($"Loaded children: {Children.Count}");
                 
                 // HasLoaded = true;
             }
@@ -297,7 +296,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     
     public bool IsUnlockButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.All(i => i.StatusEntry.NodeKind != NodeKind.Directory && i.StatusEntry.Lock is not null);
     
-    public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry?.NodeStatus != WorkingCopyStatus.Unversioned);
+    public bool IsCommitButtonEnable => SelectedTreeItems.Count > 0 && SelectedTreeItems.Any(i => i.StatusEntry.NodeStatus != WorkingCopyStatus.Unversioned);
 
     public bool IsInfoButtonEnable => SelectedTreeItems.Count == 1;
 
@@ -382,6 +381,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         OnPropertyChanged(nameof(IsCommitButtonEnable));
         OnPropertyChanged(nameof(IsOpenTerminalButtonEnable));
         OnPropertyChanged(nameof(IsInfoButtonEnable));
+        Logger.Info("notifyProperties changed");
     }
 
     // public async Task ExecuteRefreshCommand()
@@ -522,8 +522,9 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         //
         var unlockDialogModel = new UnlockDialogModel(this)
         {
-            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
-            TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry).ToList()
+            // RelateTo = SendMessage(new OnGetWorkingCopyPath()),
+            // TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry).ToList()
+            Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
         };
 
         var dialogOptions = new OverlayDialogOptions()
@@ -559,8 +560,8 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         }
         var lockDialogModel = new LockDialogModel(this)
         {
-            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
-            TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry).ToList()
+            // RelateTo = SendMessage(new OnGetWorkingCopyPath()),
+            Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
         };
 
         var dialogOptions = new OverlayDialogOptions()
@@ -761,15 +762,12 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     //     }
     // }
 
-    private async Task RefreshItem(TreeItemViewModel item)
+    private static async Task RefreshItem(TreeItemViewModel item)
     {
         await item.RefreshChildren(true);
         foreach (var child in item.Children)
         {
-            _ = Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                await RefreshItem(child);
-            });
+            await RefreshItem(child);
         }
     }
 
@@ -813,6 +811,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
 
             if (Root is not null)
             {
+                
                 await RefreshItem(Root);
                 NotifyProperties();
             }

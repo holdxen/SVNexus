@@ -187,8 +187,9 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     {
         var model = new UnlockDialogModel(this)
         {
-            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
-            TargetEntries = SelectedStatusEntries,
+            // RelateTo = SendMessage(new OnGetWorkingCopyPath()),
+            // TargetEntries = SelectedStatusEntries,
+            Targets = SelectedStatusEntries.Select(i => TargetItemViewModel.From(i, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
         };
 
         var hostId = SendMessage(new OnGetDialogHostId());

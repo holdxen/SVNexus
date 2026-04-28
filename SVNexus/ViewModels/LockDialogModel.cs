@@ -19,23 +19,25 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
     
     public bool Accept { get; set; }
 
-    public class TargetItemViewModel: StatusEntryItemViewModel
-    {
-        
-    }
+    // public class TargetItemViewModel: StatusEntryItemViewModel
+    // {
+    //     
+    // }
 
 
-    public required string RelateTo { get; set; }
+    // public required string RelateTo { get; set; }
 
-    public required List<StatusEntry> TargetEntries { get; init; }
+    // public required List<StatusEntry> TargetEntries { get; init; }
 
 
-    public List<TargetItemViewModel> Targets =>
-        TargetEntries.Select(i => new TargetItemViewModel()
-        {
-            Entry = i,
-            RelateTo = RelateTo
-        }).ToList();
+    // public List<TargetItemViewModel> Targets =>
+    //     TargetEntries.Select(i => new TargetItemViewModel()
+    //     {
+    //         Entry = i,
+    //         RelateTo = RelateTo
+    //     }).ToList();
+    
+    public required List<TargetItemViewModel> Targets { get; set; }
 
 
     [ObservableProperty]
@@ -58,7 +60,7 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
             var context = SendMessage(new OnGetContext()).Response;
         
         
-            var lockOptions = new LockOptions(Targets.Select(i => i.Entry.Path).ToArray(), HasComment ? Comment : null, StealLock);
+            var lockOptions = new LockOptions(Targets.Select(i => i.Path).ToArray(), HasComment ? Comment : null, StealLock);
 
         
             await context.Lock(lockOptions);
@@ -70,7 +72,7 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
         {
             Manager.Default.Send(new OnShowToast()
             {
-                Content = $"Failed to lock\n{string.Join("\n", Targets.Select(i => i.Entry.Path))}\n{e.HumanReadableMessage}",
+                Content = $"Failed to lock\n{string.Join("\n", Targets.Select(i => i.Path))}\n{e.HumanReadableMessage}",
                 Type = NotificationType.Error
             }, Manager.MainWindowToken);
         }

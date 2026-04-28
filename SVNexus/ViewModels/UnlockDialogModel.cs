@@ -19,24 +19,25 @@ public partial class UnlockDialogModel(ViewModelBase parent): DialogModelBase(pa
 {
     // public bool Accept { get; set; }
     
-    public class TargetItemViewModel: StatusEntryItemViewModel
-    {
-        
-    }
+    // public class TargetItemViewModel: StatusEntryItemViewModel
+    // {
+    //     
+    // }
+    //
+    // public required string RelateTo { get; set; }
 
-    public required string RelateTo { get; set; }
-
-    public required List<StatusEntry> TargetEntries { get; init; }
+    // public required List<StatusEntry> TargetEntries { get; init; }
 
 
-    public List<TargetItemViewModel> Targets =>
-        TargetEntries.Select(i => new TargetItemViewModel()
-        {
-            Entry = i,
-            RelateTo = RelateTo
-        }).ToList();
+    public required List<TargetItemViewModel> Targets { get; set; }
+        // TargetEntries.Select(i => new TargetItemViewModel()
+        // {
+        //     Entry = i,
+        //     RelateTo = RelateTo
+        // }).ToList();
     
-    public bool BreakLock { get; set; }
+    [ObservableProperty]
+    public partial bool BreakLock { get; set; }
     
     // [RelayCommand]
     // public void Close()
@@ -55,7 +56,7 @@ public partial class UnlockDialogModel(ViewModelBase parent): DialogModelBase(pa
         {
             var context = SendMessage(new OnGetContext()).Response;
 
-            var options = new UnlockOptions(Targets.Select(i => i.Entry.Path).ToArray(), BreakLock);
+            var options = new UnlockOptions(Targets.Select(i => i.Path).ToArray(), BreakLock);
             
             await context.Unlock(options);
 
@@ -65,7 +66,7 @@ public partial class UnlockDialogModel(ViewModelBase parent): DialogModelBase(pa
         {
             Manager.Default.Send(new OnShowToast()
             {
-                Content = $"Failed to unlock\n{string.Join("\n", Targets.Select(i => i.Entry.Path))}\n{e.HumanReadableMessage}",
+                Content = $"Failed to unlock\n{string.Join("\n", Targets.Select(i => i.Path))}\n{e.HumanReadableMessage}",
                 Type = NotificationType.Error
             }, Manager.MainWindowToken);
         }
