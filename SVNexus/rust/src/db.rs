@@ -1,6 +1,6 @@
 use std::{collections::HashMap, str::FromStr, sync::Arc};
 
-use crate::{AnyValue, extensions::*};
+use crate::{AnyValue, app, extensions::*};
 
 use crate::{
     entities::*,
@@ -108,7 +108,18 @@ impl SeaDatabaseConnection {
     pub async fn create() -> error::Result<Self> {
         use sea_orm::sqlx::sqlite::{SqliteJournalMode, SqliteSynchronous};
         use std::time::Duration;
-        let mut opt = ConnectOptions::new("sqlite://svnexus.db?mode=rwc");
+
+        let project = tokio::task::spawn_blocking(|| {
+            let project = app::project().any_context("Failed to get project directory")?;
+            error::ok(project)
+        }).await.context(builder::Runtime)??;
+
+
+        let path = project.cache_directory().join("svnexus.db");
+
+        let path = path.to_str().any_context("Failed to get database path")?;
+
+        let mut opt = ConnectOptions::new(&format!("sqlite://{}?mode=rwc", path));
         opt.sqlx_logging(false);
         opt.map_sqlx_sqlite_opts(|o| {
             o.journal_mode(SqliteJournalMode::Wal)

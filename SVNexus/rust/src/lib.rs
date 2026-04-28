@@ -10,6 +10,7 @@ mod extensions;
 mod subversion;
 mod tests;
 mod utils;
+mod app;
 
 uniffi::setup_scaffolding!();
 
