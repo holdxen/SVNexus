@@ -16,13 +16,13 @@
                     <ListBox Height="150" ItemsSource="{Binding Targets}">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="viewModels:LockDialogModel+TargetItemViewModel">
-                                <components:StatusEntryItem FileName="{Binding FileName}"
+                                <components:TargetItem FileName="{Binding FileName}"
                                                             TextToolTip="{Binding RelativePath}"
                                                             RelativeDirectory="{Binding RelativeDirectory}"
                                                             KindIcon="{Binding KindIcon}"
                                                             StatusIcon="{Binding StatusIcon}"
                                                             StatusToolTip="{Binding StatusToolTip}">
-                                </components:StatusEntryItem>
+                                </components:TargetItem>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

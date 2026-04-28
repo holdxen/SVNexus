@@ -5,6 +5,7 @@
              xmlns:u="https://irihi.tech/ursa"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
              xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              MinWidth="450"
              x:DataType="viewModels:UpdateDialogModel"
@@ -29,17 +30,17 @@
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
                         <ListBox Height="60" ItemsSource="{Binding TargetItems}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="viewModels:UpdateDialogModel+TargetItemViewModel">
-                                    <Grid ColumnDefinitions="Auto, *" Margin="2 4">
-                                        <components:SvgRender Size="18" 
-                                                              Source="{StaticResource Icons.Directory-Close}">
-                                            
-                                        </components:SvgRender>
-                                        <TextBlock Grid.Column="1" Text="{Binding Path}"></TextBlock>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
+                            <!-- <ListBox.ItemTemplate> -->
+                            <!--     <DataTemplate DataType="workingCopy:ITargetItemViewModel"> -->
+                            <!--         <components:TargetItem FileName="{Binding FileName}" -->
+                            <!--                                     TextToolTip="{Binding RelativePath}" -->
+                            <!--                                     RelativeDirectory="{Binding RelativeDirectory}" -->
+                            <!--                                     KindIcon="{Binding KindIcon}" -->
+                            <!--                                     StatusIcon="{Binding StatusIcon}" -->
+                            <!--                                     StatusToolTip="{Binding StatusToolTip}"> -->
+                            <!--         </components:TargetItem> -->
+                            <!--     </DataTemplate> -->
+                            <!-- </ListBox.ItemTemplate> -->
                         </ListBox>
                     </Border>
                 </Grid>

@@ -21,30 +21,26 @@ public partial class UpdateDialogModel(ViewModelBase parent): DialogModelBase(pa
         Immediates = OperationDepth.Immediates,
         Infinity = OperationDepth.Infinity,
     }
-    public partial class TargetItemViewModel: ViewModelBase
-    {
-        [ObservableProperty]
-        public partial string Path { get; set; } = string.Empty;
-    }
+    // public class TargetItemViewModel: StatusEntryItemViewModel
+    // {
+    //     // [ObservableProperty]
+    //     // public partial string Path { get; set; } = string.Empty;
+    // }
 
     [ObservableProperty] public partial ValidDepth Depth { get; set; } = ValidDepth.Infinity;
     
     public static Type DepthType { get; } = typeof(ValidDepth);
 
 
-    public List<TargetItemViewModel> TargetItems => TargetEntries.Select(i => new TargetItemViewModel()
-    {
-        Path = i
-    }).ToList();
+    public required List<TargetItemViewModel> TargetItems { get; set; } = [];
     
     
-    
-    [ObservableProperty]
-    public partial string Path { get; set; } = string.Empty;
+    // [ObservableProperty]
+    // public partial string Path { get; set; } = string.Empty;
     
     // public required string RelateTo { get; set; }
     
-    public required List<string> TargetEntries { get; set; }
+    // public required List<TargetItemViewModel> TargetEntries { get; set; }
     
     [ObservableProperty]
     public partial bool IgnoreExternals { get; set; }

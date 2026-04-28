@@ -660,23 +660,35 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         {
             return;
         }
+        //
+        var model = new UpdateDialogModel(this)
+        {
+            TargetItems = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
+        };
         
-        var updateOptions = new UpdateOptions(
-            SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
-            new Revision.Head(),
-            Depth.Infinity,
-            false,
-            false,
-            true,
-            true,
-            true
-        );
-
-
-        var context = SendMessage(new OnGetContext()).Response;
-
-        await context.Update(updateOptions);
-        await Refresh();
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);
+        
+        // var updateOptions = new UpdateOptions(
+        //     SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
+        //     new Revision.Head(),
+        //     Depth.Infinity,
+        //     false,
+        //     false,
+        //     true,
+        //     true,
+        //     true
+        // );
+        //
+        //
+        // var context = SendMessage(new OnGetContext()).Response;
+        //
+        // await context.Update(updateOptions);
+        if (model.Accept)
+        {
+            await Refresh();
+        }
     }
 
     [RelayCommand]

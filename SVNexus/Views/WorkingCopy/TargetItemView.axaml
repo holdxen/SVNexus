@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
+             x:DataType="workingCopy:TargetItemViewModel"
+             x:Class="SVNexus.Views.WorkingCopy.TargetItemView">
+    <components:TargetItem KindIcon="{Binding KindIcon}"
+                           TextToolTip="{Binding TextToolTip}"
+                           IsDelete="{Binding IsDelete}"
+                           FileName="{Binding FileName}"
+                           RelativeDirectory="{Binding RelativeDirectory}"
+                           ShowRelateDirectory="{Binding ShowRelateDirectory}"
+                           IsLocked="{Binding IsLocked}"
+                           StatusToolTip="{Binding StatusToolTip}"
+                           IsLoading="{Binding IsLoading}"
+                           StatusIcon="{Binding StatusIcon}"
+                           >
+    </components:TargetItem>
+</UserControl>

@@ -83,13 +83,13 @@
                     <TreeView.DataTemplates>
                         <TreeDataTemplate x:DataType="local:LocalViewModel+TreeItemViewModel"
                                           ItemsSource="{Binding Children}">
-                            <components:StatusEntryItem FileName="{Binding Name}"
+                            <components:TargetItem FileName="{Binding Name}"
                                                         IsDelete="{Binding IsDelete}"
                                                         IsLocked="{Binding IsLocked}"
                                                         KindIcon="{Binding NodeKindIcon}"
                                                         StatusToolTip="{Binding StatusToolTip}"
                                                         StatusIcon="{Binding StatusIcon}">
-                            </components:StatusEntryItem>
+                            </components:TargetItem>
                         </TreeDataTemplate>
                     </TreeView.DataTemplates>
                 </components:AdvancedTreeView>

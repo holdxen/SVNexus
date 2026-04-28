@@ -137,10 +137,10 @@
                     <components:AdvancedTreeView.DataTemplates>
                         <TreeDataTemplate ItemsSource="{Binding Children}" 
                                           x:DataType="wk:WorkspaceViewModel+TreeItemViewModel">
-                            <components:StatusEntryItem StatusIcon="{Binding NodeStatusIcon}" 
+                            <components:TargetItem StatusIcon="{Binding NodeStatusIcon}" 
                                                         FileName="{Binding Name}"
                                                         KindIcon="{Binding NodeKindIcon}">
-                            </components:StatusEntryItem>
+                            </components:TargetItem>
                             <!-- <Grid ColumnDefinitions="Auto, *, Auto"> -->
                             <!--     <components:SvgRender Grid.Column="0"  -->
                             <!--                           Source="{Binding NodeKindIcon}" -->

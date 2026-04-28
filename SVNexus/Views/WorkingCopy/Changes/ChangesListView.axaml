@@ -44,17 +44,17 @@
         </ListBox.Styles>
         <ListBox.ItemTemplate>
             <DataTemplate DataType="changes:ChangesListViewModel+ListItemViewModel">
-                <components:StatusEntryItem
+                <components:TargetItem
                     KindIcon="{Binding KindIcon}"
                     FileName="{Binding FileName}"
                     IsLocked="{Binding IsLocked}"
                     ShowRelateDirectory="True"
                     RelativeDirectory="{Binding RelativeDirectory}"
-                    TextToolTip="{Binding AbsolutePath}"
+                    TextToolTip="{Binding Path}"
                     StatusIcon="{Binding StatusIcon}"
                     IsDelete="{Binding IsDelete}"
                     StatusToolTip="{Binding StatusToolTip}">
-                </components:StatusEntryItem>
+                </components:TargetItem>
                 <!-- <Border Classes="StatusEntryItem" Name="ItemRoot"> -->
                 <!--     <Grid -->
                 <!--         ColumnDefinitions="Auto, *, Auto, Auto"> -->

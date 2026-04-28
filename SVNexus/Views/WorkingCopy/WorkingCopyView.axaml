@@ -100,6 +100,7 @@
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Open terminal"
                                               Source="{StaticResource Icons.Terminal}"
+                                              IsEnabled="{Binding ChangesViewModel.IsOpenTerminalButtonEnable}"
                                               Command="{Binding ChangesViewModel.OpenTerminalCommand}"></components:SvgButton>
                     </StackPanel>
                 </Grid>
@@ -130,8 +131,8 @@
                         <components:LoadingSvgButton Classes="ToolButton"
                                               ToolTip.Tip="Update"
                                               IsEnabled="{Binding LocalViewModel.IsUpdateButtonEnable}"
-                                              IsLoading="{Binding UpdateCommand.IsRunning}"
-                                              Command="{Binding UpdateCommand}"
+                                              IsLoading="{Binding LocalViewModel.UpdateCommand.IsRunning}"
+                                              Command="{Binding LocalViewModel.UpdateCommand}"
                                               Source="{StaticResource Icons.OperationUpdate}">
                         </components:LoadingSvgButton>
                         <components:LoadingSvgButton Classes="ToolButton"

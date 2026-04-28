@@ -462,6 +462,8 @@ pub struct DeleteOptions {
     force: bool,
     keep_local: bool,
     revision_property_table: Option<HashMap<String, String>>,
+    #[uniffi(default)]
+    commit_message: String,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -3040,6 +3042,8 @@ impl Context {
                 })
                 .transpose()?
                 .unwrap_or_default();
+
+            self.inner.commit_message = opts.commit_message.clone();
 
             let error = ffi::svn_client_delete4(
                 path,

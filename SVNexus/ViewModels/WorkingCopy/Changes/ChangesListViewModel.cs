@@ -159,7 +159,7 @@ public partial class ChangesListViewModel : ViewModelBase
             {
                 using var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
 
-                var addOptions = new AddOptions(AbsolutePath, Depth.Empty, false, false, false, false);
+                var addOptions = new AddOptions(Path, Depth.Empty, false, false, false, false);
                 
                 await context.Add(addOptions);
                 SendMessage(new OnRefreshWorkingCopy());
@@ -205,7 +205,7 @@ public partial class ChangesListViewModel : ViewModelBase
                 return;
             }
 
-            var result = await MessageBox.ShowOverlayAsync(message: $"Whether to revert:\n{AbsolutePath.TrimStartString(path).TrimStartPathSeparatorChar()}", 
+            var result = await MessageBox.ShowOverlayAsync(message: $"Whether to revert:\n{Path.TrimStartString(path).TrimStartPathSeparatorChar()}", 
                 title: "Question", hostId: hostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)
             {
@@ -215,7 +215,7 @@ public partial class ChangesListViewModel : ViewModelBase
             {
                 using var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
                 var revertOptions = new RevertOptions(
-                    Paths: [AbsolutePath], 
+                    Paths: [Path], 
                     Depth: Depth.Empty, 
                     Changelists: [], 
                     ClearChangelists: false, 
@@ -282,7 +282,7 @@ public partial class ChangesListViewModel : ViewModelBase
                 RelateTo = SendMessage(new OnGetWorkingCopyPath())
             };
             // item.ItemCheckStateChanged += OnItemCheckStateChanged;
-            if (SelectedItem?.AbsolutePath == entry.Path)
+            if (SelectedItem?.Path == entry.Path)
             {
                 selectedItem = item;
             }

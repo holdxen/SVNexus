@@ -844,11 +844,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
             var model = new UpdateDialogModel(this)
             {
-                TargetEntries = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!.Path).ToList(),
-                Path = WorkspaceRoot ?? string.Empty,
+                TargetItems = SelectedTreeItems.Where(i => i.StatusEntry is not null).Select(i => TargetItemViewModel.From(i.StatusEntry!)).ToList(),
             };
-
-
 
             var hostId = SendMessage(new OnGetDialogHostId());
 
@@ -866,30 +863,6 @@ public partial class WorkspaceViewModel : ViewModelBase,
             {
                 await RefreshTreeItems();
             }
-
-            //
-            // var updateOptions = new UpdateOptions(
-            //     SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(),
-            //     new Revision.Head(),
-            //     Depth.Infinity,
-            //     false,
-            //     false,
-            //     true,
-            //     true,
-            //     true
-            // );
-            //
-            //
-            // var revisions = await _context.Value.Update(updateOptions);
-            // foreach (var revision in revisions)
-            // {
-            //     Manager.Default.Send(new OnShowToast()
-            //     {
-            //         Type =  NotificationType.Success,
-            //         Content = revision is null ? "Update skipped" : $"Updated Successfully to r{revision}"
-            //     }, Manager.MainWindowToken);
-            // }
-
         }
         catch (Exception e)
         {

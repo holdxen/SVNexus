@@ -42,12 +42,12 @@
                         <ListBox Height="150" ItemsSource="{Binding DisplayTargetItems}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel">
-                                    <components:StatusEntryItem KindIcon="{Binding KindIcon}"
+                                    <components:TargetItem KindIcon="{Binding KindIcon}"
                                                                 FileName="{Binding FileName}"
                                                                 StatusIcon="{Binding  StatusIcon}"
                                                                 StatusToolTip="{Binding StatusToolTip}"
                                                                 >
-                                    </components:StatusEntryItem>
+                                    </components:TargetItem>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

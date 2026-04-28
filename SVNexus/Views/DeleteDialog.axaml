@@ -3,19 +3,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:u="https://irihi.tech/ursa"
-             xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:components="clr-namespace:SVNexus.Components"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="viewModels:UnlockDialogModel"
              MinWidth="400"
-             x:Class="SVNexus.Views.UnlockDialog">
+             x:DataType="viewModels:DeleteDialogModel"
+             x:Class="SVNexus.Views.DeleteDialog">
         <Grid RowDefinitions="*, Auto">
         <u:Form Grid.Row="0" HorizontalAlignment="Stretch">
             <u:FormItem Label="Targets:">
                 <Border Theme="{StaticResource CardBorder}" Padding="5">
-                    <ListBox Height="150" ItemsSource="{Binding Targets}">
+                    <ListBox Height="150" ItemsSource="{Binding TargetItems}">
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="viewModels:UnlockDialogModel+TargetItemViewModel">
+                            <DataTemplate DataType="viewModels:DeleteDialogModel+TargetItemViewModel">
                                 <components:TargetItem FileName="{Binding FileName}"
                                                             TextToolTip="{Binding RelativePath}"
                                                             RelativeDirectory="{Binding RelativeDirectory}"
@@ -29,7 +29,14 @@
                 </Border>
             </u:FormItem>
             <u:FormItem Label="Options:">
-                <CheckBox Content="Break lock(force)" IsChecked="{Binding BreakLock}"></CheckBox>
+                <StackPanel>
+                    <CheckBox Content="Force" IsChecked="{Binding Force}"></CheckBox>
+                    <CheckBox Content="Keep local" IsChecked="{Binding KeepLocal}"></CheckBox>
+                </StackPanel>
+            </u:FormItem>
+            <u:FormItem Classes="GridLayout" Label="Commit message:" IsVisible="{Binding Commited}">
+                <TextBox AcceptsReturn="True" 
+                         Text="{Binding CommitMessage}"></TextBox>
             </u:FormItem>
         </u:Form>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto">

@@ -88,12 +88,21 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         {
             var hostId = SendMessage(new OnGetDialogHostId());
             var path = SendMessage(new OnGetWorkingCopyPath());
-
+            
             var model = new UpdateDialogModel(this)
             {
-                TargetEntries = [path],
+                TargetItems= 
+                [
+                    new TargetItemViewModel()
+                    {
+                        FileName = path,
+                        Path = path,
+                        TextToolTip = path,
+                        KindIcon = NodeKind.Directory.Icon(),
+                    }
+                ],
                 IsNumber = true,
-                Number = Revision ?? 1
+                Number = Revision ?? 1,
             };
             
             await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);

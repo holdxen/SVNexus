@@ -1,5 +1,3 @@
-using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
 using SVNexus.Extension;

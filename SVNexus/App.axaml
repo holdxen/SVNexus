@@ -41,7 +41,7 @@
          <StyleInclude Source="Components/PathIconButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/SvgButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/LoadingSvgButton.axaml"></StyleInclude>
-         <StyleInclude Source="Components/StatusEntryItem.axaml"></StyleInclude>
+         <StyleInclude Source="Components/TargetItem.axaml"></StyleInclude>
          <StyleInclude Source="Resources/Style/StyledClasses.axaml"></StyleInclude>
      </Application.Styles>
 </Application>

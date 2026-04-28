@@ -31,14 +31,14 @@
                         <ListBox Height="150" ItemsSource="{Binding TargetItems}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="viewModels:RevertDialogModel+TargetItemViewModel">
-                                    <components:StatusEntryItem KindIcon="{Binding KindIcon}"
+                                    <components:TargetItem KindIcon="{Binding KindIcon}"
                                                                 FileName="{Binding FileName}"
                                                                 StatusIcon="{Binding  StatusIcon}"
                                                                 IsLocked="{Binding IsLocked}"
                                                                 StatusToolTip="{Binding StatusToolTip}"
                                                                 >
                                         
-                                    </components:StatusEntryItem>
+                                    </components:TargetItem>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

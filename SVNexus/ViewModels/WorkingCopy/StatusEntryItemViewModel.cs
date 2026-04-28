@@ -11,7 +11,7 @@ public partial class StatusEntryItemViewModel(ViewModelBase? parent = null): Vie
     [NotifyPropertyChangedFor(nameof(StatusIcon))]
     [NotifyPropertyChangedFor(nameof(StatusToolTip))]
     [NotifyPropertyChangedFor(nameof(KindIcon))]
-    [NotifyPropertyChangedFor(nameof(AbsolutePath))]
+    [NotifyPropertyChangedFor(nameof(Path))]
     [NotifyPropertyChangedFor(nameof(IsDelete))]
     [NotifyPropertyChangedFor(nameof(RelativePath))]
     [NotifyPropertyChangedFor(nameof(RelativeDirectory))]
@@ -30,27 +30,31 @@ public partial class StatusEntryItemViewModel(ViewModelBase? parent = null): Vie
     public string FileName => Entry.Path == RelateTo ? "/" : Entry.Path.GetFileName();
 
     public string StatusIcon => Entry.NodeStatus.Icon();
-    
+
     public string StatusToolTip => Entry.NodeStatus.ToString();
     
     public string KindIcon => Entry.NodeKind.Icon();
 
-    public string AbsolutePath => Entry.Path;
+    public string Path => Entry.Path;
     
     public string RelativePath => Entry.Path == RelateTo ? "/" : Entry.Path.TrimStartString(RelateTo).TrimStartPathSeparatorChar();
 
-    public string? RelativeDirectory
+    public string RelativeDirectory
     {
         get
         {
+            if (string.IsNullOrEmpty(RelateTo))
+            {
+                return Entry.Path;
+            }
             if (RelateTo == Entry.Path)
             {
-                return null;
+                return string.Empty;
             }
             var contain = Entry.Path.TrimStartString(RelateTo)
                 .TrimStartPathSeparatorChar().GetDirectoryName();
             // return string.IsNullOrEmpty(contain) ? "/" : contain;
-            return contain;
+            return contain ?? string.Empty;
         }
     }
     

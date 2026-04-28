@@ -36708,7 +36708,8 @@ public record DeleteOptions (
     string[] Path, 
     bool Force, 
     bool KeepLocal, 
-    Dictionary<string, string>? RevisionPropertyTable
+    Dictionary<string, string>? RevisionPropertyTable, 
+    string CommitMessage = ""
 ) {
 }
 
@@ -36720,7 +36721,8 @@ class FfiConverterTypeDeleteOptions: FfiConverterRustBuffer<DeleteOptions> {
             Path: FfiConverterSequenceString.INSTANCE.Read(stream),
             Force: FfiConverterBoolean.INSTANCE.Read(stream),
             KeepLocal: FfiConverterBoolean.INSTANCE.Read(stream),
-            RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream)
+            RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
+            CommitMessage: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
@@ -36729,7 +36731,8 @@ class FfiConverterTypeDeleteOptions: FfiConverterRustBuffer<DeleteOptions> {
             + FfiConverterSequenceString.INSTANCE.AllocationSize(value.Path)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.Force)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.KeepLocal)
-            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable);
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
     }
 
     public override void Write(DeleteOptions value, BigEndianStream stream) {
@@ -36737,6 +36740,7 @@ class FfiConverterTypeDeleteOptions: FfiConverterRustBuffer<DeleteOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.Force, stream);
             FfiConverterBoolean.INSTANCE.Write(value.KeepLocal, stream);
             FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
+            FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
     }
 }
 

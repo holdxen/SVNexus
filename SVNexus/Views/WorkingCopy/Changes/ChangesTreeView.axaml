@@ -42,7 +42,7 @@
         <TreeView.DataTemplates>
             <TreeDataTemplate x:DataType="changes:ChangesTreeViewModel+TreeItemViewModel" 
                               ItemsSource="{Binding Children}">
-                <components:StatusEntryItem FileName="{Binding Text}" 
+                <components:TargetItem FileName="{Binding Text}" 
                                             IsLocked="{Binding IsLocked}"
                                             KindIcon="{Binding KindIcon}"
                                             IsDelete="{Binding IsDelete}"
@@ -55,7 +55,7 @@
                             </InvokeCommandAction>
                         </EventTriggerBehavior>
                     </Interaction.Behaviors>
-                </components:StatusEntryItem>
+                </components:TargetItem>
                 <!-- <Grid ColumnDefinitions="Auto, *, Auto" -->
                 <!--       Background="Transparent"> -->
                 <!--     <components:SvgRender Grid.Column="0" -->

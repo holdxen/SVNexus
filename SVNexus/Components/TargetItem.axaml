@@ -3,10 +3,10 @@
         xmlns:components="using:SVNexus.Components"
         xmlns:u="https://irihi.tech/ursa">
     <Design.PreviewWith>
-        <components:StatusEntryItem />
+        <components:TargetItem />
     </Design.PreviewWith>
 
-    <Style Selector="components|StatusEntryItem">
+    <Style Selector="components|TargetItem">
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Padding="2 4" Background="Transparent">
