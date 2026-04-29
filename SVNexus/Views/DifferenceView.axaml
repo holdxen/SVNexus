@@ -59,7 +59,7 @@
                             <components:OldDifferenceEditor
                                 Name="OldTextEditor"
                                 IsVisible="{Binding !IsOldBinary}"
-                                ShowLineNumbers="True"
+                                ShowLineNumbers="False"
                                 IsReadOnly="True"
                                 Lines="{Binding OldLines}"
                                 HorizontalScrollBarVisibility="Auto"
@@ -82,7 +82,7 @@
                             <components:NewDifferenceEditor
                                 Name="NewTextEditor"
                                 IsVisible="{Binding !IsNewBinary}"
-                                ShowLineNumbers="True"
+                                ShowLineNumbers="False"
                                 IsReadOnly="True"
                                 Lines="{Binding NewLines}"
                                 HorizontalScrollBarVisibility="Auto"

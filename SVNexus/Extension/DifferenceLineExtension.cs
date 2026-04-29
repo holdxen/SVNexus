@@ -16,10 +16,10 @@ public static class DifferenceLineExtension
             {
                 return differences.TakeWhile(line => line.Content is not null).Count();
             }
-
+            
             var excludeIndex = 0;
             var realInex = 0;
-
+            
             foreach (var line in differences)
             {
                 if (line.Content is null)
@@ -30,14 +30,14 @@ public static class DifferenceLineExtension
                 
                 excludeIndex++;
                 realInex++;
-
+            
                 if (excludeIndex == index)
                 {
                     return realInex;
                 }
                 
             }
-
+            
             return -1;
         }
         
