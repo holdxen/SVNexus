@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -319,55 +320,55 @@ public partial class DifferenceEditor : UserControl
     {
         var value = args.NewValue.Value;
 
-        List<string> lines = [];
+        var lines = value.Original.Select(i => i.Content ?? string.Empty).ToList();
 
-        foreach (var line in value.Original)
-        {
-            switch (line.DifferenceKind)
-            {
-                case DifferenceLine.Kind.Unchanged:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Add:
-                    lines.Add("");
-                    break;
-                case DifferenceLine.Kind.Remove:
-                case DifferenceLine.Kind.Modified:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Added:
-                case DifferenceLine.Kind.Removed:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        // foreach (var line in value.Original)
+        // {
+        //     switch (line.DifferenceKind)
+        //     {
+        //         case DifferenceLine.Kind.Unchanged:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Add:
+        //             lines.Add("");
+        //             break;
+        //         case DifferenceLine.Kind.Remove:
+        //         case DifferenceLine.Kind.Modified:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Added:
+        //         case DifferenceLine.Kind.Removed:
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
         
         target._leftEditorBackgroundRenderer.Lines = value.Original;
         target.LeftEditor.Document.Text = string.Join(Environment.NewLine, lines);
         
         
-        lines.Clear();
+        lines = value.Modified.Select(i => i.Content ?? string.Empty).ToList();
 
-        foreach (var line in value.Modified)
-        {
-            switch (line.DifferenceKind)
-            {
-                case DifferenceLine.Kind.Unchanged:
-                case DifferenceLine.Kind.Added:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Removed:
-                    lines.Add("");
-                    break;
-                case DifferenceLine.Kind.Modified:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Add:
-                case DifferenceLine.Kind.Remove:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        // foreach (var line in value.Modified)
+        // {
+        //     switch (line.DifferenceKind)
+        //     {
+        //         case DifferenceLine.Kind.Unchanged:
+        //         case DifferenceLine.Kind.Added:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Removed:
+        //             lines.Add("");
+        //             break;
+        //         case DifferenceLine.Kind.Modified:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Add:
+        //         case DifferenceLine.Kind.Remove:
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
         
         target._rightEditorBackgroundRenderer.Lines = value.Modified;
         target.RightEditor.Document.Text = string.Join(Environment.NewLine, lines);

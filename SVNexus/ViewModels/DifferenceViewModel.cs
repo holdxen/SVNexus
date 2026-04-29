@@ -247,68 +247,152 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
 
             var changes = diffOptions.Exec().Modified;
 
+            // foreach (var change in changes)
+            // {
+            //     Console.WriteLine("Change: {0}", change);
+            //     if (change.Modified.Len > 0 && change.Original.Len > 0)
+            //     {
+            //         foreach (var line in original.Skip((int)change.Original.Pos).Take((int)change.Original.Len))
+            //         {
+            //             line.DifferenceKind = DifferenceLine.Kind.Modified;
+            //         }   
+            //         foreach (var line in modified.Skip((int)change.Modified.Pos).Take((int)change.Modified.Len))
+            //         {
+            //             line.DifferenceKind = DifferenceLine.Kind.Modified;
+            //         }   
+            //     }
+            // }
+            //
+            // var add = changes.Where(c => c.Original.Len == 0 && c.Modified.Len > 0)
+            //     .OrderByDescending(c => c.Original.Pos).ToList();
+            //
+            // foreach (var change in add)
+            // {
+            //     foreach (var line in modified.Skip((int)change.Modified.Pos).Take((int)change.Modified.Len))
+            //     {
+            //         line.DifferenceKind = DifferenceLine.Kind.Added;
+            //     }
+            // }
+            //
+            // var remove = changes.Where(c => c.Original.Len > 0 && c.Modified.Len == 0)
+            //     .OrderByDescending(c => c.Modified.Pos).ToList();
+            //
+            // foreach (var change in remove)
+            // {
+            //     foreach (var line in original.Skip((int)change.Original.Pos).Take((int)change.Original.Len))
+            //     {
+            //         line.DifferenceKind = DifferenceLine.Kind.Remove;
+            //     }
+            // }
+            //
+            // foreach (var change in add)
+            // {
+            //     original.InsertRange((int)change.Original.Pos, Enumerable.Repeat(new DifferenceLine()
+            //     {
+            //         Content = "",
+            //         DifferenceKind = DifferenceLine.Kind.Add
+            //     }, (int)change.Modified.Len));
+            // }
+            //
+            // foreach (var change in remove)
+            // {
+            //     modified.InsertRange((int)change.Modified.Pos, Enumerable.Repeat(new DifferenceLine()
+            //     {
+            //         Content = "",
+            //         DifferenceKind = DifferenceLine.Kind.Removed
+            //     }, (int)change.Original.Len));
+            // }
             foreach (var change in changes)
             {
                 switch (change.Original.Len)
                 {
-                    // Console.WriteLine("Go change: {0}", change);
                     // added
                     case 0 when change.Modified.Len > 0:
                     {
-                        original.InsertRange(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add]),
+                        // Console.WriteLine("Go change: {0}", change);
+                        // Console.WriteLine("original: len={0}, index={1}", original.Count, original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add]));
+                        // if (original.Count == 347)
+                        // {
+                        //     var i = 0;
+                        //     foreach (var line in original)
+                        //     {
+                        //         Console.WriteLine("line: {0} {1} {2}", i, line.DifferenceKind, line.Content);
+                        //         if (line.DifferenceKind == DifferenceLine.Kind.Add)
+                        //         {
+                        //             continue;
+                        //         }   
+                        //         i++;
+                        //     }
+                        // }
+                        original.InsertRange(original.RealIndex((int)change.Original.Pos),
                             Enumerable.Repeat(new DifferenceLine()
                             {
-                                Content = "",
+                                Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Add
                             }, (int)change.Modified.Len));
-
-
+            
+            
                         foreach (var differenceLine in modified
-                                     .Skip(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]))
+                                     .Skip(modified.RealIndex((int)change.Modified.Pos))
                                      .Take((int)change.Modified.Len))
                         {
                             differenceLine.DifferenceKind = DifferenceLine.Kind.Added;
                         }
-
+            
                         break;
                     }
                     // remove
                     case > 0 when change.Modified.Len == 0:
                     {
                         foreach (var differenceLine in original
-                                     .Skip(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add])).Take((int)change.Original.Len))
+                                     .Skip(original.RealIndex((int)change.Original.Pos)).Take((int)change.Original.Len))
                         {
                             differenceLine.DifferenceKind = DifferenceLine.Kind.Remove;
                         }
-
-                        modified.InsertRange(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]),
+            
+                        modified.InsertRange(modified.RealIndex((int)change.Modified.Pos),
                             Enumerable.Repeat(new DifferenceLine()
                             {
-                                Content = "",
+                                Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Removed
                             }, (int)change.Original.Len));
                         break;
                     }
                     case > 0 when change.Modified.Len > 0:
                     {
+                        
                         {
                             var pos = (int)change.Original.Pos;
                             var len = (int)change.Original.Len;
-                            foreach (var differenceLine in original
-                                         .Skip(original.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Add]))
-                                         .Take(len))
+                            var index = original.RealIndex(pos);
+                            foreach (var differenceLine in original.Skip(index).Take(len))
                             {
                                 differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
+                            }
+                            if (change.Original.Len < change.Modified.Len)
+                            {
+                                original.InsertRange(index+len, Enumerable.Repeat(new DifferenceLine()
+                                {
+                                    Content = null,
+                                    DifferenceKind = DifferenceLine.Kind.Modified
+                                }, (int)(change.Modified.Len - change.Original.Len)));
                             }
                         }
                         {
                             var pos = (int)change.Modified.Pos;
                             var len = (int)change.Modified.Len;
-                            foreach (var differenceLine in modified
-                                         .Skip(modified.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Removed]))
-                                         .Take(len))
+                            var index = modified.RealIndex(pos);
+                            foreach (var differenceLine in modified.Skip(index).Take(len))
                             {
                                 differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
+                            }
+                            if (change.Original.Len > change.Modified.Len)
+                            {
+                                modified.InsertRange(index+len, Enumerable.Repeat(new DifferenceLine()
+                                {
+                                    Content = null,
+                                    DifferenceKind = DifferenceLine.Kind.Modified
+                                }, (int)(change.Original.Len - change.Modified.Len)));
                             }
                         }
                         break;

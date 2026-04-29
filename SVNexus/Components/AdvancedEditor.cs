@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Styling;
@@ -102,28 +103,28 @@ public class OldDifferenceEditor : AdvancedEditor
     {
         var value = args.NewValue.Value;
 
-        List<string> lines = [];
+        List<string> lines = value.Select(i => i.Content ?? string.Empty).ToList();
 
-        foreach (var line in value)
-        {
-            switch (line.DifferenceKind)
-            {
-                case DifferenceLine.Kind.Unchanged:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Add:
-                    lines.Add("");
-                    break;
-                case DifferenceLine.Kind.Remove:
-                case DifferenceLine.Kind.Modified:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Added:
-                case DifferenceLine.Kind.Removed:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        // foreach (var line in value)
+        // {
+        //     switch (line.DifferenceKind)
+        //     {
+        //         case DifferenceLine.Kind.Unchanged:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Add:
+        //             lines.Add("");
+        //             break;
+        //         case DifferenceLine.Kind.Remove:
+        //         case DifferenceLine.Kind.Modified:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Added:
+        //         case DifferenceLine.Kind.Removed:
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
         target.LineBackgroundRenderer.Lines = value;
         target.Document.Text = string.Join(Environment.NewLine, lines);
     }
@@ -142,28 +143,29 @@ public class NewDifferenceEditor : AdvancedEditor
     {
         var value = args.NewValue.Value;
 
-        List<string> lines = [];
+        var lines = value.Select(i => i.Content ?? string.Empty).ToList();
+        // List<string> lines = [];
 
-        foreach (var line in value)
-        {
-            switch (line.DifferenceKind)
-            {
-                case DifferenceLine.Kind.Unchanged:
-                case DifferenceLine.Kind.Added:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Removed:
-                    lines.Add("");
-                    break;
-                case DifferenceLine.Kind.Modified:
-                    lines.Add(line.Content);
-                    break;
-                case DifferenceLine.Kind.Add:
-                case DifferenceLine.Kind.Remove:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        // foreach (var line in value)
+        // {
+        //     switch (line.DifferenceKind)
+        //     {
+        //         case DifferenceLine.Kind.Unchanged:
+        //         case DifferenceLine.Kind.Added:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Removed:
+        //             lines.Add("");
+        //             break;
+        //         case DifferenceLine.Kind.Modified:
+        //             lines.Add(line.Content);
+        //             break;
+        //         case DifferenceLine.Kind.Add:
+        //         case DifferenceLine.Kind.Remove:
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
         
         target.LineBackgroundRenderer.Lines = value;
         target.Document.Text = string.Join(Environment.NewLine, lines);
