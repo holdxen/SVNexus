@@ -574,8 +574,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
             var model = new RevertDialogModel(this)
             {
-                RelateTo = WorkspaceRoot ?? string.Empty,
-                TargetEntries = SelectedTreeItems.Select(i => i.StatusEntry!).ToList()
+                Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry!, false, WorkspaceRoot)).ToList()
             };
 
             await OverlayDialog.ShowModal<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
@@ -605,9 +604,16 @@ public partial class WorkspaceViewModel : ViewModelBase,
         try
         {
 
-            var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(), false, false, null);
+            var model = new DeleteDialogModel(this)
+            {
+                Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry!, false, WorkspaceRoot)).ToList()
+            };
+            
+            await OverlayDialog.ShowModal<DeleteDialog, DeleteDialogModel>(model, SendMessage(new OnGetDialogHostId()), model.OverlayDialogOptions);
 
-            await _context.Value.Delete(deleteOptions);
+            // var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(), false, false, null);
+            //
+            // await _context.Value.Delete(deleteOptions);
         }
         catch (Exception e)
         {

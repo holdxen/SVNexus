@@ -22,7 +22,6 @@
                 <components:LoadingSvgButton Classes="ToolButton"
                                              ToolTip.Tip="Update"
                                              Command="{Binding UpdateCommand}"
-                                             IsLoading="{Binding UpdateCommand.IsRunning}"
                                              IsEnabled="{Binding IsUpdateButtonEnable}"
                                              Source="{StaticResource Icons.OperationUpdate}">
                 </components:LoadingSvgButton>
@@ -44,7 +43,6 @@
                                       ToolTip.Tip="Revert"
                                       IsEnabled="{Binding IsRevertButtonEnable}"
                                       Command="{Binding RevertCommand}"
-                                      IsLoading="{Binding RevertCommand.IsRunning}"
                                       Source="{StaticResource Icons.OperationRevert}">
                 </components:LoadingSvgButton>
                 <components:SvgButton Classes="ToolButton"

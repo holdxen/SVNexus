@@ -14,13 +14,6 @@ namespace SVNexus.ViewModels;
 
 public partial class RevertDialogModel(ViewModelBase parent): DialogModelBase(parent)
 {
-
-    public class TargetItemViewModel : StatusEntryItemViewModel
-    {
-        
-    }
-    
-    
     public enum ValidDepth
     {
         Empty = OperationDepth.Empty,
@@ -31,17 +24,12 @@ public partial class RevertDialogModel(ViewModelBase parent): DialogModelBase(pa
     
     public static Type DepthType { get; } = typeof(ValidDepth);
 
-    public List<TargetItemViewModel> TargetItems =>
-        TargetEntries.Select(i => new TargetItemViewModel()
-        {
-            Entry = i,
-            RelateTo = RelateTo
-        }).ToList();
+    public required List<TargetItemViewModel> Targets { get; set; }
 
-
-    public required string RelateTo { get; set; }
-    
-    public required List<StatusEntry> TargetEntries { get; set; }
+    //
+    // public required string RelateTo { get; set; }
+    //
+    // public required List<StatusEntry> TargetEntries { get; set; }
 
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(Recursively))] 
@@ -71,7 +59,7 @@ public partial class RevertDialogModel(ViewModelBase parent): DialogModelBase(pa
     protected override async Task OnConfirm()
     {
         var options = new RevertOptions(
-            TargetEntries.Select(i => i.Path).ToArray(),
+            Targets.Select(i => i.Path).ToArray(),
             (OperationDepth)Depth,
             MetadataOnly,
             AddedKeepLocal);

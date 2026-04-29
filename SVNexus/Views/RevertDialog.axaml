@@ -28,19 +28,19 @@
             <u:FormItem Grid.Row="0" Label="Items:">
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
-                        <ListBox Height="150" ItemsSource="{Binding TargetItems}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="viewModels:RevertDialogModel+TargetItemViewModel">
-                                    <components:TargetItem KindIcon="{Binding KindIcon}"
-                                                                FileName="{Binding FileName}"
-                                                                StatusIcon="{Binding  StatusIcon}"
-                                                                IsLocked="{Binding IsLocked}"
-                                                                StatusToolTip="{Binding StatusToolTip}"
-                                                                >
-                                        
-                                    </components:TargetItem>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
+                        <ListBox Height="150" ItemsSource="{Binding Targets}">
+                            <!-- <ListBox.ItemTemplate> -->
+                            <!--     <DataTemplate DataType="viewModels:RevertDialogModel+TargetItemViewModel"> -->
+                            <!--         <components:TargetItem KindIcon="{Binding KindIcon}" -->
+                            <!--                                     FileName="{Binding FileName}" -->
+                            <!--                                     StatusIcon="{Binding  StatusIcon}" -->
+                            <!--                                     IsLocked="{Binding IsLocked}" -->
+                            <!--                                     StatusToolTip="{Binding StatusToolTip}" -->
+                            <!--                                     > -->
+                            <!--              -->
+                            <!--         </components:TargetItem> -->
+                            <!--     </DataTemplate> -->
+                            <!-- </ListBox.ItemTemplate> -->
                         </ListBox>
                     </Border>
                 </Grid>

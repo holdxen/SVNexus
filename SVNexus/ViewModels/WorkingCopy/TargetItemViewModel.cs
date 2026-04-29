@@ -73,7 +73,7 @@ public partial class TargetItemViewModel(ViewModelBase? parent = null): ViewMode
             }
             else if (statusEntry.Path == relateTo)
             {
-                relativeDirectory = "/";
+                relativeDirectory = string.Empty;
             }
             else
             {

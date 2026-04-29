@@ -366,10 +366,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     public void OnDataGridVerticalScrollValueChanged(double value, double maximum)
     {
         if (!((maximum - value) / maximum < 0.1)) return;
-        if (LogCommand.CanExecute(20))
-        {
-            LogCommand.Execute(20);
-        }
+        LogCommand.ExecuteOrNothing(20);
     }
 
 
@@ -396,11 +393,11 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     
 
 
-    private async Task<bool> CheckUrl()
+    private async Task CheckUrl()
     {
         if (ThisEntry is not null)
         {
-            return true;
+            return;
         }
         var hostId = SendMessage(new OnGetDialogHostId());
         var path = SendMessage(new OnGetWorkingCopyPath());
@@ -411,8 +408,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         {
             var opts = new InfoOptions(
                 Path: path,
-                PegRevision: new Revision.Working(),
-                Revision: new Revision.Head(),
+                PegRevision: new Revision.Unspecified(),
+                Revision: new Revision.Unspecified(),
                 Depth: Depth.Empty,
                 FetchExcluded: false,
                 FetchActualOnly: true,
@@ -420,22 +417,16 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
                 Changelists: []
             );
             var result = await context.Info(opts);
-            Dispatcher.UIThread.Invoke(() =>
+            if (result.Entries.Count != 1)
             {
-                if (result.Entries.Count != 1)
-                {
-                    throw new Exception("Failed to query information");
-                }
+                throw new Exception("Failed to query information");
+            }
 
-                ThisEntry = result.Entries.First().Value;
-            });
-
-            return true;
+            ThisEntry = result.Entries.First().Value;
         }
         catch (Exception e)
         {
             HandleException(e);
-            return false;
         }
 
         

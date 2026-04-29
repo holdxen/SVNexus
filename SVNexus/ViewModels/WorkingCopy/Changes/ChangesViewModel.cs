@@ -170,8 +170,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     {
         var model = new RevertDialogModel(this)
         {
-            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
-            TargetEntries = SelectedStatusEntries,
+            Targets = SelectedStatusEntries.Select(i => TargetItemViewModel.From(i, false, SendMessage(new OnGetWorkingCopyPath()))).ToList(),
         };
         var hostId = SendMessage(new OnGetDialogHostId());
         
@@ -293,8 +292,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         var model = new RevertDialogModel(this)
         {
-            TargetEntries = SelectedStatusEntries,
-            RelateTo = SendMessage(new OnGetWorkingCopyPath()),
+            Targets = SelectedStatusEntries.Select(i => TargetItemViewModel.From(i, false, SendMessage(new OnGetWorkingCopyPath()))).ToList(),
         };
 
 
