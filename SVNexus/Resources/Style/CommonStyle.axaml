@@ -46,7 +46,7 @@
         
     </ControlTheme>
     
-    <ControlTheme x:Key="{x:Type u:DefaultDialogControl}" TargetType="u:DefaultDialogControl">
+    <ControlTheme x:Key="{x:Type u:StandardDialogControl}" TargetType="u:StandardDialogControl">
         <Setter Property="MinWidth" Value="{DynamicResource DialogMinWidth}" />
         <Setter Property="MinHeight" Value="{DynamicResource DialogMinHeight}" />
         <Setter Property="CornerRadius" Value="{DynamicResource DialogCornerRadius}" />
@@ -58,7 +58,7 @@
             </Transitions>
         </Setter>
         <Setter Property="Template">
-            <ControlTemplate TargetType="u:DefaultDialogControl">
+            <ControlTemplate TargetType="u:StandardDialogControl">
                 <Panel>
                     <Border
                         Name="PART_Border"
@@ -335,10 +335,10 @@
         </Style>
     </ControlTheme>
 
-    <ControlTheme x:Key="FixedControl" TargetType="u:DefaultDialogControl"
-                  BasedOn="{StaticResource {x:Type u:DefaultDialogControl}}">
+    <ControlTheme x:Key="FixedControl" TargetType="u:StandardDialogControl"
+                  BasedOn="{StaticResource {x:Type u:StandardDialogControl}}">
         <Setter Property="Template">
-            <ControlTemplate TargetType="u:DefaultDialogControl">
+            <ControlTemplate TargetType="u:StandardDialogControl">
                 <Panel>
                     <Border
                         Name="PART_Border"

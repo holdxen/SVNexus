@@ -32,7 +32,8 @@
          <!-- <semi:TreeDataGridSemiTheme /> -->
          <semi:DockSemiTheme />
          <semi:AvaloniaEditSemiTheme />
-         <u-Semi:SemiTheme Locale="zh-CN"/>
+         <semi:UrsaSemiTheme Locale="zh-CN"></semi:UrsaSemiTheme>
+         <!-- <u-Semi:SemiTheme Locale="zh-CN"/> -->
          <custom:CustomTheme></custom:CustomTheme>
          <Style Selector=":is(TopLevel)">
              <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>

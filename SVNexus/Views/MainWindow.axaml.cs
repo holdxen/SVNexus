@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using SVNexus.Inject;
@@ -65,6 +66,7 @@ public partial class MainWindow : Window,
                     Expiration = TimeSpan.FromMinutes(2)
                 });
             });
+            args.SetObserved();
         };
 
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -110,7 +112,7 @@ public partial class MainWindow : Window,
             message.ShowIcon, 
             message.ShowClose, 
             message.OnClick, 
-            message.OnClose, 
+            null,
             message.Classes);
     }
 

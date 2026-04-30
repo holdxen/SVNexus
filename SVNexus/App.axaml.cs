@@ -46,6 +46,10 @@ public partial class App : Application, IRecipient<OnSetThemeVariant>
     {
         AvaloniaXamlLoader.Load(this);
         EngineMethods.SetupSvg(BuiltinFonts());
+        
+#if DEBUG
+        this.AttachDeveloperTools();
+#endif
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -65,18 +69,18 @@ public partial class App : Application, IRecipient<OnSetThemeVariant>
         base.OnFrameworkInitializationCompleted();
     }
 
-    private void DisableAvaloniaDataAnnotationValidation()
-    {
-        // Get an array of plugins to remove
-        var dataValidationPluginsToRemove =
-            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
-
-        // remove each entry found
-        foreach (var plugin in dataValidationPluginsToRemove)
-        {
-            BindingPlugins.DataValidators.Remove(plugin);
-        }
-    }
+    // private void DisableAvaloniaDataAnnotationValidation()
+    // {
+    //     // Get an array of plugins to remove
+    //     var dataValidationPluginsToRemove =
+    //         BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
+    //
+    //     // remove each entry found
+    //     foreach (var plugin in dataValidationPluginsToRemove)
+    //     {
+    //         BindingPlugins.DataValidators.Remove(plugin);
+    //     }
+    // }
 
     public void Receive(OnSetThemeVariant message)
     {

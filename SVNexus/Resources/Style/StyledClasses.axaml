@@ -65,19 +65,19 @@
         </Setter>
     </Style>
     
-    <Style Selector="u|DefaultDialogControl.Fixed">
+    <Style Selector="u|StandardDialogControl.Fixed">
         <Setter Property="(ScrollViewer.HorizontalScrollBarVisibility)" Value="Disabled"></Setter>
         <Setter Property="(ScrollViewer.VerticalScrollBarVisibility)" Value="Disabled"></Setter>
     </Style>
     
-    <Style Selector="u|DefaultDialogControl.HStretch">
+    <Style Selector="u|StandardDialogControl.HStretch">
         <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
     </Style>
     
-    <Style Selector="u|DefaultDialogControl.VStretch">
+    <Style Selector="u|StandardDialogControl.VStretch">
         <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
     </Style>
-    <Style Selector="u|DefaultDialogControl.FixedTheme">
+    <Style Selector="u|StandardDialogControl.FixedTheme">
         <Setter Property="Theme" Value="{StaticResource FixedControl}"></Setter>
     </Style>
     

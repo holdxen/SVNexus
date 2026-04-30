@@ -108,7 +108,7 @@ public class SvgRender : Control
 
 
             // 把 DIP 转成像素尺寸（考虑缩放）
-            var scale = VisualRoot?.RenderScaling ?? 1.0;
+            var scale = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
             var w = Math.Max(1, (int)Math.Round(Bounds.Width * scale));
             var h = Math.Max(1, (int)Math.Round(Bounds.Height * scale));
 
