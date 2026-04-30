@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 
@@ -123,6 +124,22 @@ public class DifferenceColorCollection
         },
     };
 
+
+    public IBrush BackgroundColor(DifferenceLine.Kind kind)
+    {
+        var brush = kind switch
+        {
+            DifferenceLine.Kind.Modified => Modified.Background,
+            DifferenceLine.Kind.Unchanged => new ImmutableSolidColorBrush(Colors.Transparent),
+            DifferenceLine.Kind.Add => Placeholder.Background,
+            DifferenceLine.Kind.Added => Added.Background,
+            DifferenceLine.Kind.Remove => Removed.Background,
+            DifferenceLine.Kind.Removed => Placeholder.Background,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Invalid difference kind")
+        };
+
+        return brush;
+    }
 
 }
 

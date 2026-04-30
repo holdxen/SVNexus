@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using Avalonia.Styling;
 using AvaloniaEdit;
 using AvaloniaEdit.Editing;
@@ -162,43 +163,79 @@ public class AdvancedEditor: TextEditor
             }
             var colorCollection = Application.Current?.ActualThemeVariant == ThemeVariant.Light ? DifferenceColorCollection.Light : DifferenceColorCollection
                 .Dark;
+
+
+            DifferenceLine.Kind? kind = null;
+            var start = 0.0;
+            // var index = 0;
         
-        
-            foreach (var visualLine in textView.VisualLines)
+            // foreach (var visualLine in textView.VisualLines)
+            for (var i = 0; i < textView.VisualLines.Count; i++)
             {
+                // index++;
+                var visualLine = textView.VisualLines[i];
                 var lineNumber = visualLine.FirstDocumentLine.LineNumber - 1;
-                if (lineNumber < 0 || lineNumber >= Lines.Count) continue;
-                IBrush? brush = null;
-                var line = Lines[lineNumber];
-                switch (line.DifferenceKind)
+                if (lineNumber < 0 || lineNumber >= Lines.Count)
                 {
-                    case DifferenceLine.Kind.Modified:
-                        brush = colorCollection.Modified.Background;
-                        break;
-                    case DifferenceLine.Kind.Unchanged:
-                        break;
-                    case DifferenceLine.Kind.Add:
-                        brush = colorCollection.Placeholder.Background;
-                        break;
-                    case DifferenceLine.Kind.Added:
-                        brush = colorCollection.Added.Background;
-                        break;
-                    case DifferenceLine.Kind.Remove:
-                        brush = colorCollection.Removed.Background;
-                        break;
-                    case DifferenceLine.Kind.Removed:
-                        brush = colorCollection.Placeholder.Background;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(line.DifferenceKind), line.DifferenceKind, "Invalid difference kind");
+                    continue;
+                }
+                // IBrush? brush = null;
+                var line = Lines[lineNumber];
+                // switch (line.DifferenceKind)
+                // {
+                //     case DifferenceLine.Kind.Modified:
+                //         brush = colorCollection.Modified.Background;
+                //         break;
+                //     case DifferenceLine.Kind.Unchanged:
+                //         brush = new ImmutableSolidColorBrush(Colors.Transparent);
+                //         break;
+                //     case DifferenceLine.Kind.Add:
+                //         brush = colorCollection.Placeholder.Background;
+                //         break;
+                //     case DifferenceLine.Kind.Added:
+                //         brush = colorCollection.Added.Background;
+                //         break;
+                //     case DifferenceLine.Kind.Remove:
+                //         brush = colorCollection.Removed.Background;
+                //         break;
+                //     case DifferenceLine.Kind.Removed:
+                //         brush = colorCollection.Placeholder.Background;
+                //         break;
+                //     default:
+                //         throw new ArgumentOutOfRangeException(nameof(line.DifferenceKind), line.DifferenceKind, "Invalid difference kind");
+                // }
+                //
+                // if (brush is null)
+                // {
+                //     Logger.Info($"brush is null: kind={line.DifferenceKind}, brush: {brush}");
+                //     continue;
+                // }
+                var y = visualLine.VisualTop - textView.VerticalOffset;
+                if (kind is null)
+                {
+                    kind = line.DifferenceKind;
+                    start = y;
+                }
+                else
+                {
+                    if (kind != line.DifferenceKind)
+                    {
+                        var rect = new Rect(0, start, textView.Bounds.Width, y - start);
+                        drawingContext.DrawRectangle(colorCollection.BackgroundColor(kind.GetValueOrDefault()), null, rect);  
+                        kind = line.DifferenceKind;
+                        start = y;
+                    }
+
+                }
+                if (i != textView.VisualLines.Count - 1) continue;
+                {
+                    var rect = new Rect(0, start, textView.Bounds.Width, y - start + visualLine.Height);
+                    drawingContext.DrawRectangle(colorCollection.BackgroundColor(line.DifferenceKind), null, rect);
                 }
 
-                if (brush is null) continue;
-                var y = visualLine.VisualTop - textView.VerticalOffset;
-
-                // 覆盖整行（包含行尾空白）
-                var rect = new Rect(0, y, textView.Bounds.Width, visualLine.Height);
-                drawingContext.DrawRectangle(brush, null, rect);
+                // // 覆盖整行（包含行尾空白）
+                // var rect = new Rect(0, y, textView.Bounds.Width, visualLine.Height);
+                // drawingContext.DrawRectangle(brush, null, rect);
             
             }
 
