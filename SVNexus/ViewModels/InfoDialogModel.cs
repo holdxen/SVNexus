@@ -41,7 +41,7 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
     [NotifyPropertyChangedFor(nameof(HumanSize))]
     public partial InfoEntry? Entry { get; set; }
 
-    public string? RevisionText => Entry?.Revision.ToString();
+    public string? RevisionText => Entry?.Revision?.ToString();
     
     public string? Url => Entry?.Url;
 
@@ -57,7 +57,7 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
     
     public string? LastChangedAuthor => Entry?.LastChangedAuthor;
 
-    public string? LastChangedRevision => Entry?.LastChangedRevision.ToString();
+    public string? LastChangedRevision => Entry?.LastChangedRevision?.ToString();
     
     public string? LastChangedDate => Entry?.LastChangedDate.Map(d => DateTimeOffset.FromUnixTimeMilliseconds(d / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
     

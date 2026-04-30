@@ -36574,6 +36574,7 @@ public record CopyOptions (
     bool IgnoreExternals, 
     bool MetadataOnly, 
     bool PinExternals, 
+    Dictionary<string, string>? RevisionTable, 
     string CommitMessage = ""
 ) {
 }
@@ -36590,6 +36591,7 @@ class FfiConverterTypeCopyOptions: FfiConverterRustBuffer<CopyOptions> {
             IgnoreExternals: FfiConverterBoolean.INSTANCE.Read(stream),
             MetadataOnly: FfiConverterBoolean.INSTANCE.Read(stream),
             PinExternals: FfiConverterBoolean.INSTANCE.Read(stream),
+            RevisionTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
             CommitMessage: FfiConverterString.INSTANCE.Read(stream)
         );
     }
@@ -36603,6 +36605,7 @@ class FfiConverterTypeCopyOptions: FfiConverterRustBuffer<CopyOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreExternals)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.MetadataOnly)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.PinExternals)
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionTable)
             + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
     }
 
@@ -36614,6 +36617,7 @@ class FfiConverterTypeCopyOptions: FfiConverterRustBuffer<CopyOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreExternals, stream);
             FfiConverterBoolean.INSTANCE.Write(value.MetadataOnly, stream);
             FfiConverterBoolean.INSTANCE.Write(value.PinExternals, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionTable, stream);
             FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
     }
 }
@@ -37241,14 +37245,14 @@ class FfiConverterTypeIndexedLogEntry: FfiConverterRustBuffer<IndexedLogEntry> {
 
 public record InfoEntry (
     string Url, 
-    uint Revision, 
+    uint? Revision, 
     string RepositoryRootUrl, 
     string RepositoryUuid, 
     NodeKind Kind, 
     ulong? Size, 
-    uint LastChangedRevision, 
+    uint? LastChangedRevision, 
     long LastChangedDate, 
-    string LastChangedAuthor, 
+    string? LastChangedAuthor, 
     Lock? Lock, 
     WorkingCopyInfo? WorkingCopyInfo
 ) {
@@ -37260,14 +37264,14 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
     public override InfoEntry Read(BigEndianStream stream) {
         return new InfoEntry(
             Url: FfiConverterString.INSTANCE.Read(stream),
-            Revision: FfiConverterUInt32.INSTANCE.Read(stream),
+            Revision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             RepositoryRootUrl: FfiConverterString.INSTANCE.Read(stream),
             RepositoryUuid: FfiConverterString.INSTANCE.Read(stream),
             Kind: FfiConverterTypeNodeKind.INSTANCE.Read(stream),
             Size: FfiConverterOptionalUInt64.INSTANCE.Read(stream),
-            LastChangedRevision: FfiConverterUInt32.INSTANCE.Read(stream),
+            LastChangedRevision: FfiConverterOptionalUInt32.INSTANCE.Read(stream),
             LastChangedDate: FfiConverterInt64.INSTANCE.Read(stream),
-            LastChangedAuthor: FfiConverterString.INSTANCE.Read(stream),
+            LastChangedAuthor: FfiConverterOptionalString.INSTANCE.Read(stream),
             Lock: FfiConverterOptionalTypeLock.INSTANCE.Read(stream),
             WorkingCopyInfo: FfiConverterOptionalTypeWorkingCopyInfo.INSTANCE.Read(stream)
         );
@@ -37276,28 +37280,28 @@ class FfiConverterTypeInfoEntry: FfiConverterRustBuffer<InfoEntry> {
     public override int AllocationSize(InfoEntry value) {
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Url)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.Revision)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.Revision)
             + FfiConverterString.INSTANCE.AllocationSize(value.RepositoryRootUrl)
             + FfiConverterString.INSTANCE.AllocationSize(value.RepositoryUuid)
             + FfiConverterTypeNodeKind.INSTANCE.AllocationSize(value.Kind)
             + FfiConverterOptionalUInt64.INSTANCE.AllocationSize(value.Size)
-            + FfiConverterUInt32.INSTANCE.AllocationSize(value.LastChangedRevision)
+            + FfiConverterOptionalUInt32.INSTANCE.AllocationSize(value.LastChangedRevision)
             + FfiConverterInt64.INSTANCE.AllocationSize(value.LastChangedDate)
-            + FfiConverterString.INSTANCE.AllocationSize(value.LastChangedAuthor)
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.LastChangedAuthor)
             + FfiConverterOptionalTypeLock.INSTANCE.AllocationSize(value.Lock)
             + FfiConverterOptionalTypeWorkingCopyInfo.INSTANCE.AllocationSize(value.WorkingCopyInfo);
     }
 
     public override void Write(InfoEntry value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Url, stream);
-            FfiConverterUInt32.INSTANCE.Write(value.Revision, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.Revision, stream);
             FfiConverterString.INSTANCE.Write(value.RepositoryRootUrl, stream);
             FfiConverterString.INSTANCE.Write(value.RepositoryUuid, stream);
             FfiConverterTypeNodeKind.INSTANCE.Write(value.Kind, stream);
             FfiConverterOptionalUInt64.INSTANCE.Write(value.Size, stream);
-            FfiConverterUInt32.INSTANCE.Write(value.LastChangedRevision, stream);
+            FfiConverterOptionalUInt32.INSTANCE.Write(value.LastChangedRevision, stream);
             FfiConverterInt64.INSTANCE.Write(value.LastChangedDate, stream);
-            FfiConverterString.INSTANCE.Write(value.LastChangedAuthor, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.LastChangedAuthor, stream);
             FfiConverterOptionalTypeLock.INSTANCE.Write(value.Lock, stream);
             FfiConverterOptionalTypeWorkingCopyInfo.INSTANCE.Write(value.WorkingCopyInfo, stream);
     }

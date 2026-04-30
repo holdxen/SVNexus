@@ -1914,6 +1914,7 @@ pub struct CopyOptions {
     ignore_externals: bool,
     metadata_only: bool,
     pin_externals: bool,
+    revision_table: Option<HashMap<String, String>>,
     #[uniffi(default)]
     commit_message: String,
 }
@@ -2198,14 +2199,14 @@ pub struct DifferenceResult {
 #[derive(uniffi::Record, Debug, new)]
 pub struct InfoEntry {
     url: String,
-    revision: RevisionNumber,
+    revision: Option<RevisionNumber>,
     repository_root_url: String,
     repository_uuid: String,
     kind: NodeKind,
     size: Option<u64>,
-    last_changed_revision: RevisionNumber,
+    last_changed_revision: Option<RevisionNumber>,
     last_changed_date: i64,
-    last_changed_author: String,
+    last_changed_author: Option<String>,
     lock: Option<Lock>,
     working_copy_info: Option<WorkingCopyInfo>,
 }
@@ -2224,7 +2225,7 @@ impl *const ffi::svn_client_info2_t {
 
             let url = ptr.URL.to_str().to_string();
 
-            let revision = ptr.rev.try_into().unwrap();
+            let revision = ptr.rev.try_into().ok();
 
             let repository_root_url = ptr.repos_root_URL.to_str().to_string();
 
@@ -2238,11 +2239,11 @@ impl *const ffi::svn_client_info2_t {
                 Some(ptr.size.try_into().unwrap())
             };
 
-            let last_changed_revision = ptr.last_changed_rev.try_into().unwrap();
+            let last_changed_revision = ptr.last_changed_rev.try_into().ok();
 
             let last_changed_date = ptr.last_changed_date.try_into().unwrap();
 
-            let last_changed_author = ptr.last_changed_author.to_str().to_string();
+            let last_changed_author = ptr.last_changed_author.to_nullable_string();
 
             let lock = if ptr.lock.is_null() {
                 None
