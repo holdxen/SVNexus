@@ -121,7 +121,7 @@ public class AdvancedEditor: TextEditor
 
                 // var realIndex = Lines.RealIndex(lineNumber);
 
-                var index = Lines.Take(lineNumber).Count(i => i.Content is not null);
+                var index = Lines.Take(lineNumber).Count(i => i.Content is not null) + 1;
                     
                 // var c = Lines.RealIndex(lineNumber);
                     

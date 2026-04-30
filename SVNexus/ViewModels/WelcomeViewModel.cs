@@ -495,7 +495,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         private async Task Delete()
         {
             var hostId = SendMessage(new OnGetDialogHostId());
-            var result = await MessageBox.ShowOverlayAsync("Whether to delete", title: "Warning", hostId,
+            var result = await OverlayMessageBox.ShowAsync("Whether to delete", title: "Warning", hostId,
                 MessageBoxIcon.Warning, MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)
             {
@@ -865,7 +865,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         };
 
         var model = new AddHistoryGroupDialogModel();
-        await OverlayDialog.ShowModal<AddHistoryGroupDialog, AddHistoryGroupDialogModel>(model, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<AddHistoryGroupDialog, AddHistoryGroupDialogModel>(model, hostId, dialogOptions);
 
         if (model.HistoryGroup is not null)
         {
@@ -997,7 +997,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
 
         var model = new CheckoutOrExportDialogModel();
 
-        await OverlayDialog.ShowModal<CheckoutOrExportDialog, CheckoutOrExportDialogModel>(model, hostId,
+        await OverlayDialog.ShowStandardAsync<CheckoutOrExportDialog, CheckoutOrExportDialogModel>(model, hostId,
             options: options);
         if (model.Options is not null)
         {
@@ -1101,7 +1101,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         //         Buttons = DialogButton.None
         //     };
         //     Console.WriteLine("Show dialog");
-        //     await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
+        //     await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId, options: options);
         // });
         //
         // Task.Run(async () =>
@@ -1141,7 +1141,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
+            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
                 options: options);
         });
     }
@@ -1162,7 +1162,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
         var hostId = SendMessage(new OnGetDialogHostId());
 
-        await OverlayDialog.ShowModal<ExportDialog, ExportDialogModel>(exportDialogModel, options: options,
+        await OverlayDialog.ShowStandardAsync<ExportDialog, ExportDialogModel>(exportDialogModel, options: options,
             hostId: hostId);
         if (exportDialogModel.Options is not null)
         {
@@ -1186,7 +1186,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         var hostId = SendMessage(new OnGetDialogHostId());
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowModal<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
+            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
                 options: options);
         });
     }

@@ -14,7 +14,7 @@ public static class DifferenceLineExtension
         {
             if (index == 0)
             {
-                return differences.TakeWhile(line => line.Content is not null).Count();
+                return differences.TakeWhile(line => line.Content is null).Count();
             }
             
             var excludeIndex = 0;

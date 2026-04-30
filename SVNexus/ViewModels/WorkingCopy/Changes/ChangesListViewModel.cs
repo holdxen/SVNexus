@@ -205,7 +205,7 @@ public partial class ChangesListViewModel : ViewModelBase
                 return;
             }
 
-            var result = await MessageBox.ShowOverlayAsync(message: $"Whether to revert:\n{Path.TrimStartString(path).TrimStartPathSeparatorChar()}", 
+            var result = await OverlayMessageBox.ShowAsync(message: $"Whether to revert:\n{Path.TrimStartString(path).TrimStartPathSeparatorChar()}", 
                 title: "Question", hostId: hostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)
             {

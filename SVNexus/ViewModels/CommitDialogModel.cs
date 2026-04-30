@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
+using Avalonia.Controls.Primitives;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
@@ -27,12 +28,14 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
         Buttons = DialogButton.None,
         CanDragMove = true,
         CanResize = true,
-        StyleClass = "Fixed"
+        StyleClass = "Fixed",
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        VerticalScrollBarVisibility = ScrollBarVisibility.Disabled
     };
 
-    public class TargetItemViewModel: StatusEntryItemViewModel
-    {
-    }
+    // public class TargetItemViewModel: StatusEntryItemViewModel
+    // {
+    // }
 
     public enum ValidDepth
     {
@@ -51,6 +54,8 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     // public static readonly Type DepthType = typeof(Depth);
 
     public required StatusEntry[] Targets { get; init; }
+    
+    // public required List<TargetItemViewModel> Targets { get; set; }
 
     [ObservableProperty]
     public partial ValidDepth Depth { get; set; } = ValidDepth.Infinity;
@@ -59,15 +64,11 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
     public List<TargetItemViewModel> DisplayTargetItems =>
-        ShowActualTargetItem ? TargetItems : Targets.Select(i => new TargetItemViewModel()
-        {
-            Entry = i,
-            RelateTo = RelateTo
-        }).ToList();
+        ShowActualTargetItem ? StatusItems : Targets.Select(i => TargetItemViewModel.From(i, false, RelateTo)).ToList();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayTargetItems))]
-    public partial List<TargetItemViewModel> TargetItems { get; set; } = [];
+    public partial List<TargetItemViewModel> StatusItems { get; set; } = [];
     
     public required string RelateTo { get; init; } = string.Empty;
 
@@ -191,15 +192,11 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
             }
 
 
-            TargetItems = entries.Values.Where(entry => entry.NodeStatus is not (
+            StatusItems = entries.Values.Where(entry => entry.NodeStatus is not (
                 WorkingCopyStatus.Missing or 
                 WorkingCopyStatus.Unversioned or 
                 WorkingCopyStatus.Normal or 
-                WorkingCopyStatus.None)).Select(i => new TargetItemViewModel()
-            {
-                Entry = i,
-                RelateTo = RelateTo
-            }).ToList();
+                WorkingCopyStatus.None)).Select(i => TargetItemViewModel.From(i, false, RelateTo)).ToList();
 
             // TargetItems.Clear();
 

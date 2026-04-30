@@ -136,7 +136,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         _ = Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowModal<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+            await OverlayDialog.ShowStandardAsync<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
         });
     }
 
@@ -174,7 +174,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         };
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowModal<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
         if (model.Accept)
         {
             await StatusCommand.ExecuteOrNothingAsync(null);
@@ -193,7 +193,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowModal<UnlockDialog, UnlockDialogModel>(model, hostId, model.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<UnlockDialog, UnlockDialogModel>(model, hostId, model.OverlayDialogOptions);
         if (model.Accept)
         {
             await StatusCommand.ExecuteOrNothingAsync(null);
@@ -298,7 +298,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowModal<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
 
         if (model.Accept)
         {
@@ -337,7 +337,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
             var lockedList = result.Entries.Where(e => e.WcIsLocked).ToList();
             if (lockedList.Count > 0)
             {
-                var boxResult = await MessageBox.ShowOverlayAsync(
+                var boxResult = await OverlayMessageBox.ShowAsync(
                     title: "Error",
                     hostId: hostId,
                     message: "Working copy is locked\nTry to cleanup now",
@@ -366,7 +366,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
             var incompleteList = result.Entries.Where(e => e.NodeStatus == WorkingCopyStatus.Incomplete).ToList();
             if (incompleteList.Count > 0)
             {
-                var boxResult = await MessageBox.ShowOverlayAsync(
+                var boxResult = await OverlayMessageBox.ShowAsync(
                     title: "Error",
                     hostId: hostId,
                     message: "Working copy is incomplete\nTry to cleanup now",
@@ -439,7 +439,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         };
 
 
-        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(model, hostId, model.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<CommitDialog, CommitDialogModel>(model, hostId, model.OverlayDialogOptions);
 
         if (model.Accept)
         {

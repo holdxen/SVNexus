@@ -156,7 +156,7 @@ public partial class WorkingCopyViewModel : ViewModelBase,
                 Buttons = DialogButton.None
             };
 
-            await OverlayDialog.ShowModal<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
+            await OverlayDialog.ShowStandardAsync<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
             if (importProcessDialogModel.Error is null)
             {
                 await ChangesViewModel.Status();

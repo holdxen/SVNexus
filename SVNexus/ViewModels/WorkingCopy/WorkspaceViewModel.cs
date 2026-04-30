@@ -368,7 +368,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         {
             var hostId = SendMessage(new OnGetDialogHostId());
 
-            var result = await MessageBox.ShowOverlayAsync(
+            var result = await OverlayMessageBox.ShowAsync(
                 "Working copy is locked, Whether to cleanup", 
                 "Error", 
                 hostId,  
@@ -392,7 +392,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         if (incompleteEntries.Count > 0)
         {
             var hostId = SendMessage(new OnGetDialogHostId());
-            var result = await MessageBox.ShowOverlayAsync("Working copy is locked, Whether to update", "Error", hostId,  MessageBoxIcon.Error, MessageBoxButton.YesNo);
+            var result = await OverlayMessageBox.ShowAsync("Working copy is locked, Whether to update", "Error", hostId,  MessageBoxIcon.Error, MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
 
@@ -457,7 +457,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
         _ = Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowModal<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+            await OverlayDialog.ShowStandardAsync<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
         });
     }
 
@@ -512,7 +512,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             StyleClass = "Fixed"
         };
         
-        await OverlayDialog.ShowModal<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, dialogOptions);
     }
 
     [RelayCommand]
@@ -528,7 +528,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             ParentDirectory = SelectedTreeItems.First().AbsolutePath,
         };
 
-        await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), mkdirDialogModel.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), mkdirDialogModel.OverlayDialogOptions);
     
         if (mkdirDialogModel.Accept)
         {
@@ -578,7 +578,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry!, false, WorkspaceRoot)).ToList()
             };
 
-            await OverlayDialog.ShowModal<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
+            await OverlayDialog.ShowStandardAsync<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
             if (model.Accept)
             {
                 await RefreshTreeItems();
@@ -610,7 +610,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry!, false, WorkspaceRoot)).ToList()
             };
             
-            await OverlayDialog.ShowModal<DeleteDialog, DeleteDialogModel>(model, SendMessage(new OnGetDialogHostId()), model.OverlayDialogOptions);
+            await OverlayDialog.ShowStandardAsync<DeleteDialog, DeleteDialogModel>(model, SendMessage(new OnGetDialogHostId()), model.OverlayDialogOptions);
 
             // var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.AbsolutePath).ToArray(), false, false, null);
             //
@@ -661,17 +661,17 @@ public partial class WorkspaceViewModel : ViewModelBase,
         };
         var hostId = SendMessage(new OnGetDialogHostId());
 
-        var dialogOptions = new OverlayDialogOptions()
-        {
-            StyleClass = "Fixed",
-            IsCloseButtonVisible = false,
-            Buttons = DialogButton.None,
-            CanDragMove = true,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled
-        };
+        // var dialogOptions = new OverlayDialogOptions()
+        // {
+        //     StyleClass = "Fixed",
+        //     IsCloseButtonVisible = false,
+        //     Buttons = DialogButton.None,
+        //     CanDragMove = true,
+        //     HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        //     VerticalScrollBarVisibility = ScrollBarVisibility.Disabled
+        // };
         
-        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, commitDialogModel.OverlayDialogOptions);
         if (commitDialogModel.Accept)
         {
             await RefreshTreeItems();
@@ -692,7 +692,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             if (found is not null)
             {
                 var hostId = SendMessage(new OnGetDialogHostId());
-                var result = await MessageBox.ShowOverlayAsync($"The root of {WorkspacePath} is already opened. Redirect to the specified page?", title: "Info", hostId: hostId, icon: MessageBoxIcon.Question, MessageBoxButton.YesNo);
+                var result = await OverlayMessageBox.ShowAsync($"The root of {WorkspacePath} is already opened. Redirect to the specified page?", title: "Info", hostId: hostId, icon: MessageBoxIcon.Question, MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
                     if (!SendMessage(new OnSwitchTab()
@@ -763,7 +763,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 if (!constant.IsWcNotWorkingCopy(error.Code)) return false;
                 var hostId = SendMessage(new OnGetDialogHostId());
 
-                var result = await MessageBox.ShowOverlayAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
+                var result = await OverlayMessageBox.ShowAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
                     var dialogOptions = new OverlayDialogOptions
@@ -776,7 +776,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                     {
                         Path = WorkspacePath,
                     };
-                    await OverlayDialog.ShowModal<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
+                    await OverlayDialog.ShowStandardAsync<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
                     if (importDialogModel.Options is not null)
                     {
                         var importProcessDialogModel = new ImportProcessDialogModel(this)
@@ -791,7 +791,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                             Buttons = DialogButton.None
                         };
 
-                        await OverlayDialog.ShowModal<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
+                        await OverlayDialog.ShowStandardAsync<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
                         if (importProcessDialogModel.Error is null)
                         {
                         }
@@ -838,7 +838,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             StyleClass = "Fixed"
         };
 
-        await OverlayDialog.ShowModal<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
     }
 
     [RelayCommand]
@@ -866,7 +866,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             };
             
             
-            await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, dialogOptions);
+            await OverlayDialog.ShowStandardAsync<UpdateDialog, UpdateDialogModel>(model, hostId, dialogOptions);
 
             if (model.Accept)
             {
@@ -942,7 +942,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         var hostId = SendMessage(new OnGetDialogHostId());
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await MessageBox.ShowOverlayAsync(title: "Error", hostId: hostId, message: "Not a working copy", button: MessageBoxButton.OK);
+            await OverlayMessageBox.ShowAsync(title: "Error", hostId: hostId, message: "Not a working copy", button: MessageBoxButton.OK);
             SendMessage(new OnRemoveTabModel());
         });
     }

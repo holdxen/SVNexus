@@ -105,7 +105,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
                 Number = Revision ?? 1,
             };
             
-            await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);
+            await OverlayDialog.ShowStandardAsync<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);
         }
 
         [RelayCommand]

@@ -413,7 +413,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
 
         _ = Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowModal<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+            await OverlayDialog.ShowStandardAsync<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
         });
     }
 
@@ -465,7 +465,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             CanDragMove = true,
         };
         
-        await OverlayDialog.ShowModal<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
     }
 
     [RelayCommand]
@@ -481,7 +481,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             ParentDirectory = SelectedTreeItems.First().StatusEntry.Path,
         };
             
-        await OverlayDialog.ShowModal<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), mkdirDialogModel.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<MkdirDialog, MkdirDialogModel>(mkdirDialogModel, SendMessage(new OnGetDialogHostId()), mkdirDialogModel.OverlayDialogOptions);
         
         if (mkdirDialogModel.Accept)
         {
@@ -538,7 +538,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowModal<UnlockDialog, UnlockDialogModel>(unlockDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<UnlockDialog, UnlockDialogModel>(unlockDialogModel, hostId, dialogOptions);
         
         Logger.Info($"Unlock complete: {unlockDialogModel.Accept}");
 
@@ -575,7 +575,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowModal<LockDialog, LockDialogModel>(lockDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<LockDialog, LockDialogModel>(lockDialogModel, hostId, dialogOptions);
         if (lockDialogModel.Accept)
         {
             await Refresh();
@@ -606,7 +606,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             StyleClass = "Fixed"
         };
 
-        await OverlayDialog.ShowModal<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
         
         
     }
@@ -626,7 +626,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             var context = SendMessage(new OnGetContext()).Response;
 
 
-            var result = await MessageBox.ShowOverlayAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            var result = await OverlayMessageBox.ShowAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes)
             {
                 return;
@@ -669,7 +669,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowModal<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<UpdateDialog, UpdateDialogModel>(model, hostId, model.OverlayDialogOptions);
         
         // var updateOptions = new UpdateOptions(
         //     SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),

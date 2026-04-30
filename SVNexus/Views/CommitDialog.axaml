@@ -40,16 +40,16 @@
                 <Grid>
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
                         <ListBox Height="150" ItemsSource="{Binding DisplayTargetItems}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel">
-                                    <components:TargetItem KindIcon="{Binding KindIcon}"
-                                                                FileName="{Binding FileName}"
-                                                                StatusIcon="{Binding  StatusIcon}"
-                                                                StatusToolTip="{Binding StatusToolTip}"
-                                                                >
-                                    </components:TargetItem>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
+                            <!-- <ListBox.ItemTemplate> -->
+                            <!--     <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel"> -->
+                            <!--         <components:TargetItem KindIcon="{Binding KindIcon}" -->
+                            <!--                                     FileName="{Binding FileName}" -->
+                            <!--                                     StatusIcon="{Binding  StatusIcon}" -->
+                            <!--                                     StatusToolTip="{Binding StatusToolTip}" -->
+                            <!--                                     > -->
+                            <!--         </components:TargetItem> -->
+                            <!--     </DataTemplate> -->
+                            <!-- </ListBox.ItemTemplate> -->
                         </ListBox>
                     </Border>
                     <u:LoadingIcon Margin="0 0 10 10" 

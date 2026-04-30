@@ -93,7 +93,7 @@ public sealed class ContextNotifierDelegate : ContextNotifier
                 Fingerprint = info.Fingerprint,
                 Savable = maySave,
             };
-            await OverlayDialog.ShowModal<TrustServerDialog, TrustServerDialogModel>(trustServerDialogModel, options: options, hostId: DialogHostId);
+            await OverlayDialog.ShowStandardAsync<TrustServerDialog, TrustServerDialogModel>(trustServerDialogModel, options: options, hostId: DialogHostId);
             return new TrustServer(failures, trustServerDialogModel.Save);
         }).Result;
     }
@@ -116,7 +116,7 @@ public sealed class ContextNotifierDelegate : ContextNotifier
                 Username =  username,
                 Savable =  maySave,
             };
-            await OverlayDialog.ShowModal<AuthenticateDialog, AuthenticateDialogModel>(authenticateDialogModel, options: options, hostId: DialogHostId);
+            await OverlayDialog.ShowStandardAsync<AuthenticateDialog, AuthenticateDialogModel>(authenticateDialogModel, options: options, hostId: DialogHostId);
             return authenticateDialogModel.Accept ? new Authentication(Username: authenticateDialogModel.Username, Password: authenticateDialogModel.Password, Save: authenticateDialogModel.Save) : null;
         }).Result;
         
@@ -127,7 +127,7 @@ public sealed class ContextNotifierDelegate : ContextNotifier
     {
         return Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            var result = await MessageBox.ShowOverlayAsync(realm, "Whether to save password as plain text", DialogHostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
+            var result = await OverlayMessageBox.ShowAsync(realm, "Whether to save password as plain text", DialogHostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
 
             return result == MessageBoxResult.Yes;
         }).Result;
