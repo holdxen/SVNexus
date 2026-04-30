@@ -1,14 +1,7 @@
 ﻿using Avalonia;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Avalonia.Dialogs;
-using Avalonia.Platform;
 using SVNexus.Extension;
 using SVNexus.Generated;
-using SVNexus.Inject;
-using SVNexus.Utils;
 
 namespace SVNexus;
 
