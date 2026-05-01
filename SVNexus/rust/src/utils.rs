@@ -18,6 +18,7 @@ use tiny_skia::Pixmap;
 
 #[easy_ext::ext(SubversionStringer)]
 pub impl *const subversion::ffi::svn_string_t {
+    
     unsafe fn to_str<'a>(self) -> &'a str {
         unsafe {
             let slice = self.to_slice();

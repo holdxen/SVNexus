@@ -7,13 +7,15 @@
              x:DataType="changes:ChangesListViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:converters="clr-namespace:SVNexus.Converters"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesListView">
-    <UserControl.DataTemplates>
-        <DataTemplate DataType="changes:ChangesListViewModel+MenuIconViewModel">
-            <components:SvgRender Classes.Themable="{Binding Themable}"
-                                  Source="{Binding Source, Converter={x:Static converters:StaticResourceConverter.Default}}"></components:SvgRender>
-        </DataTemplate>
-    </UserControl.DataTemplates>
+    <!-- <UserControl.DataTemplates> -->
+    <!--     <DataTemplate DataType="changes:ChangesListViewModel+MenuIconViewModel"> -->
+    <!--         <components:SvgRender Classes.Themable="{Binding Themable}" -->
+    <!--                               Source="{Binding Source, Converter={x:Static converters:StaticResourceConverter.Default}}"></components:SvgRender> -->
+    <!--     </DataTemplate> -->
+    <!-- </UserControl.DataTemplates> -->
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Show">
             <InvokeCommandAction Command="{Binding ShowCommand}">
@@ -26,6 +28,29 @@
         SelectedItems="{Binding SelectedItems}"
         SelectionMode="Multiple"
         ItemsSource="{Binding Items}">
+        <Interaction.Behaviors>
+            <behaviors:ContextMenuControlBehavior AllowToOpen="{Binding MenuItems, Converter={x:Static converters:ListConverter.IsNotEmptyOrNull}}"></behaviors:ContextMenuControlBehavior>
+        </Interaction.Behaviors>
+        <ListBox.ContextMenu>
+            <ContextMenu ItemsSource="{Binding MenuItems}">
+                <ContextMenu.ItemContainerTheme>
+                    <ControlTheme TargetType="MenuItem"
+                                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                                  x:DataType="viewModels:MenuItemViewModel">
+                        <Setter Property="Icon" Value="{Binding Icon}"></Setter>
+                        <Setter Property="Padding" Value="4 2"></Setter>
+                        <Setter Property="Header" Value="{Binding Header}" />
+                        <Setter Property="ItemsSource"
+                                Value="{Binding Children}" />
+                        <Setter Property="Command" Value="{Binding Command}" />
+                        <Setter Property="CommandParameter"
+                                Value="{Binding CommandParameter}" />
+                        <Setter Property="IsEnabled"
+                                Value="{Binding IsEnabled}" />
+                    </ControlTheme>
+                </ContextMenu.ItemContainerTheme>
+            </ContextMenu>
+        </ListBox.ContextMenu>
         <ListBox.Styles>
             <Style Selector="ListBoxItem">
                 <Setter Property="CornerRadius" Value="5"></Setter>

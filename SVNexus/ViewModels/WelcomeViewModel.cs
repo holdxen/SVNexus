@@ -865,7 +865,8 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         };
 
         var model = new AddHistoryGroupDialogModel();
-        await OverlayDialog.ShowStandardAsync<AddHistoryGroupDialog, AddHistoryGroupDialogModel>(model, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<AddHistoryGroupDialog, AddHistoryGroupDialogModel>(model, hostId,
+            dialogOptions);
 
         if (model.HistoryGroup is not null)
         {
@@ -1141,7 +1142,8 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
                 Buttons = DialogButton.None
             };
             Console.WriteLine("Show dialog");
-            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
+            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model,
+                hostId: hostId,
                 options: options);
         });
     }
@@ -1186,7 +1188,8 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         var hostId = SendMessage(new OnGetDialogHostId());
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model, hostId: hostId,
+            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model,
+                hostId: hostId,
                 options: options);
         });
     }

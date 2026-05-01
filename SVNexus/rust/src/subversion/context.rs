@@ -2297,6 +2297,29 @@ pub struct CleanupOptions {
     include_externals: bool,
 }
 
+#[derive(Debug, uniffi::Enum)]
+pub enum PropertySetOptions {
+    Local {
+        name: String,
+        value: Option<String>,
+        targets: Vec<String>,
+        depth: Depth,
+        skip_checks: bool,
+        #[uniffi(default)]
+        changelists: Option<Vec<String>>,
+    },
+    Remote {
+        name: String,
+        value: Option<String>,
+        url: String,
+        skip_checks: bool,
+        base_revision_for_url: RevisionNumber,
+        #[uniffi(default)]
+        revision_properties: Option<HashMap<String, String>>,
+        commit_message: String,
+    },
+}
+
 impl Context {
     pub fn ctx(&mut self) -> *mut ffi::svn_client_ctx_t {
         self.ptr
@@ -2697,10 +2720,9 @@ impl Context {
             let peg_revision = opts.peg_revision.to_opt_revision();
             let revision = opts.revision.to_opt_revision();
 
-
-
             if ffi::svn_path_is_url(from_path_or_url) != 0 {
-                from_path_or_url = Self::check_url(from_path_or_url, &opts.from_path_or_url, &mut pool)?;
+                from_path_or_url =
+                    Self::check_url(from_path_or_url, &opts.from_path_or_url, &mut pool)?;
             }
 
             let error = ffi::svn_client_export5(
@@ -2722,7 +2744,11 @@ impl Context {
         }
     }
 
-    unsafe fn check_url(url: *const c_char, orignal_url: &str, pool: &mut apr::Pool) -> error::Result<*const c_char> {
+    unsafe fn check_url(
+        url: *const c_char,
+        orignal_url: &str,
+        pool: &mut apr::Pool,
+    ) -> error::Result<*const c_char> {
         unsafe {
             if ffi::svn_path_is_url(url) == 0 {
                 return builder::InvalidArgument {
@@ -2755,7 +2781,8 @@ impl Context {
             if svn_path_is_backpath_present(target) != 0 {
                 return builder::InvalidArgument {
                     detail: format!(".. is not allowed in url: {}", orignal_url),
-                }.fail();
+                }
+                .fail();
             }
 
             let url = svn_uri_canonicalize(target, pool.as_mut_ptr());
@@ -2818,7 +2845,6 @@ impl Context {
 
         tracing::info!("Start checking using c function");
         let error = unsafe {
-
             url = Self::check_url(url, &opts.url, &mut pool)?;
             // if ffi::svn_path_is_url(url) == 0 {
             //     return builder::InvalidArgument {
@@ -2829,7 +2855,6 @@ impl Context {
 
             // {
             //     let target = ffi::svn_path_uri_from_iri(url, pool.as_mut_ptr());
-
 
             //     #[cfg(target_os = "windows")]
             //     let mut target = ffi::svn_path_uri_autoescape(target, pool.as_mut_ptr());
@@ -4105,6 +4130,100 @@ impl Context {
 
             Ok(key)
         }
+    }
+
+    pub fn property_set(&mut self, opts: PropertySetOptions) -> error::Result<()> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            match opts {
+                PropertySetOptions::Local {
+                    name,
+                    value,
+                    targets,
+                    depth,
+                    skip_checks,
+                    changelists,
+                } => {
+                    let name = pool.string(name)?;
+                    // let value = value.map(|e| pool.string(e)).transpose()?.unwrap_or_default();
+                    let value = value
+                        .map(|e| {
+                            ffi::svn_string_ncreate(
+                                e.as_ptr() as _,
+                                e.len().try_into().unwrap(),
+                                pool.as_mut_ptr(),
+                            )
+                        })
+                        .unwrap_or_default();
+                    let targets = pool.string_array(targets.len(), targets.iter())?;
+                    let changelists = changelists
+                        .map(|v| pool.string_array(v.len(), v.iter()))
+                        .transpose()?
+                        .unwrap_or_default();
+
+                    let error = ffi::svn_client_propset_local(
+                        name,
+                        value,
+                        targets,
+                        depth.into(),
+                        skip_checks.into(),
+                        changelists,
+                        self.ctx(),
+                        pool.as_mut_ptr(),
+                    );
+                    SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+                }
+                PropertySetOptions::Remote {
+                    name,
+                    value,
+                    url,
+                    skip_checks,
+                    base_revision_for_url,
+                    revision_properties,
+                    commit_message,
+                } => {
+                    let name = pool.string(name)?;
+                    // let value = value.map(|e| pool.string(e)).transpose()?.unwrap_or_default();
+                    let value = value
+                        .map(|e| {
+                            pool.svn_string(e)
+                        })
+                        .transpose()?
+                        .unwrap_or_default();
+                    let url = pool.string(url)?;
+
+                    let revision_properties = revision_properties
+                        .map(|e| {
+                            pool.string_hash_map(
+                                e.iter(),
+                                |p: &mut apr::Pool, k: &str| p.string(k).map(|o| o as _),
+                                |p: &mut apr::Pool, v: &str| p.svn_string(v).map(|o| o as _),
+                            )
+                        })
+                        .transpose()?
+                        .unwrap_or_default();
+
+
+                    self.inner.commit_message = commit_message;
+
+                    let error = ffi::svn_client_propset_remote(
+                        name,
+                        value,
+                        url,
+                        skip_checks.into(),
+                        base_revision_for_url.try_into().unwrap(),
+                        revision_properties,
+                        Some(commit_callback),
+                        self.inner.inner_void_pointer_mut(),
+                        self.ctx(),
+                        pool.as_mut_ptr()
+                    );
+                    SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+                }
+            }
+        }
+        Ok(())
     }
 
     fn create(opts: CreateContextOptions) -> error::Result<Self> {

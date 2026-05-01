@@ -131,7 +131,6 @@
                         <components:LoadingSvgButton Classes="ToolButton"
                                               ToolTip.Tip="Update"
                                               IsEnabled="{Binding LocalViewModel.IsUpdateButtonEnable}"
-                                              IsLoading="{Binding LocalViewModel.UpdateCommand.IsRunning}"
                                               Command="{Binding LocalViewModel.UpdateCommand}"
                                               Source="{StaticResource Icons.OperationUpdate}">
                         </components:LoadingSvgButton>
@@ -153,7 +152,6 @@
                                               ToolTip.Tip="Revert"
                                               IsEnabled="{Binding LocalViewModel.IsRevertButtonEnable}"
                                               Command="{Binding LocalViewModel.RevertCommand}"
-                                              IsLoading="{Binding LocalViewModel.RevertCommand.IsRunning}"
                                               Source="{StaticResource Icons.OperationRevert}">
                         </components:LoadingSvgButton>
                         <components:SvgButton Classes="ToolButton"
@@ -179,7 +177,6 @@
                         </components:SvgButton>
                         <components:LoadingSvgButton Classes="ToolButton"
                                               ToolTip.Tip="Delete"
-                                              IsLoading="{Binding LocalViewModel.DeleteCommand.IsRunning}"
                                               IsEnabled="{Binding LocalViewModel.IsDeleteButtonEnable}"
                                               Command="{Binding LocalViewModel.DeleteCommand}"
                                               Source="{StaticResource Icons.OperationDelete}">

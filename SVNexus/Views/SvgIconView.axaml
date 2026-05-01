@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:SvgIconViewModel"
+             x:Class="SVNexus.Views.SvgIconView">
+    <components:SvgRender Classes.Themable="{Binding Themable}" 
+                          Size="{Binding Size}"
+                          Source="{Binding Icon}">
+    </components:SvgRender>
+</UserControl>

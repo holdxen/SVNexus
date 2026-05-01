@@ -946,6 +946,10 @@ impl AsyncContext {
             .await
     }
 
+    pub async fn property_set(&self, opts: PropertySetOptions) -> error::Result<()> {
+        self.call_async(|mut context| context.property_set(opts)).await
+    }
+
     #[uniffi::constructor]
     pub fn create(opts: CreateContextOptions) -> error::Result<Self> {
         tracing::info!("Creating AsyncContext with options");

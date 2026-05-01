@@ -2470,6 +2470,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -11192,6 +11194,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asynccontext_property_list(ulong @ptr,RustBuffer @opts
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asynccontext_property_set(ulong @ptr,RustBuffer @opts
     );
 
     #if NET8_0_OR_GREATER
@@ -20651,6 +20664,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asynccontext_property_set(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asynccontext_relocate(
     );
 
@@ -25516,6 +25540,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_property_set();
+            if (checksum != 39998) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_property_set` checksum `39998`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_relocate();
             if (checksum != 38202) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_relocate` checksum `38202`, library returned `{checksum}`");
@@ -26106,6 +26136,8 @@ public interface IAsyncContext {
     Task Patch(PatchOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<PropertyListResult> PropertyList(PropertyListOptions @opts);
+    /// <exception cref="Exception"></exception>
+    Task PropertySet(PropertySetOptions @opts);
     /// <exception cref="Exception"></exception>
     Task Relocate(RelocateOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -26794,6 +26826,24 @@ public class AsyncContext : IAsyncContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypePropertyListResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task PropertySet(PropertySetOptions @opts) {await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_property_set(thisPtr, FfiConverterTypePropertySetOptions.INSTANCE.Lower(@opts));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_void(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {_UniFFILib.ffi_engine_rust_future_complete_void(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_void(future),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -40690,6 +40740,118 @@ class FfiConverterTypeNodePropertyName: FfiConverterRustBuffer<NodePropertyName>
 
     public override void Write(NodePropertyName value, BigEndianStream stream) {
         stream.WriteInt((int)value + 1);
+    }
+}
+
+
+
+
+
+
+
+public record PropertySetOptions {
+    
+    public record Local (
+        string Name,
+        string? Value,
+        string[] Targets,
+        Depth Depth,
+        bool SkipChecks,
+        string[]? Changelists
+    ) : PropertySetOptions {}
+    
+    public record Remote (
+        string Name,
+        string? Value,
+        string Url,
+        bool SkipChecks,
+        uint BaseRevisionForUrl,
+        Dictionary<string, string>? RevisionProperties,
+        string CommitMessage
+    ) : PropertySetOptions {}
+    
+
+    
+}
+
+class FfiConverterTypePropertySetOptions : FfiConverterRustBuffer<PropertySetOptions>{
+    public static FfiConverterRustBuffer<PropertySetOptions> INSTANCE = new FfiConverterTypePropertySetOptions();
+
+    public override PropertySetOptions Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new PropertySetOptions.Local(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream),
+                    FfiConverterSequenceString.INSTANCE.Read(stream),
+                    FfiConverterTypeDepth.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new PropertySetOptions.Remote(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterOptionalString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterBoolean.INSTANCE.Read(stream),
+                    FfiConverterUInt32.INSTANCE.Read(stream),
+                    FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypePropertySetOptions.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(PropertySetOptions value) {
+        switch (value) {
+            case PropertySetOptions.Local variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Value)
+                    + FfiConverterSequenceString.INSTANCE.AllocationSize(variant_value.Targets)
+                    + FfiConverterTypeDepth.INSTANCE.AllocationSize(variant_value.Depth)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.SkipChecks)
+                    + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(variant_value.Changelists);
+            case PropertySetOptions.Remote variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Name)
+                    + FfiConverterOptionalString.INSTANCE.AllocationSize(variant_value.Value)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Url)
+                    + FfiConverterBoolean.INSTANCE.AllocationSize(variant_value.SkipChecks)
+                    + FfiConverterUInt32.INSTANCE.AllocationSize(variant_value.BaseRevisionForUrl)
+                    + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(variant_value.RevisionProperties)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.CommitMessage);
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypePropertySetOptions.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(PropertySetOptions value, BigEndianStream stream) {
+        switch (value) {
+            case PropertySetOptions.Local variant_value:
+                stream.WriteInt(1);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.Value, stream);
+                FfiConverterSequenceString.INSTANCE.Write(variant_value.Targets, stream);
+                FfiConverterTypeDepth.INSTANCE.Write(variant_value.Depth, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.SkipChecks, stream);
+                FfiConverterOptionalSequenceString.INSTANCE.Write(variant_value.Changelists, stream);
+                break;
+            case PropertySetOptions.Remote variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Name, stream);
+                FfiConverterOptionalString.INSTANCE.Write(variant_value.Value, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Url, stream);
+                FfiConverterBoolean.INSTANCE.Write(variant_value.SkipChecks, stream);
+                FfiConverterUInt32.INSTANCE.Write(variant_value.BaseRevisionForUrl, stream);
+                FfiConverterOptionalDictionaryStringString.INSTANCE.Write(variant_value.RevisionProperties, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.CommitMessage, stream);
+                break;
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypePropertySetOptions.Write()", value));
+        }
     }
 }
 

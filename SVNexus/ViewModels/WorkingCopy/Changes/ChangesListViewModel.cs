@@ -24,13 +24,13 @@ public partial class ChangesListViewModel : ViewModelBase
         };
     }
 
-    public partial class MenuIconViewModel: ViewModelBase
-    {
-        [ObservableProperty]
-        public partial string? Source { get; set; }
-
-        [ObservableProperty] public partial bool Themable { get; set; } = true;
-    }
+    // public partial class MenuIconViewModel: ViewModelBase
+    // {
+    //     [ObservableProperty]
+    //     public partial string? Source { get; set; }
+    //
+    //     [ObservableProperty] public partial bool Themable { get; set; } = true;
+    // }
 
     public partial class ListItemViewModel : StatusEntryItemViewModel
     {
@@ -48,9 +48,9 @@ public partial class ChangesListViewModel : ViewModelBase
                         {
                             Header = "Add",
                             Command = AddCommand,
-                            Icon = new MenuIconViewModel()
+                            Icon = new SvgIconViewModel()
                             {
-                                Source = "Icons.OperationAdd"
+                                IconKey = "Icons.OperationAdd"
                             }
                         });
                         break;
@@ -61,9 +61,9 @@ public partial class ChangesListViewModel : ViewModelBase
                         {
                             Header = "Revert",
                             Command = RevertCommand,
-                            Icon = new MenuIconViewModel()
+                            Icon = new SvgIconViewModel()
                             {
-                                Source = "Icons.OperationRevert"
+                                IconKey = "Icons.OperationRevert"
                             }
                         });
                         break;
@@ -72,18 +72,18 @@ public partial class ChangesListViewModel : ViewModelBase
                         {
                             Header = "Revert",
                             Command = RevertCommand,
-                            Icon = new MenuIconViewModel()
+                            Icon = new SvgIconViewModel()
                             {
-                                Source =  "Icons.OperationRevert"
+                                IconKey = "Icons.OperationRevert"
                             }
                         });
                         menuItems.Add(new MenuItemViewModel()
                         {
                             Header = "Delete",
                             Command = DeleteCommand,
-                            Icon = new MenuIconViewModel()
+                            Icon = new SvgIconViewModel()
                             {
-                                Source =   "Icons.OperationDelete"
+                                IconKey = "Icons.OperationDelete"
                             }
                         });
                         break;
@@ -92,9 +92,9 @@ public partial class ChangesListViewModel : ViewModelBase
                         {
                             Header = "Revert",
                             Command = RevertCommand,
-                            Icon = new MenuIconViewModel()
+                            Icon = new SvgIconViewModel()
                             {
-                                Source = "Icons.OperationRevert"
+                                IconKey = "Icons.OperationRevert"
                             }
                         });
                         break;
@@ -105,9 +105,9 @@ public partial class ChangesListViewModel : ViewModelBase
                         {
                             Header = "Revert",
                             Command = RevertCommand,
-                            Icon = new MenuIconViewModel()
+                            Icon = new SvgIconViewModel()
                             {
-                                Source = "Icons.OperationRevert"
+                                IconKey = "Icons.OperationRevert"
                             }
                         });
                         break;
@@ -248,7 +248,44 @@ public partial class ChangesListViewModel : ViewModelBase
 
 
     [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(MenuItems))]
     public partial ObservableCollection<ListItemViewModel> SelectedItems { get; set; } = [];
+
+    public List<MenuItemViewModel> MenuItems
+    {
+        get
+        {
+
+            if (SelectedItems.Count == 0)
+            {
+                return [];
+            }
+
+            List<MenuItemViewModel> menuItems = [];
+
+            if (SelectedItems.Count == 1)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Ignore",
+                    Children = [
+                        new MenuItemViewModel()
+                        {
+                            Header = $"Ignore {SelectedItems.First().FileName}"
+                        }
+                    ]
+                });
+            }
+            
+            
+            
+            
+            
+            
+            
+            return menuItems;
+        }
+    }
     
     public ObservableCollection<ListItemViewModel> Items { get; } = [];
     

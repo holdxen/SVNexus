@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
@@ -323,6 +324,196 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     // private Dictionary<string, StatusEntry> _checkedItems = [];
     // private HashSet<string> _expandedItems = [];
 
+    public List<MenuItemViewModel> MenuItems
+    {
+        get
+        {
+
+            if (SelectedTreeItems.Count == 0)
+            {
+                return [];
+            }
+
+
+            List<MenuItemViewModel> menuItems = [];
+
+            if (IsUpdateButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Update",
+                    Command = UpdateCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationUpdate"
+                    }
+                });
+            }
+            
+            if (IsAddButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Add",
+                    Command = AddCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationAdd"
+                    }
+                });
+            }
+
+            if (IsRevertButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Revert",
+                    Command = RevertCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationRevert"
+                    }
+                });
+            }
+
+            if (IsDiffButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Diff",
+                    Command = DifferenceCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationDiff"
+                    }
+                });
+            }
+
+            if (IsLockButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Lock",
+                    Command = LockCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationLock"
+                    }
+                });
+            }
+
+            if (IsUnlockButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Unlock",
+                    Command = UnlockCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationUnlock"
+                    }
+                });
+            }
+
+            if (IsDeleteButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Delete",
+                    Command = DeleteCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationDelete"
+                    }
+                });
+            }
+
+            if (IsMkdirButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Mkdir",
+                    Command = MkdirCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationMkdir"
+                    }
+                });
+            }
+
+            if (IsInfoButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Info",
+                    Command = InfoCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey =  "Icons.OperationInfo"
+                    }
+                });
+            }
+
+            if (IsCommitButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Command = CommitCommand,
+                    Header = "Commit",
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationCommit"
+                    }
+                });
+            }
+
+
+
+            if (SelectedTreeItems.Count == 1)
+            {
+                
+                var item = SelectedTreeItems.First();
+                
+                
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Ignore",
+                    Children = [
+                        new MenuItemViewModel()
+                        {
+                            Header = $"Ignore {item.Name}"
+                        }
+                    ]
+                }.Apply(e =>
+                {
+                    var ex = System.IO.Path.GetExtension(item.Name);
+                    if (!string.IsNullOrEmpty(ex))
+                    {
+                        e.Children.Add(new MenuItemViewModel()
+                        {
+                           Header = $"Ignore *{ex}"
+                        });
+                        
+                        e.Children.Add(new  MenuItemViewModel
+                        {
+                            Header = $"Ignore *{ex} recursively",
+                        });
+                    }
+                    
+                    
+                    
+                }));
+
+
+
+            }
+
+            
+            return menuItems;
+
+        }
+    }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TreeItems))]
     public partial TreeItemViewModel? Root { get; set; }
@@ -371,7 +562,6 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         OnPropertyChanged(nameof(IsAddButtonEnable));
         OnPropertyChanged(nameof(IsUpdateButtonEnable));
         OnPropertyChanged(nameof(IsRevertButtonEnable));
-        OnPropertyChanged(nameof(IsRevertButtonEnable));
         OnPropertyChanged(nameof(IsDiffButtonEnable));
         OnPropertyChanged(nameof(IsPatchButtonEnable));
         OnPropertyChanged(nameof(IsDeleteButtonEnable));
@@ -381,6 +571,7 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
         OnPropertyChanged(nameof(IsCommitButtonEnable));
         OnPropertyChanged(nameof(IsOpenTerminalButtonEnable));
         OnPropertyChanged(nameof(IsInfoButtonEnable));
+        OnPropertyChanged(nameof(MenuItems));
         Logger.Info("notifyProperties changed");
     }
 
@@ -498,13 +689,26 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             return;
         }
         
-        var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(), false,  false,  null);
+        // var deleteOptions = new DeleteOptions(SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(), false,  false,  null);
+        //
+        // var context = SendMessage(new OnGetContext()).Response;
+        //
+        // await context.Delete(deleteOptions);
 
-        var context = SendMessage(new OnGetContext()).Response;
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+
+        var model = new DeleteDialogModel(this)
+        {
+            Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry,  false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
+        };
         
-        await context.Delete(deleteOptions);
+        await OverlayDialog.ShowStandardAsync<DeleteDialog, DeleteDialogModel>(model, hostId, model.OverlayDialogOptions);
 
-        await RefreshCommand.ExecuteOrNothingAsync(null);
+        if (model.Accept)
+        {
+            await RefreshCommand.ExecuteOrNothingAsync(null);
+        }
     }
 
     [RelayCommand]
@@ -623,24 +827,32 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             }
 
             var hostId = SendMessage(new OnGetDialogHostId());
-            var context = SendMessage(new OnGetContext()).Response;
-
-
-            var result = await OverlayMessageBox.ShowAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
-            if (result != MessageBoxResult.Yes)
+            var model = new RevertDialogModel(this)
             {
-                return;
-            }
-
-            var revertOptions = new RevertOptions(
-                SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
-                Depth.Infinity,
-                false,
-                true
-            );
-        
-        
-            await context.Revert(revertOptions);
+                Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
+            };
+            
+            
+            await OverlayDialog.ShowStandardAsync<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
+            
+            // var context = SendMessage(new OnGetContext()).Response;
+            //
+            //
+            // var result = await OverlayMessageBox.ShowAsync("This operation cannot be undone. Do you want to continue?", "Warning", hostId, MessageBoxIcon.Warning, MessageBoxButton.YesNo);
+            // if (result != MessageBoxResult.Yes)
+            // {
+            //     return;
+            // }
+            //
+            // var revertOptions = new RevertOptions(
+            //     SelectedTreeItems.Select(i => i.StatusEntry.Path).ToArray(),
+            //     Depth.Infinity,
+            //     false,
+            //     true
+            // );
+            //
+            //
+            // await context.Revert(revertOptions);
 
             await Refresh();
         }

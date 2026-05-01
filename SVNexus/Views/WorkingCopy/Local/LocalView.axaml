@@ -5,6 +5,9 @@
              xmlns:u="https://irihi.tech/ursa"
              xmlns:components="clr-namespace:SVNexus.Components"
              xmlns:local="clr-namespace:SVNexus.ViewModels.WorkingCopy.Local"
+             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:converters="clr-namespace:SVNexus.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="local:LocalViewModel"
              x:Class="SVNexus.Views.WorkingCopy.Local.LocalView">
@@ -67,6 +70,9 @@
                     SelectedItems="{Binding SelectedTreeItems}"
                     SelectedItem="{Binding SelectedTreeItem}"
                     AutoScrollToSelectedItem="False">
+                    <Interaction.Behaviors>
+                        <behaviors:ContextMenuControlBehavior AllowToOpen="{Binding MenuItems, Converter={x:Static converters:ListConverter.IsNotEmptyOrNull}}"/>
+                    </Interaction.Behaviors>
                     <TreeView.Styles>
                         <Style Selector="components|AdvancedTreeViewItem"
                                x:DataType="local:LocalViewModel+TreeItemViewModel">
@@ -80,6 +86,26 @@
                     <TreeView.Resources>
                         <Thickness x:Key="TreeViewItemIconMargin">6 0</Thickness>
                     </TreeView.Resources>
+                    <TreeView.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding MenuItems}">
+                            <ContextMenu.ItemContainerTheme>
+                                <ControlTheme TargetType="MenuItem"
+                                              BasedOn="{StaticResource {x:Type MenuItem}}"
+                                              x:DataType="viewModels:MenuItemViewModel">
+                                    <Setter Property="Icon" Value="{Binding Icon}"></Setter>
+                                    <Setter Property="Padding" Value="4 2"></Setter>
+                                    <Setter Property="Header" Value="{Binding Header}" />
+                                    <Setter Property="ItemsSource"
+                                            Value="{Binding Children}" />
+                                    <Setter Property="Command" Value="{Binding Command}" />
+                                    <Setter Property="CommandParameter"
+                                            Value="{Binding CommandParameter}" />
+                                    <Setter Property="IsEnabled"
+                                            Value="{Binding IsEnabled}" />
+                                </ControlTheme>
+                            </ContextMenu.ItemContainerTheme>
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
                     <TreeView.DataTemplates>
                         <TreeDataTemplate x:DataType="local:LocalViewModel+TreeItemViewModel"
                                           ItemsSource="{Binding Children}">
