@@ -19,7 +19,6 @@ public partial class TrustServerDialogModel: ViewModelBase, IDialogContext
     
     public AsciiCertModel AsciiCertViewModel { get; set; } = new();
     
-    public override Type? ViewType { get; set; } = typeof(TrustServerDialog);
     
     
     [ObservableProperty]

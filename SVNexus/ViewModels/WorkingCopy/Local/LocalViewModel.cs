@@ -247,24 +247,23 @@ public partial class LocalViewModel : ViewModelBase,
     [ObservableProperty]
     public partial DifferenceViewModel DifferenceViewModel { get; set; }
 
-    public ObservableCollection<TreeItemViewModel> TreeItems
-    {
-        get
-        {
-            if (Root is null)
-            {
-                return [];
-            }
-
-            return ShowRoot ? [Root] : Root.Children;
-        }
-    }
+    public ObservableCollection<TreeItemViewModel> DisplayItems { get; set; } = [];
+    // {
+    //     get
+    //     {
+    //         if (Root is null)
+    //         {
+    //             return [];
+    //         }
+    //
+    //         return ShowRoot ? [Root] : Root.Children;
+    //     }
+    // }
 
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedTreeItem { get; set; }
     
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(TreeItems))]
     public partial bool ShowRoot { get; set; }
     
     [ObservableProperty]
@@ -528,7 +527,6 @@ public partial class LocalViewModel : ViewModelBase,
     }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(TreeItems))]
     public partial TreeItemViewModel? Root { get; set; }
 
     private readonly SingleTaskQueue _singleTaskQueue = new();
@@ -567,6 +565,37 @@ public partial class LocalViewModel : ViewModelBase,
                 _differences.Add(value.StatusEntry.Path, DifferenceViewModel);
             }
         }
+    }
+
+    partial void OnShowRootChanged(bool value)
+    {
+        RebuildDisplayItems();
+    }
+
+    partial void OnRootChanged(TreeItemViewModel? value)
+    {
+        RebuildDisplayItems();
+    }
+
+    private void RebuildDisplayItems()
+    {
+        var selectedTreeItems = SelectedTreeItems.ToList();
+        DisplayItems.Clear();
+        if (Root is null)
+        {
+            return;
+        }
+
+        if (ShowRoot)
+        {
+            DisplayItems.Add(Root);
+        }
+        else
+        {
+            DisplayItems.AddRange(Root.Children);
+            selectedTreeItems.Remove(Root);
+        }
+        SelectedTreeItems = new ObservableCollection<TreeItemViewModel>(selectedTreeItems);
     }
 
 
@@ -869,15 +898,7 @@ public partial class LocalViewModel : ViewModelBase,
             Path = SelectedTreeItems.First().StatusEntry.Path,
         };
 
-        var dialogOptions = new OverlayDialogOptions
-        {
-            FullScreen = true,
-            Title = "Difference",
-            IsCloseButtonVisible = false,
-            StyleClass = "Fixed"
-        };
-
-        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()),  differenceDialogModel.OverlayDialogOptions);
         
         
     }
@@ -1153,7 +1174,6 @@ public partial class LocalViewModel : ViewModelBase,
         IsLoading = true;
         try
         {
-            // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
             var hostId = SendMessage(new OnGetDialogHostId());
             var path = SendMessage(new OnGetWorkingCopyPath());
 
@@ -1197,14 +1217,21 @@ public partial class LocalViewModel : ViewModelBase,
                 }
             }
 
-            Root?.Children.AddRange(children);
-            Root?.HasLoaded = true;
-            Root?.IsExpanded = true;
+            Root?.Apply(root =>
+            {
+                root.Children.AddRange(children);
+                root.HasLoaded = true;
+                root.IsExpanded = true;
+            });
+            RebuildDisplayItems();
+            // Root?.Children.AddRange(children);
+            // Root?.HasLoaded = true;
+            // Root?.IsExpanded = true;
             // OnShowRootChanged(ShowRoot);
         }
         catch (System.Exception e)
         {
-            Manager.Default.Send(new OnShowToast()
+            Manager.Default.Send(new OnShowToast
             {
                 Content = $"Failed to load working copy: {e.HumanReadableMessage}",
                 Type = NotificationType.Error

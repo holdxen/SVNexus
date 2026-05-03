@@ -177,7 +177,6 @@ public partial class ExportProcessDialogModel(ViewModelBase parent) : ProcessDia
 
 public abstract partial class ProcessDialogModel(ViewModelBase parent): ViewModelMore(parent), IDialogContext
 {
-    public override Type? ViewType { get; set; } = typeof(CheckoutOrExportProcessDialog);
 
     public partial class ProcessLogItemViewModel: ViewModelBase
     {

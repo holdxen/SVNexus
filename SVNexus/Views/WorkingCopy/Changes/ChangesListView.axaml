@@ -67,76 +67,20 @@
                 </Style>
             </Style>
         </ListBox.Styles>
-        <ListBox.ItemTemplate>
-            <DataTemplate DataType="changes:ChangesListViewModel+ListItemViewModel">
-                <components:TargetItem
-                    KindIcon="{Binding KindIcon}"
-                    FileName="{Binding FileName}"
-                    IsLocked="{Binding IsLocked}"
-                    ShowRelateDirectory="True"
-                    RelativeDirectory="{Binding RelativeDirectory}"
-                    TextToolTip="{Binding Path}"
-                    StatusIcon="{Binding StatusIcon}"
-                    IsDelete="{Binding IsDelete}"
-                    StatusToolTip="{Binding StatusToolTip}">
-                </components:TargetItem>
-                <!-- <Border Classes="StatusEntryItem" Name="ItemRoot"> -->
-                <!--     <Grid -->
-                <!--         ColumnDefinitions="Auto, *, Auto, Auto"> -->
-                <!--         <components:SvgRender Grid.Column="0"  -->
-                <!--                               Name="NodeKindIcon"  -->
-                <!--                               Source="{Binding PathSvgIcon, Mode=OneWay}"> -->
-                <!--         </components:SvgRender> -->
-                <!--         <Grid ClipToBounds="True" ColumnDefinitions="Auto, *" Grid.Column="1"> -->
-                <!--             <TextBlock Grid.Column="0" -->
-                <!--                        Name="NameText" -->
-                <!--                        Text="{Binding Name}" -->
-                <!--                        ToolTip.Tip="{Binding AbsolutePath}" -->
-                <!--                        HorizontalAlignment="Left" -->
-                <!--                        VerticalAlignment="Center"> -->
-                <!--             </TextBlock> -->
-                <!--             <TextBlock Margin="5 0 0 0" -->
-                <!--                        Grid.Column="1" -->
-                <!--                        Name="RelativeDirectory" -->
-                <!--                        Text="{Binding ContainsDirectory}"> -->
-                <!--             </TextBlock> -->
-                <!--         </Grid> -->
-                <!--         <components:SvgButton Grid.Column="2"  -->
-                <!--                               IsVisible="{Binding #ItemRoot.IsPointerOver}" -->
-                <!--                               Source="{StaticResource Icons.More}" -->
-                <!--                               VerticalAlignment="Center" -->
-                <!--                               Name="MoreButton" -->
-                <!--                               x:Name="MoreButton" -->
-                <!--                               Size="16" -->
-                <!--                               EnableFlyout="{Binding MenuItems, Converter={x:Static ObjectConverters.IsNotNull}}" -->
-                <!--                               HorizontalAlignment="Right"> -->
-                <!--             <components:SvgButton.Flyout> -->
-                <!--                 <MenuFlyout Placement="BottomEdgeAlignedLeft" ItemsSource="{Binding MenuItems}"> -->
-                <!--                     <MenuFlyout.ItemContainerTheme> -->
-                <!--                         <ControlTheme TargetType="MenuItem" -->
-                <!--                                       BasedOn="{StaticResource {x:Type MenuItem}}" -->
-                <!--                                       x:DataType="vm:MenuItemViewModel"> -->
-                <!--                             <Setter Property="Icon" Value="{Binding Icon}"></Setter> -->
-                <!--                             <Setter Property="Padding" Value="4 2"></Setter> -->
-                <!--                             <Setter Property="Header" Value="{Binding Header}" /> -->
-                <!--                             <Setter Property="ItemsSource" Value="{Binding Children}" /> -->
-                <!--                             <Setter Property="Command" Value="{Binding Command}" /> -->
-                <!--                             <Setter Property="CommandParameter" Value="{Binding CommandParameter}" /> -->
-                <!--                             <Setter Property="IsEnabled" Value="{Binding IsEnabled}" /> -->
-                <!--                         </ControlTheme> -->
-                <!--                     </MenuFlyout.ItemContainerTheme> -->
-                <!--                 </MenuFlyout> -->
-                <!--             </components:SvgButton.Flyout> -->
-                <!--         </components:SvgButton> -->
-                <!--         <components:SvgRender -->
-                <!--             Name="NodeStatusIcon" -->
-                <!--             ToolTip.Tip="{Binding StatusToolTip, Mode=OneWay}" -->
-                <!--             Grid.Column="3" -->
-                <!--             Source="{Binding StatusSvgIcon, Mode=OneWay}"> -->
-                <!--         </components:SvgRender> -->
-                <!--     </Grid> -->
-                <!-- </Border> -->
-            </DataTemplate>
-        </ListBox.ItemTemplate>
+        <!-- <ListBox.ItemTemplate> -->
+        <!--     <DataTemplate DataType="changes:ChangesListViewModel+ListItemViewModel"> -->
+        <!--         <components:TargetItem -->
+        <!--             KindIcon="{Binding KindIcon}" -->
+        <!--             FileName="{Binding FileName}" -->
+        <!--             IsLocked="{Binding IsLocked}" -->
+        <!--             ShowRelateDirectory="True" -->
+        <!--             RelativeDirectory="{Binding RelativeDirectory}" -->
+        <!--             TextToolTip="{Binding Path}" -->
+        <!--             StatusIcon="{Binding StatusIcon}" -->
+        <!--             IsDelete="{Binding IsDelete}" -->
+        <!--             StatusToolTip="{Binding StatusToolTip}"> -->
+        <!--         </components:TargetItem> -->
+        <!--     </DataTemplate> -->
+        <!-- </ListBox.ItemTemplate> -->
     </ListBox>
 </UserControl>

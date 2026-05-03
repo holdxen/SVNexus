@@ -34,15 +34,23 @@ public class ViewLocator : IDataTemplate
             return null;
 
         Type? viewType = null;
-        if (param is ViewModelBase vm)
-        {
-            viewType = vm.ViewType;
-        }
+        // if (param is ViewModelBase vm)
+        // {
+        //     viewType = vm.ViewType;
+        // }
+        //
 
+        if (param is ViewModelBase { LocateType: not null } vm)
+        {
+            var name = vm.LocateType.FullName!.Replace("ViewModel", "View");
+            viewType = Type.GetType(name);
+        }
+        
+        
         if (viewType is null)
         {
             var name = param.GetType().FullName!.Replace("ViewModel", "View");
-
+        
             viewType = Type.GetType(name);
         }
         

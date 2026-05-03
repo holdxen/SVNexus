@@ -135,26 +135,22 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     
     // public ObservableCollection<TreeItemViewModel> Items { get; set; } = [];
 
-    public ObservableCollection<TreeItemViewModel> DisplayItems
-    {
-        get
-        {
-            if (Root is null)
-            {
-                return [];
-            }
-
-            return ShowRoot ? [Root] : Root.Children;
-        }
-    }
+    public ObservableCollection<TreeItemViewModel> DisplayItems { get; set; } = [];
+    // {
+    //     get
+    //     {
+    //         if (Root is null)
+    //         {
+    //             return [];
+    //         }
+    //
+    //         return ShowRoot ? [Root] : Root.Children;
+    //     }
+    // }
     
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedItem { get; set; }
 
-    // [ObservableProperty]
-    // public partial string WorkingCopyPath { get; set; } = string.Empty;
-
-    // public Dictionary<string, StatusEntry> CheckedItems { get; set; } = [];
     
     public List<string> ExpandedItems { get; set; } = [];
 
@@ -165,9 +161,6 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     
     [ObservableProperty]
     public partial string SearchText { get; set; } = string.Empty;
-    
-    
-    // public List<TreeItemViewModel> DisplayItems { get; set; } = [];
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayItems))]
@@ -194,24 +187,36 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     [ObservableProperty]
     public partial ObservableCollection<TreeItemViewModel> SelectedItems { get; set; } = [];
 
-    // partial void OnShowRootChanged(bool value)
-    // {
-    //     if (Root is null)
-    //     {
-    //         return;
-    //     }
-    //
-    //     Items.Clear();
-    //     if (value)
-    //     {
-    //         Items.Add(Root);
-    //     }
-    //     else
-    //     {
-    //         Items.AddRange(Root.Children);
-    //     }
-    // }
+    partial void OnShowRootChanged(bool value)
+    {
+        RebuildDisplayItems();
+    }
 
+    partial void OnRootChanged(TreeItemViewModel? value)
+    {
+        RebuildDisplayItems();
+    }
+
+    private void RebuildDisplayItems()
+    {
+        var selectedItems = SelectedItems.ToList();
+        DisplayItems.Clear();
+        if (Root is null)
+        {
+            return;
+        }
+
+        if (ShowRoot)
+        {
+            DisplayItems.Add(Root);
+        }
+        else
+        {
+            DisplayItems.AddRange(Root.Children);
+            selectedItems.Remove(Root);
+        }
+        SelectedItems = new ObservableCollection<TreeItemViewModel>(selectedItems);
+    }
 
     [RelayCommand]
     private void Deselect()
@@ -241,6 +246,8 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     {
         var workingCopyPath = SendMessage(new OnGetWorkingCopyPath()).Response;
         var oldExpandedItems = ExpandedItems;
+        var oldSelectedItems = SelectedItems.Select(i => i.Path).ToList();
+        List<TreeItemViewModel> selectedItems = [];
         // var oldCheckedItems = CheckedItems;
 
         ExpandedItems = [];
@@ -255,24 +262,12 @@ public partial class ChangesTreeViewModel : ViewModelBase,
             IsExpanded = oldExpandedItems.Contains(workingCopyPath),
             IsChecked = false,
         };
-        
-        // var cleanExpandedItems = new List<string>();
-        // var cleanCheckedItems = new Dictionary<string, StatusEntry>();
-        
-        
-        
-        // if (root.IsExpanded)
-        // {
-        //     cleanExpandedItems.Add(root.Path);    
-        // }
 
         foreach (var statusEntry in statusEntries)
         {
             if (statusEntry.Path == workingCopyPath)
             {
                 root.StatusEntry = statusEntry;
-                // root.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
-
                 continue;
             }
             var path = statusEntry.Path.TrimStartString(workingCopyPath).TrimStartPathSeparatorChar();
@@ -289,12 +284,10 @@ public partial class ChangesTreeViewModel : ViewModelBase,
                 var first = parentItem.Children.FirstOrDefault(e=> e.Text == part);
                 if (first is null)
                 {
-                    // var itemPath = WorkingCopyPath + parentPath + "/" + part;
                     var itemPath = string.IsNullOrEmpty(parentPath) ? $"{workingCopyPath}/{part}" : $"{workingCopyPath}/{parentPath}/{part}";
                     var item = new TreeItemViewModel(this)
                     {
                         WorkingCopyPath = workingCopyPath,
-                        // Messenger = Messenger,
                         Text = part,
                         StatusEntry = null,
                         IsChecked = false,
@@ -306,8 +299,11 @@ public partial class ChangesTreeViewModel : ViewModelBase,
                     if (index == parts.Length - 1)
                     {
                         item.StatusEntry = statusEntry;
-                        // item.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
+                    }
 
+                    if (oldSelectedItems.Contains(itemPath))
+                    {
+                        selectedItems.Add(item);
                     }
 
                 }
@@ -316,7 +312,6 @@ public partial class ChangesTreeViewModel : ViewModelBase,
                     if (index == parts.Length - 1)
                     {
                         first.StatusEntry = statusEntry;
-                        // first.IsChecked = oldCheckedItems.ContainsKey(statusEntry.Path);
                         first.IsExpanded = oldExpandedItems.Contains(statusEntry.Path);
                         break;
                     }
@@ -336,6 +331,8 @@ public partial class ChangesTreeViewModel : ViewModelBase,
         }
 
         Root = root;
+
+        SelectedItems = new ObservableCollection<TreeItemViewModel>(selectedItems);
             
             
         // OnShowRootChanged(ShowRoot);

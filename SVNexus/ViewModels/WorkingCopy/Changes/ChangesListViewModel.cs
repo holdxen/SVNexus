@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -34,6 +35,7 @@ public partial class ChangesListViewModel : ViewModelBase
 
     public partial class ListItemViewModel : TargetItemViewModel
     {
+        public override Type? LocateType { get; } = typeof(TargetItemViewModel);
 
         public new static ListItemViewModel From(StatusEntry statusEntry, bool absolute = false, string? relateTo = null)
         {

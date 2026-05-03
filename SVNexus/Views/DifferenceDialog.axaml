@@ -125,7 +125,7 @@
                                 Theme="{StaticResource SolidButton}"
                                 Content="Export"
                                 IsEnabled="{Binding CanExport}"
-                                Command="{Binding ExportCommand}">
+                                Command="{Binding ConfirmCommand}">
                         </Button>
                     </StackPanel>
                 </Grid>

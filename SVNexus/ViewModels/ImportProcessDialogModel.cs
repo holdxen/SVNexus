@@ -16,7 +16,6 @@ namespace SVNexus.ViewModels;
 
 public partial class ImportProcessDialogModel(ViewModelBase parent) : ViewModelMore(parent) , IDialogContext
 {
-    public override Type? ViewType { get; set; } = typeof(ImportProcessDialog);
 
     public enum StepState
     {

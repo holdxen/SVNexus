@@ -28,8 +28,6 @@ public partial class CheckoutOrExportDialogModel : ViewModelBase, IDialogContext
         Infinity = OperationDepth.Infinity,
     }
 
-    public override Type? ViewType { get; set; } = typeof(CheckoutOrExportDialog);
-
 
     [RelayCommand]
     public void Close()

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls.Primitives;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,10 +13,11 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Utils;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
-public partial class DifferenceDialogModel : ViewModelMore, IDialogContext
+public partial class DifferenceDialogModel : DialogModelBase
 {
     
     public enum DisplayContent
@@ -136,13 +138,13 @@ public partial class DifferenceDialogModel : ViewModelMore, IDialogContext
 
     }
     
-    protected override async Task LoadOnce()
+    [RelayCommand]
+    private async Task OnLoaded()
     {
         await _singleTaskQueue.Run(Execute);
     }
 
 
-    [RelayCommand]
     private async Task Export()
     {
         var saveFileOptions = new OnFilePickerSave()
@@ -164,11 +166,20 @@ public partial class DifferenceDialogModel : ViewModelMore, IDialogContext
         await File.WriteAllTextAsync(file.Path.AbsolutePath, Out);
     }
 
-    [RelayCommand]
-    public void Close()
+    protected override Task OnConfirm()
     {
-        RequestClose?.Invoke(this, null);
+        return Export();
     }
 
-    public event EventHandler<object?>? RequestClose;
+    public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
+    {
+        FullScreen = true,
+        Title = "Difference",
+        IsCloseButtonVisible = false,
+        StyleClass = "Fixed",
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+    };
+
+
 }

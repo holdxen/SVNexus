@@ -49,8 +49,6 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
 
 
     
-    public override Type? ViewType { get; set; } = typeof(CommitDialog);
-    
     // public static readonly Type DepthType = typeof(Depth);
 
     public required StatusEntry[] Targets { get; init; }

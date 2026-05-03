@@ -30,7 +30,9 @@ namespace SVNexus.ViewModels;
 
 public abstract class ViewModelBase (ViewModelBase? parent = null) : ObservableObject
 {
-    public virtual Type? ViewType { get; set; }
+    // public virtual Type? ViewType { get; set; }
+
+    public virtual Type? LocateType { get; } = null;
     
     public ViewModelBase? Parent { get; set; } = parent;
     

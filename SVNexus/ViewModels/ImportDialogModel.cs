@@ -12,7 +12,6 @@ namespace SVNexus.ViewModels;
 
 public partial class ImportDialogModel: ViewModelBase, IDialogContext
 {
-    public override Type? ViewType { get; set; } = typeof(ImportDialog);
     
     [ObservableProperty]
     public partial string Url { get; set; } = string.Empty;

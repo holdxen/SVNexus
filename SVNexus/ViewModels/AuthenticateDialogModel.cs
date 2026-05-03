@@ -9,9 +9,6 @@ namespace SVNexus.ViewModels;
 
 public partial class AuthenticateDialogModel: DialogModelBase
 {
-    public override Type? ViewType { get; set; } = typeof(AuthenticateDialog);
-    
-    
     [ObservableProperty]
     public partial string Username { get; set; } = string.Empty;
     
