@@ -696,6 +696,7 @@ pub enum WorkingCopyNotifyAction {
     ForeignMergeBegin = ffi::svn_wc_notify_action_t_svn_wc_notify_foreign_merge_begin,
     UpdateReplace = ffi::svn_wc_notify_action_t_svn_wc_notify_update_replace,
     PropertyAdded = ffi::svn_wc_notify_action_t_svn_wc_notify_property_added,
+    PropertyModified = ffi::svn_wc_notify_action_t_svn_wc_notify_property_modified,
     PropertyDeleted = ffi::svn_wc_notify_action_t_svn_wc_notify_property_deleted,
     PropertyDeletedNonexistent =
         ffi::svn_wc_notify_action_t_svn_wc_notify_property_deleted_nonexistent,
@@ -713,6 +714,8 @@ pub enum WorkingCopyNotifyAction {
     UpdateShadowedUpdate = ffi::svn_wc_notify_action_t_svn_wc_notify_update_shadowed_update,
     UpdateShadowedDelete = ffi::svn_wc_notify_action_t_svn_wc_notify_update_shadowed_delete,
     MergeRecordInfo = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_record_info,
+    UpgradedPath = ffi::svn_wc_notify_action_t_svn_wc_notify_upgraded_path,
+    MergeRecordInfoBegin = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_record_info_begin,
     MergeElideInfo = ffi::svn_wc_notify_action_t_svn_wc_notify_merge_elide_info,
     Patch = ffi::svn_wc_notify_action_t_svn_wc_notify_patch,
     PatchAppliedHunk = ffi::svn_wc_notify_action_t_svn_wc_notify_patch_applied_hunk,

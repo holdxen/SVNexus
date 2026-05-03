@@ -75,7 +75,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayTargetItems))]
     // [NotifyPropertyChangedFor(nameof(TargetItemText))]
-    public partial bool ShowActualTargetItem { get; set; } = true;
+    public partial bool ShowActualTargetItem { get; set; }
     
     // public string TargetItemText => ShowActualTargetItem ? "Actual items:" : "Selected items:";
 
@@ -129,7 +129,23 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                 );
 
 
-                await context.Commit(commitOptions);
+                var result = await context.Commit(commitOptions);
+                if (result.Info is null)
+                {
+                    Manager.Default.Send(new OnShowToast()
+                    {
+                        Content = "No files were commited",
+                        Type = NotificationType.Information
+                    }, Manager.MainWindowToken);
+                }
+                else
+                {
+                    Manager.Default.Send(new OnShowToast()
+                    {
+                        Content = $"Commited at {result.Info.Revision}",
+                        Type = NotificationType.Success
+                    }, Manager.MainWindowToken);
+                }
                 Ok();
             }
             catch (System.Exception e)

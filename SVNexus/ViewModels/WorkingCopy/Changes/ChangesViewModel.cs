@@ -19,17 +19,6 @@ namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
 public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSelectedItemChanged>, IRecipient<Messages.OnSelectedItemsChanged>, IRecipient<OnRefreshWorkingCopy>
 {
-    // private class DifferencesCat
-    // {
-    //     public required CatResult Original { get; set; }
-    //     public required CatResult Modified { get; set; }
-    // }
-
-    // private readonly LimitedDictionary<string, DifferencesCat?> _differences = new()
-    // {
-    //     Limit = 20
-    // };
-
     private readonly LimitedDictionary<string, DifferenceViewModel> _differenceViewModels = new()
     {
         Limit = 20,
@@ -37,8 +26,8 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
     [ObservableProperty] public partial DifferenceViewModel DifferenceViewModel { get; set; }
 
-    public const int ListViewIndex = 0;
-    public const int TreeViewIndex = 1;
+    private const int ListViewIndex = 0;
+    private const int TreeViewIndex = 1;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsTreeView))]
@@ -56,8 +45,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
 
     [ObservableProperty] public partial Difference Difference { get; set; } = new();
-    
-    public string? SelectedItem { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsRevertButtonEnable))]
@@ -168,13 +155,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     [RelayCommand]
     private async Task Lock()
     {
-        var model = new RevertDialogModel(this)
+        var model = new LockDialogModel(this)
         {
             Targets = SelectedStatusEntries.Select(i => TargetItemViewModel.From(i, false, SendMessage(new OnGetWorkingCopyPath()))).ToList(),
         };
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowStandardAsync<RevertDialog, RevertDialogModel>(model, hostId, model.OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<LockDialog, LockDialogModel>(model, hostId, model.OverlayDialogOptions);
         if (model.Accept)
         {
             await StatusCommand.ExecuteOrNothingAsync(null);
@@ -203,93 +190,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     [RelayCommand]
     private async Task Revert()
     {
-        // Dictionary<string, StatusEntry> items = [];
-        //
-        // if (items.Count == 0)
-        // {
-        //     return;
-        // }
-        //
-        // List<string> versioned = [];
-        // List<string> unversioned = [];
-        //
-        // foreach (var item in items)
-        // {
-        //     if (item.Value.NodeStatus == WorkingCopyStatus.Unversioned)
-        //     {
-        //         unversioned.Add(item.Key);
-        //     }
-        //     else
-        //     {
-        //         versioned.Add(item.Key);
-        //     }
-        // }
-        //
-        //
-        // if (versioned.Count == 0)
-        // {
-        //     Manager.Default.Send(new OnShowToast()
-        //     {
-        //         Content = "No items will be reverted",
-        //         Type = NotificationType.Warning
-        //     }, Manager.MainWindowToken);
-        //     return;
-        // }
-        // var path = SendMessage(new OnGetWorkingCopyPath());
-        //
-        // var message = unversioned.Count > 0 ?
-        //     $"The following files will be reverted:\n{string.Join(Environment.NewLine, versioned.Select(e => e.TrimStartString(path).TrimStartPathSeparatorChar()))}\n\nThe following files will be skipped:\n{string.Join(Environment.NewLine, unversioned.Select(e => e.TrimStartString(path).TrimStartPathSeparatorChar()))}" 
-        //     : $"The following files will be reverted:\n{string.Join(Environment.NewLine, versioned.Select(e => e.TrimStartString(path).TrimStartPathSeparatorChar()))}";
-        //
-        //
-        //
-        //
-        // var hostId = SendMessage(new OnGetDialogHostId()).Response;
-        // var result = await MessageBox.ShowOverlayAsync(message,
-        //     "Warning",
-        //     hostId,
-        //     MessageBoxIcon.Warning,
-        //     MessageBoxButton.YesNo
-        //     );
-        // if (result != MessageBoxResult.Yes)
-        // {
-        //     return;
-        // }
-        //
-        //
-        //
-        // var revertOptions = new RevertOptions(
-        //     Paths: versioned.ToArray(), 
-        //     Depth: Depth.Empty, 
-        //     Changelists: [], 
-        //     ClearChangelists: false, 
-        //     MetadataOnly: false, 
-        //     AddedKeepLocal: true
-        //     );
-        //
-        //
-        // // using var context = Engine.Engine.Instance.SimpleContext(hostId);
-        //
-        // var context = SendMessage(new OnGetContext()).Response;
-        //
-        // try
-        // {
-        //     await context.Revert(revertOptions);
-        //     await Status();
-        // }
-        // catch (System.Exception e)
-        // {
-        //     Manager.Default.Send(new OnShowToast()
-        //     {
-        //         Content = $"Failed to revert:\n{e.HumanReadableMessage}",
-        //         Type = NotificationType.Error
-        //     }, Manager.MainWindowToken);
-        // }
-        //
-        //
-        //
-        //
-
         var model = new RevertDialogModel(this)
         {
             Targets = SelectedStatusEntries.Select(i => TargetItemViewModel.From(i, false, SendMessage(new OnGetWorkingCopyPath()))).ToList(),
@@ -383,6 +283,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
                 }
             }
 
+            _differenceViewModels.Clear();
             Update(result.Entries);
         }
         catch (System.Exception e)
@@ -448,117 +349,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
     }
 
-//     [RelayCommand]
-//     private async Task Commit()
-//     {
-//         try
-//         {
-//             if (string.IsNullOrEmpty(CommitMessage))
-//             {
-//                 Manager.Default.Send(new OnShowToast()
-//                 {
-//                     Content = "Empty commit message is not allowed",
-//                     Type = NotificationType.Warning
-//                 }, Manager.MainWindowToken);
-//                 return;
-//             }
-//             var hostId = Manager.Default.Send(new OnGetDialogHostId(), Token).Response;
-//
-//             var context = Engine.Engine.Instance.SimpleContext(hostId);
-//
-//             List<string> unversioned = [];
-//         
-//             List<string> missing = [];
-//         
-//             List<string> others = [];
-//
-//
-//             var items = IsTreeView ? ChangesTreeViewModel.CheckedItems : ChangesListViewModel.CheckedItems;
-//
-//             foreach (var item in items)
-//             {
-//                 switch (item.Value.NodeStatus)
-//                 {
-//                     case NodeStatus.Unversioned:
-//                         unversioned.Add(item.Key);
-//                         break;
-//                     case NodeStatus.Missing:
-//                         missing.Add(item.Key);
-//                         break;
-//                     case NodeStatus.None:
-//                     case NodeStatus.Normal:
-//                     case NodeStatus.Added:
-//                     case NodeStatus.Deleted:
-//                     case NodeStatus.Replaced:
-//                     case NodeStatus.Modified:
-//                     case NodeStatus.Merged:
-//                     case NodeStatus.Conflicted:
-//                     case NodeStatus.Ignored:
-//                     case NodeStatus.Obstructed:
-//                     case NodeStatus.External:
-//                     case NodeStatus.Incomplete:
-//                     default:
-//                         others.Add(item.Key);
-//                         break;
-//                 }
-//             }
-//
-//             if (missing.Count > 0 && CommitMissingAsDelete)
-//             {
-//                 await context.Delete(new DeleteOptions(missing.ToArray(), false, false, []));
-//             
-//                 others.AddRange(missing);
-//             }
-//
-//             if (unversioned.Count > 0 && AddUnversionedBeforeCommit)
-//             {
-//                 foreach (var item in unversioned)
-//                 {
-//                     await context.Add(new AddOptions(item, Depth.Empty, false, false, false, false));
-//                 }
-//             
-//                 others.AddRange(unversioned);
-//             }
-//
-//             if (others.Count == 0)
-//             {
-//                 return;
-//             }
-//
-//
-//             var commitOptions = new CommitOptions(
-//                 others.ToArray(),
-//                 Depth: Depth,
-//                 KeepLocks: true,
-//                 KeepChangelist: false, 
-//                 CommitAsOperations: true, 
-//                 IncludeFileExternals: true, 
-//                 IncludeDirExternals: true,
-//                 Changelists: [], 
-//                 RevisionPropertyTable: new Dictionary<string, string>(), 
-//                 CommitMessage: CommitMessage);
-//         
-//             await context.Commit(commitOptions);
-//             
-//             await Status(context);
-//
-//             Manager.Default.Send(new OnShowToast()
-//             {
-//                 Content = "Commit successfully",
-//                 Type =  NotificationType.Success,
-//             }, Manager.MainWindowToken);
-//         }
-//         catch (System.Exception e)
-//         {
-//             Manager.Default.Send(new OnShowToast()
-//             {
-//                 Content = $"Failed to commit: {e.HumanReadableMessage}",
-//                 Type =  NotificationType.Error,
-//             }, Manager.MainWindowToken);
-//         }
-//
-//     }
-
     public void Receive(Messages.OnSelectedItemChanged message)
     {
         Dispatcher.UIThread.InvokeAsync(async () =>
@@ -566,11 +356,8 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
             if (message.Value == null)
             {
                 DifferenceViewModel = new DifferenceViewModel(this);
-                SelectedItem = null;
                 return;
             }
-
-            SelectedItem = message.Value.Path;
             
             if (_differenceViewModels.TryGetValue(message.Value.Path, out var difference))
             {
@@ -587,280 +374,6 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
     }
 
-
-    // [RelayCommand]
-    // private void TryCompareStatusEntry(StatusEntry statusEntry)
-    // {
-    //     if (statusEntry.NodeKind is NodeKind.Directory)
-    //     {
-    //         Difference = new Difference();
-    //         EditorState = LoadingOrErrorState.MakeNone();
-    //         return;
-    //     }
-    //     var contains = _differences.TryGetValue(statusEntry.Path, out var difference);
-    //     if (contains)
-    //     {
-    //         if (difference is null) return;
-    //     }
-    //     
-    //     Logger.Info($"Selected Entry: {statusEntry}");
-    //         
-    //     _differences[statusEntry.Path] = null;
-    //     EditorState = LoadingOrErrorState.MakeLoading();
-    //
-    //     Dispatcher.UIThread.InvokeAsync(async () =>
-    //     {
-    //
-    //         var success = false;
-    //         // AsyncContext? context = null;
-    //         try
-    //         {
-    //             // context = Engine.Engine.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()).Response);
-    //             var context = SendMessage(new OnGetContext()).Response;
-    //             
-    //             // var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //             //     Revision: new Revision.Working(), ExpandKeywords: true);
-    //             // var resultModified = await context.Cat(catOptions);
-    //             //
-    //             //
-    //             // catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //             //     Revision: new Revision.Base(), ExpandKeywords: true);
-    //             // var resultOriginal = await context.Cat(catOptions);
-    //
-    //             CatResult resultOriginal;
-    //
-    //             Func<Task<CatResult>> catModified;
-    //             Func<Task<CatResult>> catOriginal;
-    //
-    //             if (statusEntry.NodeStatus is WorkingCopyStatus.Missing or WorkingCopyStatus.Deleted)
-    //             {
-    //                 catModified = () => Task.FromResult(new CatResult([], []));
-    //                 catOriginal = () =>
-    //                 {
-    //                     var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Base(),
-    //                         Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
-    //                     return context.Cat(catOptions);
-    //                 };
-    //             }
-    //             else if (statusEntry.NodeStatus is WorkingCopyStatus.Unversioned or WorkingCopyStatus.Added)
-    //             {
-    //                 catModified = async () =>
-    //                 {
-    //                     var content = await File.ReadAllBytesAsync(statusEntry.Path);
-    //                     return new  CatResult(content, []);
-    //                 };
-    //                 catOriginal = () => Task.FromResult(new  CatResult([], []));
-    //                 
-    //             }
-    //             else
-    //             {
-    //                 catModified = () =>
-    //                 {
-    //                     var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //                         Revision: new Revision.Working(), ExpandKeywords: true, GetProperties: false);
-    //                     return context.Cat(catOptions);
-    //                 };
-    //                 catOriginal = () =>
-    //                 {
-    //                     var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //                         Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
-    //                     return context.Cat(catOptions);
-    //                 };
-    //             }
-    //
-    //             var resultModified = await catModified();
-    //             if (difference is null)
-    //             {
-    //                 resultOriginal = await catOriginal();
-    //             }
-    //             else
-    //             {
-    //                 resultOriginal = difference.Original;
-    //             }
-    //             
-    //             
-    //             // if (difference is null)
-    //             // {
-    //             //     if (statusEntry.NodeStatus is NodeStatus.Unversioned or NodeStatus.Added)
-    //             //     {
-    //             //         var content = await File.ReadAllBytesAsync(statusEntry.Path);
-    //             //         resultModified = new CatResult(content, []);
-    //             //         resultOriginal = new CatResult([], []);
-    //             //     }
-    //             //     else if (statusEntry.NodeStatus is NodeStatus.Missing or NodeStatus.Deleted)
-    //             //     {
-    //             //         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //             //             Revision: new Revision.Base(), ExpandKeywords: true);
-    //             //         Log.Info($"Cat original: {statusEntry.Path}");
-    //             //         resultOriginal = await context.Cat(catOptions);
-    //             //         Log.Info("Finished cat");
-    //             //         resultModified = new CatResult([], []);
-    //             //     }
-    //             //     else
-    //             //     {
-    //             //         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //             //             Revision: new Revision.Working(), ExpandKeywords: true);
-    //             //         resultModified = await context.Cat(catOptions);
-    //             //     
-    //             //         catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //             //             Revision: new Revision.Base(), ExpandKeywords: true);
-    //             //         resultOriginal = await context.Cat(catOptions);
-    //             //     }
-    //             // }
-    //             // else
-    //             // {
-    //             //     var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-    //             //         Revision: new Revision.Working(), ExpandKeywords: true);
-    //             //     resultModified = await context.Cat(catOptions);
-    //             //     
-    //             //     resultOriginal = difference.Original;
-    //             // }
-    //             
-    //             var modified = Encoding.UTF8.GetString(resultModified.Content).Split("\n").Select(e =>
-    //                 new DifferenceLine()
-    //                 {
-    //                     Content = e,
-    //                     DifferenceKind = DifferenceLine.Kind.Unchanged
-    //                 }).ToList();
-    //             if (modified.Count > 0 && string.IsNullOrEmpty(modified.Last().Content))
-    //             {
-    //                 modified.RemoveAt(modified.Count - 1);
-    //             }
-    //
-    //             var original = Encoding.UTF8.GetString(resultOriginal.Content).Split("\n")
-    //                 .Select(e => new DifferenceLine()
-    //                 {
-    //                     Content = e,
-    //                     DifferenceKind = DifferenceLine.Kind.Unchanged
-    //                 }).ToList();
-    //             
-    //             if (original.Count > 0 && string.IsNullOrEmpty(original.Last().Content))
-    //             {
-    //                 original.RemoveAt(original.Count - 1);
-    //             }
-    //
-    //
-    //             var diffOptions =
-    //                 new DifferenceOptions(Original: resultOriginal.Content, Modified: resultModified.Content,
-    //                     Options: new DifferenceFileOptions(DiffFileIgnoreSpace.None, false, false, 0));
-    //
-    //             var changes = diffOptions.Exec().Modified;
-    //
-    //             // changes = [
-    //             //     new TextChange(Original: null, Modified: new TextPosition(3, 1)),
-    //             //     new TextChange(Original: null, Modified: new TextPosition(5, 1))
-    //             // ];
-    //
-    //             foreach (var change in changes)
-    //             {
-    //                 // Console.WriteLine("Go change: {0}", change);
-    //                 if (change.Original.Len == 0 && change.Modified.Len > 0) // added
-    //                 {
-    //                     original.InsertRange(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add]),
-    //                         Enumerable.Repeat(new DifferenceLine()
-    //                         {
-    //                             Content = "",
-    //                             DifferenceKind = DifferenceLine.Kind.Add
-    //                         }, (int)change.Modified.Len));
-    //
-    //
-    //                     foreach (var differenceLine in modified
-    //                                  .Skip(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]))
-    //                                  .Take((int)change.Modified.Len))
-    //                     {
-    //                         differenceLine.DifferenceKind = DifferenceLine.Kind.Added;
-    //                     }
-    //                 }
-    //                 else if (change.Original.Len > 0 && change.Modified.Len == 0) // remove
-    //                 {
-    //                     foreach (var differenceLine in original
-    //                                  .Skip(original.ExcludeIndexToRealIndex((int)change.Original.Pos, [DifferenceLine.Kind.Add])).Take((int)change.Original.Len))
-    //                     {
-    //                         differenceLine.DifferenceKind = DifferenceLine.Kind.Remove;
-    //                     }
-    //
-    //                     modified.InsertRange(modified.ExcludeIndexToRealIndex((int)change.Modified.Pos, [DifferenceLine.Kind.Removed]),
-    //                         Enumerable.Repeat(new DifferenceLine()
-    //                         {
-    //                             Content = "",
-    //                             DifferenceKind = DifferenceLine.Kind.Removed
-    //                         }, (int)change.Original.Len));
-    //
-    //                 }
-    //                 else if (change.Original.Len > 0 && change.Modified.Len > 0)
-    //                 {
-    //                     {
-    //                         var pos = (int)change.Original.Pos;
-    //                         var len = (int)change.Original.Len;
-    //                         foreach (var differenceLine in original
-    //                                      .Skip(original.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Add]))
-    //                                      .Take(len))
-    //                         {
-    //                             differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
-    //                         }
-    //                     }
-    //                     {
-    //                         var pos = (int)change.Modified.Pos;
-    //                         var len = (int)change.Modified.Len;
-    //                         foreach (var differenceLine in modified
-    //                                      .Skip(modified.ExcludeIndexToRealIndex(pos, [DifferenceLine.Kind.Removed]))
-    //                                      .Take(len))
-    //                         {
-    //                             differenceLine.DifferenceKind = DifferenceLine.Kind.Modified;
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //             var info = new Difference()
-    //             {
-    //                 Original = original,
-    //                 Modified = modified,
-    //             };
-    //
-    //
-    //             _differences[statusEntry.Path] = new DifferencesCat()
-    //             {
-    //                 Original = resultOriginal,
-    //                 Modified = resultModified,
-    //             };
-    //
-    //             if (SelectedItem == statusEntry.Path)
-    //             {
-    //                 Difference = info;
-    //                 EditorState = LoadingOrErrorState.MakeNone();
-    //             }
-    //             
-    //             // Console.WriteLine("Diff success");
-    //
-    //             success = true;
-    //
-    //         }
-    //         catch (System.Exception e)
-    //         {
-    //             Console.WriteLine(e);
-    //             EditorState = new LoadingOrErrorState.Error()
-    //             {
-    //                 ErrorMessage = $"Failed to load content: {e.HumanReadableMessage}",
-    //                 RetryCommand = TryCompareStatusEntryCommand,
-    //                 RetryCommandParameter = statusEntry
-    //             };
-    //             success = false;
-    //         }
-    //         finally
-    //         {
-    //             if (!success)
-    //             {
-    //                 _differences.Remove(statusEntry.Path);
-    //             }
-    //             else if (SelectedItem == statusEntry.Path)
-    //             {
-    //                 EditorState = LoadingOrErrorState.MakeNone();
-    //             }
-    //         }
-    //     });
-    //     
-    // }
-    //
     public void Receive(OnRefreshWorkingCopy message)
     {
         Dispatcher.UIThread.InvokeAsync(async () => await Status());

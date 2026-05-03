@@ -233,7 +233,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4">
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Checkout"
-                                          Source="{StaticResource Icons.CloudDownload}"
+                                          Source="{StaticResource Icons.OperationCheckout}"
                                           Command="{Binding ShowCheckoutDialogCommand}" />
                     <components:SvgButton Classes="ToolButton"
                                           ToolTip.Tip="Open working copy"

@@ -135,7 +135,7 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     
     // public ObservableCollection<TreeItemViewModel> Items { get; set; } = [];
 
-    public ObservableCollection<TreeItemViewModel> Items
+    public ObservableCollection<TreeItemViewModel> DisplayItems
     {
         get
         {
@@ -167,18 +167,19 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     public partial string SearchText { get; set; } = string.Empty;
     
     
-    public List<TreeItemViewModel> DisplayItems { get; set; } = [];
+    // public List<TreeItemViewModel> DisplayItems { get; set; } = [];
     
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Items))]
+    [NotifyPropertyChangedFor(nameof(DisplayItems))]
     public partial bool ShowRoot { get; set; }
 
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DisplayItems))]
     public partial TreeItemViewModel? Root { get; set; }
 
     /// <inheritdoc/>
-    public ChangesTreeViewModel(ViewModelBase? parent = null) : base(parent)
+    public ChangesTreeViewModel(ViewModelBase parent) : base(parent)
     {
         if (SelectedItems is null)
         {
@@ -239,7 +240,6 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     public void Update(StatusEntry[] statusEntries)
     {
         var workingCopyPath = SendMessage(new OnGetWorkingCopyPath()).Response;
-        Items.Clear();
         var oldExpandedItems = ExpandedItems;
         // var oldCheckedItems = CheckedItems;
 
@@ -251,8 +251,8 @@ public partial class ChangesTreeViewModel : ViewModelBase,
             StatusEntry = null,
             WorkingCopyPath = workingCopyPath,
             Text = workingCopyPath.GetFileName(),
-            IsExpanded = oldExpandedItems.Contains(workingCopyPath),
             Path = workingCopyPath,
+            IsExpanded = oldExpandedItems.Contains(workingCopyPath),
             IsChecked = false,
         };
         
@@ -290,7 +290,7 @@ public partial class ChangesTreeViewModel : ViewModelBase,
                 if (first is null)
                 {
                     // var itemPath = WorkingCopyPath + parentPath + "/" + part;
-                    var itemPath = $"{workingCopyPath}/{parentPath}/{part}";
+                    var itemPath = string.IsNullOrEmpty(parentPath) ? $"{workingCopyPath}/{part}" : $"{workingCopyPath}/{parentPath}/{part}";
                     var item = new TreeItemViewModel(this)
                     {
                         WorkingCopyPath = workingCopyPath,
@@ -325,7 +325,7 @@ public partial class ChangesTreeViewModel : ViewModelBase,
                 }
 
                 index++;
-                parentPath += "/" + part;
+                parentPath = string.IsNullOrEmpty(parentPath) ? part : parentPath + "/" + part;
             }
 
         }

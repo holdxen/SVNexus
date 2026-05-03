@@ -14,10 +14,10 @@ using SVNexus.ViewModels.WorkingCopy;
 
 namespace SVNexus.ViewModels;
 
-public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent), IDialogContext
+public partial class LockDialogModel(ViewModelBase parent): DialogModelBase(parent)
 {
     
-    public bool Accept { get; set; }
+    // public bool Accept { get; set; }
 
     // public class TargetItemViewModel: StatusEntryItemViewModel
     // {
@@ -50,8 +50,7 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
     [ObservableProperty]
     public partial bool HasComment { get; set; }
 
-    [RelayCommand]
-    private async Task Confirm()
+    protected override async Task OnConfirm()
     {
 
         try
@@ -66,7 +65,7 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
             await context.Lock(lockOptions);
         
             Accept = true;
-            RequestClose?.Invoke(this, null);
+            Ok();
         }
         catch (System.Exception e)
         {
@@ -77,13 +76,4 @@ public partial class LockDialogModel(ViewModelBase parent): ViewModelBase(parent
             }, Manager.MainWindowToken);
         }
     }
-    
-    [RelayCommand]
-    public void Close()
-    {
-        Accept = false;
-        RequestClose?.Invoke(this, null);
-    }
-
-    public event EventHandler<object?>? RequestClose;
 }

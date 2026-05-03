@@ -7,6 +7,9 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:AuthenticateDialogModel"
              x:Class="SVNexus.Views.AuthenticateDialog">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Enter" Command="{Binding ConfirmCommand}"></KeyBinding>
+    </UserControl.KeyBindings>
     <Grid RowDefinitions="*, Auto">
 
         <u:Form Grid.Row="0" HorizontalAlignment="Stretch" LabelPosition="Left">
@@ -19,7 +22,7 @@
                 <TextBlock Text="{Binding  Realm}"></TextBlock>
             </u:FormItem>
             <u:FormItem Label="Username:">
-                <TextBox Text="{Binding Username}"></TextBox>
+                <TextBox Name="UsernameTextBox" Text="{Binding Username}"></TextBox>
             </u:FormItem>
             <u:FormItem Label="Password:">
                 <TextBox Classes="revealPasswordButton" Text="{Binding Password}"></TextBox>

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Components;
@@ -47,9 +48,9 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
     
     public bool InOne { get; set; }
     
-    public bool TextModified { get; set; } = false;
+    public bool TextModified { get; set; }
     
-    public bool PropertyModified { get; set; } = false;
+    public bool PropertyModified { get; set; }
     
     public bool IsOldBinary { get; set; }
     
@@ -74,8 +75,42 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
     public partial int SelectedViewIndex { get; set; } = TextViewIndex;
 
     public Encoding TextEncoding { get; set; } = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+    
+    public ObservableCollection<PropertyItemViewModel> SelectedPropertyItemViewModels { get; set; } = [];
+    
+    public string Target { get; set; } = string.Empty;
 
+    [RelayCommand]
+    private async Task RevertProperties()
+    {
+        if (SelectedPropertyItemViewModels.Count == 0)
+        {
+            return;
+        }
 
+        if (string.IsNullOrEmpty(Target))
+        {
+            return;
+        }
+        
+        var context = SendMessage(new OnGetContext()).Response;
+
+        foreach (var item in SelectedPropertyItemViewModels)
+        {
+            if (item.IsDelete || item.IsModified)
+            {
+                var setOptions = new PropertySetOptions.Local(item.PropertyName, item.PropertyOldValue!, [Target], Depth.Empty, false, null);
+                await context.PropertySet(setOptions);
+            }
+            else if (item.IsAdded)
+            {
+                var setOptions = new PropertySetOptions.Local(item.PropertyName, null, [Target], Depth.Empty, false, null);
+                await context.PropertySet(setOptions);
+            }
+        }
+    }
+
+    
     [RelayCommand]
     private void SwitchToPropertyView()
     {
@@ -113,6 +148,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
         newProperties ??= [];
         oldProperties ??= [];
         
+        PropertyModified = oldProperties != newProperties;
 
         foreach (var (key, value) in oldProperties)
         {
@@ -146,17 +182,15 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
             PropertyItemViewModels.Add(new PropertyItemViewModel()
             {
                 PropertyName = key,
-                PropertyNewValue = value
+                PropertyNewValue = value,
+                PropertyOldValue = null
             });
         }
-
-        
-        PropertyModified = oldProperties != newProperties;
-        
     }
 
     public async Task Compare(string target, Revision peg, Revision? oldRevision, Revision? newRevision)
     {
+        Target = target;
         try
         {
             LoadingOrErrorState = LoadingOrErrorState.MakeLoading();
@@ -409,7 +443,7 @@ public partial class DifferenceViewModel(ViewModelBase parent): ViewModelBase(pa
     [RelayCommand]
     public async Task CompareWorkingCopyEntry(StatusEntry statusEntry)
     {
-        
+        Target = statusEntry.Path;
         TextModified = statusEntry.TextStatus is WorkingCopyStatus.Modified or WorkingCopyStatus.Conflicted;
         PropertyModified = statusEntry.PropertyStatus is WorkingCopyStatus.Modified or WorkingCopyStatus.Conflicted;
         

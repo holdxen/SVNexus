@@ -39,6 +39,7 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
     [NotifyPropertyChangedFor(nameof(LastChangedDate))]
     [NotifyPropertyChangedFor(nameof(Size))]
     [NotifyPropertyChangedFor(nameof(HumanSize))]
+    [NotifyPropertyChangedFor(nameof(Lock))]
     public partial InfoEntry? Entry { get; set; }
 
     public string? RevisionText => Entry?.Revision?.ToString();
@@ -62,6 +63,14 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
     public string? LastChangedDate => Entry?.LastChangedDate.Map(d => DateTimeOffset.FromUnixTimeMilliseconds(d / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
     
     public string? Size => Entry?.Size?.ToString();
+    
+    public Lock? Lock => Entry?.Lock;
+    
+    public string? LockCreationDate => Entry?.Lock?.CreationDate.Map(d => DateTimeOffset.FromUnixTimeMilliseconds(d / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
+    
+    public string? LockExpirationDate => Entry?.Lock?.ExpirationDate.Map(d => DateTimeOffset.FromUnixTimeMilliseconds(d / 1000).UtcDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
+    
+
 
     public string? HumanSize => Entry?.Size?.Map(e =>
     {

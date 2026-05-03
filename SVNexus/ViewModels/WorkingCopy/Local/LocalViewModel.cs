@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,8 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Local;
 
-public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.OnCreatedItem>
+public partial class LocalViewModel : ViewModelBase, 
+    IRecipient<LocalViewModel.OnCreatedItem>
 {
 
 
@@ -120,11 +122,8 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                             {
                                 if (entry.Path == StatusEntry.Path)
                                 {
-                                    if (includeSelf)
-                                    {
-                                        Logger.Info($"Set MySelf: {entry.Path}, lock: {entry.Lock}");
-                                        StatusEntry = entry;
-                                    }
+                                    if (!includeSelf) return;
+                                    StatusEntry = entry;
                                     return;
                                 }
 
@@ -468,47 +467,61 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
             }
 
 
+            if (SelectedTreeItems.Count != 1) return menuItems;
+            var item = SelectedTreeItems.First();
 
-            if (SelectedTreeItems.Count == 1)
+
+            var parent = item.StatusEntry.Path.GetDirectoryName();
+                
+            menuItems.Add(new MenuItemViewModel()
             {
-                
-                var item = SelectedTreeItems.First();
-                
-                
-                menuItems.Add(new MenuItemViewModel()
-                {
-                    Header = "Ignore",
-                    Children = [
-                        new MenuItemViewModel()
-                        {
-                            Header = $"Ignore {item.Name}"
-                        }
-                    ]
-                }.Apply(e =>
-                {
-                    var ex = System.IO.Path.GetExtension(item.Name);
-                    if (!string.IsNullOrEmpty(ex))
+                Header = "Ignore",
+                Children = [
+                    new MenuItemViewModel()
                     {
-                        e.Children.Add(new MenuItemViewModel()
+                        Header = $"Ignore {item.Name}",
+                        Command = IgnoreCommand,
+                        CommandParameter = new IgnoreArgs()
                         {
-                           Header = $"Ignore *{ex}"
-                        });
-                        
-                        e.Children.Add(new  MenuItemViewModel
-                        {
-                            Header = $"Ignore *{ex} recursively",
-                        });
+                            Name = item.Name,
+                            Target = parent
+                        }
                     }
-                    
-                    
-                    
-                }));
+                ]
+            }.Apply(e =>
+            {
+                var ex = System.IO.Path.GetExtension(item.Name);
+                if (string.IsNullOrEmpty(ex)) return;
+
+                var name = $"*{ex}";
+                
+                e.Children.Add(new MenuItemViewModel()
+                {
+                    Header = $"Ignore {name}",
+                    Command = IgnoreCommand,
+                    CommandParameter = new IgnoreArgs()
+                    {
+                        Name = ex,
+                        Target = parent
+                    }
+                });
+                        
+                e.Children.Add(new  MenuItemViewModel
+                {
+                    Header = $"Ignore {ex} recursively",
+                    Command = IgnoreCommand,
+                    CommandParameter = new IgnoreArgs()
+                    {
+                        Name = ex,
+                        Target = null
+                    }
+                });
 
 
 
-            }
+            }));
 
-            
+
             return menuItems;
 
         }
@@ -582,6 +595,60 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     //         await RefreshCommand.ExecuteAsync(null);
     //     }
     // }
+
+    public class IgnoreArgs
+    {
+        public required string Name { get; set; }
+        public string? Target { get; set; }
+    }
+
+    [RelayCommand]
+    private async Task Ignore(IgnoreArgs args)
+    {
+        var target = args.Target;
+        var propertyName = NodePropertyName.Ignore.Name();
+        if (string.IsNullOrEmpty(target))
+        {
+            var root = SendMessage(new OnGetWorkingCopyRoot()).Response;
+            if (string.IsNullOrEmpty(root))
+            {
+                throw new UnreachableException("Working copy root is empty");
+            }
+            target = root;
+            propertyName = NodePropertyName.GlobalIgnores.Name();
+        }
+        
+        var getOptions = new PropertyGetOptions(propertyName, target, new Revision.Unspecified(), new Revision.Unspecified(), Depth.Empty, false, false);
+
+        var context = SendMessage(new OnGetContext()).Response;
+
+        var result = await context.PropertyGet(getOptions);
+
+
+        string newValue;
+
+        if (result.Properties.TryGetValue(target, out var value) && !string.IsNullOrEmpty(value))
+        {
+            if (value.EndsWith('\n'))
+            {
+                newValue = value + args.Name;
+            }
+            else
+            {
+                newValue = $"{value}\n{args.Name}";
+            }
+        }
+        else
+        {
+            newValue = args.Name;
+        }
+
+        var setOptions = new PropertySetOptions.Local(propertyName, newValue, [target], Depth.Empty, false, null);
+
+        await context.PropertySet(setOptions);
+
+        await RefreshCommand.ExecuteOrNothingAsync(null);
+    }
 
     [RelayCommand]
     private async Task Info()
@@ -1028,6 +1095,16 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
                 NotifyProperties();
             }
             CleanWeakTreeItems();
+            _differences.Clear();
+
+            if (SelectedTreeItem is not null)
+            {
+                DifferenceViewModel = new DifferenceViewModel(this);
+                _differences.Add(SelectedTreeItem.StatusEntry.Path, DifferenceViewModel);
+                await DifferenceViewModel.CompareWorkingCopyEntry(SelectedTreeItem.StatusEntry);
+            }
+
+            
             // OnShowRootChanged(ShowRoot);
         });
         
@@ -1155,4 +1232,23 @@ public partial class LocalViewModel : ViewModelBase, IRecipient<LocalViewModel.O
     {
         await RefreshCommand.ExecuteOrNothingAsync(null);
     }
+
+    // public void Receive(OnUpdatedItem message)
+    // {
+    //     Dispatcher.UIThread.InvokeAsync(async () =>
+    //     {
+    //         if (DifferenceViewModel.Target == message.Value.StatusEntry.Path)
+    //         {
+    //             DifferenceViewModel = new DifferenceViewModel(this);
+    //             await DifferenceViewModel.CompareWorkingCopyEntry(message.Value.StatusEntry);
+    //             _differences.Add(message.Value.StatusEntry.Path, DifferenceViewModel);
+    //             return;
+    //         }
+    //
+    //         if (_differences.TryGetValue(message.Value.StatusEntry.Path, out _))
+    //         {
+    //             _differences.Remove(message.Value.StatusEntry.Path);
+    //         }
+    //     });
+    // }
 }

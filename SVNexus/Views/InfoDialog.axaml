@@ -55,6 +55,21 @@
             <u:DescriptionsItem Label="Working copy format" IsVisible="{Binding WorkingCopyFormat, Converter={x:Static  ObjectConverters.IsNotNull}}">
                 <SelectableTextBlock TextWrapping="Wrap" Text="{Binding WorkingCopyFormat}"></SelectableTextBlock>
             </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Lock token" IsVisible="{Binding Lock, Converter={x:Static  ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Lock?.Token}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Lock owner" IsVisible="{Binding Lock, Converter={x:Static  ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Lock?.Owner}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Lock comment" IsVisible="{Binding Lock, Converter={x:Static  ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding Lock?.Comment}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Lock creation date" IsVisible="{Binding Lock, Converter={x:Static  ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding LockCreationDate}"></SelectableTextBlock>
+            </u:DescriptionsItem>
+            <u:DescriptionsItem Label="Lock expiration date" IsVisible="{Binding Lock, Converter={x:Static  ObjectConverters.IsNotNull}}">
+                <SelectableTextBlock TextWrapping="Wrap" Text="{Binding LockExpirationDate}"></SelectableTextBlock>
+            </u:DescriptionsItem>
         </u:Descriptions>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
             <Border Grid.Column="0"></Border>

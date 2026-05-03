@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -6,6 +5,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
@@ -32,118 +32,25 @@ public partial class ChangesListViewModel : ViewModelBase
     //     [ObservableProperty] public partial bool Themable { get; set; } = true;
     // }
 
-    public partial class ListItemViewModel : StatusEntryItemViewModel
+    public partial class ListItemViewModel : TargetItemViewModel
     {
-        public List<MenuItemViewModel>? MenuItems
+
+        public new static ListItemViewModel From(StatusEntry statusEntry, bool absolute = false, string? relateTo = null)
         {
-            get
-            {
-                List<MenuItemViewModel> menuItems = [];
-                switch (Entry.NodeStatus)
-                {
-                    case WorkingCopyStatus.None:
-                        break;
-                    case WorkingCopyStatus.Unversioned:
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Add",
-                            Command = AddCommand,
-                            Icon = new SvgIconViewModel()
-                            {
-                                IconKey = "Icons.OperationAdd"
-                            }
-                        });
-                        break;
-                    case WorkingCopyStatus.Normal:
-                        break;
-                    case WorkingCopyStatus.Added:
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Revert",
-                            Command = RevertCommand,
-                            Icon = new SvgIconViewModel()
-                            {
-                                IconKey = "Icons.OperationRevert"
-                            }
-                        });
-                        break;
-                    case WorkingCopyStatus.Missing:
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Revert",
-                            Command = RevertCommand,
-                            Icon = new SvgIconViewModel()
-                            {
-                                IconKey = "Icons.OperationRevert"
-                            }
-                        });
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Delete",
-                            Command = DeleteCommand,
-                            Icon = new SvgIconViewModel()
-                            {
-                                IconKey = "Icons.OperationDelete"
-                            }
-                        });
-                        break;
-                    case WorkingCopyStatus.Deleted:
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Revert",
-                            Command = RevertCommand,
-                            Icon = new SvgIconViewModel()
-                            {
-                                IconKey = "Icons.OperationRevert"
-                            }
-                        });
-                        break;
-                    case WorkingCopyStatus.Replaced:
-                        break;
-                    case WorkingCopyStatus.Modified:
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Revert",
-                            Command = RevertCommand,
-                            Icon = new SvgIconViewModel()
-                            {
-                                IconKey = "Icons.OperationRevert"
-                            }
-                        });
-                        break;
-                    case WorkingCopyStatus.Merged:
-                        menuItems.Add(new MenuItemViewModel()
-                        {
-                            Header = "Merge",
-                        });
-                        break;
-                    case WorkingCopyStatus.Conflicted:
-                        break;
-                    case WorkingCopyStatus.Ignored:
-                        break;
-                    case WorkingCopyStatus.Obstructed:
-                        break;
-                    case WorkingCopyStatus.External:
-                        break;
-                    case WorkingCopyStatus.Incomplete:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-                
-                return menuItems.Count == 0 ? null : menuItems;
-            }
+            // return FromFactory<ListItemViewModel>(statusEntry, absolute, relateTo).Apply(
+            //     e => e.Entry = statusEntry
+            // );
+            
+            return new ListItemViewModel().Apply(e => e.Initialize(statusEntry, absolute, relateTo));
         }
 
-        // partial void OnIsCheckedChanged(bool value)
-        // {
-        //     SendMessage(new OnItemCheckStateChanged()
-        //     {
-        //         Item = this,
-        //         Checked = value
-        //     });
-        // }
+        public StatusEntry Entry { get; set; } = null!;
 
+        public override void Initialize(StatusEntry statusEntry, bool absolute, string? relateTo)
+        {
+            base.Initialize(statusEntry, absolute, relateTo);
+            Entry = statusEntry;
+        }
 
         [RelayCommand]
         private async Task Add()
@@ -287,7 +194,8 @@ public partial class ChangesListViewModel : ViewModelBase
         }
     }
     
-    public ObservableCollection<ListItemViewModel> Items { get; } = [];
+    [ObservableProperty]
+    public partial ObservableCollection<ListItemViewModel> Items { get; set; } = [];
     
     
     [ObservableProperty]
@@ -308,29 +216,25 @@ public partial class ChangesListViewModel : ViewModelBase
 
     public void Update(StatusEntry[] entries)
     {
-        Items.Clear();
-
-        ListItemViewModel? selectedItem = null;
+        List<ListItemViewModel> items = [];
+        var relateTo = SendMessage(new OnGetWorkingCopyPath());
         foreach (var entry in entries)
         {
-            var item = new ListItemViewModel
+            var index = Items.FindIndex(x => x.Entry.Path == entry.Path);
+            if (index < 0)
             {
-                Entry = entry,
-                RelateTo = SendMessage(new OnGetWorkingCopyPath())
-            };
-            // item.ItemCheckStateChanged += OnItemCheckStateChanged;
-            if (SelectedItem?.Path == entry.Path)
-            {
-                selectedItem = item;
+                items.Add(ListItemViewModel.From(entry, false, relateTo));
             }
-        
-            Items.Add(item);
-
-            item.Parent = this;
+            else
+            {
+                items.Add(Items[index].Apply(e =>
+                {
+                    e.Initialize(entry, false, relateTo);
+                }));
+            }
         }
 
-        SelectedItem = selectedItem;
-    
+        Items = new ObservableCollection<ListItemViewModel>(items);
     }
 
     public void NotifySelectedItemsChanged()

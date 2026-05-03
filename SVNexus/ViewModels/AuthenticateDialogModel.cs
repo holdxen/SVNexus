@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
@@ -6,7 +7,7 @@ using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
-public partial class AuthenticateDialogModel: ViewModelBase, IDialogContext
+public partial class AuthenticateDialogModel: DialogModelBase
 {
     public override Type? ViewType { get; set; } = typeof(AuthenticateDialog);
     
@@ -24,17 +25,6 @@ public partial class AuthenticateDialogModel: ViewModelBase, IDialogContext
     [ObservableProperty] public partial bool Savable { get; set; }
     
     [ObservableProperty] public partial bool Save { get; set; }
-    
-    public bool Accept { get; private set; }
-
-    public void Close()
-    {
-        RequestClose?.Invoke(this, null);
-        Accept = false;
-    }
-
-    public event EventHandler<object?>? RequestClose;
-
 
     [RelayCommand]
     private void Cancel()
@@ -42,10 +32,9 @@ public partial class AuthenticateDialogModel: ViewModelBase, IDialogContext
         Close();
     }
 
-    [RelayCommand]
-    private void Confirm()
+    protected override Task OnConfirm()
     {
-        RequestClose?.Invoke(this, null);
-        Accept = true;
+        Ok();
+        return Task.CompletedTask;
     }
 }

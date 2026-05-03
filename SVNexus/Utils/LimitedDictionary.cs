@@ -11,6 +11,10 @@ public class LimitedDictionary<TKey, TValue> where TKey : notnull
     
     public int Limit { get; set; }
 
+    public void Clear()
+    {
+        Dictionary.Clear();
+    }
 
     public KeyValuePair<TKey, TValue>? Add(TKey key, TValue value)
     {

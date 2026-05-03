@@ -20,7 +20,7 @@
                                  AutoScrollToSelectedItem="False"
                                  SelectedItems="{Binding SelectedItems}"
                                  SelectedItem="{Binding SelectedItem}"
-                                 ItemsSource="{Binding Items}">
+                                 ItemsSource="{Binding DisplayItems}">
         <Interaction.Behaviors>
             <EventTriggerBehavior EventName="PointerPressed">
                 <InvokeCommandAction Command="{Binding DeselectCommand}">

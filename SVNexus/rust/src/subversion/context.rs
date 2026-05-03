@@ -3,6 +3,7 @@ use super::stream::Stream;
 use super::wc::*;
 use super::{SVNError, svn_no_error};
 use crate::apr::{self, AprArray, AprPool, AutoPool, Pool};
+use crate::entities::property;
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
 use crate::extensions::{CommonExtension, OptionExtension};
 use crate::subversion::ffi::{svn_path_is_backpath_present, svn_uri_canonicalize};
@@ -274,7 +275,7 @@ pub struct SwitchOptions {
 #[derive(new, uniffi::Record)]
 pub struct CommitResult {
     items: Vec<CommitItem>,
-    info: CommitInfo,
+    info: Option<CommitInfo>,
 }
 
 #[svnexus_macro::enum_converter(repr_type=ffi::svn_node_kind_t)]
@@ -526,7 +527,7 @@ pub struct ExportOptions {
 
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct Lock {
-    path: String,
+    path: Option<String>,
     token: String,
     owner: String,
     comment: Option<String>,
@@ -692,7 +693,7 @@ impl From<*const ffi::svn_lock_t> for Lock {
     fn from(ptr: *const ffi::svn_lock_t) -> Self {
         unsafe {
             let lock = ptr.as_ref().unwrap();
-            let path = lock.path.to_str().to_string();
+            let path = lock.path.to_nullable_string();
 
             let token = lock.token.to_str().to_string();
 
@@ -1662,15 +1663,17 @@ pub struct PropertyGetOptions {
     peg_revision: Revision,
     revision: Revision,
     depth: Depth,
+    inherited: bool,
+    actual_revision: bool,
     #[uniffi(default)]
-    changelists: Vec<String>,
+    changelists: Option<Vec<String>>,
 }
 
 #[derive(Debug, uniffi::Record)]
 pub struct PropertyGetResult {
     properties: HashMap<String, String>,
-    inherited_properties: Vec<String>,
-    actual_revision: RevisionNumber,
+    inherited_properties: Option<Vec<InheritedProperty>>,
+    actual_revision: Option<RevisionNumber>,
 }
 
 #[derive(Debug, uniffi::Record)]
@@ -2696,7 +2699,7 @@ impl Context {
     fn take_commit_result(&mut self) -> CommitResult {
         let items = std::mem::take(&mut self.inner.commit_items);
 
-        let info = std::mem::take(&mut self.inner.commit_info).unwrap();
+        let info = std::mem::take(&mut self.inner.commit_info);
 
         CommitResult::new(items, info)
     }
@@ -3441,7 +3444,80 @@ impl Context {
         }
     }
 
-    fn property_get(&mut self, opts: PropertyGetOptions) {}
+    pub fn property_get(&mut self, opts: PropertyGetOptions) -> error::Result<PropertyGetResult> {
+        unsafe {
+            let mut pool = apr::Pool::create();
+
+            let mut inherited_properties: *mut ffi::apr_array_header_t = std::ptr::null_mut();
+
+            let mut properties: *mut ffi::apr_hash_t = std::ptr::null_mut();
+
+            let property_name = pool.string(opts.property_name.as_str())?;
+
+            let target = pool.string(opts.target.as_str())?;
+
+            let peg_revision = opts.peg_revision.to_opt_revision();
+
+            let revision = opts.revision.to_opt_revision();
+
+            let mut actual_revision: ffi::svn_revnum_t = 0;
+
+            let changelist = opts
+                .changelists
+                .map(|v| pool.string_array(v.len(), v.iter()))
+                .transpose()?
+                .unwrap_or_default();
+
+            let error = ffi::svn_client_propget5(
+                properties.pointer_mut(),
+                if opts.inherited {
+                    inherited_properties.pointer_mut()
+                } else {
+                    std::ptr::null_mut()
+                },
+                property_name,
+                target,
+                peg_revision.pointer(),
+                revision.pointer(),
+                if opts.actual_revision {
+                    actual_revision.pointer_mut()
+                } else {
+                    std::ptr::null_mut()
+                },
+                opts.depth.into(),
+                changelist,
+                self.ctx(),
+                pool.as_mut_ptr(),
+                pool.as_mut_ptr(),
+            );
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            let inherited_properties = inherited_properties.map(|v| v.to_vec(|p| InheritedProperty::from(p as *const ffi::svn_prop_inherited_item_t)));
+
+            let actual_revision = if opts.actual_revision {
+                Some(actual_revision.try_into().unwrap())
+            } else {
+                None
+            };
+
+            let properties = if properties.is_null() {
+                tracing::info!("Unexpected null properties, treat as empty");
+                Default::default()
+            } else {
+                pool.convert_to_hash_map(properties)
+            };
+
+            let result = PropertyGetResult {
+                properties,
+                inherited_properties,
+                actual_revision,
+            };
+            
+            Ok(result)
+
+        }
+    }
 
     pub fn cleanup(&mut self, opts: CleanupOptions) -> error::Result<()> {
         unsafe {
@@ -4186,9 +4262,7 @@ impl Context {
                     let name = pool.string(name)?;
                     // let value = value.map(|e| pool.string(e)).transpose()?.unwrap_or_default();
                     let value = value
-                        .map(|e| {
-                            pool.svn_string(e)
-                        })
+                        .map(|e| pool.svn_string(e))
                         .transpose()?
                         .unwrap_or_default();
                     let url = pool.string(url)?;
@@ -4204,7 +4278,6 @@ impl Context {
                         .transpose()?
                         .unwrap_or_default();
 
-
                     self.inner.commit_message = commit_message;
 
                     let error = ffi::svn_client_propset_remote(
@@ -4217,7 +4290,7 @@ impl Context {
                         Some(commit_callback),
                         self.inner.inner_void_pointer_mut(),
                         self.ctx(),
-                        pool.as_mut_ptr()
+                        pool.as_mut_ptr(),
                     );
                     SVNError::from_nullable_ptr(error).context(builder::Svn)?;
                 }

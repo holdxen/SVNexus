@@ -764,6 +764,11 @@ impl AsyncContext {
 
     // }
 
+    pub async fn property_get(&self, opts: PropertyGetOptions) -> error::Result<PropertyGetResult> {
+        self.call_async(|mut context| context.property_get(opts))
+            .await
+    }
+
     pub async fn open_repository_access_session(
         &self,
         url: String,
