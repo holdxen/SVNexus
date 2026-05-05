@@ -830,15 +830,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
             Path = SelectedTreeItems.First().AbsolutePath,
         };
 
-        var dialogOptions = new OverlayDialogOptions
-        {
-            FullScreen = true,
-            Title = "Difference",
-            IsCloseButtonVisible = false,
-            StyleClass = "Fixed"
-        };
-
-        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), dialogOptions);
+        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), differenceDialogModel.OverlayDialogOptions);
     }
 
     [RelayCommand]

@@ -1,4 +1,4 @@
-use super::apr;
+use crate::apr;
 
 #[test]
 fn uri_is_canonical() {

@@ -11129,7 +11129,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_method_asynccontext_log_cache_fill_local(ulong @ptr,ulong @db,RustBuffer @uuid,RustBuffer @path,RustBuffer @start,RustBuffer @limit
+     ulong uniffi_engine_fn_method_asynccontext_log_cache_fill_local(ulong @ptr,ulong @db,RustBuffer @uuid,RustBuffer @path,RustBuffer @start,RustBuffer @limit,sbyte @reverse
     );
 
     #if NET8_0_OR_GREATER
@@ -25523,8 +25523,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log_cache_fill_local();
-            if (checksum != 22924) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log_cache_fill_local` checksum `22924`, library returned `{checksum}`");
+            if (checksum != 36185) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log_cache_fill_local` checksum `36185`, library returned `{checksum}`");
             }
         }
         {
@@ -26153,7 +26153,7 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<IndexedLogEntry[]> LogCacheFill(SeaDatabaseConnection @db, string @uuid, string @url, uint? @start, uint? @limit);
     /// <exception cref="Exception"></exception>
-    Task<IndexedLogEntry[]> LogCacheFillLocal(SeaDatabaseConnection @db, string @uuid, string @path, uint? @start, uint? @limit);
+    Task<IndexedLogEntry[]> LogCacheFillLocal(SeaDatabaseConnection @db, string @uuid, string @path, uint? @start, uint? @limit, bool @reverse = false);
     /// <exception cref="Exception"></exception>
     Task LogNext(LogOptions @opts, LogReceiver @receiver);
     /// <exception cref="Exception"></exception>
@@ -26722,11 +26722,11 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
-    public async Task<IndexedLogEntry[]> LogCacheFillLocal(SeaDatabaseConnection @db, string @uuid, string @path, uint? @start, uint? @limit) {
+    public async Task<IndexedLogEntry[]> LogCacheFillLocal(SeaDatabaseConnection @db, string @uuid, string @path, uint? @start, uint? @limit, bool @reverse = false) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
-            return _UniFFILib.uniffi_engine_fn_method_asynccontext_log_cache_fill_local(thisPtr, FfiConverterTypeSeaDatabaseConnection.INSTANCE.Lower(@db), FfiConverterString.INSTANCE.Lower(@uuid), FfiConverterString.INSTANCE.Lower(@path), FfiConverterOptionalUInt32.INSTANCE.Lower(@start), FfiConverterOptionalUInt32.INSTANCE.Lower(@limit));
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_log_cache_fill_local(thisPtr, FfiConverterTypeSeaDatabaseConnection.INSTANCE.Lower(@db), FfiConverterString.INSTANCE.Lower(@uuid), FfiConverterString.INSTANCE.Lower(@path), FfiConverterOptionalUInt32.INSTANCE.Lower(@start), FfiConverterOptionalUInt32.INSTANCE.Lower(@limit), FfiConverterBoolean.INSTANCE.Lower(@reverse));
         }),
         // Poll
         (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),

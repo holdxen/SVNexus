@@ -1128,9 +1128,9 @@ unsafe extern "C" fn may_save_password_as_plain_text(
     std::ptr::null_mut()
 }
 
-unsafe extern "C" fn first_ssl_client_cert_pw() -> *mut ffi::svn_error_t {
-    svn_no_error()
-}
+// unsafe extern "C" fn first_ssl_client_cert_pw() -> *mut ffi::svn_error_t {
+//     svn_no_error()
+// }
 
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct SslServerCertInfo {
@@ -2021,15 +2021,15 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-                tracing::info!("output_common");
-                tracing::info!("+==============");
-                tracing::info!("original_start: {}", original_start);
-                tracing::info!("original_length: {}", original_length);
-                tracing::info!("modified_start: {}", modified_start);
-                tracing::info!("modified_length: {}", modified_length);
-                tracing::info!("latest_start: {}", latest_start);
-                tracing::info!("latest_length: {}", latest_length);
-                tracing::info!("-==============");
+                // tracing::info!("output_common");
+                // tracing::info!("+==============");
+                // tracing::info!("original_start: {}", original_start);
+                // tracing::info!("original_length: {}", original_length);
+                // tracing::info!("modified_start: {}", modified_start);
+                // tracing::info!("modified_length: {}", modified_length);
+                // tracing::info!("latest_start: {}", latest_start);
+                // tracing::info!("latest_length: {}", latest_length);
+                // tracing::info!("-==============");
 
                 svn_no_error()
             }
@@ -2043,15 +2043,15 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-                tracing::info!("output_diff_modified");
-                tracing::info!("*==============");
-                tracing::info!("original_start: {}", original_start);
-                tracing::info!("original_length: {}", original_length);
-                tracing::info!("modified_start: {}", modified_start);
-                tracing::info!("modified_length: {}", modified_length);
-                tracing::info!("latest_start: {}", latest_start);
-                tracing::info!("latest_length: {}", latest_length);
-                tracing::info!("/==============");
+                // tracing::info!("output_diff_modified");
+                // tracing::info!("*==============");
+                // tracing::info!("original_start: {}", original_start);
+                // tracing::info!("original_length: {}", original_length);
+                // tracing::info!("modified_start: {}", modified_start);
+                // tracing::info!("modified_length: {}", modified_length);
+                // tracing::info!("latest_start: {}", latest_start);
+                // tracing::info!("latest_length: {}", latest_length);
+                // tracing::info!("/==============");
 
                 unsafe {
                     let changes = output_baton as *mut Vec<TextChange>;
@@ -2100,15 +2100,15 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-                tracing::info!("output_diff_common");
-                tracing::info!("(==============");
-                tracing::info!("original_start: {}", original_start);
-                tracing::info!("original_length: {}", original_length);
-                tracing::info!("modified_start: {}", modified_start);
-                tracing::info!("modified_length: {}", modified_length);
-                tracing::info!("latest_start: {}", latest_start);
-                tracing::info!("latest_length: {}", latest_length);
-                tracing::info!(")==============");
+                // tracing::info!("output_diff_common");
+                // tracing::info!("(==============");
+                // tracing::info!("original_start: {}", original_start);
+                // tracing::info!("original_length: {}", original_length);
+                // tracing::info!("modified_start: {}", modified_start);
+                // tracing::info!("modified_length: {}", modified_length);
+                // tracing::info!("latest_start: {}", latest_start);
+                // tracing::info!("latest_length: {}", latest_length);
+                // tracing::info!(")==============");
 
                 svn_no_error()
             }
@@ -2122,15 +2122,15 @@ impl DifferenceOptions {
                 latest_start: ffi::apr_off_t,
                 latest_length: ffi::apr_off_t,
             ) -> *mut ffi::svn_error_t {
-                tracing::info!("output_diff_latest");
-                tracing::info!("[==============");
-                tracing::info!("original_start: {}", original_start);
-                tracing::info!("original_length: {}", original_length);
-                tracing::info!("modified_start: {}", modified_start);
-                tracing::info!("modified_length: {}", modified_length);
-                tracing::info!("latest_start: {}", latest_start);
-                tracing::info!("latest_length: {}", latest_length);
-                tracing::info!("]==============");
+                // tracing::info!("output_diff_latest");
+                // tracing::info!("[==============");
+                // tracing::info!("original_start: {}", original_start);
+                // tracing::info!("original_length: {}", original_length);
+                // tracing::info!("modified_start: {}", modified_start);
+                // tracing::info!("modified_length: {}", modified_length);
+                // tracing::info!("latest_start: {}", latest_start);
+                // tracing::info!("latest_length: {}", latest_length);
+                // tracing::info!("]==============");
 
                 svn_no_error()
             }

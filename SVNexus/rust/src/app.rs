@@ -139,6 +139,16 @@ pub fn project() -> error::Result<&'static Box<dyn ProjectDirectory>> {
 
 }
 
+pub struct GlobalConfig {
+    log: String,
+    engine: EngineConfig,
+}
+
+pub struct EngineConfig {
+    username: Option<String>,
+    password: Option<String>,
+}
+
 // fn app() {
 //     let project = directories::ProjectDirs::from("io.github", "holdxen", "SVNexus").unwrap();
 // }

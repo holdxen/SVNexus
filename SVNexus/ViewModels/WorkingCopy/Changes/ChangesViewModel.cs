@@ -42,9 +42,9 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
     public ChangesTreeViewModel ChangesTreeViewModel { get; }
 
-    [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
-
-    [ObservableProperty] public partial Difference Difference { get; set; } = new();
+    // [ObservableProperty] public partial LoadingOrErrorState EditorState { get; set; } = LoadingOrErrorState.MakeNone();
+    //
+    // [ObservableProperty] public partial Difference Difference { get; set; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsRevertButtonEnable))]
@@ -269,7 +269,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
                 var boxResult = await OverlayMessageBox.ShowAsync(
                     title: "Error",
                     hostId: hostId,
-                    message: "Working copy is incomplete\nTry to cleanup now",
+                    message: "Working copy is incomplete\nTry to update now",
                     button: MessageBoxButton.YesNo);
                 if (boxResult == MessageBoxResult.Yes)
                 {
@@ -387,6 +387,11 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
     public void Receive(Messages.OnSelectedItemsChanged message)
     {
-        SelectedStatusEntries = message.Value;
+        // 当界面显示的时候或者直接调用status进行更新的时候，会导致tree和list都重新计算selected item，
+        // 计算完成后都把结果会发送到这里，导致list的结果被tree覆盖，所以要判断消息是否是当前正在显示的view发的，否则直接忽略
+        if ((IsTreeView && Sender == ChangesTreeViewModel) || (IsListView && Sender == ChangesListViewModel))
+        {
+            SelectedStatusEntries = message.Value;
+        }
     }
 }

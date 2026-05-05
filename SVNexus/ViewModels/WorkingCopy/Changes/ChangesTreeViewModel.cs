@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -178,10 +180,8 @@ public partial class ChangesTreeViewModel : ViewModelBase,
         {
             Logger.Warn("Unexpected null");
         }
-        SelectedItems?.CollectionChanged += (s, e) =>
-        {
-            NotifySelectedItemsChanged();
-        };
+
+        SelectedItems?.CollectionChanged += SelectionChanged;
     }
 
     [ObservableProperty]
@@ -230,12 +230,20 @@ public partial class ChangesTreeViewModel : ViewModelBase,
         SearchMode = !SearchMode;
         
     }
-    
 
-    partial void OnSelectedItemsChanged(ObservableCollection<TreeItemViewModel> value)
+    private void SelectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         NotifySelectedItemsChanged();
     }
+
+    partial void OnSelectedItemsChanged(ObservableCollection<TreeItemViewModel> oldValue, ObservableCollection<TreeItemViewModel> newValue)
+    {
+        oldValue.CollectionChanged -= SelectionChanged;
+        newValue.CollectionChanged += SelectionChanged;
+        NotifySelectedItemsChanged();
+    }
+
+    
 
     partial void OnSelectedItemChanged(TreeItemViewModel? value)
     {
@@ -369,6 +377,7 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     public void NotifySelectedItemsChanged()
     {
         SendMessage(new Messages.OnSelectedItemsChanged(SelectedItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToList()));
+        Logger.Info("NotifySelectedItemsChanged");
     }
 
     public void Receive(OnItemUpdated message)
@@ -379,6 +388,7 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     [RelayCommand]
     private void Show()
     {
+        Logger.Info("Notify tree selected items");
         NotifySelectedItemsChanged();
     }
 }

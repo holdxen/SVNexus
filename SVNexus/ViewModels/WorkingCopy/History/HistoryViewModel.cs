@@ -253,7 +253,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
                 {
                     while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
                     {
-                        await Log(10);
+                        await LogCommand.ExecuteOrNothingAsync(true);
                         if (CommitItems.Count <= value + 1 || SelectedCommitItemIndex != value) continue;
                         SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
                         {
@@ -363,10 +363,27 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     // }
 
 
-    public void OnDataGridVerticalScrollValueChanged(double value, double maximum)
+    // public void OnDataGridVerticalScrollValueChanged(double value, double maximum)
+    // {
+    //     if ((maximum - value) / maximum < 0.1)
+    //     {
+    //         LogCommand.ExecuteOrNothing(20u);
+    //         return;
+    //     } 
+    //     if (value / maximum < 0.1)
+    //     {
+    //         // LogUpdateCommand.ExecuteOrNothing(null);
+    //     }
+    // }
+
+    public void OnLoadTopMore()
     {
-        if (!((maximum - value) / maximum < 0.1)) return;
-        LogCommand.ExecuteOrNothing(20);
+        LogCommand.ExecuteOrNothing(false);
+    }
+
+    public void OnLoadBottomMore()
+    {
+        LogCommand.ExecuteOrNothing(true);
     }
 
 
@@ -483,11 +500,68 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
     }
 
-    private Tuple<uint, uint>? _logsRange; 
+    private Tuple<uint, uint>? _logsRange;
 
 
     [RelayCommand]
-    private async Task LogCache()
+    private async Task LogTop()
+    {
+        await CheckUrl();
+        if (ThisEntry is null)
+        {
+            return;
+        }
+
+        if (_logsRange is null)
+        {
+            await LogBottom();
+            return;
+        }
+        
+        
+        var start = _logsRange.Item1;
+
+
+        await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
+        {
+            using var context  = EngineBackend.Instance.SimpleContext(SendMessage(new OnGetDialogHostId()));
+
+            var entries = await context.LogCacheFillLocal(
+                SeaDatabaseConnection.Default, 
+                ThisEntry.RepositoryUuid,
+                SendMessage(new OnGetWorkingCopyPath()), 
+                start, 
+                null,
+                true);
+
+
+            if (entries.Length == 0)
+            {
+                return;
+            }
+
+            foreach (var entry in entries.Reverse())
+            {
+                if (entry.Entry.Revision == start)
+                {
+                    continue;
+                }
+            
+                CommitItems.Insert(0, new CommitItemViewModel(this)
+                {
+                    Entry = entry.Entry
+                });
+            }
+        });
+        
+        
+        
+
+
+    }
+
+    [RelayCommand]
+    private async Task LogBottom()
     {
         await CheckUrl();
         if (ThisEntry is null)
@@ -501,40 +575,53 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
         
         
-        var hostId = SendMessage(new OnGetDialogHostId());
-        using var context = EngineBackend.Instance.SimpleContext(hostId);
 
         Logger.Info($"Range: {_logsRange}");
 
-        var logs = await context.LogCacheFillLocal(
-            SeaDatabaseConnection.Default, 
-            ThisEntry.RepositoryUuid,
-            SendMessage(new OnGetWorkingCopyPath()),
-            _logsRange?.Item2 - 1, 
-            64);
+        await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
+        {
+            var hostId = SendMessage(new OnGetDialogHostId());
+            using var context = EngineBackend.Instance.SimpleContext(hostId);
+            
+            var logs = await context.LogCacheFillLocal(
+                SeaDatabaseConnection.Default, 
+                ThisEntry.RepositoryUuid,
+                SendMessage(new OnGetWorkingCopyPath()),
+                _logsRange?.Item2 - 1, 
+                64);
         
 
-        if (logs.Length == 0)
-        {
-            return;
-        }
+            if (logs.Length == 0)
+            {
+                return;
+            }
         
-        _logsRange = new Tuple<uint, uint>(_logsRange?.Item1 ?? logs.First().Entry.Revision.GetValueOrDefault(), logs.Last().Entry.Revision.GetValueOrDefault());
+            _logsRange = new Tuple<uint, uint>(_logsRange?.Item1 ?? logs.First().Entry.Revision.GetValueOrDefault(), logs.Last().Entry.Revision.GetValueOrDefault());
         
-        CommitItems.AddRange(logs.Select(i => new CommitItemViewModel(this)
-        {
-            Entry = i.Entry
-        }));
+            CommitItems.AddRange(logs.Select(i => new CommitItemViewModel(this)
+            {
+                Entry = i.Entry
+            }));
+
+        });
+
     }
 
 
     [RelayCommand]
-    private async Task Log(uint limit)
+    private async Task Log(bool bottom)
     {
         // await LogDirectly(limit);
         try
         {
-            await LogCache();
+            if (bottom)
+            {
+                await LogBottom();
+            }
+            else
+            {
+                await LogTop();
+            }
         }
         catch (Exception e)
         {
@@ -654,7 +741,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
 
     protected override async Task LoadOnce()
     {
-        await LogCommand.ExecuteAsync(20);
+        await LogCommand.ExecuteOrNothingAsync(true);
     }
 
 }

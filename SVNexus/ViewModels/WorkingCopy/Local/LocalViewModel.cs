@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -31,7 +32,7 @@ public partial class LocalViewModel : ViewModelBase,
     public class OnCreatedItem(TreeItemViewModel value) : ValueChangedMessage<TreeItemViewModel>(value);
     
     
-    public partial class TreeItemViewModel(ViewModelBase? parent): ViewModelBase(parent)//, IRecipient<OnSetChecked>, IRecipient<OnSetExpanded>
+    public partial class TreeItemViewModel(ViewModelBase? parent): ViewModelBase(parent)
     {
         
         [ObservableProperty]
@@ -42,8 +43,6 @@ public partial class LocalViewModel : ViewModelBase,
 
         [ObservableProperty]
         public partial ObservableCollection<TreeItemViewModel> Children { get; set; } = [];
-        
-        public ObservableCollection<MenuItemViewModel> MenuItems { get; set; } = [];
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasChild))]
@@ -248,17 +247,6 @@ public partial class LocalViewModel : ViewModelBase,
     public partial DifferenceViewModel DifferenceViewModel { get; set; }
 
     public ObservableCollection<TreeItemViewModel> DisplayItems { get; set; } = [];
-    // {
-    //     get
-    //     {
-    //         if (Root is null)
-    //         {
-    //             return [];
-    //         }
-    //
-    //         return ShowRoot ? [Root] : Root.Children;
-    //     }
-    // }
 
     [ObservableProperty]
     public partial TreeItemViewModel? SelectedTreeItem { get; set; }
@@ -534,11 +522,7 @@ public partial class LocalViewModel : ViewModelBase,
     /// <inheritdoc/>
     public LocalViewModel(ViewModelBase parent) : base(parent)
     {
-        SelectedTreeItems?.CollectionChanged += (sender, args) =>
-        {
-            NotifyProperties();
-        };
-
+        SelectedTreeItems?.CollectionChanged += SelectionChanged;
         DifferenceViewModel = new DifferenceViewModel(this);
     }
 
@@ -597,7 +581,18 @@ public partial class LocalViewModel : ViewModelBase,
         }
         SelectedTreeItems = new ObservableCollection<TreeItemViewModel>(selectedTreeItems);
     }
+    
+    private void SelectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        NotifyProperties();
+    }
 
+    partial void OnSelectedTreeItemsChanged(ObservableCollection<TreeItemViewModel> oldValue, ObservableCollection<TreeItemViewModel> newValue)
+    {
+        oldValue.CollectionChanged -= SelectionChanged;
+        newValue.CollectionChanged += SelectionChanged;
+        NotifyProperties();
+    }
 
     private void NotifyProperties()
     {
@@ -743,16 +738,12 @@ public partial class LocalViewModel : ViewModelBase,
             RelateTo = SendMessage(new OnGetWorkingCopyPath())
         };
         var hostId = SendMessage(new OnGetDialogHostId());
-
-        var dialogOptions = new OverlayDialogOptions()
-        {
-            StyleClass = "Fixed",
-            IsCloseButtonVisible = false,
-            Buttons = DialogButton.None,
-            CanDragMove = true,
-        };
         
-        await OverlayDialog.ShowStandardAsync<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<CommitDialog, CommitDialogModel>(commitDialogModel, hostId, commitDialogModel.OverlayDialogOptions);
+        if (commitDialogModel.Accept)
+        {
+            await Refresh();
+        }
     }
 
     [RelayCommand]

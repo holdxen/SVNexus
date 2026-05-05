@@ -10,7 +10,7 @@ mod property;
 #[cfg(test)]
 mod tests;
 
-use crate::{apr, utils::CStringer};
+use crate::utils::CStringer;
 use serde::{Deserialize, Serialize};
 
 #[allow(bad_style)]
@@ -816,6 +816,7 @@ impl std::fmt::Display for SVNError {
 }
 
 impl SVNError {
+    #[cfg(false)]
     fn to_error(&self) -> *mut ffi::svn_error_t {
         unsafe {
             let mut pool = apr::Pool::create();
@@ -882,6 +883,7 @@ const fn svn_no_error() -> *mut ffi::svn_error_t {
     ffi::SVN_NO_ERROR as *mut _
 }
 
+#[cfg(false)]
 pub fn encode_base64(bytes: &[u8], break_lines: bool) -> String {
     let mut stream = stream::Stream::create(Default::default());
 

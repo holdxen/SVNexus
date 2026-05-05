@@ -1,10 +1,7 @@
 use std::{sync::Arc, vec};
 
-use snafu::{OptionExt, ResultExt};
-use tokio::{
-    sync::{Mutex, mpsc, oneshot},
-    task::JoinHandle,
-};
+use snafu::ResultExt;
+use tokio::sync::mpsc;
 
 use crate::{
     db::{self, IndexedLogEntry},
@@ -191,6 +188,7 @@ impl AsyncContext {
     }
 
     #[tracing::instrument(skip(self, db))]
+    #[uniffi::method(default(reverse = false))]
     pub async fn log_cache_fill_local(
         &self,
         db: Arc<db::SeaDatabaseConnection>,
@@ -198,19 +196,25 @@ impl AsyncContext {
         path: &str,
         start: Option<u32>,
         limit: Option<u32>,
+        reverse: bool
     ) -> error::Result<Vec<IndexedLogEntry>> {
-
         let start = if let Some(start) = start {
             Revision::Number(start)
         } else {
             Revision::Head
         };
 
+        let range = if reverse {
+            RevisionRange::new(start, Revision::Head)
+        } else {
+            RevisionRange::new(start, Revision::Number(1))
+        };
+
         let log_options = LogOptions {
             targets: vec![path.to_string()],
             peg_revision: Revision::Working,
             limit: limit.unwrap_or_default(),
-            revisions: vec![RevisionRange::new(start, Revision::Number(1))],
+            revisions: vec![range],
             discover_changed_paths: false,
             strict_node_history: false,
             include_merged_revisions: false,
@@ -219,11 +223,7 @@ impl AsyncContext {
 
         let log_result = self.log(log_options).await?;
 
-        let mut revisions: Vec<_> = log_result
-            .log_entries
-            .iter()
-            .map(|v| v.revision)
-            .collect();
+        let mut revisions: Vec<_> = log_result.log_entries.iter().map(|v| v.revision).collect();
 
         let mut logs = db
             .repository_logs_with_revisions(uuid, revisions.iter().filter_map(|v| *v).collect())
@@ -952,7 +952,8 @@ impl AsyncContext {
     }
 
     pub async fn property_set(&self, opts: PropertySetOptions) -> error::Result<()> {
-        self.call_async(|mut context| context.property_set(opts)).await
+        self.call_async(|mut context| context.property_set(opts))
+            .await
     }
 
     #[uniffi::constructor]

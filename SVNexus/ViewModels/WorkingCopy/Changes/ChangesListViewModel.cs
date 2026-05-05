@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
@@ -10,6 +11,7 @@ using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
+using SVNexus.Utils;
 using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
@@ -19,10 +21,7 @@ public partial class ChangesListViewModel : ViewModelBase
     /// <inheritdoc/>
     public ChangesListViewModel(ViewModelBase parent) : base(parent)
     {
-        SelectedItems?.CollectionChanged += (sender, args) =>
-        {
-            NotifySelectedItemsChanged();
-        };
+        SelectedItems?.CollectionChanged += SelectionChanged;
     }
 
     // public partial class MenuIconViewModel: ViewModelBase
@@ -211,8 +210,20 @@ public partial class ChangesListViewModel : ViewModelBase
         SendMessage(new Messages.OnSelectedItemChanged(value?.Entry));
     }
 
-    partial void OnSelectedItemsChanged(ObservableCollection<ListItemViewModel> value)
+    // partial void OnSelectedItemsChanged(ObservableCollection<ListItemViewModel> value)
+    // {
+    //     NotifySelectedItemsChanged();
+    // }
+    
+    private void SelectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        NotifySelectedItemsChanged();
+    }
+
+    partial void OnSelectedItemsChanged(ObservableCollection<ListItemViewModel> oldValue, ObservableCollection<ListItemViewModel> newValue)
+    {
+        oldValue.CollectionChanged -= SelectionChanged;
+        newValue.CollectionChanged += SelectionChanged;
         NotifySelectedItemsChanged();
     }
 
@@ -247,6 +258,7 @@ public partial class ChangesListViewModel : ViewModelBase
     [RelayCommand]
     private void Show()
     {
+        Logger.Info("Notify list selected items");
         NotifySelectedItemsChanged();
     }
 }
