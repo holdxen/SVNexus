@@ -376,7 +376,7 @@ public partial class ChangesTreeViewModel : ViewModelBase,
 
     public void NotifySelectedItemsChanged()
     {
-        SendMessage(new Messages.OnSelectedItemsChanged(SelectedItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToList()));
+        SendMessage(new Messages.OnSelectedItemsChanged(SelectedStatusEntries));
         Logger.Info("NotifySelectedItemsChanged");
     }
 
@@ -385,10 +385,6 @@ public partial class ChangesTreeViewModel : ViewModelBase,
         NotifySelectedItemsChanged();
     }
 
-    [RelayCommand]
-    private void Show()
-    {
-        Logger.Info("Notify tree selected items");
-        NotifySelectedItemsChanged();
-    }
+    public List<StatusEntry> SelectedStatusEntries =>
+        SelectedItems.Where(i => i.StatusEntry is not null).Select(i => i.StatusEntry!).ToList();
 }

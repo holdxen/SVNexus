@@ -69,8 +69,8 @@
                         <u:IconButton Classes="Primary"
                                       Theme="{StaticResource SolidIconButton}"
                                       Content="Apply"
-                                      IsLoading="{Binding ApplyCommand.IsRunning}"
-                                      Command="{Binding ApplyCommand}">
+                                      IsLoading="{Binding ConfirmCommand.IsRunning}"
+                                      Command="{Binding ConfirmCommand}">
                         </u:IconButton>
                     </StackPanel>
                 </Grid>

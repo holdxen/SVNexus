@@ -3,7 +3,7 @@ using SVNexus.Components;
 
 namespace SVNexus.Views.WorkingCopy.Changes;
 
-public partial class ChangesListView : QtLikeVisibleControl
+public partial class ChangesListView : UserControl
 {
     public ChangesListView()
     {

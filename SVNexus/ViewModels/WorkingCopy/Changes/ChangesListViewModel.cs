@@ -252,13 +252,8 @@ public partial class ChangesListViewModel : ViewModelBase
 
     public void NotifySelectedItemsChanged()
     {
-        SendMessage(new Messages.OnSelectedItemsChanged(SelectedItems.Select(i => i.Entry).ToList()));
+        SendMessage(new Messages.OnSelectedItemsChanged(SelectedStatusEntries));
     }
     
-    [RelayCommand]
-    private void Show()
-    {
-        Logger.Info("Notify list selected items");
-        NotifySelectedItemsChanged();
-    }
+    public List<StatusEntry> SelectedStatusEntries => SelectedItems.Select(i => i.Entry).ToList();
 }

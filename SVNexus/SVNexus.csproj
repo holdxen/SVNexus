@@ -68,8 +68,4 @@
     <ItemGroup>
       <ProjectReference Include="..\Tabalonia\Tabalonia.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="ViewModels\WorkingCopy\Remote\" />
-    </ItemGroup>
 </Project>

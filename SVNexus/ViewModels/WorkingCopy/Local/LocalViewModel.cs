@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -375,6 +376,19 @@ public partial class LocalViewModel : ViewModelBase,
                 });
             }
 
+            if (IsPatchButtonEnable)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "Patch",
+                    Command = PatchCommand,
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.OperationPatch"
+                    }
+                });
+            }
+
             if (IsLockButtonEnable)
             {
                 menuItems.Add(new MenuItemViewModel()
@@ -459,11 +473,12 @@ public partial class LocalViewModel : ViewModelBase,
 
 
             var parent = item.StatusEntry.Path.GetDirectoryName();
-                
+
             menuItems.Add(new MenuItemViewModel()
             {
                 Header = "Ignore",
-                Children = [
+                Children =
+                [
                     new MenuItemViewModel()
                     {
                         Header = $"Ignore {item.Name}",
@@ -481,7 +496,7 @@ public partial class LocalViewModel : ViewModelBase,
                 if (string.IsNullOrEmpty(ex)) return;
 
                 var name = $"*{ex}";
-                
+
                 e.Children.Add(new MenuItemViewModel()
                 {
                     Header = $"Ignore {name}",
@@ -492,10 +507,10 @@ public partial class LocalViewModel : ViewModelBase,
                         Target = parent
                     }
                 });
-                        
-                e.Children.Add(new  MenuItemViewModel
+
+                e.Children.Add(new MenuItemViewModel
                 {
-                    Header = $"Ignore {ex} recursively",
+                    Header = $"Ignore *{ex} recursively",
                     Command = IgnoreCommand,
                     CommandParameter = new IgnoreArgs()
                     {
@@ -503,11 +518,15 @@ public partial class LocalViewModel : ViewModelBase,
                         Target = null
                     }
                 });
-
-
-
             }));
 
+            if (SelectedTreeItems.First().StatusEntry.NodeKind == NodeKind.File)
+            {
+                menuItems.Add(new MenuItemViewModel()
+                {
+                    Header = "File history",
+                });
+            }
 
             return menuItems;
 
@@ -672,6 +691,46 @@ public partial class LocalViewModel : ViewModelBase,
         await context.PropertySet(setOptions);
 
         await RefreshCommand.ExecuteOrNothingAsync(null);
+    }
+
+    [RelayCommand]
+    private async Task FileHistory()
+    {
+        
+    }
+
+    [RelayCommand]
+    private async Task Patch()
+    {
+        if (!IsPatchButtonEnable)
+        {
+            return;
+        }
+
+
+        var file = await Manager.Default.Send(new OnFilePickerOpen()
+        {
+            Options = new FilePickerOpenOptions()
+            {
+                AllowMultiple = false,
+                Title = "Select a patch file"
+            }
+        }, Manager.MainWindowToken);
+
+        if (file.Count == 0)
+        {
+            return;
+        }
+
+        var patchDialogModel = new PatchDialogModel(this)
+        {
+            Target = SelectedTreeItems.First().StatusEntry.Path,
+            Path = file[0].Path.AbsolutePath
+        };
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowStandardAsync<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, patchDialogModel.OverlayDialogOptions);
     }
 
     [RelayCommand]

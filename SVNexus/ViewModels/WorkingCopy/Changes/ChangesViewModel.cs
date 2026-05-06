@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -53,6 +54,8 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     [NotifyPropertyChangedFor(nameof(IsCommitButtonEnable))]
     [NotifyPropertyChangedFor(nameof(IsOpenTerminalButtonEnable))]
     [NotifyPropertyChangedFor(nameof(IsInfoButtonEnable))]
+    [NotifyPropertyChangedFor(nameof(IsDiffButtonEnable))]
+    [NotifyPropertyChangedFor(nameof(IsPatchButtonEnable))]
     public partial List<StatusEntry> SelectedStatusEntries { get; set; } = [];
 
     public bool IsRevertButtonEnable => SelectedStatusEntries.Count > 0;
@@ -64,6 +67,12 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     public bool IsCommitButtonEnable => SelectedStatusEntries.Count > 0;
     
     public bool IsInfoButtonEnable => SelectedStatusEntries.Count == 1;
+    
+    public bool IsDiffButtonEnable => SelectedStatusEntries.Count == 1 && SelectedStatusEntries.First().NodeStatus != WorkingCopyStatus.Unversioned;
+    
+    public bool IsPatchButtonEnable => SelectedStatusEntries.Count == 1 && SelectedStatusEntries.First().NodeKind == NodeKind.Directory && SelectedStatusEntries.First().NodeStatus != WorkingCopyStatus.Unversioned;
+
+
     
     
     public bool IsOpenTerminalButtonEnable
@@ -94,6 +103,12 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         DifferenceViewModel = new DifferenceViewModel(this);
     }
 
+    partial void OnSelectedViewIndexChanged(int value)
+    {
+        SelectedStatusEntries = IsListView
+            ? ChangesListViewModel.SelectedStatusEntries : ChangesTreeViewModel.SelectedStatusEntries;
+    }
+
     [RelayCommand]
     private void SwitchToListView()
     {
@@ -106,6 +121,57 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         SelectedViewIndex = TreeViewIndex;
     }
 
+
+    [RelayCommand]
+    private async Task Difference()
+    {
+        if (!IsDiffButtonEnable)
+        {
+            return;
+        }
+        
+        var differenceDialogModel = new DifferenceDialogModel(this)
+        {
+            Path = SelectedStatusEntries.First().Path,
+        };
+
+        await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()),  differenceDialogModel.OverlayDialogOptions);
+
+    }
+
+    [RelayCommand]
+    private async Task Patch()
+    {
+        if (!IsPatchButtonEnable)
+        {
+            return;
+        }
+
+
+        var file = await Manager.Default.Send(new OnFilePickerOpen()
+        {
+            Options = new FilePickerOpenOptions()
+            {
+                AllowMultiple = false,
+                Title = "Select a patch file"
+            }
+        }, Manager.MainWindowToken);
+
+        if (file.Count == 0)
+        {
+            return;
+        }
+
+        var patchDialogModel = new PatchDialogModel(this)
+        {
+            Target = SelectedStatusEntries.First().Path,
+            Path = file[0].Path.AbsolutePath
+        };
+
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowStandardAsync<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, patchDialogModel.OverlayDialogOptions);
+    }
 
     [RelayCommand]
     private async Task Info()

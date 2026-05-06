@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -44,7 +45,7 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
 
     public string? RevisionText => Entry?.Revision?.ToString();
     
-    public string? Url => Entry?.Url;
+    public string? Url => Entry?.Url.Map(u => WebUtility.UrlDecode(u));
 
     public string? Name => Entry?.Url.GetFileName();
 

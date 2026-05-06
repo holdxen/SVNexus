@@ -114,7 +114,14 @@ public partial class HistoryChangesViewModel : ViewModelBase
             _differenceViewModels.Add(path, DifferenceViewModel);
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                await DifferenceViewModel.Compare(RootUrl +  path, new Revision.Number(CurrentRevision), CompareRevision?.Map(v => new Revision.Number(v)), new Revision.Number(CurrentRevision));
+                if (ChangedItems[value].Entry.NodeKind == NodeKind.Directory)
+                {
+                    await DifferenceViewModel.CompareProperty(RootUrl + path, new Revision.Number(CurrentRevision), CompareRevision?.Map(v => new Revision.Number(v)), new Revision.Number(CurrentRevision));
+                }
+                else
+                {
+                    await DifferenceViewModel.Compare(RootUrl + path, new Revision.Number(CurrentRevision), CompareRevision?.Map(v => new Revision.Number(v)), new Revision.Number(CurrentRevision));
+                }
             });
         }
     }

@@ -504,15 +504,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        var dialogOptions = new OverlayDialogOptions
-        {
-            FullScreen = true,
-            Title = "Patch",
-            IsCloseButtonVisible = false,
-            StyleClass = "Fixed"
-        };
-        
-        await OverlayDialog.ShowStandardAsync<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, patchDialogModel.OverlayDialogOptions);
     }
 
     [RelayCommand]

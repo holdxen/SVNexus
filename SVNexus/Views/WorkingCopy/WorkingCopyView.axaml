@@ -76,6 +76,16 @@
                                               IsEnabled="{Binding ChangesViewModel.IsLockButtonEnable}"
                                               Command="{Binding ChangesViewModel.LockCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Lock"
+                                              Source="{StaticResource Icons.OperationDiff}"
+                                              IsEnabled="{Binding ChangesViewModel.IsDiffButtonEnable}"
+                                              Command="{Binding ChangesViewModel.DifferenceCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Lock"
+                                              Source="{StaticResource Icons.OperationPatch}"
+                                              IsEnabled="{Binding ChangesViewModel.IsPatchButtonEnable}"
+                                              Command="{Binding ChangesViewModel.PatchCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Unlock"
                                               Source="{StaticResource Icons.OperationUnlock}"
                                               IsEnabled="{Binding ChangesViewModel.IsUnlockButtonEnable}"
@@ -159,6 +169,13 @@
                                               IsEnabled="{Binding LocalViewModel.IsDiffButtonEnable}"
                                               Command="{Binding LocalViewModel.DifferenceCommand}"
                                               Source="{StaticResource Icons.OperationDiff}"
+                        >
+                        </components:SvgButton>
+                        <components:SvgButton Classes="ToolButton"
+                                              ToolTip.Tip="Diff"
+                                              IsEnabled="{Binding LocalViewModel.IsPatchButtonEnable}"
+                                              Command="{Binding LocalViewModel.PatchCommand}"
+                                              Source="{StaticResource Icons.OperationPatch}"
                         >
                         </components:SvgButton>
                         <components:SvgButton Classes="ToolButton"

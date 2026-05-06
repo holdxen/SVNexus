@@ -10,18 +10,6 @@
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
              xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
              x:Class="SVNexus.Views.WorkingCopy.Changes.ChangesListView">
-    <!-- <UserControl.DataTemplates> -->
-    <!--     <DataTemplate DataType="changes:ChangesListViewModel+MenuIconViewModel"> -->
-    <!--         <components:SvgRender Classes.Themable="{Binding Themable}" -->
-    <!--                               Source="{Binding Source, Converter={x:Static converters:StaticResourceConverter.Default}}"></components:SvgRender> -->
-    <!--     </DataTemplate> -->
-    <!-- </UserControl.DataTemplates> -->
-    <Interaction.Behaviors>
-        <EventTriggerBehavior EventName="Show">
-            <InvokeCommandAction Command="{Binding ShowCommand}">
-            </InvokeCommandAction>
-        </EventTriggerBehavior>
-    </Interaction.Behaviors>
     <ListBox
         x:Name="ListBox"
         SelectedItem="{Binding SelectedItem}"

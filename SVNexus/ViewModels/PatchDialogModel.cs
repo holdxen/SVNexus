@@ -1,16 +1,18 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia.Controls.Primitives;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
 using SVNexus.Components;
 using SVNexus.Generated;
 using SVNexus.Messages;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
-public partial class PatchDialogModel(ViewModelBase parent): ViewModelBase(parent), IDialogContext
+public partial class PatchDialogModel(ViewModelBase parent): DialogModelBase(parent)
 {
     [ObservableProperty]
     public required partial string Path { get; set; }
@@ -26,19 +28,26 @@ public partial class PatchDialogModel(ViewModelBase parent): ViewModelBase(paren
     [ObservableProperty] public partial uint Strip { get; set; }
     
     [ObservableProperty] public partial bool IgnoreWhitespace { get; set; }
+
+    public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
+    {
+        FullScreen = true,
+        Title = "Patch",
+        IsCloseButtonVisible = false,
+        StyleClass = "Fixed",
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+    };
+
+
     
     [RelayCommand]
-    public void Close()
+    private async Task Loaded()
     {
-        RequestClose?.Invoke(this, null);
+        PatchContent = await File.ReadAllTextAsync(Path);
     }
 
-    public event EventHandler<object?>? RequestClose;
-
-
-
-    [RelayCommand]
-    private async Task Apply()
+    protected override async Task OnConfirm()
     {
         var context = SendMessage(new OnGetContext()).Response;
 
@@ -46,13 +55,6 @@ public partial class PatchDialogModel(ViewModelBase parent): ViewModelBase(paren
         
         await context.Patch(patchOptions);
         
-        RequestClose?.Invoke(this, null);
-    }
-
-    
-    [RelayCommand]
-    private async Task Loaded()
-    {
-        PatchContent = await File.ReadAllTextAsync(Path);
+        Ok();
     }
 }
