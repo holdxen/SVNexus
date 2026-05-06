@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use derive_new::new;
@@ -5,12 +6,15 @@ use snafu::ResultExt;
 
 use super::context;
 use super::ffi;
+use crate::apr::AprPool;
 use crate::apr::AutoPool;
 use crate::apr::Pool;
 use crate::error;
 use crate::error::builder;
 use crate::subversion::SVNError;
 use crate::utils::Pointer;
+use crate::utils::SubversionStringer;
+use crate::utils::CStringer;
 
 #[derive(uniffi::Object, new)]
 #[uniffi(name = "RepositoryAccessAsyncContext")]
@@ -68,5 +72,48 @@ impl AsyncContext {
             Ok(number.try_into().unwrap())
         })
         .await
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_locations(&self, path: String, revision: u32, location_revisions: Vec<u32>) -> error::Result<HashMap<u32, String>> {
+        self.call_async(move |session| unsafe {
+            let mut pool = Pool::create();
+            let path = pool.string(path)?;
+            let mut locations: *mut ffi::apr_hash_t = std::ptr::null_mut();
+
+            let len = location_revisions.len();
+            let location_revisions = location_revisions.into_iter().map(|rev| rev as ffi::svn_revnum_t);
+
+            tracing::info!("CRASH DEBUG");
+            let location_revisions = pool.value_array(len, location_revisions)?;
+
+            tracing::info!("CRASH DEBUG");
+
+            let error = ffi::svn_ra_get_locations(
+                session.value,
+                locations.pointer_mut(),
+                path,
+                revision.try_into().unwrap(),
+                location_revisions,
+                pool.as_mut_ptr(),
+            );
+            tracing::info!("CRASH DEBUG");
+
+            tracing::info!("CRASH DEBUG");
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+            tracing::info!("CRASH DEBUG");
+
+            let locations = pool.as_mut_ptr().hash_map(locations, |(k, v)| {
+                (
+                    u32::try_from(*(k as *const ffi::svn_revnum_t)).unwrap(),
+                    (v as *const std::ffi::c_char)
+                        .to_str()
+                        .to_string(),
+                )
+            });
+            tracing::info!("CRASH DEBUG");
+
+            Ok(locations)
+        }).await
     }
 }

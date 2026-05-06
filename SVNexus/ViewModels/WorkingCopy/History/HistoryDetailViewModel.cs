@@ -38,6 +38,12 @@ public partial class HistoryDetailViewModel: ViewModelLite
         public partial string Path { get; set; } = string.Empty;
 
         public string Icon => Entry.Action.Icon();
+        
+        public string ActionText => Entry.Action.ToString();
+
+        public bool Copied => Entry.CopyFromPath is not null && Entry.CopyFromRevision is not null;
+
+        public string? CopyToolTip => $"Copy From: {Entry.CopyFromPath}@{Entry.CopyFromRevision}";
 
         // public string RelativePath => Path == RelativeToRoot
         //     ? "/"

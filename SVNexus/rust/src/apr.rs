@@ -411,6 +411,25 @@ impl Pool {
         }
     }
 
+    pub unsafe fn value_array<T>(&mut self, len: usize, iter: impl Iterator<Item = T>) -> error::Result<*mut ffi::apr_array_header_t> {
+        unsafe {
+            let array = ffi::apr_array_make(
+                self.as_mut_ptr(),
+                len.try_into().unwrap(),
+                std::mem::size_of::<T>().try_into().unwrap(),
+            );
+
+            for i in iter {
+                let ptr = ffi::apr_array_push(array) as *mut T;
+
+                *ptr = i;
+            }
+
+
+            Ok(array)
+        }
+    }
+
     pub unsafe fn string_array<T, I>(
         &mut self,
         len: usize,

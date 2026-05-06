@@ -52,7 +52,7 @@ Priority: optional
 Architecture: amd64
 Maintainer: holdxen zhousir429@gmail.com
 Description: Subversion client with a modern interface and enhanced features.
-    """
+"""
         f.write(control)
 
     os.makedirs(f"{tmp.name}/usr/share/applications", exist_ok=True)
@@ -67,7 +67,7 @@ Exec=/opt/svnexus/SVNexus
 Icon=/opt/svnexus/svnexus-icon.svg
 Terminal=false
 Categories=Utility;
-    """
+"""
         f.write(entry)
     os.chdir(current)
 

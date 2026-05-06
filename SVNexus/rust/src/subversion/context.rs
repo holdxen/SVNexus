@@ -855,7 +855,7 @@ pub struct StatusResult {
     entries: Vec<StatusEntry>,
 }
 
-#[derive(new, Debug, uniffi::Record)]
+#[derive(new, Debug, uniffi::Record, svnexus_macro::ToDebugString)]
 pub struct LogResult {
     pub log_entries: Vec<LogEntry>,
 }
@@ -1307,7 +1307,7 @@ impl LogChangedPathEntry {
     }
 }
 
-#[derive(Default, new, Debug, uniffi::Record, Clone, Serialize, Deserialize)]
+#[derive(Default, new, Debug, uniffi::Record, Clone, Serialize, Deserialize, svnexus_macro::ToDebugString)]
 pub struct LogEntry {
     pub revision: Option<RevisionNumber>,
     pub date: Option<i64>,

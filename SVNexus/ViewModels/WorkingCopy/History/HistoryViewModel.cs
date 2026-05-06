@@ -204,6 +204,22 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
+
+
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var hostId = SendMessage(new OnGetDialogHostId());
+
+            var context = EngineBackend.Instance.SimpleContext(hostId);
+            var path = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
+            var session = await context.OpenRepositoryAccessSession(ThisEntry.Url);
+            var result = await session.GetLocations("", ThisEntry.LastChangedRevision.GetValueOrDefault(), [CommitItems[value].Revision.GetValueOrDefault()]);
+            foreach (var item in result)
+            {
+                Logger.Info($"key: {item.Key}, value: {item.Value}");
+            }
+            Logger.Info($"Show result: {result}");
+        });
         
         var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
         var commitItem = CommitItems[value];

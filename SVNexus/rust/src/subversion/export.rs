@@ -223,6 +223,8 @@ impl AsyncContext {
 
         let log_result = self.log(log_options).await?;
 
+        tracing::info!("Repository logs: {:#?}", log_result.log_entries);
+
         let mut revisions: Vec<_> = log_result.log_entries.iter().map(|v| v.revision).collect();
 
         let mut logs = db
@@ -769,6 +771,7 @@ impl AsyncContext {
             .await
     }
 
+    #[uniffi::method(default(path = None))]
     pub async fn open_repository_access_session(
         &self,
         url: String,

@@ -33,13 +33,20 @@
             <u:SelectionList ItemsSource="{Binding ChangeItems}">
                 <u:SelectionList.ItemTemplate>
                     <DataTemplate DataType="remote:HistoryDetailViewModel+ChangeItemViewModel">
-                        <Grid ColumnDefinitions="Auto, *">
+                        <Grid ColumnDefinitions="Auto, Auto, *">
                             <components:SvgRender Grid.Column="0" 
                                                   Margin="4 0" 
+                                                  ToolTip.Tip="{Binding ActionText}"
                                                   Source="{Binding Icon}" 
                                                   Size="18"/>
+                            <components:SvgRender Grid.Column="1" 
+                                                  Margin="4 0" 
+                                                  IsVisible="{Binding Copied}"
+                                                  ToolTip.Tip="{Binding CopyToolTip}"
+                                                  Source="{StaticResource Icons.CopyFrom2}" 
+                                                  Size="18"/>
                             <TextBlock Name="TextPart" 
-                                       Grid.Column="1" 
+                                       Grid.Column="2" 
                                        VerticalAlignment="Center"
                                        Text="{Binding RelativePath}"></TextBlock>
                         </Grid>
