@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
@@ -88,20 +89,32 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
         {
             return;
         }
-        var context = SendMessage(new OnGetContext()).Response;
 
-        var infoOptions = new InfoOptions(Path, PegRevision, Revision, Depth.Empty, true, true, false);
-        
-        var result = await context.Info(infoOptions);
-
-        if (result.Entries.Count == 0)
+        try
         {
-            Logger.Warn($"Failed to show information of: {Path}");
-            return;
+            var context = SendMessage(new OnGetContext()).Response;
+
+            var infoOptions = new InfoOptions(Path, PegRevision, Revision, Depth.Empty, true, true, false);
+        
+            var result = await context.Info(infoOptions);
+
+            if (result.Entries.Count == 0)
+            {
+                Logger.Warn($"Failed to show information of: {Path}");
+                return;
+            }
+            Entry = result.Entries.Values.First();
+        }
+        catch (System.Exception e)
+        {
+            Manager.Default.Send(new OnShowToast()
+            {
+                Content = "Failed to show information of: " + Path + ":\n" + e.HumanReadableMessage,
+                Type = NotificationType.Error
+            }, Manager.MainWindowToken);
         }
 
 
-        Entry = result.Entries.Values.First();
 
     }
     
