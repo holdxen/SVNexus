@@ -867,6 +867,7 @@ impl AsyncContext {
         self.call_async(|mut context| context.cleanup(opts)).await
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn list(&self, opts: ListOptions) -> error::Result<ListResult> {
         self.call_async(|mut context| context.list(opts)).await
     }

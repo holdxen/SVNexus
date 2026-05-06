@@ -36,6 +36,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         [ObservableProperty]
         public required partial LogEntry Entry { get; set; }
         
+        public string? Tracking { get; set; }
+        
         public uint? Revision => Entry.Revision;
         
         public string Author => Entry.Author ?? string.Empty;
@@ -136,6 +138,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
     }
 
+    private SingleTaskQueue _commitDetailQueue = new();
 
     [ObservableProperty]
     public partial int SelectedViewIndex { get; set; } = DetailViewIndex;
@@ -201,74 +204,90 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
     }
 
+
     partial void OnSelectedCommitItemIndexChanged(int value)
     {
         if (CommitItems.Count <= value || value < 0 || ThisEntry is null) return;
 
+        SnapshotViewModel = null;
+        DetailViewModel = null;
+        ChangesViewModel = null;
 
-        Dispatcher.UIThread.InvokeAsync(async () =>
+        _commitDetailQueue.Run(async token =>
         {
+            var commitItem = CommitItems[value];
+            
             var hostId = SendMessage(new OnGetDialogHostId());
 
-            var context = EngineBackend.Instance.SimpleContext(hostId);
-            var path = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
-            var session = await context.OpenRepositoryAccessSession(ThisEntry.Url);
-            var result = await session.GetLocations("", ThisEntry.LastChangedRevision.GetValueOrDefault(), [CommitItems[value].Revision.GetValueOrDefault()]);
-            foreach (var item in result)
+            var relateToRoot = commitItem.Tracking;
+
+            if (relateToRoot is null)
             {
-                Logger.Info($"key: {item.Key}, value: {item.Value}");
-            }
-            Logger.Info($"Show result: {result}");
-        });
-        
-        var relateToRoot = ThisEntry.Url.TrimStartString(ThisEntry.RepositoryRootUrl);
-        var commitItem = CommitItems[value];
-        DetailViewModel = new HistoryDetailViewModel
-        {
-            Entry = commitItem.Entry,
-            RelateToRoot = relateToRoot
-        };
-        Revision revision = commitItem.Revision is null
-            ? new Revision.Head()
-            : new Revision.Number(commitItem.Revision.GetValueOrDefault());
-        
-        var url = ThisEntry.Url;
+                var context = EngineBackend.Instance.SimpleContext(hostId);
+                token.ThrowIfCancellationRequested();
+                using var session = await context.OpenRepositoryAccessSession(ThisEntry.Url);
+                token.ThrowIfCancellationRequested();
+                var result = await session.GetLocations("", ThisEntry.LastChangedRevision.GetValueOrDefault(), [commitItem.Revision.GetValueOrDefault()]);
+                token.ThrowIfCancellationRequested();
 
-        SnapshotViewModel = new HistorySnapshotViewModel(this)
-        {
-            CurrentUrl = url,
-            Revision = revision,
-        };
-
-        if (commitItem.Revision is null)
-        {
-            ChangesViewModel = null;
-            return;
-        }
-        
-        // 对比视图，需要找到对比的revision
-        if (value == CommitItems.Count - 1)
-        {
-            // 最后一个，需要加载更多的历史
-
-            if (commitItem.Revision == 1)
-            {
-                SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+                if (!result.TryGetValue(commitItem.Revision.GetValueOrDefault(), out relateToRoot))
                 {
-                    CurrentRevision = commitItem.Revision.GetValueOrDefault(),
-                    CompareRevision = null,
-                    RelateToRoot = relateToRoot,
-                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                    RootUrl = ThisEntry.RepositoryRootUrl,
-                });
+                    return;
+                }
             }
-            else
+            
+            commitItem.Tracking = relateToRoot;
+            
+            token.ThrowIfCancellationRequested();
+
+            DetailViewModel = new HistoryDetailViewModel
+            {
+                Entry = commitItem.Entry,
+                RelateToRoot = relateToRoot
+            };
+            token.ThrowIfCancellationRequested();
+            Revision revision = commitItem.Revision is null
+                ? new Revision.Head()
+                : new Revision.Number(commitItem.Revision.GetValueOrDefault());
+
+            token.ThrowIfCancellationRequested();
+            SnapshotViewModel = new HistorySnapshotViewModel(this)
+            {
+                CurrentUrl = ThisEntry.RepositoryRootUrl + relateToRoot,
+                Revision = revision,
+            };
+            token.ThrowIfCancellationRequested();
+
+            if (commitItem.Revision is null)
             {
                 ChangesViewModel = null;
-                Dispatcher.UIThread.InvokeAsync(async () =>
+                return;
+            }
+            token.ThrowIfCancellationRequested();
+        
+            // 对比视图，需要找到对比的revision
+            if (value == CommitItems.Count - 1)
+            {
+                // 最后一个，需要加载更多的历史
+
+                if (commitItem.Revision == 1)
                 {
+                    token.ThrowIfCancellationRequested();
+                    SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+                    {
+                        CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                        CompareRevision = null,
+                        RelateToRoot = relateToRoot,
+                        LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                        RootUrl = ThisEntry.RepositoryRootUrl,
+                    });
+                }
+                else
+                {
+                    ChangesViewModel = null;
                     while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
                     {
+                        token.ThrowIfCancellationRequested();
                         await LogCommand.ExecuteOrNothingAsync(true);
                         if (CommitItems.Count <= value + 1 || SelectedCommitItemIndex != value) continue;
                         SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
@@ -281,20 +300,24 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
                         });
                         break;
                     }
+                }
+            }
+            else
+            {
+                token.ThrowIfCancellationRequested();
+                SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+                {
+                    CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                    CompareRevision = CommitItems[value + 1].Revision.GetValueOrDefault(),
+                    RelateToRoot = relateToRoot,
+                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                    RootUrl = ThisEntry.RepositoryRootUrl,
                 });
             }
-        }
-        else
-        {
-            SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
-            {
-                CurrentRevision = commitItem.Revision.GetValueOrDefault(),
-                CompareRevision = CommitItems[value + 1].Revision.GetValueOrDefault(),
-                RelateToRoot = relateToRoot,
-                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                RootUrl = ThisEntry.RepositoryRootUrl,
-            });
-        }
+
+        });
+        
+
 
 
 

@@ -825,7 +825,7 @@ impl SVNError {
         }
     }
 
-    fn from_nullable_ptr(err: *mut ffi::svn_error_t) -> Result<(), Self> {
+    pub fn from_nullable_ptr(err: *mut ffi::svn_error_t) -> Result<(), Self> {
         if err.is_null() {
             Ok(())
         } else {

@@ -34,6 +34,7 @@ pub impl *const subversion::ffi::svn_string_t {
         }
     }
 
+    #[cfg(false)]
     unsafe fn to_nullable_str<'a>(self) -> Option<&'a str> {
         if self.is_null() {
             None
@@ -59,6 +60,7 @@ pub impl *const subversion::ffi::svn_string_t {
         }
     }
 
+    #[cfg(false)]
     unsafe fn to_nullable_slice<'a>(self) -> Option<&'a [u8]> {
         if self.is_null() {
             None
@@ -91,12 +93,14 @@ pub impl *const c_char {
         }
     }
 
+    #[cfg(false)]
     unsafe fn to_slice<'a>(self) -> &'a [u8] {
         assert!(!self.is_null(), "Expected non-null pointer");
 
         unsafe { CStr::from_ptr(self).to_bytes() }
     }
 
+    #[cfg(false)]
     unsafe fn to_nullable_slice<'a>(self) -> Option<&'a [u8]> {
         if self.is_null() {
             None
@@ -108,6 +112,7 @@ pub impl *const c_char {
 
 #[easy_ext::ext(Boxed)]
 pub impl<T> Box<T> {
+    #[cfg(false)]
     fn inner_void_pointer(&self) -> *const c_void {
         let inner: &T = &**self;
         inner as *const T as *const c_void
@@ -375,7 +380,7 @@ impl<'a> &'a str {
 const LOG_TARGET: &str = "avalonia";
 
 #[uniffi::export]
-fn log_info(line: i32, file: &str, member: &str, content: &str) {
+fn log_info(line: i32, file: &str, _member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
     use log::{Level, Record};
@@ -397,7 +402,7 @@ fn log_info(line: i32, file: &str, member: &str, content: &str) {
 }
 
 #[uniffi::export]
-fn log_error(line: i32, file: &str, member: &str, content: &str) {
+fn log_error(line: i32, file: &str, _member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
     use log::{Level, Record};
@@ -419,7 +424,7 @@ fn log_error(line: i32, file: &str, member: &str, content: &str) {
 }
 
 #[uniffi::export]
-fn log_trace(line: i32, file: &str, member: &str, content: &str) {
+fn log_trace(line: i32, file: &str, _member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
     use log::{Level, Record};
@@ -441,7 +446,7 @@ fn log_trace(line: i32, file: &str, member: &str, content: &str) {
 }
 
 #[uniffi::export]
-fn log_debug(line: i32, file: &str, member: &str, content: &str) {
+fn log_debug(line: i32, file: &str, _member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
     use log::{Level, Record};
@@ -463,7 +468,7 @@ fn log_debug(line: i32, file: &str, member: &str, content: &str) {
 }
 
 #[uniffi::export]
-fn log_warn(line: i32, file: &str, member: &str, content: &str) {
+fn log_warn(line: i32, file: &str, _member: &str, content: &str) {
     let file = file.project_relative_path().unwrap_or(file);
 
     use log::{Level, Record};

@@ -20993,32 +20993,32 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_log_debug();
-            if (checksum != 10476) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_debug` checksum `10476`, library returned `{checksum}`");
+            if (checksum != 65196) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_debug` checksum `65196`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_log_error();
-            if (checksum != 26065) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_error` checksum `26065`, library returned `{checksum}`");
+            if (checksum != 11636) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_error` checksum `11636`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_log_info();
-            if (checksum != 46738) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_info` checksum `46738`, library returned `{checksum}`");
+            if (checksum != 35431) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_info` checksum `35431`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_log_trace();
-            if (checksum != 25688) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_trace` checksum `25688`, library returned `{checksum}`");
+            if (checksum != 3766) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_trace` checksum `3766`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_log_warn();
-            if (checksum != 54759) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_warn` checksum `54759`, library returned `{checksum}`");
+            if (checksum != 37735) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_log_warn` checksum `37735`, library returned `{checksum}`");
             }
         }
         {

@@ -750,12 +750,15 @@ public partial class LocalViewModel : ViewModelBase,
 
         await model.LoadedCommand.ExecuteOrNothingAsync(null);
 
-        var hostId = SendMessage(new OnGetDialogHostId());
-
-        _ = Dispatcher.UIThread.InvokeAsync(async () =>
+        if (model.Entry is not null)
         {
-            await OverlayDialog.ShowStandardAsync<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
-        });
+            var hostId = SendMessage(new OnGetDialogHostId());
+
+            _ = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                await OverlayDialog.ShowStandardAsync<InfoDialog, InfoDialogModel>(model, hostId, model.OverlayDialogOptions);
+            });
+        }
     }
 
     [RelayCommand]

@@ -109,7 +109,7 @@ public partial class InfoDialogModel(ViewModelBase parent) : DialogModelBase(par
         {
             Manager.Default.Send(new OnShowToast()
             {
-                Content = "Failed to show information of: " + Path + ":\n" + e.HumanReadableMessage,
+                Content = $"Failed to show information of: {Path}:\n{e.HumanReadableMessage}",
                 Type = NotificationType.Error
             }, Manager.MainWindowToken);
         }

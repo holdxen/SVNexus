@@ -453,6 +453,11 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
         await model.LoadedCommand.ExecuteOrNothingAsync(null);
 
+        if (model.Entry is null)
+        {
+            return;
+        }
+
         var hostId = SendMessage(new OnGetDialogHostId());
 
         _ = Dispatcher.UIThread.InvokeAsync(async () =>

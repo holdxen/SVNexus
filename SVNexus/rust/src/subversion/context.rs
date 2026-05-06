@@ -2,13 +2,11 @@ use super::ffi;
 use super::stream::Stream;
 use super::wc::*;
 use super::{SVNError, svn_no_error};
-use crate::apr::{self, AprArray, AprPool, AutoPool, Pool};
-use crate::entities::property;
+use crate::apr::{self, AprArray, AprPool, AutoPool};
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
-use crate::extensions::{CommonExtension, OptionExtension};
-use crate::subversion::ffi::{svn_path_is_backpath_present, svn_uri_canonicalize};
+use crate::extensions::{Canonicalization, OptionExtension};
 use crate::subversion::version::Version;
-use crate::subversion::{ra, utils};
+use crate::subversion::utils;
 use crate::utils::PointerMutMapper;
 use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
@@ -2349,7 +2347,7 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
 
-            let paths = pool.string_array(opts.paths.len(), opts.paths.iter())?;
+            let paths = pool.canonicalize_target_array(opts.paths.len(), opts.paths.iter())?;
 
             let table = opts
                 .revision_property_table
@@ -2443,7 +2441,7 @@ impl Context {
         let mut result = PropertyListResult::default();
         unsafe {
             let mut pool = apr::Pool::create();
-            let target = pool.string(opts.target)?;
+            let target = pool.canonicalize_target(&opts.target)?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
             let revision = opts.revision.to_opt_revision();
@@ -2576,7 +2574,7 @@ impl Context {
 
         unsafe {
             let mut pool = apr::Pool::create();
-            let path = pool.string(opts.path.as_str())?;
+            let path = pool.canonicalize_dirent(opts.path.as_str())?;
             let changelist = opts
                 .changelist
                 .as_ref()
@@ -2650,11 +2648,9 @@ impl Context {
 
         self.inner.status_entries.clear();
 
-        tracing::trace!("status options={:#?}", opts);
-
         unsafe {
             let mut pool = apr::Pool::create();
-            let path = pool.string(opts.path.as_str())?;
+            let path = pool.canonicalize_dirent(opts.path.as_str())?;
             let changelist = opts
                 .changelist
                 .as_ref()
@@ -2781,14 +2777,14 @@ impl Context {
                 }
             }
 
-            if svn_path_is_backpath_present(target) != 0 {
+            if ffi::svn_path_is_backpath_present(target) != 0 {
                 return builder::InvalidArgument {
                     detail: format!(".. is not allowed in url: {}", orignal_url),
                 }
                 .fail();
             }
 
-            let url = svn_uri_canonicalize(target, pool.as_mut_ptr());
+            let url = ffi::svn_uri_canonicalize(target, pool.as_mut_ptr());
 
             if ffi::svn_uri_is_canonical(url, pool.as_mut_ptr()) == 0 {
                 return builder::InvalidArgument {
@@ -2821,7 +2817,7 @@ impl Context {
 
         let mut pool = unsafe { apr::Pool::create() };
 
-        let mut url = unsafe { pool.string(opts.url.as_str()) }? as *const c_char;
+        let mut url = unsafe { pool.string(opts.url.as_str())? } as *const c_char;
 
         let path = unsafe { pool.string(opts.path.as_str()) }?;
 
@@ -2930,7 +2926,7 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
 
-            let path = pool.string(opts.path.as_str())?;
+            let path = pool.canonicalize_dirent(opts.path.as_str())?;
 
             let error = ffi::svn_client_add5(
                 path,
@@ -2966,7 +2962,7 @@ impl Context {
             //         })?;
             //     targets.push(target.as_c_str().as_ptr());
             // }
-            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+            let targets = pool.canonicalize_dirent_array(opts.targets.len(), opts.targets.iter())?;
 
             // let mut changelists = apr::Array::with_capacity(opts.changelists.len());
             //
@@ -3058,7 +3054,7 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
 
-            let path = pool.string_array(opts.path.len(), opts.path.iter())?;
+            let path = pool.canonicalize_target_array(opts.path.len(), opts.path.iter())?;
 
             let table = opts
                 .revision_property_table
@@ -3097,7 +3093,7 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
             let error = ffi::svn_client_revert4(
-                pool.string_array(opts.paths.len(), opts.paths.iter())?,
+                pool.canonicalize_dirent_array(opts.paths.len(), opts.paths.iter())?,
                 opts.depth.into(),
                 opts.changelists
                     .map(|c| pool.string_array(c.len(), c.iter()))
@@ -3146,7 +3142,7 @@ impl Context {
         }
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
@@ -3200,7 +3196,7 @@ impl Context {
 
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
@@ -3258,8 +3254,8 @@ impl Context {
             self.inner.commit_items.clear();
 
             let error = ffi::svn_client_import5(
-                pool.string(opts.path)?,
-                pool.string(opts.url)?,
+                pool.canonicalize_dirent(&opts.path)?,
+                pool.canonicalize_uri(&opts.url)?,
                 opts.depth.into(),
                 opts.no_ignore.into(),
                 opts.no_autoprops.into(),
@@ -3293,7 +3289,7 @@ impl Context {
 
             let mut stream = Stream::create(Default::default());
 
-            let path = pool.string(opts.path.as_str())?;
+            let path = pool.canonicalize_target(&opts.path)?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
@@ -3354,7 +3350,7 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
 
-            let path = pool.string(opts.path.as_str())?;
+            let path = pool.canonicalize_target(&opts.path)?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
@@ -3619,7 +3615,9 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
 
-            let path = pool.string(opts.path.as_str())?;
+            let path = pool.canonicalize_target(&opts.path)?;
+
+            let path = ffi::svn_uri_canonicalize(path, pool.as_mut_ptr());
 
             let peg_revision = opts.revision.to_opt_revision();
 
@@ -3656,7 +3654,6 @@ impl Context {
             }
 
             self.inner.current_list_options = Some(opts.clone());
-            tracing::info!("Call list4: {:#?}", opts);
             let error = ffi::svn_client_list4(
                 path,
                 peg_revision.pointer(),
@@ -3671,7 +3668,6 @@ impl Context {
                 self.ctx(),
                 pool.as_mut_ptr(),
             );
-            tracing::info!("Finish list4:");
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
         }
         Ok(ListResult {
@@ -3865,7 +3861,7 @@ impl Context {
     pub fn get_wc_root(&mut self, path: String) -> error::Result<String> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let path = pool.string(path)?;
+            let path = pool.canonicalize_dirent(&path)?;
 
             let mut absolute_path: *const c_char = std::ptr::null();
 
@@ -3994,9 +3990,9 @@ impl Context {
                 .map(|p| pool.string_array(p.len(), p.iter()))
                 .transpose()?
                 .unwrap_or_default();
-            let path1 = pool.string(opts.path1)?;
+            let path1 = pool.canonicalize_target(&opts.path1)?;
             let revision1 = pool.revision(opts.revision1);
-            let path2 = pool.string(opts.path2)?;
+            let path2 = pool.canonicalize_target(&opts.path2)?;
             let revision2 = pool.revision(opts.revision2);
 
             let relate_to = opts
@@ -4067,7 +4063,7 @@ impl Context {
 
             let patch = pool.string(opts.patch_absolute_path)?;
 
-            let wc = pool.string(opts.wc_absolute_path)?;
+            let wc = pool.canonicalize_dirent(&opts.wc_absolute_path)?;
 
             let error = ffi::svn_client_patch(
                 wc,
@@ -4094,7 +4090,7 @@ impl Context {
     ) -> error::Result<GetRepositoryRootResult> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let target = pool.string(target)?;
+            let target = pool.canonicalize_target(&target)?;
 
             let mut absolute_path: *const c_char = std::ptr::null();
 
@@ -4130,7 +4126,7 @@ impl Context {
     pub fn lock(&mut self, opts: LockOptions) -> error::Result<()> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let comment = opts
                 .comment
@@ -4152,7 +4148,7 @@ impl Context {
     pub fn unlock(&mut self, opts: UnlockOptions) -> error::Result<()> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.string_array(opts.targets.len(), opts.targets.iter())?;
+            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let error = ffi::svn_client_unlock(
                 targets,
@@ -4172,7 +4168,7 @@ impl Context {
     ) -> error::Result<i32> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let url = pool.string(url)?;
+            let url = pool.canonicalize_uri(&url)?;
             let path = path
                 .map(|v| pool.string(v))
                 .transpose()?
@@ -4232,7 +4228,7 @@ impl Context {
                             )
                         })
                         .unwrap_or_default();
-                    let targets = pool.string_array(targets.len(), targets.iter())?;
+                    let targets = pool.canonicalize_dirent_array(targets.len(), targets.iter())?;
                     let changelists = changelists
                         .map(|v| pool.string_array(v.len(), v.iter()))
                         .transpose()?
@@ -4265,7 +4261,7 @@ impl Context {
                         .map(|e| pool.svn_string(e))
                         .transpose()?
                         .unwrap_or_default();
-                    let url = pool.string(url)?;
+                    let url = pool.canonicalize_uri(&url)?;
 
                     let revision_properties = revision_properties
                         .map(|e| {
