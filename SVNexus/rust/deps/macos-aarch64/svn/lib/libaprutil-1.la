@@ -17,7 +17,7 @@ old_library=''
 inherited_linker_flags=' '
 
 # Libraries that this one depends upon.
-dependency_libs=' -lexpat -liconv /Users/zhouguiqing/Downloads/svn/lib/libapr-1.la -lpthread'
+dependency_libs=' -L/Users/zhouguiqing/Downloads/svn/lib -lexpat -liconv /Users/zhouguiqing/Downloads/svn/lib/libapr-1.la -lpthread'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''

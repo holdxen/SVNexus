@@ -27,9 +27,9 @@ bindir="${exec_prefix}/bin"
 libdir="${exec_prefix}/lib"
 includedir="${prefix}/include/apr-${APRUTIL_MAJOR_VERSION}"
 
-LIBS="/Users/zhouguiqing/Downloads/apr-util-1.6.3/../apr-iconv-1.2.2/lib/libapriconv.la                               -lexpat -liconv"
-INCLUDES="-I/Users/zhouguiqing/Downloads/apr-util-1.6.3/../apr-iconv-1.2.2/include                           "
-LDFLAGS=""
+LIBS="/Users/zhouguiqing/Downloads/apr-util-1.6.3/../apr-iconv-1.2.2//lib/libapriconv.la                               -lexpat -liconv"
+INCLUDES="-I/Users/zhouguiqing/Downloads/apr-util-1.6.3/../apr-iconv-1.2.2//include                            -I/Users/zhouguiqing/Downloads/svn/include"
+LDFLAGS="-L/Users/zhouguiqing/Downloads/svn/lib"
 LDAP_LIBS=""
 DBM_LIBS="  "
 
