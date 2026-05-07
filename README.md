@@ -45,19 +45,22 @@ SVNexus is a modern, cross-platform Subversion (SVN) client designed for perform
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/SVNexus.git
-   cd SVNexus
+   git clone https://github.com/holdxen/SVNexus.git
+   ```
+2. **Install build tool**:
+   ```bash
+   cd csr
+   cargo install --path .
    ```
 
-2. **Build the Rust Engine**:
+3. **Build the Rust Engine**:
    ```bash
-   cd SVNexus/rust
-   cargo build --release
+   cd ../SVNexus
+   csr
    ```
 
-3. **Build the C# Frontend**:
+4. **Build the C# Frontend**:
    ```bash
-   cd ../
    dotnet build -c Release
    ```
 
@@ -66,7 +69,8 @@ SVNexus is a modern, cross-platform Subversion (SVN) client designed for perform
 The project provides a `package.py` script to automate the creation of platform-specific installers (e.g., `.deb` for Linux, `.dmg` for macOS):
 
 ```bash
-python3 SVNexus/package.py
+cd SVNexus
+python3 package.py
 ```
 
 ## 📄 License
