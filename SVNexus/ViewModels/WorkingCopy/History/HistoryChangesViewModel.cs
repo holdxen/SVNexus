@@ -103,24 +103,28 @@ public partial class HistoryChangesViewModel : ViewModelBase
     partial void OnSelectedChangedItemIndexChanged(int value)
     {
         if (value < 0 || value >= ChangedItems.Count) return;
-        var path = ChangedItems[value].Path;
-        if (_differenceViewModels.TryGetValue(path, out var differenceViewModel))
+        var change = ChangedItems[value];
+        if (_differenceViewModels.TryGetValue(change.Path, out var differenceViewModel))
         {
             DifferenceViewModel = differenceViewModel;
         }
         else
         {
             DifferenceViewModel = new DifferenceViewModel(this);
-            _differenceViewModels.Add(path, DifferenceViewModel);
+            _differenceViewModels.Add(change.Path, DifferenceViewModel);
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
+                var current = change.Entry.Action == LogChangedPathAction.Delete
+                    ? null
+                    : new Revision.Number(CurrentRevision);
+                var compared = change.Entry.Action == LogChangedPathAction.Add ? null : CompareRevision?.Map(e => new Revision.Number(CurrentRevision));
                 if (ChangedItems[value].Entry.NodeKind == NodeKind.Directory)
                 {
-                    await DifferenceViewModel.CompareProperty(RootUrl + path, new Revision.Number(CurrentRevision), CompareRevision?.Map(v => new Revision.Number(v)), new Revision.Number(CurrentRevision));
+                    await DifferenceViewModel.CompareProperty(RootUrl + change.Path, new Revision.Number(CurrentRevision), compared, current);
                 }
                 else
                 {
-                    await DifferenceViewModel.Compare(RootUrl + path, new Revision.Number(CurrentRevision), CompareRevision?.Map(v => new Revision.Number(v)), new Revision.Number(CurrentRevision));
+                    await DifferenceViewModel.Compare(RootUrl + change.Path, new Revision.Number(CurrentRevision), compared, current);
                 }
             });
         }

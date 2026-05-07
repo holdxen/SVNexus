@@ -138,7 +138,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
     }
 
-    private SingleTaskQueue _commitDetailQueue = new();
+    private readonly SingleTaskQueue _commitDetailQueue = new();
 
     [ObservableProperty]
     public partial int SelectedViewIndex { get; set; } = DetailViewIndex;
@@ -579,6 +579,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
                 return;
             }
 
+            _logsRange = new Tuple<uint, uint>(entries.First().Entry.Revision.GetValueOrDefault(), _logsRange.Item2);
+            
             foreach (var entry in entries.Reverse())
             {
                 if (entry.Entry.Revision == start)
