@@ -525,6 +525,10 @@ public partial class LocalViewModel : ViewModelBase,
                 menuItems.Add(new MenuItemViewModel()
                 {
                     Header = "File history",
+                    Icon = new SvgIconViewModel()
+                    {
+                        IconKey = "Icons.FileHistory"
+                    }
                 });
             }
 

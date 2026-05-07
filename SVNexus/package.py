@@ -4,6 +4,7 @@ import platform
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Callable
 
 
 app_name = "SVNexus"
@@ -74,12 +75,109 @@ Categories=Utility;
     subprocess.run(["dpkg-deb", "--build", tmp.name, f"svnexus_{version}_amd64.deb"])
 
 def package_darwin():
-    macos = Path(tmp.name) / f"{app_name}.app" / "Contents" / "MacOS"
+    root = Path(tmp.name) / "root"
+    contents = root / f"{app_name}.app" / "Contents"
+    macos = contents / "MacOS"
+    resources = contents / "Resources"
+
     os.makedirs(macos, exist_ok=True)
+    os.makedirs(contents, exist_ok=True)
+    os.makedirs(resources, exist_ok=True)
+
+
     subprocess.run(["dotnet", "publish", "--sc", "-c", "Release", "-o", macos])
+
     shutil.copy("rust/target/release/libengine.dylib", macos)
-    shutil.copy("Assets/svnexus-icon.svg", macos)
-    pass
+
+    svn = "./rust/deps/macos-aarch64"
+    subprocess.run(["tar", "zcvf", "svn.tar.gz", "./svn"], cwd=svn)
+    shutil.copy(f"{svn}/svn.tar.gz", macos)
+
+    subprocess.run(["tar", "zxvf", "svn.tar.gz"], cwd=macos)
+    os.remove(macos / "svn.tar.gz")
+
+
+    svg = tempfile.TemporaryDirectory()
+
+    def generate(source: str, size: int, dest: str, two: bool):
+        file = f"{dest}/icon_{size}x{size}.png"
+        if two:
+            file = f"{dest}/icon_{size//2}x{size//2}@2x.png"
+        subprocess.run(["rsvg-convert", "-w", str(size), "-h", str(size), source, "-o", file])
+
+    iconset = f"{svg.name}/icon.iconset"
+    os.makedirs(iconset)
+
+    source = "Assets/svnexus-icon.svg"
+
+
+    generate(source, 16, iconset, False)
+    generate(source, 32, iconset, True)
+    generate(source, 32, iconset, False)
+    generate(source, 64, iconset, True)
+    generate(source, 128, iconset, False)
+    generate(source, 256, iconset, True)
+    generate(source, 256, iconset, False)
+    generate(source, 512, iconset, True)
+    generate(source, 512, iconset, False)
+    generate(source, 1024, iconset, True)
+
+
+    subprocess.run(["iconutil", "-c", "icns", "icon.iconset", "-o", "AppIcon.icns"], cwd=svg.name)
+
+    subprocess.run(["tree", "."], cwd=svg.name)
+
+    shutil.copy(Path(svg.name) / "AppIcon.icns", resources)
+
+    subprocess.run(["tree", "."], cwd=svg.name)
+
+
+    info = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>{app_name}</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>{app_name}</string>
+
+    <key>CFBundleExecutable</key>
+    <string>{app_name}</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>io.github.holdxen.{app_name}</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+
+    <key>LSMinimumSystemVersion</key>
+    <string>12.0</string>
+
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>
+"""
+    with open(contents / "Info.plist", "w", encoding="utf-8") as f:
+        f.write(info)
+
+    subprocess.run(["ln", "-s", "/Applications", "Applications"], cwd=root)
+
+    subprocess.run(["hdiutil", "create", "-volname", app_name, "-srcfolder", "root", "-ov", "-format", "UDZO", f"{app_name}.dmg"], cwd=tmp.name)
+
+    shutil.copy(f"{tmp.name}/{app_name}.dmg", ".")
+
 
 os_name = platform.system()
 
@@ -90,6 +188,7 @@ elif os_name == "Linux":
     package_linux()
 elif os_name == "Darwin":
     print("当前是 macOS")
+    package_darwin()
 else:
     print("未知操作系统")
 

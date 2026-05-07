@@ -129,6 +129,14 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         [RelayCommand]
         protected async Task Delete()
         {
+            var hostId = SendMessage(new OnGetDialogHostId());
+
+            var b = await OverlayMessageBox.ShowAsync("Whether to delete history", "Delete", hostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
+            if (b != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            
             await EngineBackend.Instance.DatabaseQueue.RunAndWait(async _ =>
             {
                 await SeaDatabaseConnection.Default.DeleteWorkspaceHistory(HistoryUuid);

@@ -503,6 +503,7 @@
                                 </Grid.Styles>
                                 <Button 
                                     Grid.Row="0" 
+                                    Command="{Binding OpenCommand}"
                                     Content="Open" Classes="Primary" Theme="{StaticResource SolidButton}">
                                 </Button>
                                 <Button Grid.Row="0" 
