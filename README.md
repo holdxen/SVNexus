@@ -17,6 +17,21 @@ SVNexus is a modern, cross-platform Subversion (SVN) client designed for perform
 - **📜 History & Logs**: Persistent history tracking using SQLite (SeaORM).
 - **🎨 Modern UI**: Beautifully themed with **Semi.Avalonia** for a clean, professional look.
 
+## 🖥️ Platform Support
+
+SVNexus aims to be truly cross-platform. Below is the current status of platform support:
+
+| OS | Architecture | Status |
+| :--- | :--- | :--- |
+| **macOS** | Apple Silicon (aarch64) | ✅ Supported |
+| **macOS** | Intel (x64) | 🛠️ Planned |
+| **Linux** | x64 | ✅ Supported |
+| **Linux** | aarch64 | 🛠️ Planned |
+| **Linux** | LoongArch | 🛠️ Planned |
+| **Windows** | x64 | 🛠️ Planned |
+
+*Note: For currently supported platforms, pre-built Subversion dependencies are included in the repository.*
+
 ## 🛠️ Tech Stack
 
 - **Frontend**: 
