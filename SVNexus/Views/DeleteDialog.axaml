@@ -42,7 +42,9 @@
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
             <Border Grid.Column="0"></Border>
             <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
-                <Button Content="Cancel" Command="{Binding CloseCommand}"></Button>
+                <Button Content="Cancel" 
+                        IsEnabled="{Binding !ConfirmCommand.IsRunning}"
+                        Command="{Binding CloseCommand}"></Button>
                 <u:IconButton Classes="Primary"
                         Theme="{StaticResource SolidIconButton}"
                         IsLoading="{Binding ConfirmCommand.IsRunning}"

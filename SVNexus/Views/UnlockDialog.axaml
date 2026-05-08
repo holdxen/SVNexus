@@ -32,17 +32,19 @@
                 <CheckBox Content="Break lock(force)" IsChecked="{Binding BreakLock}"></CheckBox>
             </u:FormItem>
         </u:Form>
-        <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
-            <Border Grid.Column="0"></Border>
-            <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
-                <Button Content="Cancel" Command="{Binding CloseCommand}"></Button>
-                <u:IconButton Classes="Primary"
-                        Theme="{StaticResource SolidIconButton}"
-                        IsLoading="{Binding ConfirmCommand.IsRunning}"
-                        Content="Confirm"
-                        Command="{Binding  ConfirmCommand}">
-                </u:IconButton>
-            </StackPanel>
-        </Grid>
+            <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
+                <Border Grid.Column="0"></Border>
+                <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
+                    <Button Content="Close" 
+                            IsEnabled="{Binding !ConfirmCommand.IsRunning}"
+                            Command="{Binding CloseCommand}"></Button>
+                    <u:IconButton Classes="Primary"
+                                  Theme="{StaticResource SolidIconButton}"
+                                  IsLoading="{Binding ConfirmCommand.IsRunning}"
+                                  Command="{Binding ConfirmCommand}"
+                                  Content="Export">
+                    </u:IconButton>
+                </StackPanel>
+            </Grid>
     </Grid>
 </UserControl>

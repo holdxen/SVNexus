@@ -166,9 +166,10 @@ public partial class DifferenceDialogModel : DialogModelBase
         await File.WriteAllTextAsync(file.Path.AbsolutePath, Out);
     }
 
-    protected override Task OnConfirm()
+    protected override async Task OnConfirm()
     {
-        return Export();
+        await Export();
+        Ok();
     }
 
     public override OverlayDialogOptions OverlayDialogOptions { get; } = new()

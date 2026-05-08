@@ -12,6 +12,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
@@ -74,4 +75,11 @@ public partial class UnlockDialogModel(ViewModelBase parent): DialogModelBase(pa
         
         
     }
+
+    public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
+    {
+        Title = "Unlock",
+        IsCloseButtonVisible = false,
+        Buttons = DialogButton.None
+    };
 }

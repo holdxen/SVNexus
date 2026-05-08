@@ -18,16 +18,19 @@
                 <TextBox x:Name="TextBox" Text="{Binding  Name, Mode=TwoWay}"></TextBox>
             </u:FormItem>
         </u:Form>
-        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto">
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
             <Border Grid.Column="0"></Border>
-            <Button Grid.Column="1" Content="取消" Command="{Binding CloseCommand}"></Button>
-            <Border Grid.Column="2" Width="4"></Border>
-            <Button Grid.Column="3"
-                    Classes="Primary"
-                    Theme="{StaticResource SolidButton}"
-                    Command="{Binding ConfirmCommand}"
-                    Content="确定">
-            </Button>
+            <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
+                <Button Content="Close" 
+                        IsEnabled="{Binding !ConfirmCommand.IsRunning}"
+                        Command="{Binding CloseCommand}"></Button>
+                <u:IconButton Classes="Primary"
+                              Theme="{StaticResource SolidIconButton}"
+                              IsLoading="{Binding ConfirmCommand.IsRunning}"
+                              Command="{Binding ConfirmCommand}"
+                              Content="Export">
+                </u:IconButton>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

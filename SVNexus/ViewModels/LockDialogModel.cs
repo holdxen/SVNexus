@@ -11,6 +11,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy;
+using Ursa.Controls;
 
 namespace SVNexus.ViewModels;
 
@@ -76,4 +77,11 @@ public partial class LockDialogModel(ViewModelBase parent): DialogModelBase(pare
             }, Manager.MainWindowToken);
         }
     }
+
+    public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
+    {
+        Title = "Lock",
+        IsCloseButtonVisible = false,
+        Buttons = DialogButton.None
+    };
 }

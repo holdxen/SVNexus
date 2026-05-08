@@ -884,18 +884,11 @@ public partial class LocalViewModel : ViewModelBase,
             Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
         };
 
-        var dialogOptions = new OverlayDialogOptions()
-        {
-            IsCloseButtonVisible = false,
-            Buttons = DialogButton.None,
-            CanDragMove = true,
-            StyleClass = "Fixed",
-            Title = "Unlock"
-        };
+
         
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowStandardAsync<UnlockDialog, UnlockDialogModel>(unlockDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<UnlockDialog, UnlockDialogModel>(unlockDialogModel, hostId, unlockDialogModel.OverlayDialogOptions);
         
         Logger.Info($"Unlock complete: {unlockDialogModel.Accept}");
 
@@ -920,19 +913,10 @@ public partial class LocalViewModel : ViewModelBase,
             // RelateTo = SendMessage(new OnGetWorkingCopyPath()),
             Targets = SelectedTreeItems.Select(i => TargetItemViewModel.From(i.StatusEntry, false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
         };
-
-        var dialogOptions = new OverlayDialogOptions()
-        {
-            IsCloseButtonVisible = false,
-            Buttons = DialogButton.None,
-            CanDragMove = true,
-            StyleClass = "Fixed",
-            Title = "Lock"
-        };
         
         var hostId = SendMessage(new OnGetDialogHostId());
         
-        await OverlayDialog.ShowStandardAsync<LockDialog, LockDialogModel>(lockDialogModel, hostId, dialogOptions);
+        await OverlayDialog.ShowStandardAsync<LockDialog, LockDialogModel>(lockDialogModel, hostId, lockDialogModel.OverlayDialogOptions);
         if (lockDialogModel.Accept)
         {
             await Refresh();

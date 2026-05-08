@@ -64,13 +64,15 @@
             <u:FormItem Label="Action:">
                 <Grid ColumnDefinitions="*, Auto">
                     <Border Grid.Column="0"></Border>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5">
-                        <Button Content="Close" Command="{Binding CloseCommand}"></Button>
+                    <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
+                        <Button Content="Close" 
+                                IsEnabled="{Binding !ConfirmCommand.IsRunning}"
+                                Command="{Binding CloseCommand}"></Button>
                         <u:IconButton Classes="Primary"
                                       Theme="{StaticResource SolidIconButton}"
-                                      Content="Apply"
                                       IsLoading="{Binding ConfirmCommand.IsRunning}"
-                                      Command="{Binding ConfirmCommand}">
+                                      Command="{Binding ConfirmCommand}"
+                                      Content="Export">
                         </u:IconButton>
                     </StackPanel>
                 </Grid>
