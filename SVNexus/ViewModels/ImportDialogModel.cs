@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -10,7 +11,7 @@ using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
-public partial class ImportDialogModel: ViewModelBase, IDialogContext
+public partial class ImportDialogModel: DialogModelBase
 {
     
     [ObservableProperty]
@@ -25,22 +26,10 @@ public partial class ImportDialogModel: ViewModelBase, IDialogContext
     
     public InitializeRepositoryOptions? Options { get; set; }
 
-    [RelayCommand]
-    public void Close()
+    protected override Task OnConfirm()
     {
-        RequestClose?.Invoke(this, null);
-    }
-
-    public event EventHandler<object?>? RequestClose;
-
-
-
-    [RelayCommand]
-    private void Confirm()
-    {
-        Options = new InitializeRepositoryOptions(Backup: Backup, Local: Path, Remote: Url);
-        
-        
-        Close();
+        // Options = new InitializeRepositoryOptions(Backup: Backup, Local: Path, Remote: Url);
+        Ok();
+        return Task.CompletedTask;
     }
 }

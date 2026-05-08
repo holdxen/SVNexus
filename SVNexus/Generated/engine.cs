@@ -37318,8 +37318,9 @@ public record ImportOptions (
     bool NoIgnore, 
     bool NoAutoprops, 
     bool IgnoreUnknownNodeTypes, 
-    Dictionary<string, string> RevisionPropertyTable, 
-    string CommitMessage
+    Dictionary<string, string>? RevisionPropertyTable, 
+    string CommitMessage, 
+    string[]? Filters
 ) {
 }
 
@@ -37334,8 +37335,9 @@ class FfiConverterTypeImportOptions: FfiConverterRustBuffer<ImportOptions> {
             NoIgnore: FfiConverterBoolean.INSTANCE.Read(stream),
             NoAutoprops: FfiConverterBoolean.INSTANCE.Read(stream),
             IgnoreUnknownNodeTypes: FfiConverterBoolean.INSTANCE.Read(stream),
-            RevisionPropertyTable: FfiConverterDictionaryStringString.INSTANCE.Read(stream),
-            CommitMessage: FfiConverterString.INSTANCE.Read(stream)
+            RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
+            CommitMessage: FfiConverterString.INSTANCE.Read(stream),
+            Filters: FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
         );
     }
 
@@ -37347,8 +37349,9 @@ class FfiConverterTypeImportOptions: FfiConverterRustBuffer<ImportOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoIgnore)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoAutoprops)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreUnknownNodeTypes)
-            + FfiConverterDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
-            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage)
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Filters);
     }
 
     public override void Write(ImportOptions value, BigEndianStream stream) {
@@ -37358,8 +37361,9 @@ class FfiConverterTypeImportOptions: FfiConverterRustBuffer<ImportOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.NoIgnore, stream);
             FfiConverterBoolean.INSTANCE.Write(value.NoAutoprops, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreUnknownNodeTypes, stream);
-            FfiConverterDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
             FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Filters, stream);
     }
 }
 
@@ -37604,7 +37608,12 @@ class FfiConverterTypeInheritedProperty: FfiConverterRustBuffer<InheritedPropert
 public record InitializeRepositoryOptions (
     string Local, 
     string Remote, 
-    bool Backup
+    string? BackupDirectory, 
+    string CommitMessage, 
+    bool IgnoreUnknownNodeTypes, 
+    bool NoIgnore, 
+    bool NoAutoprops, 
+    string[]? Filters
 ) {
 }
 
@@ -37615,7 +37624,12 @@ class FfiConverterTypeInitializeRepositoryOptions: FfiConverterRustBuffer<Initia
         return new InitializeRepositoryOptions(
             Local: FfiConverterString.INSTANCE.Read(stream),
             Remote: FfiConverterString.INSTANCE.Read(stream),
-            Backup: FfiConverterBoolean.INSTANCE.Read(stream)
+            BackupDirectory: FfiConverterOptionalString.INSTANCE.Read(stream),
+            CommitMessage: FfiConverterString.INSTANCE.Read(stream),
+            IgnoreUnknownNodeTypes: FfiConverterBoolean.INSTANCE.Read(stream),
+            NoIgnore: FfiConverterBoolean.INSTANCE.Read(stream),
+            NoAutoprops: FfiConverterBoolean.INSTANCE.Read(stream),
+            Filters: FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
         );
     }
 
@@ -37623,13 +37637,23 @@ class FfiConverterTypeInitializeRepositoryOptions: FfiConverterRustBuffer<Initia
         return 0
             + FfiConverterString.INSTANCE.AllocationSize(value.Local)
             + FfiConverterString.INSTANCE.AllocationSize(value.Remote)
-            + FfiConverterBoolean.INSTANCE.AllocationSize(value.Backup);
+            + FfiConverterOptionalString.INSTANCE.AllocationSize(value.BackupDirectory)
+            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreUnknownNodeTypes)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoIgnore)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoAutoprops)
+            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Filters);
     }
 
     public override void Write(InitializeRepositoryOptions value, BigEndianStream stream) {
             FfiConverterString.INSTANCE.Write(value.Local, stream);
             FfiConverterString.INSTANCE.Write(value.Remote, stream);
-            FfiConverterBoolean.INSTANCE.Write(value.Backup, stream);
+            FfiConverterOptionalString.INSTANCE.Write(value.BackupDirectory, stream);
+            FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreUnknownNodeTypes, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.NoIgnore, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.NoAutoprops, stream);
+            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Filters, stream);
     }
 }
 
@@ -40551,6 +40575,10 @@ public class Exception: UniffiException {
         public WhichException(string message): base(message) {}
     }
     
+    public class GlobException: Exception {
+        public GlobException(string message): base(message) {}
+    }
+    
 }
 
 class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusErrorHandler<Exception> {
@@ -40574,6 +40602,7 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
             case 13: return new Exception.CacheBrokenException(FfiConverterString.INSTANCE.Read(stream));
             case 14: return new Exception.DatabaseException(FfiConverterString.INSTANCE.Read(stream));
             case 15: return new Exception.WhichException(FfiConverterString.INSTANCE.Read(stream));
+            case 16: return new Exception.GlobException(FfiConverterString.INSTANCE.Read(stream));
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Read()", value));
         }
@@ -40629,6 +40658,9 @@ class FfiConverterTypeError : FfiConverterRustBuffer<Exception>, CallStatusError
                 break;
             case Exception.WhichException:
                 stream.WriteInt(15);
+                break;
+            case Exception.GlobException:
+                stream.WriteInt(16);
                 break;
             default:
                 throw new InternalException(string.Format("invalid error value '{0}' in FfiConverterTypeError.Write()", value));

@@ -804,6 +804,7 @@ impl AsyncContext {
         self.call_async(|mut context| context.unlock(opts)).await
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn patch(&self, opts: PatchOptions) -> error::Result<()> {
         self.call_async(|mut context| context.patch(opts)).await
     }

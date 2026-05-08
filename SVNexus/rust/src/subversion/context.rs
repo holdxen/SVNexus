@@ -5,8 +5,8 @@ use super::{SVNError, svn_no_error};
 use crate::apr::{self, AprArray, AprPool, AutoPool};
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
 use crate::extensions::{Canonicalization, OptionExtension};
-use crate::subversion::version::Version;
 use crate::subversion::utils;
+use crate::subversion::version::Version;
 use crate::utils::PointerMutMapper;
 use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
@@ -1305,7 +1305,9 @@ impl LogChangedPathEntry {
     }
 }
 
-#[derive(Default, new, Debug, uniffi::Record, Clone, Serialize, Deserialize, svnexus_macro::ToDebugString)]
+#[derive(
+    Default, new, Debug, uniffi::Record, Clone, Serialize, Deserialize, svnexus_macro::ToDebugString,
+)]
 pub struct LogEntry {
     pub revision: Option<RevisionNumber>,
     pub date: Option<i64>,
@@ -1545,8 +1547,9 @@ pub struct ImportOptions {
     no_ignore: bool,
     no_autoprops: bool,
     ignore_unknown_node_types: bool,
-    revision_property_table: HashMap<String, String>,
+    revision_property_table: Option<HashMap<String, String>>,
     commit_message: String,
+    filters: Option<Vec<String>>,
 }
 
 impl apr::Pool {
@@ -2275,7 +2278,12 @@ impl *const ffi::svn_client_info2_t {
 pub struct InitializeRepositoryOptions {
     pub local: String,
     pub remote: String,
-    pub backup: bool,
+    pub backup_directory: Option<String>,
+    pub commit_message: String,
+    pub ignore_unknown_node_types: bool,
+    pub no_ignore: bool,
+    pub no_autoprops: bool,
+    pub filters: Option<Vec<String>>,
 }
 
 #[uniffi::export(with_foreign)]
@@ -2495,15 +2503,16 @@ impl Context {
                 path: opts.local.clone(),
                 url: opts.remote.clone(),
                 depth: Depth::Infinity,
-                no_ignore: false,
-                no_autoprops: false,
-                ignore_unknown_node_types: true,
+                no_ignore: opts.no_ignore,
+                no_autoprops: opts.no_autoprops,
+                ignore_unknown_node_types: opts.ignore_unknown_node_types,
                 revision_property_table: Default::default(),
-                commit_message: "init".to_string(),
+                commit_message: opts.commit_message,
+                filters: opts.filters,
             };
             self.import(import_optios)?;
             self.cancelled()?;
-            if opts.backup {
+            if let Some(directory) = opts.backup_directory {
                 notifier.on_backup()?;
                 let file = utils::backup(&opts.local)?;
                 notifier.on_backup_finished(file.to_str().unwrap().to_string())?;
@@ -2962,7 +2971,8 @@ impl Context {
             //         })?;
             //     targets.push(target.as_c_str().as_ptr());
             // }
-            let targets = pool.canonicalize_dirent_array(opts.targets.len(), opts.targets.iter())?;
+            let targets =
+                pool.canonicalize_dirent_array(opts.targets.len(), opts.targets.iter())?;
 
             // let mut changelists = apr::Array::with_capacity(opts.changelists.len());
             //
@@ -3142,7 +3152,8 @@ impl Context {
         }
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
+            let targets =
+                pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
@@ -3196,7 +3207,8 @@ impl Context {
 
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
+            let targets =
+                pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let peg_revision = opts.peg_revision.to_opt_revision();
 
@@ -3233,15 +3245,66 @@ impl Context {
     }
 
     pub fn import(&mut self, opts: ImportOptions) -> error::Result<ImportResult> {
-        unsafe extern "C" fn svn_client_import_filter(
+        use ignore::gitignore::*;
+        struct Filter {
+            matcher: Gitignore,
+        }
+        unsafe extern "C" fn filter(
             baton: *mut c_void,
             filtered: *mut ffi::svn_boolean_t,
             local_abspath: *const c_char,
             direct: *const ffi::svn_io_dirent2_t,
-            pool: *mut ffi::apr_pool_t,
+            _pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
+            unsafe {
+                let absolute_path = local_abspath.to_str();
+
+                let f = (baton as *mut Filter).as_mut().unwrap();
+
+                let direct = direct.as_ref().unwrap();
+
+                let relate_to = f.matcher.path().to_str().expect("Unexpected path");
+
+                if absolute_path.starts_with(relate_to) {
+                    let matched = f.matcher.matched(
+                        absolute_path.trim_start_matches(relate_to),
+                        direct.kind == ffi::svn_node_kind_t_svn_node_dir,
+                    );
+                    *filtered = matched.is_ignore().into();
+                }
+            }
+
+            svn_no_error()
+        }
+        unsafe extern "C" fn filter_none(
+            _: *mut c_void,
+            _: *mut ffi::svn_boolean_t,
+            _: *const c_char,
+            _: *const ffi::svn_io_dirent2_t,
+            _: *mut ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
             svn_no_error()
         }
+
+        let mut matcher = opts
+            .filters
+            .map(|f| {
+                let mut builder = GitignoreBuilder::new(&opts.path);
+
+                for i in f {
+                    builder.add_line(None, &i)?;
+                }
+
+                builder.build()
+            })
+            .transpose()
+            .context(builder::Glob)?;
+
+        let baton = matcher
+            .as_mut()
+            .map(|v| v.pointer_mut())
+            .unwrap_or_default();
+
         unsafe {
             let mut pool = apr::Pool::create();
             if opts.commit_message.as_bytes().contains(&b'\0') {
@@ -3253,6 +3316,18 @@ impl Context {
             self.inner.commit_message = opts.commit_message;
             self.inner.commit_items.clear();
 
+            let table = opts
+                .revision_property_table
+                .map(|t| {
+                    pool.string_hash_map(
+                        t.iter(),
+                        |p, k| p.string(k).map(|o| o as _),
+                        |p, v| p.svn_string(v).map(|o| o as _),
+                    )
+                })
+                .transpose()?
+                .unwrap_or_default();
+
             let error = ffi::svn_client_import5(
                 pool.canonicalize_dirent(&opts.path)?,
                 pool.canonicalize_uri(&opts.url)?,
@@ -3260,13 +3335,9 @@ impl Context {
                 opts.no_ignore.into(),
                 opts.no_autoprops.into(),
                 opts.ignore_unknown_node_types.into(),
-                pool.string_hash_map(
-                    opts.revision_property_table.iter(),
-                    |p, k| p.string(k).map(|o| o as _),
-                    |p, v| p.svn_string(v).map(|o| o as _),
-                )?,
-                Some(svn_client_import_filter),
-                self.inner.inner_void_pointer_mut(),
+                table,
+                Some(if baton.is_null() { filter_none } else { filter }),
+                baton as _,
                 Some(commit_callback),
                 self.inner.inner_void_pointer_mut(),
                 self.ctx(),
@@ -3489,7 +3560,9 @@ impl Context {
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
-            let inherited_properties = inherited_properties.map(|v| v.to_vec(|p| InheritedProperty::from(p as *const ffi::svn_prop_inherited_item_t)));
+            let inherited_properties = inherited_properties.map(|v| {
+                v.to_vec(|p| InheritedProperty::from(p as *const ffi::svn_prop_inherited_item_t))
+            });
 
             let actual_revision = if opts.actual_revision {
                 Some(actual_revision.try_into().unwrap())
@@ -3509,9 +3582,8 @@ impl Context {
                 inherited_properties,
                 actual_revision,
             };
-            
-            Ok(result)
 
+            Ok(result)
         }
     }
 
@@ -4061,13 +4133,13 @@ impl Context {
         unsafe {
             let mut pool = apr::Pool::create();
 
-            let patch = pool.string(opts.patch_absolute_path)?;
+            let patch = pool.canonicalize_dirent(&opts.patch_absolute_path)?;
 
             let wc = pool.canonicalize_dirent(&opts.wc_absolute_path)?;
 
             let error = ffi::svn_client_patch(
-                wc,
                 patch,
+                wc,
                 opts.dry_run.into(),
                 opts.strip_count.try_into().unwrap(),
                 opts.reverse.into(),
@@ -4126,7 +4198,8 @@ impl Context {
     pub fn lock(&mut self, opts: LockOptions) -> error::Result<()> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
+            let targets =
+                pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let comment = opts
                 .comment
@@ -4148,7 +4221,8 @@ impl Context {
     pub fn unlock(&mut self, opts: UnlockOptions) -> error::Result<()> {
         unsafe {
             let mut pool = apr::Pool::create();
-            let targets = pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
+            let targets =
+                pool.canonicalize_target_array(opts.targets.len(), opts.targets.iter())?;
 
             let error = ffi::svn_client_unlock(
                 targets,

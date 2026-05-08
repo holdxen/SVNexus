@@ -100,6 +100,12 @@ pub enum Error {
     WhichError {
         source: which::Error,
         backtrace: Backtrace,
+    },
+
+    #[snafu(display("Invalid glob: {source}\n{backtrace:#?}"))]
+    GlobError {
+        source: ignore::Error,
+        backtrace: Backtrace,
     }
 }
 

@@ -115,7 +115,7 @@ impl SeaDatabaseConnection {
         }).await.context(builder::Runtime)??;
 
 
-        let path = project.cache_directory().join("svnexus.db");
+        let path = project.database_file();
 
         let path = path.to_str().any_context("Failed to get database path")?;
 

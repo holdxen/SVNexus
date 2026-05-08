@@ -90,6 +90,7 @@ def package_darwin():
     shutil.copy("rust/target/release/libengine.dylib", macos)
 
     svn = "./rust/deps/macos-aarch64"
+    os.remove(f"{svn}/svn.tar.gz")
     subprocess.run(["tar", "zcvf", "svn.tar.gz", "./svn"], cwd=svn)
     shutil.copy(f"{svn}/svn.tar.gz", macos)
 

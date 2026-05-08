@@ -1,6 +1,8 @@
-use std::any::Any;
+use std::{any::Any, backtrace::Backtrace, sync::OnceLock};
 
 use crate::db::{WorkspaceHistory, WorkspaceHistoryGroup};
+use tracing_appender::non_blocking::WorkerGuard;
+use std::panic;
 
 mod apr;
 mod db;
@@ -14,6 +16,41 @@ mod app;
 
 uniffi::setup_scaffolding!();
 
+static GUARD: parking_lot::Mutex<Option<WorkerGuard>> = parking_lot::Mutex::new(None);
+
+fn setup_panic_hook() {
+    let default = panic::take_hook();
+
+    panic::set_hook(Box::new(move |info| {
+        let payload = info.payload();
+
+        let message = if let Some(s) = payload.downcast_ref::<&str>() {
+            *s
+        } else if let Some(s) = payload.downcast_ref::<String>() {
+            s.as_str()
+        } else {
+            "<non-string panic payload>"
+        };
+
+        let location = info
+            .location()
+            .map(|loc| format!("{}:{}:{}", loc.file(), loc.line(), loc.column()))
+            .unwrap_or_else(|| "<unknown location>".to_string());
+
+        let backtrace = Backtrace::force_capture();
+
+        tracing::error!("========== PANIC ==========");
+        tracing::error!("message: {}", message);
+        tracing::error!("location: {}", location);
+        tracing::error!("backtrace:\n{}\n", backtrace);
+
+        *GUARD.lock() = None;
+
+        default(info)
+    }));
+
+}
+
 #[uniffi::export]
 fn engine_initialize() {
     use tracing_subscriber::fmt::format::FmtSpan;
@@ -21,50 +58,37 @@ fn engine_initialize() {
 
     let env_filter = EnvFilter::from_default_env();
 
+    let project = app::project().expect("Failed to detect project directory");
+
+    let file_appender = tracing_appender::rolling::daily(project.log_directory(), "svnexus.log");
+
+    let (file_writer, guard) = tracing_appender::non_blocking(file_appender);
+
+    *GUARD.lock() = Some(guard);
+
+
+    let file_layer = fmt::layer()
+    .with_writer(file_writer)
+    .with_file(true) // 全局开启行号+文件名
+    .with_line_number(true)
+    .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+    .with_ansi(false);
+
     let layer = fmt::layer()
         .with_file(true) // 全局开启行号+文件名
         .with_line_number(true)
         .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
         .with_ansi(true);
 
-    // let normal_layer = fmt::layer()
-    //     .with_file(true) // 全局开启行号+文件名
-    //     .with_line_number(true)
-    //     .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-    //     // ↓ 把你原来的所有其他配置（颜色、时间、target、pretty 等）全部复制到这里
-    //     .with_ansi(true)
-    //     // .with_timer(...)           // 你原来的 timer 配置
-    //     // ... 其他配置保持一致
-    //     .with_filter(filter_fn(|metadata| {
-    //         let is_event = metadata.fields().field("message").is_some(); // 可靠判断：只有 event 才有 message 字段
-    //         if is_event {
-    //             metadata.target() != "uniffi"
-    //         } else {
-    //             true
-    //         }
-    //     }));
-
-    // let no_location_layer = fmt::layer()
-    //     .with_span_events(FmtSpan::NONE)
-    //     .with_file(true) // 这条 layer 不显示文件名和行号
-    //     .with_line_number(true)
-    //     // ↓ 其他配置必须和上面完全一致（颜色、时间等），防止格式差异
-    //     .with_ansi(true)
-    //     // .with_timer(...)           // 同上
-    //     // ...
-    //     .with_filter(filter_fn(|metadata| {
-    //         let is_event = metadata.fields().field("message").is_some(); // 可靠判断：只有 event 才有 message 字段
-    //         if is_event {
-    //             metadata.target() == "uniffi"
-    //         } else {
-    //             true // 所有 span 都放行，让它知道当前 span 上下文
-    //         }
-    //     }));
-
     tracing_subscriber::registry()
         .with(env_filter)
         .with(layer)
+        .with(file_layer)
         .init();
+
+    tracing::info!("Logging in {}", project.log_directory().display());
+
+    setup_panic_hook();
 }
 
 #[derive(uniffi::Object)]

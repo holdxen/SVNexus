@@ -38,6 +38,8 @@ tracing-log = "0.2.0"
 log = "0.4.29"
 which = "8.0.2"
 directories = "6.0.0"
+ignore = "0.4.25"
+tracing-appender = "0.2.5"
 
 
 

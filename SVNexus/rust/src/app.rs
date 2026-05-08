@@ -139,6 +139,16 @@ pub fn project() -> error::Result<&'static Box<dyn ProjectDirectory>> {
 
 }
 
+impl dyn ProjectDirectory {
+    pub fn database_file(&self) -> PathBuf {
+        self.cache_directory().join("svnexus.db")
+    }
+
+    pub fn log_directory(&self) -> PathBuf {
+        self.cache_directory().join("logs")
+    }
+}
+
 pub struct GlobalConfig {
     log: String,
     engine: EngineConfig,
