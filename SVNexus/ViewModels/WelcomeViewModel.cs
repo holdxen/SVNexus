@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -407,7 +408,8 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
                 Factory = parent => new WorkspaceViewModel(History.WorkingCopyPath, parent)
                 {
                     History = History
-                }
+                },
+                ToolTip = History.WorkingCopyPath
             };
 
             SendMessage(msg);
@@ -999,7 +1001,9 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         {
             Title = "Checkout",
             IsCloseButtonVisible = true,
-            Buttons = DialogButton.None
+            Buttons = DialogButton.None,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
         };
 
         var hostId = SendMessage(new OnGetDialogHostId());
@@ -1045,6 +1049,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
                 Closable = true,
                 Name = result[0].Name,
                 Factory = parent => new WorkspaceViewModel(path, parent),
+                ToolTip = result[0].Path.AbsolutePath,
             });
         }
     }
@@ -1186,7 +1191,9 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         {
             Title = "Export",
             IsCloseButtonVisible = false,
-            Buttons = DialogButton.None
+            Buttons = DialogButton.None,
+            HorizontalScrollBarVisibility =  ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
         };
         Console.WriteLine("Show dialog");
         var model = new ExportProcessDialogModel(this)
@@ -1196,7 +1203,8 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         var hostId = SendMessage(new OnGetDialogHostId());
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(model,
+            await OverlayDialog.ShowStandardAsync<CheckoutOrExportProcessDialog, ProcessDialogModel>(
+                model,
                 hostId: hostId,
                 options: options);
         });

@@ -5,9 +5,9 @@ using Avalonia.Markup.Xaml;
 
 namespace SVNexus.Views;
 
-public partial class InitializeRepositoryDialog : UserControl
+public partial class InitializeRepositoryProcessDialog : UserControl
 {
-    public InitializeRepositoryDialog()
+    public InitializeRepositoryProcessDialog()
     {
         InitializeComponent();
     }
@@ -15,6 +15,7 @@ public partial class InitializeRepositoryDialog : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        LocalTextBox.Focus();
+        
+        LogList.ScrollIntoView(0);
     }
 }

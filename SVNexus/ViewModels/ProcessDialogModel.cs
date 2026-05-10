@@ -91,7 +91,7 @@ public partial class CheckoutProcessDialogModel(ViewModelBase parent) : ProcessD
             return;
         }
         IsCanceling = true;
-        _contextNotifier.CancelMessage = "User cancelled";
+        _contextNotifier.CancelMessage.Value = "User cancelled";
         _contextNotifier = null;
     }
 }
@@ -170,7 +170,7 @@ public partial class ExportProcessDialogModel(ViewModelBase parent) : ProcessDia
             return;
         }
         IsCanceling = true;
-        _contextNotifier.CancelMessage = "User cancelled";
+        _contextNotifier.CancelMessage.Value = "User cancelled";
         _contextNotifier = null;
     }
 }

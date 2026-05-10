@@ -42,7 +42,7 @@
                                   Theme="{StaticResource SolidIconButton}"
                                   IsLoading="{Binding ConfirmCommand.IsRunning}"
                                   Command="{Binding ConfirmCommand}"
-                                  Content="Export">
+                                  Content="Confirm">
                     </u:IconButton>
                 </StackPanel>
             </Grid>

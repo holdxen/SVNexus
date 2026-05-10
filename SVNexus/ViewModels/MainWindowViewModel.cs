@@ -41,6 +41,9 @@ public partial class MainWindowViewModel : ViewModelBase,
 
         [ObservableProperty]
         public partial string Text { get; set; } = string.Empty;
+        
+        [ObservableProperty]
+        public partial object? ToolTip { get; set; }
 
         [ObservableProperty]
         public partial object? Content { get; set; }
@@ -179,6 +182,7 @@ public partial class MainWindowViewModel : ViewModelBase,
         {
             Closable = true,
             Text = message.Value.GetFileName(),
+            ToolTip = message.Value
         }.Apply(item =>
         {
             item.Content = new WorkspaceViewModel(message.Value, item);
@@ -196,6 +200,7 @@ public partial class MainWindowViewModel : ViewModelBase,
         {
             Text = message.Name,
             Closable = message.Closable,
+            ToolTip = message.ToolTip,
         }.Apply(item =>
         {
             item.Content = message.Factory(item);

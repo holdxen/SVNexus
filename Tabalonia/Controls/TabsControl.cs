@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Windows.Input;
+using Avalonia.Metadata;
 using Tabalonia.Events;
 using Tabalonia.Panels;
 
@@ -151,6 +152,7 @@ public class TabsControl : TabControl
         set => SetValue(AddIconContentProperty, value);
     }
     
+    [Content]
     public object? Content
     {
         get => GetValue(ContentProperty);

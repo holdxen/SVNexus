@@ -90,6 +90,7 @@
                         Background="{TemplateBinding Background}"
                         IsEnabled="{TemplateBinding IsEnabled}"
                         Classes="Clickable" 
+                        Margin="{TemplateBinding Margin}"
                         ClipToBounds="{TemplateBinding ClipToBounds}"
                         Padding="{TemplateBinding Spacing}">
                     <components:SvgRender Foreground="{TemplateBinding Foreground}"

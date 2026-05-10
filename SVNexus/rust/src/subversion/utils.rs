@@ -7,14 +7,15 @@ use std::{
 use snafu::ResultExt;
 
 use super::ffi::*;
+use crate::extensions::CommonExtension;
 use crate::{
     apr::{self, ffi::*},
     error::{self, builder},
     utils::Pointer,
 };
 
-pub fn backup(path: impl AsRef<Path>) -> error::Result<PathBuf> {
-    let dir = tempfile::tempdir()?;
+pub fn backup(path: impl AsRef<Path>, output: Option<impl AsRef<Path>>) -> error::Result<PathBuf> {
+    // let dir = tempfile::tempdir()?;
     let path = path.as_ref();
     snafu::ensure!(
         path.exists(),
@@ -22,10 +23,16 @@ pub fn backup(path: impl AsRef<Path>) -> error::Result<PathBuf> {
             detail: "Path does not exist"
         }
     );
-    let mut file_name = path
+    let file_name = path
+        .canonicalize()?
         .file_name()
         .map(|v| v.to_os_string())
         .unwrap_or(OsString::from("backup"));
+
+    let output = match output {
+        Some(output) => output.as_ref().to_path_buf(),
+        None => tempfile::tempdir()?.keep(),
+    };
 
     #[cfg(target_os = "linux")]
     {
@@ -51,9 +58,28 @@ pub fn backup(path: impl AsRef<Path>) -> error::Result<PathBuf> {
 
     #[cfg(target_os = "macos")]
     {
-        file_name.push(".tar.gz");
-        let mut file = dir.keep();
-        file.push(file_name);
+        // file_name.push(".tar.gz");
+        // let mut file = dir.keep();
+        // file.push(file_name);
+
+        let mut index = 0;
+
+        let file = loop {
+            let name = file_name.clone().also_apply(|f| {
+                if index == 0 {
+                    f.push(".tar.gz")
+                } else {
+                    f.push(format!(".{}.tar.gz", index));
+                }
+            });
+
+            let file = output.join(name);
+
+            if !file.exists() {
+                break file;
+            }
+            index += 1;
+        };
 
         let status = Command::new("tar")
             .current_dir(path)

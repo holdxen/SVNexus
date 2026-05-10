@@ -95,7 +95,7 @@
                     Theme="{StaticResource SolidIconButton}"
                     IsLoading="{Binding ConfirmCommand.IsRunning}"
                     Command="{Binding ConfirmCommand}"
-                    Content="确定">
+                    Content="Confirm">
             </u:IconButton>
         </Grid>
     </Grid>

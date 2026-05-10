@@ -80,7 +80,7 @@
                                 <StackPanel
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center">
-                                    <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}">
+                                    <components:SvgRender Size="150" Classes="Themable" Source="{StaticResource Icons.FileKindUnknown}">
                                     </components:SvgRender>
                                 </StackPanel>
                             </Grid>
@@ -103,7 +103,7 @@
                                 <StackPanel
                                     VerticalAlignment="Center"
                                     HorizontalAlignment="Center">
-                                    <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}">
+                                    <components:SvgRender Size="150" Classes="Themable" Source="{StaticResource Icons.FileKindUnknown}">
                                     </components:SvgRender>
                                 </StackPanel>
                             </Grid>

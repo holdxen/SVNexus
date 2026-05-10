@@ -33,35 +33,34 @@
                           Margin="0 8 0 0">
         <TabControl.ItemTemplate>
             <DataTemplate DataType="vm:MainWindowViewModel+TabItemViewModel">
-                <TextBlock Foreground="{DynamicResource SemiColorText0}" 
-                           Padding="4 0" 
+                <TextBlock Padding="4 0" 
                            Text="{Binding Text}" />
             </DataTemplate>
         </TabControl.ItemTemplate>
         
-        <tab:TabsControl.Content>
-            <ItemsControl ItemsSource="{Binding Tabs}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Grid Background="{DynamicResource SelectedTabItemBackgroundBrush}" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+        <ItemsControl ItemsSource="{Binding Tabs}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid Background="{DynamicResource SelectedTabItemBackgroundBrush}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid inject:Ambient.Guid="{Binding Id}" 
-                              IsVisible="{Binding IsSelected}">
-                            <ContentControl Content="{Binding Content}"/>
-                            <components:UniqueOverlayDialogHost DialogHostId="{Binding DialogHostId}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </tab:TabsControl.Content>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid inject:Ambient.Guid="{Binding Id}" 
+                          IsVisible="{Binding IsSelected}">
+                        <ContentControl Content="{Binding Content}"/>
+                        <components:UniqueOverlayDialogHost DialogHostId="{Binding DialogHostId}"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        
         <tab:TabsControl.AddIconContent> 
             <components:SvgButton Command="{Binding AddTabCommand}" 
                                   Source="{StaticResource Icons.Plus}" 
                                   Size="20" 
+                                  Classes="Button"
                                   CornerRadius="10"/>
         </tab:TabsControl.AddIconContent>
         <tab:TabsControl.RightContent>
@@ -69,6 +68,12 @@
                 <components:SvgButton Classes="ToolButton" Source="{StaticResource Icons.Setting}"></components:SvgButton>
             </StackPanel>
         </tab:TabsControl.RightContent>
+        
+        <tab:TabsControl.Styles>
+            <Style Selector="tab|DragTabItem" x:DataType="vm:MainWindowViewModel+TabItemViewModel">
+                <Setter Property="(ToolTip.Tip)" Value="{Binding ToolTip}"></Setter>
+            </Style>
+        </tab:TabsControl.Styles>
         
         
 

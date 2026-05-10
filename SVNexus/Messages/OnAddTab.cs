@@ -15,4 +15,6 @@ public class OnAddTab
     public string Name { get; set; } = string.Empty;
     
     public bool Closable { get; set; }
+    
+    public object? ToolTip { get; set; }
 }

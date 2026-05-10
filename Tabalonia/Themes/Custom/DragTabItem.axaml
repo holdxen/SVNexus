@@ -78,10 +78,10 @@
     </Style>
 
     <Style Selector="local|DragTabItem">
-        <Setter Property="FontSize" Value="12" />
+        <!-- <Setter Property="FontSize" Value="12" /> -->
         <Setter Property="FontWeight" Value="{DynamicResource TabItemHeaderThemeFontWeight}" />
         <Setter Property="Background" Value="{DynamicResource TabItemBackgroundBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource TabItemHeaderForegroundUnselected}" />
+        <Setter Property="Foreground" Value="{DynamicResource TabUnselectedForegroundBrush}" />
         <Setter Property="Padding" Value="{DynamicResource TabItemHeaderMargin}" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="MinHeight" Value="32" />
@@ -201,7 +201,7 @@
     <!-- Selected state -->
     <Style Selector="local|DragTabItem:selected">
         <Setter Property="Background" Value="{DynamicResource SelectedTabItemBackgroundBrush}" />
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource TabItemHeaderForegroundSelected}" />
+        <Setter Property="Foreground" Value="{DynamicResource TabSelectedForegroundBrush}" />
     </Style>
 
     <Style Selector="local|DragTabItem:selected /template/ Border#PART_RightBorder">
@@ -211,7 +211,7 @@
     <!-- PointerOver state -->
     <Style Selector="local|DragTabItem:pointerover">
         <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundUnselectedPointerOver}" />
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource TabItemHeaderForegroundUnselectedPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource TabUnselectedHoverForegroundBrush}" />
     </Style>
     <Style Selector="local|DragTabItem:pointerover /template/ Border#PART_RightBorder">
         <Setter Property="IsVisible" Value="False" />
@@ -225,7 +225,7 @@
     <!-- Selected PointerOver state -->
     <Style Selector="local|DragTabItem:selected:pointerover">
         <Setter Property="Background" Value="{DynamicResource SelectedTabItemBackgroundBrush}" />
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource TabItemHeaderForegroundSelectedPointerOver}" />
+        <Setter Property="Foreground" Value="{DynamicResource TabSelectedForegroundBrush}" />
     </Style>
     <Style Selector="local|DragTabItem:selected:pointerover /template/ Border#PART_RightBorder">
         <Setter Property="IsVisible" Value="False" />

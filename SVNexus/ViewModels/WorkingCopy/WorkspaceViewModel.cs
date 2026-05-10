@@ -763,40 +763,45 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 var result = await OverlayMessageBox.ShowAsync($"{WorkspacePath} is not working copy,\nWhether to initialize now?", title: "Error", hostId: hostId, icon: MessageBoxIcon.Error, MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    var dialogOptions = new OverlayDialogOptions
+                    var model = new InitializeRepositoryDialogModel(this)
                     {
-                        Title = "Test",
-                        IsCloseButtonVisible = true,
-                        Buttons = DialogButton.None
+                        Local = WorkspacePath,
                     };
-                    var importDialogModel = new ImportDialogModel()
-                    {
-                        Path = WorkspacePath,
-                    };
-                    await OverlayDialog.ShowStandardAsync<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
-                    if (importDialogModel.Options is not null)
-                    {
-                        var importProcessDialogModel = new ImportProcessDialogModel(this)
-                        {
-                            Options = importDialogModel.Options,
-                        };
-
-                        var options = new OverlayDialogOptions
-                        {
-                            Title = "Initialize repository",
-                            IsCloseButtonVisible = false,
-                            Buttons = DialogButton.None
-                        };
-
-                        await OverlayDialog.ShowStandardAsync<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
-                        if (importProcessDialogModel.Error is null)
-                        {
-                        }
-                    }
-                    else
-                    {
-                        SendMessage(new OnRemoveTabModel());
-                    }
+                    await model.Show();
+                    // var dialogOptions = new OverlayDialogOptions
+                    // {
+                    //     Title = "Test",
+                    //     IsCloseButtonVisible = true,
+                    //     Buttons = DialogButton.None
+                    // };
+                    // var importDialogModel = new ImportDialogModel()
+                    // {
+                    //     Path = WorkspacePath,
+                    // };
+                    // await OverlayDialog.ShowStandardAsync<ImportDialog, ImportDialogModel>(importDialogModel, hostId: hostId, options: dialogOptions);
+                    // if (importDialogModel.Options is not null)
+                    // {
+                    //     var importProcessDialogModel = new ImportProcessDialogModel(this)
+                    //     {
+                    //         Options = importDialogModel.Options,
+                    //     };
+                    //
+                    //     var options = new OverlayDialogOptions
+                    //     {
+                    //         Title = "Initialize repository",
+                    //         IsCloseButtonVisible = false,
+                    //         Buttons = DialogButton.None
+                    //     };
+                    //
+                    //     await OverlayDialog.ShowStandardAsync<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
+                    //     if (importProcessDialogModel.Error is null)
+                    //     {
+                    //     }
+                    // }
+                    // else
+                    // {
+                    //     SendMessage(new OnRemoveTabModel());
+                    // }
                 }
                 else
                 {

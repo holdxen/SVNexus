@@ -1,0 +1,97 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:SVNexus.Converters"
+        xmlns:components="using:SVNexus.Components">
+    <Design.PreviewWith>
+        <components:LoadingDot />
+    </Design.PreviewWith>
+
+    <Style Selector="components|LoadingDot">
+        <Setter Property="ClipToBounds" Value="False"></Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Margin="{TemplateBinding Margin}" ClipToBounds="{TemplateBinding ClipToBounds}">
+                    <!-- 中心实心圆 -->
+                    <Ellipse Width="28" 
+                             Height="28"
+                             Fill="#4F46E5"
+                             IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Running}}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"/>
+
+                    <!-- 外圈扩散光环 -->
+                    <Ellipse Name="PART_PulseRing"
+                             IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Running}}"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
+                        <Ellipse.RenderTransform>
+                            <ScaleTransform/>
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                    
+                    <Ellipse Fill="Transparent" 
+                             Width="28"
+                             Height="28"
+                             StrokeThickness="2"
+                             Stroke="{DynamicResource SemiGrey2}"
+                             IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Ready}}">
+                    </Ellipse>
+
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      Name="PART_Content"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"></ContentPresenter>
+                    <Ellipse Fill="#10b981"
+                             Width="28"
+                             Height="28"
+                             IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Success}}"></Ellipse>
+                    <components:SvgRender Foreground="White" Source="{StaticResource Icons.Ok}"
+                                          Size="16"
+                                          IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Success}}"
+                                          >
+                    </components:SvgRender>
+                    <Ellipse Fill="#EF4444"
+                             Width="28"
+                             Height="28"
+                             IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Failure}}"></Ellipse>
+                    <components:SvgRender Foreground="White"
+                                          Size="16"
+                                          Source="{StaticResource Icons.Wrong}"
+                                          IsVisible="{TemplateBinding StateValue, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Failure}}">
+                    </components:SvgRender>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^ /template/ ContentPresenter#PART_Content">
+            <Setter Property="Foreground" Value="White"></Setter>
+        </Style>
+        <Style Selector="^[StateValue=Ready] /template/ ContentPresenter#PART_Content">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorText0}"></Setter>
+        </Style>
+        <Style Selector="^ /template/ Ellipse#PART_PulseRing">
+            <Setter Property="Stroke" Value="{DynamicResource SemiViolet7}" />
+            <Setter Property="StrokeThickness" Value="2" />
+            <Setter Property="Fill" Value="Transparent" />
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="RenderTransform" Value="scale(1)" />
+            <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+            <Style.Animations>
+                <Animation Duration="0:0:1"
+                           IterationCount="Infinite"
+                           Easing="CubicEaseOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="ScaleTransform.ScaleX" Value="1" />
+                        <Setter Property="ScaleTransform.ScaleY" Value="1" />
+                        <Setter Property="Opacity" Value="0.5" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="ScaleTransform.ScaleX" Value="1.6" />
+                        <Setter Property="ScaleTransform.ScaleY" Value="1.6" />
+                        <Setter Property="Opacity" Value="0" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </Style>
+</Styles>

@@ -1,0 +1,87 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- <ResourceDictionary.ThemeDictionaries> -->
+    <!--     <ResourceDictionary x:Key="Light"> -->
+    <!--         <SolidColorBrush x:Key="TabItemActiveBackground" Color="White"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabItemActivePointeroverBackground" Color="White"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabItemInActiveBackground" Color="#D3E3FD"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabItemInActivePointeroverBackground" Color="#A8C7FA"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabBarBackground" Color="#D3E3FD"></SolidColorBrush> -->
+    <!--     </ResourceDictionary> -->
+    <!--     <ResourceDictionary x:Key="Dark"> -->
+    <!--         <SolidColorBrush x:Key="TabItemActiveBackground" Color="#3C3C3C"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabItemActivePointeroverBackground" Color="#3C3C3C"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabItemInActiveBackground" Color="#1F2020"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabItemInActivePointeroverBackground" Color="#004A77"></SolidColorBrush> -->
+    <!--         <SolidColorBrush x:Key="TabBarBackground" Color="#1F2020"></SolidColorBrush> -->
+    <!--     </ResourceDictionary> -->
+    <!-- </ResourceDictionary.ThemeDictionaries> -->
+  <ResourceDictionary.ThemeDictionaries>
+
+    <!-- Light Theme -->
+    <ResourceDictionary x:Key="Light">
+
+      <!-- Tab strip -->
+      <SolidColorBrush x:Key="TabStripBackgroundBrush" Color="#DEE1E6"/>
+
+      <!-- Selected tab -->
+      <SolidColorBrush x:Key="TabSelectedBackgroundBrush" Color="#FFFFFF"/>
+      <SolidColorBrush x:Key="TabSelectedForegroundBrush" Color="#1F1F1F"/>
+      <SolidColorBrush x:Key="TabSelectedCloseIconBrush" Color="#5F6368"/>
+      <SolidColorBrush x:Key="TabSelectedCloseHoverBackgroundBrush" Color="#14000000"/>
+      <SolidColorBrush x:Key="TabSelectedCloseHoverIconBrush" Color="#1F1F1F"/>
+      <FontWeight x:Key="TabSelectedFontWeight">Medium</FontWeight>
+      <SolidColorBrush x:Key="TabSelectedHoverBackgroundBrush" Color="#FFFFFF"/>
+
+      <!-- Unselected tab -->
+      <SolidColorBrush x:Key="TabUnselectedBackgroundBrush" Color="Transparent"/>
+      <SolidColorBrush x:Key="TabUnselectedForegroundBrush" Color="#1F1F1F" Opacity="0.5"/>
+      <SolidColorBrush x:Key="TabUnselectedCloseIconBrush" Color="#5F6368"/>
+      <FontWeight x:Key="TabUnselectedFontWeight">Regular</FontWeight>
+      <SolidColorBrush x:Key="TabUnselectedHoverBackgroundBrush" Color="#EBEEF1" />
+      <SolidColorBrush x:Key="TabUnselectedHoverForegroundBrush" Color="#1F1F1F" Opacity="0.75"/>
+
+      <!-- Separator -->
+      <SolidColorBrush x:Key="TabSeparatorBrush" Color="#1F000000"/>
+
+      <!-- Selected bottom line: none -->
+      <Thickness x:Key="TabSelectedBottomLineThickness">0</Thickness>
+      <SolidColorBrush x:Key="TabSelectedBottomLineBrush" Color="Transparent"/>
+
+    </ResourceDictionary>
+
+
+    <!-- Dark Theme -->
+    <ResourceDictionary x:Key="Dark">
+
+      <!-- Tab strip -->
+      <SolidColorBrush x:Key="TabStripBackgroundBrush" Color="#1F1F1F"/>
+
+      <!-- Selected tab -->
+      <SolidColorBrush x:Key="TabSelectedBackgroundBrush" Color="#35363A"/>
+      <SolidColorBrush x:Key="TabSelectedForegroundBrush" Color="#E3E3E3"/>
+      <SolidColorBrush x:Key="TabSelectedCloseIconBrush" Color="#C4C7C5"/>
+      <SolidColorBrush x:Key="TabSelectedCloseHoverBackgroundBrush" Color="#1AFFFFFF"/>
+      <SolidColorBrush x:Key="TabSelectedCloseHoverIconBrush" Color="#FFFFFF"/>
+      <FontWeight x:Key="TabSelectedFontWeight">Medium</FontWeight>
+      <SolidColorBrush x:Key="TabSelectedHoverBackgroundBrush" Color="#35363A"/>
+
+      <!-- Unselected tab -->
+      <SolidColorBrush x:Key="TabUnselectedBackgroundBrush" Color="Transparent"/>
+      <SolidColorBrush x:Key="TabUnselectedForegroundBrush" Color="#C4C7C5"/>
+      <SolidColorBrush x:Key="TabUnselectedCloseIconBrush" Color="#9AA0A6"/>
+      <FontWeight x:Key="TabUnselectedFontWeight">Regular</FontWeight>
+      <SolidColorBrush x:Key="TabUnselectedHoverBackgroundBrush" Color="#2A2B2E"/>
+      <SolidColorBrush x:Key="TabUnselectedHoverForegroundBrush" Color="#E3E3E3"/>
+
+      <!-- Separator -->
+      <SolidColorBrush x:Key="TabSeparatorBrush" Color="#29FFFFFF"/>
+
+      <!-- Selected bottom line: none -->
+      <Thickness x:Key="TabSelectedBottomLineThickness">0</Thickness>
+      <SolidColorBrush x:Key="TabSelectedBottomLineBrush" Color="Transparent"/>
+
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

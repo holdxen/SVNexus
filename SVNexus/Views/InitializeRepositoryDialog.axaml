@@ -4,37 +4,54 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:components="clr-namespace:SVNexus.Components"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:InitializeRepositoryDialogModel"
+             MinWidth="400"
              x:Class="SVNexus.Views.InitializeRepositoryDialog">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <Grid RowDefinitions="*, Auto">
         <u:Form Grid.Row="0" HorizontalAlignment="Stretch">
-            <u:FormItem Label="Local:">
-                <TextBox Text="{Binding Local}"></TextBox>
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *, *"></Grid>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Label="Local:" Grid.Row="0">
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBox Name="LocalTextBox" Text="{Binding Local}"></TextBox>
+                    <components:SvgButton Grid.Column="1" 
+                                          Command="{Binding SelectedLocalDirectoryCommand}"
+                                          Margin="2 0"
+                                          Source="{StaticResource Icons.SelectFolder}"
+                                          Classes="Button"></components:SvgButton>
+                </Grid>
             </u:FormItem>
-            <u:FormItem Label="Remote:">
+            <u:FormItem Label="Remote:" Grid.Row="1">
                 <TextBox Text="{Binding Remote}"></TextBox>
             </u:FormItem>
-            <u:FormItem>
+            <u:FormItem Grid.Row="2">
                 <u:FormItem.Label>
                     <CheckBox Content="Backup in:" IsChecked="{Binding Backup}"></CheckBox>
                 </u:FormItem.Label>
-                <TextBox Text="{Binding BackupIn}"></TextBox>
+                <TextBox Text="{Binding BackupIn}" IsEnabled="{Binding Backup}"></TextBox>
             </u:FormItem>
-            <u:FormItem Label="Options:">
+            <u:FormItem Label="Options:" Grid.Row="3">
                 <StackPanel>
                     <CheckBox Content="No global ignore" IsChecked="{Binding NoIgnore}"></CheckBox>
                     <CheckBox Content="No auto properties" IsChecked="{Binding NoAutoProperties}"></CheckBox>
                     <CheckBox Content="Ignore unknown node types" IsChecked="{Binding IgnoreUnknownNodeTypes}"></CheckBox>
                 </StackPanel>
             </u:FormItem>
-            <u:FormItem Classes="GridLayout">
-                <u:FormItem.Label>
-                    <CheckBox Content="Ignore:"></CheckBox>
-                </u:FormItem.Label>
+            <u:FormItem Classes="GridLayout" Label="Ignore:" Grid.Row="4">
                 <TextBox AcceptsReturn="True" Text="{Binding Ignore}"></TextBox>
             </u:FormItem>
-            <u:FormItem Classes="GridLayout" Label="Commit:">
+            <u:FormItem Classes="GridLayout" Label="Commit:" Grid.Row="5">
                 <TextBox AcceptsReturn="True" Text="{Binding CommitMessage}"></TextBox>
             </u:FormItem>
         </u:Form>

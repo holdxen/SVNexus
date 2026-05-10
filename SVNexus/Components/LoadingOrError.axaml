@@ -49,8 +49,10 @@
                             IsVisible="{TemplateBinding IsError}"
                             IsLoading="{TemplateBinding IsError}">
                             <u:Loading.Indicator>
-                                <PathIcon Width="24" Height="24" Data="{StaticResource SemiIconAlertCircle}"
-                                          Foreground="{StaticResource SemiColorDanger}">
+                                <PathIcon Width="24" 
+                                          Height="24" 
+                                          Data="{DynamicResource SemiIconAlertCircle}"
+                                          Foreground="{DynamicResource SemiColorDanger}">
                                 </PathIcon>
                             </u:Loading.Indicator>
                             <StackPanel Margin="0 3" Spacing="5">

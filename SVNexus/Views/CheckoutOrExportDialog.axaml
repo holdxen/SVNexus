@@ -30,7 +30,8 @@
                     <components:SvgButton Classes="Button" 
                                           Command="{Binding SelectFolderCommand}" 
                                           Grid.Column="1"
-                                          Source="{StaticResource Icons.FolderPlus}" />
+                                          Margin="2 0"
+                                          Source="{StaticResource Icons.SelectFolder}" />
                 </Grid>
             </u:FormItem>
             <u:FormItem Label="Revision:">

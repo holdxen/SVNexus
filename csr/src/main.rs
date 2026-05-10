@@ -126,7 +126,7 @@ pub struct Command {
 pub struct Generator {
     project: Project,
     cargo_toml: CargoToml,
-    cshapr_root: PathBuf,
+    csharp_root: PathBuf,
     rust_root: PathBuf,
     cmd: Command,
     config: Option<PathBuf>,
@@ -187,7 +187,7 @@ impl Generator {
         let generator = Generator {
             project,
             cargo_toml,
-            cshapr_root: current_dir,
+            csharp_root: current_dir,
             rust_root: rust.path().to_path_buf(),
             cmd,
             config: config.map(|e| e.into_path()),
@@ -309,13 +309,13 @@ impl Generator {
         // })?;
 
         for framework in self.project.property_group.frameworks() {
-            let output_dir = self.cshapr_root.join("bin").join("Debug").join(&framework);
+            let output_dir = self.csharp_root.join("bin").join("Debug").join(&framework);
             std::fs::create_dir_all(&output_dir)?;
 
             std::fs::copy(&target, output_dir.join(&file_name))?;
 
             let output_dir = self
-                .cshapr_root
+                .csharp_root
                 .join("bin")
                 .join("Release")
                 .join(&framework);
@@ -330,7 +330,7 @@ impl Generator {
     fn generate(&self) -> anyhow::Result<()> {
         std::env::set_current_dir(&self.rust_root)?;
 
-        let out_dir = self.cshapr_root.join(OUT_DIRECTORY_NAME);
+        let out_dir = self.csharp_root.join(OUT_DIRECTORY_NAME);
 
         std::fs::create_dir_all(&out_dir)?;
 
@@ -340,7 +340,6 @@ impl Generator {
         let library = Utf8PathBuf::from_path_buf(self.rust_library_path().canonicalize()?)
             .expect("Invalid library path");
 
-        std::env::set_current_dir(&self.rust_root)?;
 
         let mut config = None;
 
@@ -350,6 +349,8 @@ impl Generator {
                     .expect("Invalid config file path"),
             );
         }
+
+        std::env::set_current_dir(&self.rust_root)?;
 
         uniffi_bindgen_cs::generate_from_library(
             &library,

@@ -710,6 +710,55 @@
 </svg>
 ]]>
     </system:String>
+    <system:String x:Key="Icons.SelectFolder">
+        <![CDATA[
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="SVGRepo_bgCarrier" stroke-width="0" />
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+  <g id="SVGRepo_iconCarrier" fill="currentColor">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.975 14.51a1.05 1.05 0 0 0 0-1.485 2.95 2.95 0 0 1 0-4.172l3.536-3.535a2.95 2.95 0 1 1 4.172 4.172l-1.093 1.092a1.05 1.05 0 0 0 1.485 1.485l1.093-1.092a5.05 5.05 0 0 0-7.142-7.142L9.49 7.368a5.05 5.05 0 0 0 0 7.142c.41.41 1.075.41 1.485 0zm2.05-5.02a1.05 1.05 0 0 0 0 1.485 2.95 2.95 0 0 1 0 4.172l-3.5 3.5a2.95 2.95 0 1 1-4.171-4.172l1.025-1.025a1.05 1.05 0 0 0-1.485-1.485L3.87 12.99a5.05 5.05 0 0 0 7.142 7.142l3.5-3.5a5.05 5.05 0 0 0 0-7.142 1.05 1.05 0 0 0-1.485 0z"  />
+  </g>
+</svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Ok">
+        <![CDATA[
+        <svg viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="okIconTitle" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <g id="SVGRepo_bgCarrier" stroke-width="0" />
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+  <g id="SVGRepo_iconCarrier">
+    <title id="okIconTitle">
+      Ok
+    </title>
+    <polyline points="4 13 9 18 20 7" />
+  </g>
+</svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Wrong">
+        <![CDATA[
+        <svg fill="currentColor" viewBox="0 0 200 200" data-name="Layer 1" id="Layer_1" xmlns="http://www.w3.org/2000/svg">
+  <g id="SVGRepo_bgCarrier" stroke-width="0" />
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+  <g id="SVGRepo_iconCarrier">
+    <title />
+    <path d="M114,100l49-49a9.9,9.9,0,0,0-14-14L100,86,51,37A9.9,9.9,0,0,0,37,51l49,49L37,149a9.9,9.9,0,0,0,14,14l49-49,49,49a9.9,9.9,0,0,0,14-14Z" />
+  </g>
+</svg>
+]]>
+    </system:String>
+    <system:String x:Key="Icons.Copy">
+        <![CDATA[
+        <svg  viewBox="0 0 24 24" id="copy-4" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" class="icon line">
+  <g id="SVGRepo_bgCarrier" stroke-width="0" />
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+  <g id="SVGRepo_iconCarrier" fill="none" stroke="currentColor">
+    <path id="primary" d="M15,17v3a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V8A1,1,0,0,1,4,7H7" style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5;" />
+    <rect id="primary-2" data-name="primary" x="7" y="3" width="12" height="14" rx="1" style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5;" />
+  </g>
+</svg>
+]]>
+    </system:String>
     
     <!-- <system:String></system:String> -->
     <!-- <StreamGeometry> -->

@@ -63,4 +63,12 @@ public partial class EngineBackend
     {
         return AsyncContext.Create(SimpleCreateContextOptions(dialogHostId));
     }
+    
+    
+    public AsyncContext SimpleContext(ContextNotifier notifier)
+    {
+        var config = new Config(Proxies: Proxies);
+        var opt = new CreateContextOptions(Name: Name, DefaultUsername: DefaultUsername, DefaultPassword: DefaultPassword, ContextNotifier: notifier, Config: config);
+        return AsyncContext.Create(opt);
+    }
 }

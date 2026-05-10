@@ -1,44 +1,60 @@
 using System;
+using Avalonia.Threading;
 using SVNexus.Generated;
 
 namespace SVNexus.Engine;
 
 public class InitializeRepositoryNotifierDelegate: InitializeRepositoryNotifier
 {
+    
+    public bool Dispatch { get; init; }
+    
     public Action? OnCheckoutDirectlyAction { get; init; }
     public Action? OnImportAction { get; init; }
     public Action? OnBackupAction { get; init; }
     public Action<string>? OnBackupFinishedAction { get; init; }
     public Action? OnCheckoutAction { get; init; }
     public Action? OnFinishedAction { get; init; }
+
+    public void DispatchOrNot(Action action)
+    {
+        if (Dispatch)
+        {
+            Dispatcher.UIThread.Invoke(action);
+        }
+        else
+        {
+            action();
+        }
+    }
     
     public void OnCheckoutDirectly()
     {
-        OnCheckoutDirectlyAction?.Invoke();
+        DispatchOrNot(() => OnCheckoutDirectlyAction?.Invoke());
     }
 
     public void OnImport()
     {
-        OnImportAction?.Invoke();
+        DispatchOrNot(() => OnImportAction?.Invoke());
     }
 
     public void OnBackup()
     {
-        OnBackupAction?.Invoke();
+        DispatchOrNot(() => OnBackupAction?.Invoke());
     }
 
     public void OnBackupFinished(string path)
     {
-        OnBackupFinishedAction?.Invoke(path);
+        DispatchOrNot(() => OnBackupFinishedAction?.Invoke(path));
     }
 
     public void OnCheckout()
     {
-        OnCheckoutAction?.Invoke();
+        DispatchOrNot(() => OnCheckoutAction?.Invoke());
     }
 
     public void OnFinished()
     {
-        OnFinishedAction?.Invoke();
+        DispatchOrNot(() => OnFinishedAction?.Invoke());
     }
 }

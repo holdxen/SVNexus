@@ -21,11 +21,11 @@
             <SolidColorBrush x:Key="InactiveWindowAddCommandButtonForegroundBrush" Color="#404040" />
             <SolidColorBrush x:Key="InactiveWindowAddCommandButtonPointerOverForegroundBrush" Color="#363636" />
             <SolidColorBrush x:Key="AddItemCommandButtonBackgroundPressedBrush" Color="#CCCCCC" />
-            <SolidColorBrush x:Key="CloseItemButtonPointerOverBrush" Color="#666666" />
+            <SolidColorBrush x:Key="CloseItemButtonPointerOverBrush" Color="Black" />
             <SolidColorBrush x:Key="CloseItemButtonInactiveWindowBrush" Color="#999999" />
             <SolidColorBrush x:Key="CloseItemButtonInactiveWindowPointerOverBrush" Color="#1A1A1A" />
             <SolidColorBrush x:Key="CloseItemButtonPressedBrush" Color="#333333" />
-            <SolidColorBrush x:Key="CloseItemButtonForeground" Color="#000000" />
+            <SolidColorBrush x:Key="CloseItemButtonForeground" Color="#888D92" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
             <SolidColorBrush x:Key="TabControlWindowActiveBackgroundBrush" Color="#202020" />
@@ -45,10 +45,10 @@
             <SolidColorBrush x:Key="InactiveWindowAddCommandButtonForegroundBrush" Color="#BFBFBF" />
             <SolidColorBrush x:Key="InactiveWindowAddCommandButtonPointerOverForegroundBrush" Color="#C9C9C9" />
             <SolidColorBrush x:Key="AddItemCommandButtonBackgroundPressedBrush" Color="#333333" />
-            <SolidColorBrush x:Key="CloseItemButtonPointerOverBrush" Color="#1A1A1A" />
+            <SolidColorBrush x:Key="CloseItemButtonPointerOverBrush" Color="White" />
             <SolidColorBrush x:Key="CloseItemButtonInactiveWindowBrush" Color="#666666" />
             <SolidColorBrush x:Key="CloseItemButtonInactiveWindowPointerOverBrush" Color="#b8b8b8" />
-            <SolidColorBrush x:Key="CloseItemButtonForeground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="CloseItemButtonForeground" Color="#A7ABB0" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

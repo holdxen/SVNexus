@@ -1,0 +1,162 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:viewModels="clr-namespace:SVNexus.ViewModels"
+             xmlns:components="clr-namespace:SVNexus.Components"
+             xmlns:converters="clr-namespace:SVNexus.Converters"
+             xmlns:u="https://irihi.tech/ursa"
+             Width="600"
+             x:DataType="viewModels:InitializeRepositoryProcessDialogModel"
+             x:Class="SVNexus.Views.InitializeRepositoryProcessDialog">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding LoadedCommand}">
+            </InvokeCommandAction>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
+    <Grid RowDefinitions="Auto, *, Auto">
+        <Grid RowDefinitions="Auto, *, Auto, *, Auto, *" ColumnDefinitions="Auto, *" Margin="8">
+            <!-- <Grid.Styles> -->
+            <!--     <Style Selector="Border"> -->
+            <!--         <Setter Property="Height" Value="2"></Setter> -->
+            <!--     </Style> -->
+            <!--     <Style Selector="Border.NotRunning"> -->
+            <!--         <Setter Property="Background" Value="{StaticResource SemiColorBackground1}"></Setter> -->
+            <!--     </Style> -->
+            <!--     <Style Selector="Border.Running"> -->
+            <!--         <Setter Property="Background" Value="{StaticResource SemiColorWarning}"></Setter> -->
+            <!--     </Style> -->
+            <!--     <Style Selector="Border.Error"> -->
+            <!--         <Setter Property="Background" Value="{StaticResource SemiColorDanger}"></Setter> -->
+            <!--     </Style> -->
+            <!--     <Style Selector="TextBlock"> -->
+            <!--         <Setter Property="HorizontalAlignment" Value="Center"></Setter> -->
+            <!--         <Setter Property="VerticalAlignment" Value="Center"></Setter> -->
+            <!--     </Style> -->
+            <!--     <Style Selector="StackPanel"> -->
+            <!--         <Setter Property="Margin" Value="2 0"></Setter> -->
+            <!--     </Style> -->
+            <!--     <Style Selector="TextBlock"> -->
+            <!--         <Setter Property="Margin" Value="0 2"></Setter> -->
+            <!--     </Style> -->
+            <!-- </Grid.Styles> -->
+            <!-- <StackPanel> -->
+            <!--     <Border Classes="Running"></Border> -->
+            <!--     <TextBlock Text="Import"></TextBlock> -->
+            <!-- </StackPanel> -->
+            <!-- <StackPanel Grid.Column="1"> -->
+            <!--     <Border></Border> -->
+            <!--     <TextBlock Text="Backup"></TextBlock> -->
+            <!-- </StackPanel> -->
+            <!-- <StackPanel Grid.Column="2"> -->
+            <!--     <Border></Border> -->
+            <!--     <TextBlock Text="Checkout"></TextBlock> -->
+            <!-- </StackPanel> -->
+            <Grid.Styles>
+                <Style Selector="Border.Line">
+                    <Setter Property="Width" Value="2"></Setter>
+                    <Setter Property="MinHeight" Value="50"></Setter>
+                    <Setter Property="Background" Value="{DynamicResource SemiGrey2}"></Setter>
+                    <Setter Property="Margin" Value="0 5"></Setter>
+                    <Setter Property="CornerRadius" Value="1"></Setter>
+                </Style>
+                <Style Selector="Border.Success">
+                    <Setter Property="Background" Value="{DynamicResource SemiColorSuccess}"></Setter>
+                </Style>
+                <Style Selector="StackPanel.StepContent">
+                    <Setter Property="Margin" Value="8 0"></Setter>
+                </Style>
+                <Style Selector="TextBlock.Tertiary">
+                    <Setter Property="FontSize" Value="12"></Setter>
+                </Style>
+            </Grid.Styles>
+            <components:LoadingDot Grid.Row="0" StateValue="{Binding ImportState}">
+                <TextBlock Text="1"></TextBlock>
+            </components:LoadingDot>
+            <Border Grid.Row="1" 
+                    Classes="Line"
+                    Classes.Success="{Binding ImportState, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Success}}" 
+                    Grid.Column="0"></Border>
+            
+            <components:LoadingDot Grid.Row="2" Grid.Column="0" StateValue="{Binding BackupState}" ClipToBounds="False">
+                <TextBlock Text="2"></TextBlock>
+            </components:LoadingDot>
+            <Border Grid.Row="3" 
+                    Classes="Line"
+                    Classes.Success="{Binding BackupState, Converter={x:Static converters:EqualsConverter.Default}, ConverterParameter={x:Static components:LoadingDot+State.Success}}" 
+                    Grid.Column="0"></Border>
+            
+            <components:LoadingDot Grid.Row="4" Grid.Column="0" StateValue="{Binding CheckoutState}">
+                <TextBlock Text="3"></TextBlock>
+            </components:LoadingDot>
+            <Border Classes="Line" Background="Transparent" Grid.Row="5" Grid.Column="0"></Border>
+            
+            <StackPanel Classes="StepContent" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+                <TextBlock Text="Import" Theme="{StaticResource TitleTextBlock}" Classes="H6"></TextBlock>
+                <TextBlock Classes="Tertiary" Text="{Binding ImportDetail}"></TextBlock>
+            </StackPanel>
+            
+            <StackPanel Classes="StepContent" Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch">
+                <TextBlock Text="Backup" Theme="{StaticResource TitleTextBlock}" Classes="H6"></TextBlock>
+                <TextBlock Classes="Tertiary" Text="{Binding BackupDetail}"></TextBlock>
+                <Border BorderBrush="{DynamicResource SemiColorSuccessActive}" 
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        Padding="3"
+                        Margin="5"
+                        Background="{DynamicResource SemiColorSuccessLightActive}"
+                        IsVisible="{Binding BackupFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel>
+                        <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource SemiColorSuccessActive}" Text="Backup successfully"></TextBlock>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBlock 
+                                VerticalAlignment="Center"
+                                Text="{Binding BackupFile}"></TextBlock>
+                            <components:SvgButton Grid.Column="1" 
+                                                  Command="{Binding CopyBackupFilePathCommand}"
+                                                  Source="{StaticResource Icons.Copy}" 
+                                                  Classes="Button"></components:SvgButton>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            
+            <StackPanel Classes="StepContent" Grid.Row="4" Grid.Column="1" Grid.RowSpan="2">
+                <TextBlock Text="Checkout" Theme="{StaticResource TitleTextBlock}" Classes="H6"></TextBlock>
+                <TextBlock Classes="Tertiary" Text="{Binding CheckoutDetail}"></TextBlock>
+            </StackPanel>
+        </Grid>
+        <Border Grid.Row="1" Theme="{StaticResource CardBorder}">
+            <ListBox Height="150" Name="LogList" ItemsSource="{Binding LogViewModels}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="viewModels:InitializeRepositoryProcessDialogModel+LogViewModel">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <TextBlock Grid.Column="0" Text="{Binding ActionText, StringFormat='{}{0}:'}"></TextBlock>
+                            <TextBlock Grid.Column="1" Text="{Binding Path}"></TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto, Auto">
+            <Border Grid.Column="0"></Border>
+            <u:IconButton Grid.Column="1" 
+                    IsVisible="{Binding LoadedCommand.IsRunning}"
+                    IsLoading="{Binding CancelCommand.IsRunning}"
+                    Classes="Danger"
+                    Theme="{StaticResource SolidIconButton}"
+                    Content="取消" 
+                    Command="{Binding CancelCommand}"></u:IconButton>
+            <Border Grid.Column="2" Width="4"></Border>
+            <u:IconButton Grid.Column="3"
+                          Classes="Primary"
+                          IsVisible="{Binding !LoadedCommand.IsRunning}"
+                          Theme="{StaticResource SolidIconButton}"
+                          Command="{Binding ConfirmCommand}"
+                          Content="确定">
+            </u:IconButton>
+        </Grid>
+    </Grid>
+</UserControl>

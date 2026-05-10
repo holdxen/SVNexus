@@ -33,8 +33,8 @@
 
         </u:Form>
         <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" Spacing="4" Grid.Row="1">
-            <Button Classes="Primary" Command="{Binding ConfirmCommand}" Theme="{StaticResource SolidButton}" Content="确定"></Button>
-            <Button Content="取消" Command="{Binding CancelCommand}"></Button>
+            <Button Classes="Primary" Command="{Binding ConfirmCommand}" Theme="{StaticResource SolidButton}" Content="Confirm"></Button>
+            <Button Content="Cancel" Command="{Binding CancelCommand}"></Button>
         </StackPanel>
     </Grid>
 </UserControl>

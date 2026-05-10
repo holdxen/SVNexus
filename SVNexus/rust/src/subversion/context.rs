@@ -2334,7 +2334,7 @@ impl Context {
         self.ptr
     }
 
-    fn cancelled(&self) -> error::Result<()> {
+    fn cancelled(&mut self) -> error::Result<()> {
         let msg = self.inner.context_notifier.cancel().map_err(|e| {
             builder::General {
                 detail: format!("Unexpected error: {}", e),
@@ -2514,7 +2514,14 @@ impl Context {
             self.cancelled()?;
             if let Some(directory) = opts.backup_directory {
                 notifier.on_backup()?;
-                let file = utils::backup(&opts.local)?;
+                let file = utils::backup(
+                    &opts.local,
+                    if directory.is_empty() {
+                        None
+                    } else {
+                        Some(directory)
+                    },
+                )?;
                 notifier.on_backup_finished(file.to_str().unwrap().to_string())?;
             }
             self.cancelled()?;
@@ -3271,6 +3278,12 @@ impl Context {
                         direct.kind == ffi::svn_node_kind_t_svn_node_dir,
                     );
                     *filtered = matched.is_ignore().into();
+                } else {
+                    tracing::error!(
+                        "Unexpected import file: {}, should from: {}",
+                        absolute_path,
+                        relate_to
+                    );
                 }
             }
 

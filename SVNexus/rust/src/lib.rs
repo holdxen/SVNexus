@@ -1,9 +1,10 @@
-use std::{any::Any, backtrace::Backtrace, sync::OnceLock};
+use std::{any::Any, backtrace::Backtrace};
 
 use crate::db::{WorkspaceHistory, WorkspaceHistoryGroup};
-use tracing_appender::non_blocking::WorkerGuard;
 use std::panic;
+use tracing_appender::non_blocking::WorkerGuard;
 
+mod app;
 mod apr;
 mod db;
 mod entities;
@@ -12,7 +13,6 @@ mod extensions;
 mod subversion;
 mod tests;
 mod utils;
-mod app;
 
 uniffi::setup_scaffolding!();
 
@@ -48,7 +48,6 @@ fn setup_panic_hook() {
 
         default(info)
     }));
-
 }
 
 #[uniffi::export]
@@ -66,13 +65,12 @@ fn engine_initialize() {
 
     *GUARD.lock() = Some(guard);
 
-
     let file_layer = fmt::layer()
-    .with_writer(file_writer)
-    .with_file(true) // 全局开启行号+文件名
-    .with_line_number(true)
-    .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
-    .with_ansi(false);
+        .with_writer(file_writer)
+        .with_file(true) // 全局开启行号+文件名
+        .with_line_number(true)
+        .with_span_events(FmtSpan::NEW | FmtSpan::CLOSE)
+        .with_ansi(false);
 
     let layer = fmt::layer()
         .with_file(true) // 全局开启行号+文件名

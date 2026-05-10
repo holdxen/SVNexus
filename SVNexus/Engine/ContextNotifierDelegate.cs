@@ -2,6 +2,7 @@ using System;
 using System.Security;
 using Avalonia.Threading;
 using SVNexus.Generated;
+using SVNexus.Utils;
 using SVNexus.ViewModels;
 using SVNexus.Views;
 using Ursa.Controls;
@@ -38,38 +39,41 @@ public sealed class ContextNotifierDelegate : ContextNotifier
         return new WorkingCopyConflictResult(WorkingCopyConflictChoice.Postpone, null, false, null);
     }
     
-    private readonly Lock _lock = new();
-    
-    private string? _cancelMessage;
+    // private readonly Lock _lock = new();
+    //
+    // private string? _cancelMessage;
+    //
+    // public string? CancelMessage
+    // {
+    //     get
+    //     {
+    //         lock (_lock)
+    //         {
+    //             return _cancelMessage;
+    //         }
+    //     }
+    //     set
+    //     {
+    //         lock (_lock)
+    //         {
+    //             _cancelMessage = value;
+    //         }
+    //     }
+    // }
 
-    public string? CancelMessage
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return _cancelMessage;
-            }
-        }
-        set
-        {
-            lock (_lock)
-            {
-                _cancelMessage = value;
-            }
-        }
-    }
+    public LockedValue<string?> CancelMessage { get; init; } = new(null);
 
     private string? OnCancel()
     {
-        lock (_lock)
-        {
-            if (_cancelMessage == null) return null;
-            var msg =  _cancelMessage;
-            _cancelMessage = null;
-            return msg;
-
-        }
+        // lock (_lock)
+        // {
+        //     if (_cancelMessage == null) return null;
+        //     var msg =  _cancelMessage;
+        //     _cancelMessage = null;
+        //     return msg;
+        //
+        // }
+        return CancelMessage.Take(_ => null);
     }
     
     private TrustServer? OnSslServerTrustPrompt(string realm, uint failures, SslServerCertInfo info, bool maySave)

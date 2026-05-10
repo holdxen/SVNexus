@@ -13,6 +13,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="Resources/Style/CommonStyle.axaml"></ResourceInclude>
+                <ResourceInclude Source="Resources/Style/Tab.axaml"></ResourceInclude>
                 <ResourceInclude Source="Resources/Icons/Icons.axaml"></ResourceInclude>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -27,6 +28,7 @@
     <!--     <FluentTheme /> -->
              <!-- </Application.Styles> -->
      <Application.Styles>
+         <custom:CustomTheme></custom:CustomTheme>
          <semi:SemiTheme Locale="zh-CN" />
          <semi:ColorPickerSemiTheme />
          <semi:DataGridSemiTheme />
@@ -35,7 +37,6 @@
          <semi:AvaloniaEditSemiTheme />
          <semi:UrsaSemiTheme Locale="zh-CN"></semi:UrsaSemiTheme>
          <!-- <u-Semi:SemiTheme Locale="zh-CN"/> -->
-         <custom:CustomTheme></custom:CustomTheme>
          <Style Selector=":is(TopLevel)">
              <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
          </Style>
@@ -44,6 +45,7 @@
          <StyleInclude Source="Components/SvgButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/LoadingSvgButton.axaml"></StyleInclude>
          <StyleInclude Source="Components/TargetItem.axaml"></StyleInclude>
+         <StyleInclude Source="Components/LoadingDot.axaml"></StyleInclude>
          <StyleInclude Source="Resources/Style/StyledClasses.axaml"></StyleInclude>
      </Application.Styles>
 </Application>

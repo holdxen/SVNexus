@@ -128,6 +128,11 @@ pub impl<T: Sized> T {
         if value { i(self) } else { o(self) }
     }
 
+    fn also_apply(mut self, f: impl FnOnce(&mut Self)) -> Self {
+        f(&mut self);
+        self
+    }
+
     fn also_build(self, f: impl FnOnce(Self) -> Self) -> Self {
         f(self)
     }
