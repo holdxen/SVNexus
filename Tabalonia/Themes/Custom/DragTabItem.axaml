@@ -134,6 +134,7 @@
 
 
                             <local:LeftPressedThumb Name="PART_Thumb"
+                                                    IsVisible="{TemplateBinding Draggable}"
                                                     Classes="DragTabItemThumbStyle" />
 
                             <Button Margin="{TemplateBinding Padding}"

@@ -89,6 +89,15 @@ public class DragTabItem : TabItem
     
     #endregion
 
+    public static readonly StyledProperty<bool> DraggableProperty = AvaloniaProperty.Register<DragTabItem, bool>(
+        nameof(Draggable), true);
+
+    public bool Draggable
+    {
+        get => GetValue(DraggableProperty);
+        set => SetValue(DraggableProperty, value);
+    }
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
