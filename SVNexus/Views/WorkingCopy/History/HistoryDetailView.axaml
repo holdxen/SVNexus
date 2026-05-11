@@ -32,7 +32,7 @@
             <u:Divider Orientation="Horizontal"></u:Divider>
             <u:SelectionList ItemsSource="{Binding ChangeItems}">
                 <u:SelectionList.ItemTemplate>
-                    <DataTemplate DataType="remote:HistoryDetailViewModel+ChangeItemViewModel">
+                    <DataTemplate x:DataType="remote:HistoryDetailViewModel+ChangeItemViewModel">
                         <Grid ColumnDefinitions="Auto, Auto, *">
                             <components:SvgRender Grid.Column="0" 
                                                   Margin="4 0" 
@@ -55,7 +55,7 @@
             </u:SelectionList>
             <!-- <ItemsControl ItemsSource="{Binding ChangeItems}"> -->
             <!--     <ItemsControl.ItemTemplate> -->
-            <!--         <DataTemplate DataType="remote:RemoteDetailViewModel+ChangeItemViewModel"> -->
+            <!--         <DataTemplate x:DataType="remote:RemoteDetailViewModel+ChangeItemViewModel"> -->
             <!--             <Grid ColumnDefinitions="Auto, *"> -->
             <!--                 <components:SvgRender Source="{Binding Icon}"/> -->
             <!--                 <TextBlock Grid.Column="1" Text="{Binding RelativePath}"></TextBlock> -->

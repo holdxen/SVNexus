@@ -15,7 +15,7 @@
                 <Border Theme="{StaticResource CardBorder}" Padding="5">
                     <ListBox Height="150" ItemsSource="{Binding Targets}">
                         <!-- <ListBox.ItemTemplate> -->
-                        <!--     <DataTemplate DataType="viewModels:UnlockDialogModel+TargetItemViewModel"> -->
+                        <!--     <DataTemplate x:DataType="viewModels:UnlockDialogModel+TargetItemViewModel"> -->
                         <!--         <components:TargetItem FileName="{Binding FileName}" -->
                         <!--                                     TextToolTip="{Binding RelativePath}" -->
                         <!--                                     RelativeDirectory="{Binding RelativeDirectory}" -->

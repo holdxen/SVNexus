@@ -9,7 +9,7 @@
              xmlns:u="https://irihi.tech/ursa"
              x:Class="SVNexus.Views.WelcomeView">
     <UserControl.DataTemplates>
-        <DataTemplate DataType="viewModels:WelcomeViewModel+RepositoryItemViewModel">
+        <DataTemplate x:DataType="viewModels:WelcomeViewModel+RepositoryItemViewModel">
             <Grid RowDefinitions="*, Auto, Auto, Auto">
                 <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto" Margin="6">
                     <components:SvgRender Grid.Column="0"
@@ -98,7 +98,7 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
-        <DataTemplate DataType="viewModels:WelcomeViewModel+WorkingCopyItemViewModel">
+        <DataTemplate x:DataType="viewModels:WelcomeViewModel+WorkingCopyItemViewModel">
             <Grid RowDefinitions="*, Auto, Auto, Auto">
                 <Interaction.Behaviors>
                     <EventTriggerBehavior EventName="Loaded">
@@ -332,7 +332,7 @@
                                  SelectedIndex="{Binding SelectedGroupIndex}" 
                                  ItemsSource="{Binding HistoryGroupItemViewModels}">
                             <ListBox.ItemTemplate>
-                                <DataTemplate DataType="viewModels:WelcomeViewModel+HistoryGroupItemViewModel">
+                                <DataTemplate x:DataType="viewModels:WelcomeViewModel+HistoryGroupItemViewModel">
                                     <Grid ColumnDefinitions="*, Auto" Margin="6 7" Background="Transparent">
                                         <TextBlock Text="{Binding Name}"></TextBlock>
                                         <Label Grid.Column="1" Theme="{StaticResource TagLabel}" Classes="Circle Indigo"
@@ -414,7 +414,7 @@
             </Border>
             <Border Grid.Column="2" Theme="{StaticResource CardBorder}" >
                 <Border.DataTemplates>
-                    <DataTemplate DataType="viewModels:WelcomeViewModel+WorkingCopyItemViewModel">
+                    <DataTemplate x:DataType="viewModels:WelcomeViewModel+WorkingCopyItemViewModel">
                         <Grid RowDefinitions="Auto, Auto, Auto, Auto, *, Auto">
                             <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
                                 <Label Theme="{StaticResource TitleLabel}" Classes="H3" Content="{Binding Name}"/>

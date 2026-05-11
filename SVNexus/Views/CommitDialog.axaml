@@ -41,7 +41,7 @@
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
                         <ListBox Height="150" ItemsSource="{Binding DisplayTargetItems}">
                             <!-- <ListBox.ItemTemplate> -->
-                            <!--     <DataTemplate DataType="viewModels:CommitDialogModel+TargetItemViewModel"> -->
+                            <!--     <DataTemplate x:DataType="viewModels:CommitDialogModel+TargetItemViewModel"> -->
                             <!--         <components:TargetItem KindIcon="{Binding KindIcon}" -->
                             <!--                                     FileName="{Binding FileName}" -->
                             <!--                                     StatusIcon="{Binding  StatusIcon}" -->
@@ -87,7 +87,7 @@
             <Border Grid.Column="0"></Border>
             <Button Grid.Column="1" 
                     IsEnabled="{Binding !ConfirmCommand.IsRunning}"
-                    Content="取消" 
+                    Content="Cancel" 
                     Command="{Binding CloseCommand}"></Button>
             <Border Grid.Column="2" Width="4"></Border>
             <u:IconButton Grid.Column="3"

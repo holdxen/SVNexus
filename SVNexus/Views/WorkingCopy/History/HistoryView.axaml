@@ -71,7 +71,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate DataType="history:HistoryViewModel+CommitItemViewModel">
+                            <DataTemplate x:DataType="history:HistoryViewModel+CommitItemViewModel">
                                 <TextBlock HorizontalAlignment="Left"
                                            VerticalAlignment="Center"
                                            Classes="Cell"
@@ -82,7 +82,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Author" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate DataType="history:HistoryViewModel+CommitItemViewModel">
+                            <DataTemplate x:DataType="history:HistoryViewModel+CommitItemViewModel">
                                 <TextBlock VerticalAlignment="Center" 
                                            Classes="Cell"
                                            Text="{Binding Author}"></TextBlock>

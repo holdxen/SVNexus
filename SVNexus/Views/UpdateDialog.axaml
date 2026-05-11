@@ -31,7 +31,7 @@
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
                         <ListBox Height="60" ItemsSource="{Binding TargetItems}">
                             <!-- <ListBox.ItemTemplate> -->
-                            <!--     <DataTemplate DataType="workingCopy:ITargetItemViewModel"> -->
+                            <!--     <DataTemplate x:DataType="workingCopy:ITargetItemViewModel"> -->
                             <!--         <components:TargetItem FileName="{Binding FileName}" -->
                             <!--                                     TextToolTip="{Binding RelativePath}" -->
                             <!--                                     RelativeDirectory="{Binding RelativeDirectory}" -->

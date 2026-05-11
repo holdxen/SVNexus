@@ -131,7 +131,7 @@
         <Border Grid.Row="1" Theme="{StaticResource CardBorder}">
             <ListBox Height="150" Name="LogList" ItemsSource="{Binding LogViewModels}">
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="viewModels:InitializeRepositoryProcessDialogModel+LogViewModel">
+                    <DataTemplate x:DataType="viewModels:InitializeRepositoryProcessDialogModel+LogViewModel">
                         <Grid ColumnDefinitions="Auto, *">
                             <TextBlock Grid.Column="0" Text="{Binding ActionText, StringFormat='{}{0}:'}"></TextBlock>
                             <TextBlock Grid.Column="1" Text="{Binding Path}"></TextBlock>

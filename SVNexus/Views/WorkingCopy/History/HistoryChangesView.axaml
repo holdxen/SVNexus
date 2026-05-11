@@ -9,10 +9,10 @@
              x:DataType="remote:HistoryChangesViewModel"
              x:Class="SVNexus.Views.WorkingCopy.History.HistoryChangesView">
     <UserControl.DataTemplates>
-        <!-- <DataTemplate DataType="remote:HistoryChangesViewModel+ListViewModel"> -->
+        <!-- <DataTemplate x:DataType="remote:HistoryChangesViewModel+ListViewModel"> -->
         <!-- -->
         <!-- </DataTemplate> -->
-        <DataTemplate DataType="remote:HistoryChangesViewModel+ListItemViewModel">
+        <DataTemplate x:DataType="remote:HistoryChangesViewModel+ListItemViewModel">
             <Grid x:Name="ItemRoot"
                   Margin="2 4"
                   Background="Transparent"

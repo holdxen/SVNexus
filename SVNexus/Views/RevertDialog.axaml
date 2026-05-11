@@ -30,7 +30,7 @@
                     <Border Theme="{StaticResource CardBorder}" Padding="5">
                         <ListBox Height="150" ItemsSource="{Binding Targets}">
                             <!-- <ListBox.ItemTemplate> -->
-                            <!--     <DataTemplate DataType="viewModels:RevertDialogModel+TargetItemViewModel"> -->
+                            <!--     <DataTemplate x:DataType="viewModels:RevertDialogModel+TargetItemViewModel"> -->
                             <!--         <components:TargetItem KindIcon="{Binding KindIcon}" -->
                             <!--                                     FileName="{Binding FileName}" -->
                             <!--                                     StatusIcon="{Binding  StatusIcon}" -->

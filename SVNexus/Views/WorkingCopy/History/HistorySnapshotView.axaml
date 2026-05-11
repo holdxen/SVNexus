@@ -74,14 +74,14 @@
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Header="Property" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel">
+                                        <DataTemplate x:DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel">
                                             <TextBlock Classes="VCenter" Text="{Binding Name}"></TextBlock>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn CanUserResize="True" CanUserReorder="False" Width="*" Header="Value">
                                     <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel">
+                                        <DataTemplate x:DataType="remote:HistorySnapshotViewModel+PropertyItemViewModel">
                                             <TextBlock Classes="VCenter" Text="{Binding Value}"></TextBlock>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

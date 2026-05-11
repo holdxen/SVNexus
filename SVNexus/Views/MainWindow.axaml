@@ -32,7 +32,7 @@
                           LeftThumbWidth="0"
                           Margin="0 8 0 0">
         <TabControl.ItemTemplate>
-            <DataTemplate DataType="vm:MainWindowViewModel+TabItemViewModel">
+            <DataTemplate x:DataType="vm:MainWindowViewModel+TabItemViewModel">
                 <TextBlock Padding="4 0" 
                            Text="{Binding Text}" />
             </DataTemplate>

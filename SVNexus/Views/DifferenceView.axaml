@@ -114,7 +114,7 @@
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Property" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                    <DataTemplate x:DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
                                         <TextBlock Classes="VCenter" Text="{Binding PropertyName}"></TextBlock>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -122,21 +122,21 @@
                             <DataGridTemplateColumn CanUserResize="True" CanUserReorder="False" Width="*"
                                                     Header="Old value">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                    <DataTemplate x:DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
                                         <TextBlock Classes="VCenter" Text="{Binding PropertyOldValue}"></TextBlock>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="New value" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                    <DataTemplate x:DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
                                         <TextBlock Classes="VCenter" Text="{Binding PropertyNewValue}"></TextBlock>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn Header="Status" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
+                                    <DataTemplate x:DataType="viewModel:DifferenceViewModel+PropertyItemViewModel">
                                         <Grid>
                                             <Grid.Styles>
                                                 <Style Selector="Label">
