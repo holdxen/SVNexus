@@ -143,6 +143,7 @@
                                     BorderBrush="{TemplateBinding Background}"
                                     Classes="CloseItemButtonStyle"
                                     Command="{Binding $parent[local:TabsControl].CloseItemCommand}"
+                                    ToolTip.Tip="Close"
                                     CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                                 <Button.IsVisible>
                                     <MultiBinding Converter="{StaticResource ShowDefaultCloseButtonConverter}">

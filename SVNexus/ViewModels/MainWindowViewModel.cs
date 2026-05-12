@@ -28,7 +28,7 @@ public partial class MainWindowViewModel : ViewModelBase,
     IRecipient<OnSwitchTab>
 {
     
-    public partial class TabItemViewModel(ViewModelBase parent): ViewModelBase(parent), IRecipient<OnGetDialogHostId>, IRecipient<OnRemoveTabModel>
+    public partial class TabItemViewModel(ViewModelBase parent): ViewModelBase(parent), IRecipient<OnGetDialogHostId>, IRecipient<OnRemoveTabModel>, IRecipient<OnGetCurrentTab>
     {
         [ObservableProperty]
         public partial Guid Id { get; set; } = Guid.NewGuid();
@@ -63,6 +63,11 @@ public partial class MainWindowViewModel : ViewModelBase,
             {
                 mainWindowViewModel.RemoveTab(this);
             }
+        }
+
+        public void Receive(OnGetCurrentTab message)
+        {
+            message.Reply(Id);
         }
     }
 
@@ -248,7 +253,7 @@ public partial class MainWindowViewModel : ViewModelBase,
         {
             if (tab.Content is not WorkspaceViewModel workspaceViewModel) continue;
             if (workspaceViewModel.WorkspaceRoot != message.Root) continue;
-            message.Reply(tab);
+            message.Reply(tab.Id);
             return;
         }
         message.Reply(null);
@@ -256,7 +261,7 @@ public partial class MainWindowViewModel : ViewModelBase,
 
     public void Receive(OnSwitchTab message)
     {
-        var index = Tabs.IndexOf(message.Tab);
+        var index = Tabs.FindIndex(e => e.Id == message.Tab);
         if (index < 0)
         {
             message.Reply(false);

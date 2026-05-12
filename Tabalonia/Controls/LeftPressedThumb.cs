@@ -63,17 +63,15 @@ public class LeftPressedThumb : TemplatedControl
     {
         if (!IsLeftButtonPressed(e))
             return;
-        
-        if (_lastPoint.HasValue)
-        {
-            var ev = new VectorEventArgs
-            {
-                RoutedEvent = DragDeltaEvent,
-                Vector = e.GetPosition(this) - _lastPoint.Value,
-            };
 
-            RaiseEvent(ev);
-        }
+        if (!_lastPoint.HasValue) return;
+        var ev = new VectorEventArgs
+        {
+            RoutedEvent = DragDeltaEvent,
+            Vector = e.GetPosition(this) - _lastPoint.Value,
+        };
+
+        RaiseEvent(ev);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -100,20 +98,18 @@ public class LeftPressedThumb : TemplatedControl
     {
         if (!IsLeftButtonPressed(e))
             return;
-        
-        if (_lastPoint.HasValue)
+
+        if (!_lastPoint.HasValue) return;
+        e.Handled = true;
+        _lastPoint = null;
+
+        var ev = new VectorEventArgs
         {
-            e.Handled = true;
-            _lastPoint = null;
+            RoutedEvent = DragCompletedEvent,
+            Vector = e.GetPosition(this),
+        };
 
-            var ev = new VectorEventArgs
-            {
-                RoutedEvent = DragCompletedEvent,
-                Vector = e.GetPosition(this),
-            };
-
-            RaiseEvent(ev);
-        }
+        RaiseEvent(ev);
     }
 
     
@@ -125,9 +121,8 @@ public class LeftPressedThumb : TemplatedControl
     }
     
     
-    private class LeftPressedThumbPeer : ControlAutomationPeer
+    private class LeftPressedThumbPeer(LeftPressedThumb owner) : ControlAutomationPeer(owner)
     {
-        public LeftPressedThumbPeer(LeftPressedThumb owner) : base(owner) { }
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Thumb;
         protected override bool IsContentElementCore() => false;
     }

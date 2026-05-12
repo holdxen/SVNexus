@@ -72,7 +72,7 @@
         <tab:TabsControl.Styles>
             <Style Selector="tab|DragTabItem" x:DataType="vm:MainWindowViewModel+TabItemViewModel">
                 <Setter Property="(ToolTip.Tip)" Value="{Binding ToolTip}"></Setter>
-                <Setter Property="Draggable" Value="False"></Setter>
+                <!-- <Setter Property="Draggable" Value="False"></Setter> -->
             </Style>
         </tab:TabsControl.Styles>
         

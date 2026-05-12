@@ -680,13 +680,13 @@ public partial class WorkspaceViewModel : ViewModelBase,
     {
         try
         {
-            var root = await _context.Value.GetWcRoot(WorkspacePath);
+            WorkspaceRoot = await _context.Value.GetWcRoot(WorkspacePath);
 
             var found = SendMessage(new OnGetTabByWorkspaceRoot()
             {
-                Root = root
+                Root = WorkspaceRoot
             }).Response;
-            if (found is not null)
+            if (found is not null && SendMessage(new OnGetCurrentTab()) != found)
             {
                 var hostId = SendMessage(new OnGetDialogHostId());
                 var result = await OverlayMessageBox.ShowAsync($"The root of {WorkspacePath} is already opened. Redirect to the specified page?", title: "Info", hostId: hostId, icon: MessageBoxIcon.Question, MessageBoxButton.YesNo);
@@ -694,7 +694,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 {
                     if (!SendMessage(new OnSwitchTab()
                         {
-                            Tab = found,
+                            Tab = found.Value,
                         }))
                     {
                         Manager.Default.Send(new OnShowToast()
@@ -707,7 +707,6 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 SendMessage(new OnRemoveTabModel());
             }
 
-            WorkspaceRoot = root;
 
             var repositoryRoot = await _context.Value.GetRepositoryRoot(WorkspacePath);
 
@@ -720,7 +719,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 {
                     if (historyItems.Any(historyItem => historyItem.Uuid == History.Uuid))
                     {
-                        var item = History with { LastUsedTime = time, WorkingCopyPath = WorkspacePath, WorkingCopyRoot = root};
+                        var item = History with { LastUsedTime = time, WorkingCopyPath = WorkspacePath, WorkingCopyRoot = WorkspaceRoot };
                         // await SeaDatabaseConnection.Default.SetWorkspaceHistory(item);
                         await SeaDatabaseConnection.Default.UpdateWorkspaceHistory(History.Uuid, new UpdateOperationValue(AnyValue.FromWorkspaceHistory(item)));
                         History = item;

@@ -5,7 +5,10 @@ using SVNexus.ViewModels;
 
 namespace SVNexus.Messages;
 
-public class OnGetTabByWorkspaceRoot: RequestMessage<MainWindowViewModel.TabItemViewModel?>
+public class OnGetTabByWorkspaceRoot: RequestMessage<Guid?>
 {
-    public required string Root { get; set; }
+    public required string Root { get; init; }
 }
+
+
+public class OnGetCurrentTab: RequestMessage<Guid>;
