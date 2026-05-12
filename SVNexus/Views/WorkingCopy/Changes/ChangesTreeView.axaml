@@ -40,6 +40,7 @@
                                             IsLocked="{Binding IsLocked}"
                                             KindIcon="{Binding KindIcon}"
                                             IsDelete="{Binding IsDelete}"
+                                            TextToolTip="{Binding AbsolutePath}"
                                             StatusIcon="{Binding StatusIcon}"
                                             IsLoading="{Binding LoadedCommand.IsRunning}"
                                             ShowRelateDirectory="False">

@@ -53,6 +53,7 @@ public partial class LocalViewModel : ViewModelBase,
         [NotifyPropertyChangedFor(nameof(StatusToolTip))]
         [NotifyPropertyChangedFor(nameof(StatusIcon))]
         [NotifyPropertyChangedFor(nameof(IsLocked))]
+        [NotifyPropertyChangedFor(nameof(AbsolutePath))]
         public required partial StatusEntry StatusEntry { get; set; }
         
         public bool HasChild => StatusEntry.NodeKind == NodeKind.Directory;
@@ -73,6 +74,8 @@ public partial class LocalViewModel : ViewModelBase,
 
 
         public string StatusIcon => StatusEntry.NodeStatus.Icon();
+
+        public string AbsolutePath => StatusEntry.Path;
         
 
         partial void OnIsExpandedChanged(bool value)

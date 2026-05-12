@@ -135,6 +135,7 @@ public class DifferenceColorCollection
             DifferenceLine.Kind.Added => Added.Background,
             DifferenceLine.Kind.Remove => Removed.Background,
             DifferenceLine.Kind.Removed => Placeholder.Background,
+            DifferenceLine.Kind.Visual => new ImmutableSolidColorBrush(Colors.Transparent),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Invalid difference kind")
         };
 

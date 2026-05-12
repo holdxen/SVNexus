@@ -196,7 +196,7 @@ impl AsyncContext {
         path: &str,
         start: Option<u32>,
         limit: Option<u32>,
-        reverse: bool
+        reverse: bool,
     ) -> error::Result<Vec<IndexedLogEntry>> {
         let start = if let Some(start) = start {
             Revision::Number(start)
@@ -809,6 +809,7 @@ impl AsyncContext {
         self.call_async(|mut context| context.patch(opts)).await
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn difference(
         &self,
         opts: ClientDifferenceOptions,

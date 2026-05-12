@@ -137,6 +137,7 @@
                                           x:DataType="wk:WorkspaceViewModel+TreeItemViewModel">
                             <components:TargetItem StatusIcon="{Binding NodeStatusIcon}" 
                                                         FileName="{Binding Name}"
+                                                        TextToolTip="{Binding AbsolutePath}"
                                                         KindIcon="{Binding NodeKindIcon}">
                             </components:TargetItem>
                             <!-- <Grid ColumnDefinitions="Auto, *, Auto"> -->

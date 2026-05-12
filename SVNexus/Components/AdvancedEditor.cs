@@ -30,6 +30,15 @@ public class AdvancedEditor: TextEditor
         set => SetValue(LinesProperty, value);
     }
 
+    public static readonly StyledProperty<bool> ChangesOnlyProperty = AvaloniaProperty.Register<AdvancedEditor, bool>(
+        nameof(ChangesOnly));
+
+    public bool ChangesOnly
+    {
+        get => GetValue(ChangesOnlyProperty);
+        set => SetValue(ChangesOnlyProperty, value);
+    }
+
     protected override Type StyleKeyOverride { get; } = typeof(TextEditor);
     
     protected readonly BackgroundRenderer LineBackgroundRenderer = new();
@@ -54,15 +63,16 @@ public class AdvancedEditor: TextEditor
         
         ShowLineNumbers = false;
     }
+    
+    
 
     protected void AffectRenders(List<DifferenceLine> lines)
     {
         LineBackgroundRenderer.Lines = lines;
         LineNumberRenderer.Lines = lines;
-        Document.Text = string.Join(Environment.NewLine, lines.Select(i => i.Content ?? string.Empty));
+        Document.Text = string.Join("\n", lines.Select(i => i.Text));
         LineNumberRenderer.InvalidateMeasure();
         LineNumberRenderer.InvalidateVisual();
-
     }
 
 
@@ -159,6 +169,7 @@ public class AdvancedEditor: TextEditor
         {
             if (!textView.VisualLinesValid)
             {
+                Logger.Info("The text view must be valid.");
                 return;
             }
             var colorCollection = Application.Current?.ActualThemeVariant == ThemeVariant.Light ? DifferenceColorCollection.Light : DifferenceColorCollection
@@ -179,37 +190,7 @@ public class AdvancedEditor: TextEditor
                 {
                     continue;
                 }
-                // IBrush? brush = null;
                 var line = Lines[lineNumber];
-                // switch (line.DifferenceKind)
-                // {
-                //     case DifferenceLine.Kind.Modified:
-                //         brush = colorCollection.Modified.Background;
-                //         break;
-                //     case DifferenceLine.Kind.Unchanged:
-                //         brush = new ImmutableSolidColorBrush(Colors.Transparent);
-                //         break;
-                //     case DifferenceLine.Kind.Add:
-                //         brush = colorCollection.Placeholder.Background;
-                //         break;
-                //     case DifferenceLine.Kind.Added:
-                //         brush = colorCollection.Added.Background;
-                //         break;
-                //     case DifferenceLine.Kind.Remove:
-                //         brush = colorCollection.Removed.Background;
-                //         break;
-                //     case DifferenceLine.Kind.Removed:
-                //         brush = colorCollection.Placeholder.Background;
-                //         break;
-                //     default:
-                //         throw new ArgumentOutOfRangeException(nameof(line.DifferenceKind), line.DifferenceKind, "Invalid difference kind");
-                // }
-                //
-                // if (brush is null)
-                // {
-                //     Logger.Info($"brush is null: kind={line.DifferenceKind}, brush: {brush}");
-                //     continue;
-                // }
                 var y = visualLine.VisualTop - textView.VerticalOffset;
                 if (kind is null)
                 {
@@ -227,16 +208,12 @@ public class AdvancedEditor: TextEditor
                     }
 
                 }
-                if (i != textView.VisualLines.Count - 1) continue;
+
+                if (i != textView.VisualLines.Count - 1 && lineNumber != Lines.Count - 1) continue;
                 {
                     var rect = new Rect(0, start, textView.Bounds.Width, y - start + visualLine.Height);
                     drawingContext.DrawRectangle(colorCollection.BackgroundColor(line.DifferenceKind), null, rect);
                 }
-
-                // // 覆盖整行（包含行尾空白）
-                // var rect = new Rect(0, y, textView.Bounds.Width, visualLine.Height);
-                // drawingContext.DrawRectangle(brush, null, rect);
-            
             }
 
         }

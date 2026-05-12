@@ -5,7 +5,6 @@
              xmlns:workingCopy="clr-namespace:SVNexus.ViewModels.WorkingCopy"
              xmlns:u="https://irihi.tech/ursa"
              xmlns:components="clr-namespace:SVNexus.Components"
-             xmlns:inject="clr-namespace:SVNexus.Inject"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="workingCopy:WorkingCopyViewModel"
@@ -76,6 +75,11 @@
                                               IsEnabled="{Binding ChangesViewModel.IsLockButtonEnable}"
                                               Command="{Binding ChangesViewModel.LockCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Unlock"
+                                              Source="{StaticResource Icons.OperationUnlock}"
+                                              IsEnabled="{Binding ChangesViewModel.IsUnlockButtonEnable}"
+                                              Command="{Binding ChangesViewModel.UnlockCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Lock"
                                               Source="{StaticResource Icons.OperationDiff}"
                                               IsEnabled="{Binding ChangesViewModel.IsDiffButtonEnable}"
@@ -85,11 +89,6 @@
                                               Source="{StaticResource Icons.OperationPatch}"
                                               IsEnabled="{Binding ChangesViewModel.IsPatchButtonEnable}"
                                               Command="{Binding ChangesViewModel.PatchCommand}"></components:SvgButton>
-                        <components:SvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Unlock"
-                                              Source="{StaticResource Icons.OperationUnlock}"
-                                              IsEnabled="{Binding ChangesViewModel.IsUnlockButtonEnable}"
-                                              Command="{Binding ChangesViewModel.UnlockCommand}"></components:SvgButton>
                         <components:LoadingSvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Unlock"
                                               IsLoading="{Binding ChangesViewModel.InfoCommand.IsRunning}"

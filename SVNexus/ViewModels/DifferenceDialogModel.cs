@@ -145,7 +145,7 @@ public partial class DifferenceDialogModel : DialogModelBase
     }
 
 
-    private async Task Export()
+    protected override async Task OnConfirm()
     {
         var saveFileOptions = new OnFilePickerSave()
         {
@@ -164,11 +164,6 @@ public partial class DifferenceDialogModel : DialogModelBase
         }
 
         await File.WriteAllTextAsync(file.Path.AbsolutePath, Out);
-    }
-
-    protected override async Task OnConfirm()
-    {
-        await Export();
         Ok();
     }
 

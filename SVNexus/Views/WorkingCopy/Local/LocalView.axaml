@@ -113,6 +113,7 @@
                                                         IsDelete="{Binding IsDelete}"
                                                         IsLocked="{Binding IsLocked}"
                                                         KindIcon="{Binding NodeKindIcon}"
+                                                        TextToolTip="{Binding AbsolutePath}"
                                                         StatusToolTip="{Binding StatusToolTip}"
                                                         StatusIcon="{Binding StatusIcon}">
                             </components:TargetItem>

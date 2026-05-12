@@ -1,7 +1,9 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:u="https://irihi.tech/ursa"
-        xmlns:components="using:SVNexus.Components">
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:components="using:SVNexus.Components"
+        xmlns:behaviors="using:SVNexus.Behaviors">
     <Design.PreviewWith>
         <components:LoadingOrError />
     </Design.PreviewWith>
@@ -22,7 +24,7 @@
         <!-- Set Defaults -->
         <Setter Property="Template">
             <ControlTemplate>
-                <Border CornerRadius="{TemplateBinding CornerRadius}" 
+                <Border CornerRadius="{TemplateBinding CornerRadius}"
                         ClipToBounds="True">
                     <Panel>
                         <ContentPresenter
@@ -49,16 +51,21 @@
                             IsVisible="{TemplateBinding IsError}"
                             IsLoading="{TemplateBinding IsError}">
                             <u:Loading.Indicator>
-                                <PathIcon Width="24" 
-                                          Height="24" 
+                                <PathIcon Width="24"
+                                          Height="24"
                                           Data="{DynamicResource SemiIconAlertCircle}"
                                           Foreground="{DynamicResource SemiColorDanger}">
                                 </PathIcon>
                             </u:Loading.Indicator>
                             <StackPanel Margin="0 3" Spacing="5">
-                                <ContentPresenter
-                                    Foreground="{DynamicResource SemiColorDanger}"
-                                    Content="{TemplateBinding ErrorMessage}">
+                                <ContentPresenter Content="{TemplateBinding ErrorMessage}">
+                                    <ContentPresenter.ContentTemplate>
+                                        <DataTemplate x:DataType="system:String">
+                                            <SelectableTextBlock Text="{Binding}" 
+                                                                 TextWrapping="Wrap" Classes="Danger">
+                                            </SelectableTextBlock>
+                                        </DataTemplate>
+                                    </ContentPresenter.ContentTemplate>
                                 </ContentPresenter>
                                 <Button Content="Retry"
                                         Classes="Danger"

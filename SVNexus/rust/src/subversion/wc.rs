@@ -6,11 +6,15 @@ use super::context;
 use super::ffi;
 use super::version::Version;
 use crate::apr;
+use crate::apr::AprPool;
 use crate::error;
 use crate::error::builder;
+use crate::extensions::Canonicalization;
 use crate::utils::Pointer;
 use crate::utils::{CStringer, PointerMapper, SubversionStringer};
 use std::collections::HashMap;
+use std::ffi::c_char;
+use std::ffi::c_void;
 use std::sync::Arc;
 
 pub struct WorkingCopyContext {
@@ -63,6 +67,7 @@ pub struct CheckRootResult {
     kind: context::NodeKind,
 }
 
+#[derive(uniffi::Record, Debug)]
 pub struct WorkingCopyWalkStatusOptions {
     local_absolute_path: String,
     depth: context::Depth,
@@ -75,6 +80,59 @@ pub struct WorkingCopyWalkStatusOptions {
 pub enum AsyncWorkingCopyContext {
     Context(Arc<parking_lot::FairMutex<context::Context>>),
     Raw(Arc<parking_lot::FairMutex<WorkingCopyContext>>),
+}
+
+#[cfg(false)]
+#[derive(uniffi::Record, Debug)]
+pub struct WcDifferenceFileOpenedResult {
+    tree_conflicted: Option<bool>,
+    skip: Option<bool>,
+}
+
+#[cfg(false)]
+#[uniffi::export(with_foreign)]
+pub trait WcDifferenceCallback: Send + Sync + 'static {
+    fn file_opened(
+        &self,
+        tree_conflicted: Option<bool>,
+        skip: bool,
+        path: String,
+        revision: Option<u32>,
+    ) -> error::Result<WcDifferenceFileOpenedResult, error::CSharpError>;
+
+    fn file_changed(
+        &self,
+        content_state: Option<WorkingCopyNotifyState>,
+        property_state: Option<WorkingCopyNotifyState>,
+        tree_conflicted: Option<bool>,
+        path: String,
+        file1: String,
+        file2: Option<String>,
+        revision1: Option<u32>,
+        revision2: Option<u32>,
+        mime_type1: Option<String>,
+        mime_type2: Option<String>,
+        property_changes: Option<Vec<String>>,
+    );
+}
+
+#[cfg(false)]
+pub struct WcDifferenceResult {}
+
+#[cfg(false)]
+pub struct WcDifferenceOptions {
+    target: String,
+    depth: context::Depth,
+    ignore_ancestry: bool,
+    show_copies_as_adds: bool,
+    use_git_diff_format: bool,
+    changelist_filter: Option<Vec<String>>,
+}
+
+#[derive(uniffi::Record, Debug, Clone)]
+pub struct WcReplacedFile {
+    content: Vec<u8>,
+    original_properties: Option<HashMap<String, String>>,
 }
 
 #[uniffi::export(async_runtime = "tokio")]
@@ -176,6 +234,200 @@ impl AsyncWorkingCopyContext {
 
             Ok(v)
 
+            // Ok(version)
+        })
+        .await
+    }
+
+    pub async fn get_wc_replaced_file(
+        &self,
+        path: String,
+    ) -> error::Result<Option<WcReplacedFile>> {
+        use ffi::*;
+        unsafe extern "C" fn file_deleted(
+            _state: *mut ffi::svn_wc_notify_state_t,
+            _tree_conflicted: *mut ffi::svn_boolean_t,
+            _path: *const c_char,
+            file1: *const c_char,
+            _file2: *const c_char,
+            _mime_type1: *const c_char,
+            _mime_type2: *const c_char,
+            original_properties: *mut ffi::apr_hash_t,
+            baton: *mut c_void,
+            scratch_pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
+            unsafe {
+                let file = (baton as *mut Option<WcReplacedFile>).as_mut().unwrap();
+                if !file1.is_null() {
+                    let content = match std::fs::read(file1.to_str()) {
+                        Ok(c) => c,
+                        Err(e) => {
+                            tracing::error!("Failed to read {}:{}", file1.to_str(), e);
+                            return std::ptr::null_mut();
+                        }
+                    };
+
+                    let mut f = WcReplacedFile {
+                        content,
+                        original_properties: None,
+                    };
+
+                    if !original_properties.is_null() {
+                        let original_properties =
+                            scratch_pool.convert_to_hash_map(original_properties);
+                        f.original_properties = Some(original_properties);
+                    }
+
+                    *file = Some(f);
+                } else {
+                    tracing::error!("File1 is null");
+                }
+            }
+
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn file_opened(
+            tree_conflicted: *mut svn_boolean_t,
+            skip: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            rev: svn_revnum_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn file_changed(
+            contentstate: *mut svn_wc_notify_state_t,
+            propstate: *mut svn_wc_notify_state_t,
+            tree_conflicted: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            tmpfile1: *const ::std::os::raw::c_char,
+            tmpfile2: *const ::std::os::raw::c_char,
+            rev1: svn_revnum_t,
+            rev2: svn_revnum_t,
+            mimetype1: *const ::std::os::raw::c_char,
+            mimetype2: *const ::std::os::raw::c_char,
+            propchanges: *const apr_array_header_t,
+            originalprops: *mut apr_hash_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn file_added(
+            contentstate: *mut svn_wc_notify_state_t,
+            propstate: *mut svn_wc_notify_state_t,
+            tree_conflicted: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            tmpfile1: *const ::std::os::raw::c_char,
+            tmpfile2: *const ::std::os::raw::c_char,
+            rev1: svn_revnum_t,
+            rev2: svn_revnum_t,
+            mimetype1: *const ::std::os::raw::c_char,
+            mimetype2: *const ::std::os::raw::c_char,
+            copyfrom_path: *const ::std::os::raw::c_char,
+            copyfrom_revision: svn_revnum_t,
+            propchanges: *const apr_array_header_t,
+            originalprops: *mut apr_hash_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn dir_deleted(
+            state: *mut svn_wc_notify_state_t,
+            tree_conflicted: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn dir_opened(
+            tree_conflicted: *mut svn_boolean_t,
+            skip: *mut svn_boolean_t,
+            skip_children: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            rev: svn_revnum_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn dir_added(
+            state: *mut svn_wc_notify_state_t,
+            tree_conflicted: *mut svn_boolean_t,
+            skip: *mut svn_boolean_t,
+            skip_children: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            rev: svn_revnum_t,
+            copyfrom_path: *const ::std::os::raw::c_char,
+            copyfrom_revision: svn_revnum_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn dir_props_changed(
+            propstate: *mut svn_wc_notify_state_t,
+            tree_conflicted: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            dir_was_added: svn_boolean_t,
+            propchanges: *const apr_array_header_t,
+            original_props: *mut apr_hash_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        unsafe extern "C" fn dir_closed(
+            contentstate: *mut svn_wc_notify_state_t,
+            propstate: *mut svn_wc_notify_state_t,
+            tree_conflicted: *mut svn_boolean_t,
+            path: *const ::std::os::raw::c_char,
+            dir_was_added: svn_boolean_t,
+            diff_baton: *mut ::std::os::raw::c_void,
+            scratch_pool: *mut apr_pool_t,
+        ) -> *mut svn_error_t {
+            std::ptr::null_mut()
+        }
+        self.call_async(move |ctx| unsafe {
+            let mut pool = apr::Pool::create();
+            let path = pool.canonicalize_dirent(&path)?;
+
+            let mut callbacks: ffi::svn_wc_diff_callbacks4_t = std::mem::zeroed();
+            callbacks.file_opened = Some(file_opened);
+            callbacks.file_changed = Some(file_changed);
+            callbacks.file_added = Some(file_added);
+            callbacks.file_deleted = Some(file_deleted);
+            callbacks.dir_added = Some(dir_added);
+            callbacks.dir_closed = Some(dir_closed);
+            callbacks.dir_deleted = Some(dir_deleted);
+            callbacks.dir_opened = Some(dir_opened);
+            callbacks.dir_props_changed = Some(dir_props_changed);
+
+            let mut file: Option<WcReplacedFile> = None;
+
+            tracing::info!("Start diff");
+            let error = ffi::svn_wc_diff7(
+                ctx,
+                path,
+                callbacks.pointer(),
+                file.pointer_mut() as _,
+                ffi::svn_depth_t_svn_depth_empty,
+                0,
+                0,
+                0,
+                Default::default(),
+                None,
+                Default::default(),
+                pool.as_mut_ptr(),
+            );
+            tracing::info!("Start diff end");
+
+            SVNError::from_nullable_ptr(error).context(builder::Svn)?;
+
+            Ok(file)
             // Ok(version)
         })
         .await

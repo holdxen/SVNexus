@@ -10,6 +10,7 @@ public class DifferenceLine
         Removed,
         Remove,
         Modified,
+        Visual
     }
 
     public enum LineEnding
@@ -23,4 +24,8 @@ public class DifferenceLine
     public string? Content { get; set; } = string.Empty;
     
     public LineEnding Ending { get; set; } = LineEnding.Lf;
+    
+    public string? VisualText { get; set; }
+    
+    public string Text => Content ?? VisualText ?? string.Empty;
 }

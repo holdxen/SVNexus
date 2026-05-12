@@ -91,6 +91,8 @@ public partial class ChangesTreeViewModel : ViewModelBase,
     
         [ObservableProperty]
         public required partial bool IsChecked { get; set; }
+        
+        public string? AbsolutePath => StatusEntry?.Path;
 
 
         public List<object> MenuItems { get; } = [];

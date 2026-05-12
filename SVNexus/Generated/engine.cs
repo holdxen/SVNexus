@@ -2478,6 +2478,8 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
@@ -11420,6 +11422,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ulong uniffi_engine_fn_method_asyncworkingcopycontext_check_root(ulong @ptr,RustBuffer @absolutePath
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_method_asyncworkingcopycontext_get_wc_replaced_file(ulong @ptr,RustBuffer @path
     );
 
     #if NET8_0_OR_GREATER
@@ -20879,6 +20892,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_asyncworkingcopycontext_get_wc_replaced_file(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_asyncworkingcopycontext_revsion_status(
     );
 
@@ -25702,6 +25726,12 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_asyncworkingcopycontext_get_wc_replaced_file();
+            if (checksum != 41592) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_get_wc_replaced_file` checksum `41592`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asyncworkingcopycontext_revsion_status();
             if (checksum != 21523) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asyncworkingcopycontext_revsion_status` checksum `21523`, library returned `{checksum}`");
@@ -27190,6 +27220,8 @@ public interface IAsyncWorkingCopyContext {
     /// <exception cref="Exception"></exception>
     Task<CheckRootResult> CheckRoot(string @absolutePath);
     /// <exception cref="Exception"></exception>
+    Task<WcReplacedFile?> GetWcReplacedFile(string @path);
+    /// <exception cref="Exception"></exception>
     Task<WorkingCopyRevisionStatusResult> RevsionStatus(WorkingCopyRevisionStatusOptions @opts);
     /// <exception cref="Exception"></exception>
     Task<Version?> WcVersion(string @path);
@@ -27300,6 +27332,28 @@ public class AsyncWorkingCopyContext : IAsyncWorkingCopyContext, IDisposable {
         (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
         // Lift
         (result) => FfiConverterTypeCheckRootResult.INSTANCE.Lift(result),
+        // Error
+        FfiConverterTypeError.INSTANCE
+    );
+    }
+    
+    /// <exception cref="Exception"></exception>
+    public async Task<WcReplacedFile?> GetWcReplacedFile(string @path) {
+    return await _UniFFIAsync.UniffiRustCallAsync(
+        // Get rust future
+        CallWithPointer(thisPtr => {
+            return _UniFFILib.uniffi_engine_fn_method_asyncworkingcopycontext_get_wc_replaced_file(thisPtr, FfiConverterString.INSTANCE.Lower(@path));
+        }),
+        // Poll
+        (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
+        // Complete
+        (ulong future, ref UniffiRustCallStatus status) => {
+            return _UniFFILib.ffi_engine_rust_future_complete_rust_buffer(future, ref status);
+        },
+        // Free
+        (ulong future) => _UniFFILib.ffi_engine_rust_future_free_rust_buffer(future),
+        // Lift
+        (result) => FfiConverterOptionalTypeWcReplacedFile.INSTANCE.Lift(result),
         // Error
         FfiConverterTypeError.INSTANCE
     );
@@ -39535,6 +39589,36 @@ class FfiConverterTypeVersion: FfiConverterRustBuffer<Version> {
 
 
 
+public record WcReplacedFile (
+    byte[] Content, 
+    Dictionary<string, string>? OriginalProperties
+) {
+}
+
+class FfiConverterTypeWcReplacedFile: FfiConverterRustBuffer<WcReplacedFile> {
+    public static FfiConverterTypeWcReplacedFile INSTANCE = new FfiConverterTypeWcReplacedFile();
+
+    public override WcReplacedFile Read(BigEndianStream stream) {
+        return new WcReplacedFile(
+            Content: FfiConverterByteArray.INSTANCE.Read(stream),
+            OriginalProperties: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WcReplacedFile value) {
+        return 0
+            + FfiConverterByteArray.INSTANCE.AllocationSize(value.Content)
+            + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.OriginalProperties);
+    }
+
+    public override void Write(WcReplacedFile value, BigEndianStream stream) {
+            FfiConverterByteArray.INSTANCE.Write(value.Content, stream);
+            FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.OriginalProperties, stream);
+    }
+}
+
+
+
 public record WorkingCopyConflictDescription (
     string LocalAbsolutePath, 
     NodeKind NodeKind, 
@@ -40029,6 +40113,48 @@ class FfiConverterTypeWorkingCopyRevisionStatusResult: FfiConverterRustBuffer<Wo
 
     public override void Write(WorkingCopyRevisionStatusResult value, BigEndianStream stream) {
             FfiConverterTypeWorkingCopyRevisionStatus.INSTANCE.Write(value.Status, stream);
+    }
+}
+
+
+
+public record WorkingCopyWalkStatusOptions (
+    string LocalAbsolutePath, 
+    Depth Depth, 
+    bool GetAll, 
+    bool NoIgnore, 
+    bool IgnoreTextModified
+) {
+}
+
+class FfiConverterTypeWorkingCopyWalkStatusOptions: FfiConverterRustBuffer<WorkingCopyWalkStatusOptions> {
+    public static FfiConverterTypeWorkingCopyWalkStatusOptions INSTANCE = new FfiConverterTypeWorkingCopyWalkStatusOptions();
+
+    public override WorkingCopyWalkStatusOptions Read(BigEndianStream stream) {
+        return new WorkingCopyWalkStatusOptions(
+            LocalAbsolutePath: FfiConverterString.INSTANCE.Read(stream),
+            Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
+            GetAll: FfiConverterBoolean.INSTANCE.Read(stream),
+            NoIgnore: FfiConverterBoolean.INSTANCE.Read(stream),
+            IgnoreTextModified: FfiConverterBoolean.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(WorkingCopyWalkStatusOptions value) {
+        return 0
+            + FfiConverterString.INSTANCE.AllocationSize(value.LocalAbsolutePath)
+            + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.GetAll)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoIgnore)
+            + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreTextModified);
+    }
+
+    public override void Write(WorkingCopyWalkStatusOptions value, BigEndianStream stream) {
+            FfiConverterString.INSTANCE.Write(value.LocalAbsolutePath, stream);
+            FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.GetAll, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.NoIgnore, stream);
+            FfiConverterBoolean.INSTANCE.Write(value.IgnoreTextModified, stream);
     }
 }
 
@@ -42279,6 +42405,37 @@ class FfiConverterOptionalTypeVersion: FfiConverterRustBuffer<Version?> {
         } else {
             stream.WriteByte(1);
             FfiConverterTypeVersion.INSTANCE.Write((Version)value, stream);
+        }
+    }
+}
+
+
+
+
+class FfiConverterOptionalTypeWcReplacedFile: FfiConverterRustBuffer<WcReplacedFile?> {
+    public static FfiConverterOptionalTypeWcReplacedFile INSTANCE = new FfiConverterOptionalTypeWcReplacedFile();
+
+    public override WcReplacedFile? Read(BigEndianStream stream) {
+        if (stream.ReadByte() == 0) {
+            return null;
+        }
+        return FfiConverterTypeWcReplacedFile.INSTANCE.Read(stream);
+    }
+
+    public override int AllocationSize(WcReplacedFile? value) {
+        if (value == null) {
+            return 1;
+        } else {
+            return 1 + FfiConverterTypeWcReplacedFile.INSTANCE.AllocationSize((WcReplacedFile)value);
+        }
+    }
+
+    public override void Write(WcReplacedFile? value, BigEndianStream stream) {
+        if (value == null) {
+            stream.WriteByte(0);
+        } else {
+            stream.WriteByte(1);
+            FfiConverterTypeWcReplacedFile.INSTANCE.Write((WcReplacedFile)value, stream);
         }
     }
 }
