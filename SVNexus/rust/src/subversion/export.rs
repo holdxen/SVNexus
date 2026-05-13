@@ -194,6 +194,7 @@ impl AsyncContext {
         db: Arc<db::SeaDatabaseConnection>,
         uuid: &str,
         path: &str,
+        peg_revision: Revision,
         start: Option<u32>,
         limit: Option<u32>,
         reverse: bool,
@@ -212,7 +213,7 @@ impl AsyncContext {
 
         let log_options = LogOptions {
             targets: vec![path.to_string()],
-            peg_revision: Revision::Working,
+            peg_revision,
             limit: limit.unwrap_or_default(),
             revisions: vec![range],
             discover_changed_paths: false,

@@ -264,56 +264,66 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
                 return;
             }
             token.ThrowIfCancellationRequested();
+            
+            
+            SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+            {
+                CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+                CompareRevision = commitItem.Revision == 1 ? null : commitItem.Revision - 1,
+                RelateToRoot = relateToRoot,
+                LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+                RootUrl = ThisEntry.RepositoryRootUrl,
+            });
         
-            // 对比视图，需要找到对比的revision
-            if (value == CommitItems.Count - 1)
-            {
-                // 最后一个，需要加载更多的历史
-
-                if (commitItem.Revision == 1)
-                {
-                    token.ThrowIfCancellationRequested();
-                    SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
-                    {
-                        CurrentRevision = commitItem.Revision.GetValueOrDefault(),
-                        CompareRevision = null,
-                        RelateToRoot = relateToRoot,
-                        LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                        RootUrl = ThisEntry.RepositoryRootUrl,
-                    });
-                }
-                else
-                {
-                    ChangesViewModel = null;
-                    while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
-                    {
-                        token.ThrowIfCancellationRequested();
-                        await LogCommand.ExecuteOrNothingAsync(true);
-                        if (CommitItems.Count <= value + 1 || SelectedCommitItemIndex != value) continue;
-                        SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
-                        {
-                            CurrentRevision = commitItem.Revision.GetValueOrDefault(),
-                            CompareRevision = CommitItems[value + 1].Revision,
-                            RelateToRoot = relateToRoot,
-                            LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                            RootUrl = ThisEntry.RepositoryRootUrl,
-                        });
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                token.ThrowIfCancellationRequested();
-                SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
-                {
-                    CurrentRevision = commitItem.Revision.GetValueOrDefault(),
-                    CompareRevision = CommitItems[value + 1].Revision.GetValueOrDefault(),
-                    RelateToRoot = relateToRoot,
-                    LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
-                    RootUrl = ThisEntry.RepositoryRootUrl,
-                });
-            }
+            // // 对比视图，需要找到对比的revision
+            // if (value == CommitItems.Count - 1)
+            // {
+            //     // 最后一个，需要加载更多的历史
+            //
+            //     if (commitItem.Revision == 1)
+            //     {
+            //         token.ThrowIfCancellationRequested();
+            //         SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+            //         {
+            //             CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+            //             CompareRevision = null,
+            //             RelateToRoot = relateToRoot,
+            //             LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+            //             RootUrl = ThisEntry.RepositoryRootUrl,
+            //         });
+            //     }
+            //     else
+            //     {
+            //         ChangesViewModel = null;
+            //         while (SelectedCommitItemIndex == value && CommitItems.LastOrDefault()?.Revision != 1)
+            //         {
+            //             token.ThrowIfCancellationRequested();
+            //             await LogCommand.ExecuteOrNothingAsync(true);
+            //             if (CommitItems.Count <= value + 1 || SelectedCommitItemIndex != value) continue;
+            //             SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+            //             {
+            //                 CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+            //                 CompareRevision = CommitItems[value + 1].Revision,
+            //                 RelateToRoot = relateToRoot,
+            //                 LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+            //                 RootUrl = ThisEntry.RepositoryRootUrl,
+            //             });
+            //             break;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     token.ThrowIfCancellationRequested();
+            //     SetHistoryChangesViewModel(new HistoryChangesViewModel(this)
+            //     {
+            //         CurrentRevision = commitItem.Revision.GetValueOrDefault(),
+            //         CompareRevision = CommitItems[value + 1].Revision.GetValueOrDefault(),
+            //         RelateToRoot = relateToRoot,
+            //         LogChangedPathEntries = commitItem.Entry.ChangedPathEntries,
+            //         RootUrl = ThisEntry.RepositoryRootUrl,
+            //     });
+            // }
 
         });
         
@@ -546,7 +556,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     private async Task LogTop()
     {
         await CheckUrl();
-        if (ThisEntry is null)
+        if (ThisEntry?.Revision is null)
         {
             return;
         }
@@ -568,7 +578,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
             var entries = await context.LogCacheFillLocal(
                 SeaDatabaseConnection.Default, 
                 ThisEntry.RepositoryUuid,
-                SendMessage(new OnGetWorkingCopyPath()), 
+                ThisEntry.Url,
+                new Revision.Number(ThisEntry.Revision.GetValueOrDefault()), 
                 start, 
                 null,
                 true);
@@ -605,7 +616,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     private async Task LogBottom()
     {
         await CheckUrl();
-        if (ThisEntry is null)
+        if (ThisEntry?.Revision is null)
         {
             return;
         }
@@ -627,7 +638,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
             var logs = await context.LogCacheFillLocal(
                 SeaDatabaseConnection.Default, 
                 ThisEntry.RepositoryUuid,
-                SendMessage(new OnGetWorkingCopyPath()),
+                ThisEntry.Url,
+                new Revision.Number(ThisEntry.Revision.GetValueOrDefault()),
                 _logsRange?.Item2 - 1, 
                 64);
         
@@ -666,6 +678,7 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         }
         catch (Exception e)
         {
+            Logger.Warn($"Failed to log repository: {e.Message}\n{e.StackTrace}");
             Manager.Default.Send(new OnShowToast()
             {
                 Content = "Failed to log repository: " + e.HumanReadableMessage,

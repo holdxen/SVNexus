@@ -36,9 +36,24 @@ pub fn backup(path: impl AsRef<Path>, output: Option<impl AsRef<Path>>) -> error
 
     #[cfg(target_os = "linux")]
     {
-        file_name.push(".tar.gz");
-        let mut file = dir.keep();
-        file.push(file_name);
+        let mut index = 0;
+
+        let file = loop {
+            let name = file_name.clone().also_apply(|f| {
+                if index == 0 {
+                    f.push(".tar.gz")
+                } else {
+                    f.push(format!(".{}.tar.gz", index));
+                }
+            });
+
+            let file = output.join(name);
+
+            if !file.exists() {
+                break file;
+            }
+            index += 1;
+        };
 
         let status = Command::new("tar")
             .current_dir(path)

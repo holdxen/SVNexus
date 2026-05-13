@@ -117,7 +117,7 @@ public partial class HistoryChangesViewModel : ViewModelBase
                 var current = change.Entry.Action == LogChangedPathAction.Delete
                     ? null
                     : new Revision.Number(CurrentRevision);
-                var compared = change.Entry.Action == LogChangedPathAction.Add ? null : CompareRevision?.Map(e => new Revision.Number(CurrentRevision));
+                var compared = change.Entry.Action == LogChangedPathAction.Add ? null : CompareRevision?.Map(e => new Revision.Number(e));
                 if (ChangedItems[value].Entry.NodeKind == NodeKind.Directory)
                 {
                     await DifferenceViewModel.CompareProperty(RootUrl + change.Path, new Revision.Number(CurrentRevision), compared, current);
