@@ -14,3 +14,4 @@ SVNexus/rust/migration/target
 
 *.sln.DotSettings.user
 SVNexus/.deepseek
+.deepseek

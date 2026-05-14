@@ -745,6 +745,10 @@ static class _UniFFILib {
         ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void UniffiCallbackInterfaceImportReceiverMethod0(
+        ulong @uniffiHandle,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,IntPtr /*sbyte*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
+    );
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void UniffiCallbackInterfaceLogReceiverMethod0(
         ulong @uniffiHandle,RustBuffer @logEntry,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
@@ -783,6 +787,13 @@ static class _UniFFILib {
         public IntPtr @onBackupFinished;
         public IntPtr @onCheckout;
         public IntPtr @onFinished;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct UniffiVTableCallbackInterfaceImportReceiver
+    {
+        public IntPtr @uniffiFree;
+        public IntPtr @uniffiClone;
+        public IntPtr @filter;
     }
     [StructLayout(LayoutKind.Sequential)]
     public struct UniffiVTableCallbackInterfaceLogReceiver
@@ -2480,12 +2491,18 @@ static class _UniFFILib {
     
     
     
+    
+    
+    
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
         _UniFFILib.uniffiCheckApiChecksums();
         
         UniffiCallbackInterfaceContextNotifier.Register();
+        UniffiCallbackInterfaceImportReceiver.Register();
         UniffiCallbackInterfaceInitializeRepositoryNotifier.Register();
         UniffiCallbackInterfaceLogReceiver.Register();
         UniffiCallbackInterfaceStatusReceiver.Register();
@@ -10773,6 +10790,50 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_engine_fn_method_initializerepositorynotifier_on_finished(ulong @ptr,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ulong uniffi_engine_fn_clone_importreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_free_importreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_init_callback_vtable_importreceiver(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceImportReceiver*/ @vtable
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     sbyte uniffi_engine_fn_method_importreceiver_filter(ulong @ptr,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -20397,6 +20458,17 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
+     ushort uniffi_engine_checksum_method_importreceiver_filter(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
      ushort uniffi_engine_checksum_method_logreceiver_on_log_entry(
     );
 
@@ -21107,8 +21179,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_seadatabaseconnection_insert_repository_logs();
-            if (checksum != 31101) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_seadatabaseconnection_insert_repository_logs` checksum `31101`, library returned `{checksum}`");
+            if (checksum != 31810) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_seadatabaseconnection_insert_repository_logs` checksum `31810`, library returned `{checksum}`");
             }
         }
         {
@@ -25456,15 +25528,21 @@ static class _UniFFILib {
             }
         }
         {
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_importreceiver_filter();
+            if (checksum != 35576) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_importreceiver_filter` checksum `35576`, library returned `{checksum}`");
+            }
+        }
+        {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_logreceiver_on_log_entry();
-            if (checksum != 32255) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_logreceiver_on_log_entry` checksum `32255`, library returned `{checksum}`");
+            if (checksum != 62449) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_logreceiver_on_log_entry` checksum `62449`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_statusreceiver_on_status_entry();
-            if (checksum != 25059) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_statusreceiver_on_status_entry` checksum `25059`, library returned `{checksum}`");
+            if (checksum != 59038) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_statusreceiver_on_status_entry` checksum `59038`, library returned `{checksum}`");
             }
         }
         {
@@ -25505,8 +25583,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_conflict_walk();
-            if (checksum != 16320) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_conflict_walk` checksum `16320`, library returned `{checksum}`");
+            if (checksum != 788) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_conflict_walk` checksum `788`, library returned `{checksum}`");
             }
         }
         {
@@ -25547,14 +25625,14 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_import();
-            if (checksum != 5374) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `5374`, library returned `{checksum}`");
+            if (checksum != 24964) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `24964`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_info();
-            if (checksum != 47443) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_info` checksum `47443`, library returned `{checksum}`");
+            if (checksum != 34440) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_info` checksum `34440`, library returned `{checksum}`");
             }
         }
         {
@@ -25565,8 +25643,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_list();
-            if (checksum != 37419) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_list` checksum `37419`, library returned `{checksum}`");
+            if (checksum != 39049) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_list` checksum `39049`, library returned `{checksum}`");
             }
         }
         {
@@ -25577,8 +25655,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log();
-            if (checksum != 6151) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log` checksum `6151`, library returned `{checksum}`");
+            if (checksum != 11062) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log` checksum `11062`, library returned `{checksum}`");
             }
         }
         {
@@ -25601,8 +25679,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_log_next();
-            if (checksum != 7564) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log_next` checksum `7564`, library returned `{checksum}`");
+            if (checksum != 5465) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_log_next` checksum `5465`, library returned `{checksum}`");
             }
         }
         {
@@ -25625,8 +25703,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_patch();
-            if (checksum != 5590) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_patch` checksum `5590`, library returned `{checksum}`");
+            if (checksum != 42007) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_patch` checksum `42007`, library returned `{checksum}`");
             }
         }
         {
@@ -25667,14 +25745,14 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_status();
-            if (checksum != 41477) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status` checksum `41477`, library returned `{checksum}`");
+            if (checksum != 33814) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status` checksum `33814`, library returned `{checksum}`");
             }
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_status_next();
-            if (checksum != 51381) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status_next` checksum `51381`, library returned `{checksum}`");
+            if (checksum != 40672) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_status_next` checksum `40672`, library returned `{checksum}`");
             }
         }
         {
@@ -27924,6 +28002,204 @@ class FfiConverterTypeContextNotifier: FfiConverter<ContextNotifier, ulong> {
     }
 
     public override void Write(ContextNotifier value, BigEndianStream stream) {
+        stream.WriteULong(Lower(value));
+    }
+}
+
+
+
+public interface ImportReceiver {
+    bool Filter(string @path, NodeKind @kind, bool @special, ulong? @fileSize, long @mtime);
+}
+public class ImportReceiverImpl : ImportReceiver, IDisposable {
+    protected ulong pointer;
+    private int _wasDestroyed = 0;
+    private long _callCounter = 1;
+
+    public ImportReceiverImpl(ulong pointer) {
+        this.pointer = pointer;
+    }
+
+    ~ImportReceiverImpl() {
+        Destroy();
+    }
+
+    protected void FreeRustArcPtr() {
+        _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            _UniFFILib.uniffi_engine_fn_free_importreceiver(this.pointer, ref status);
+        });
+    }
+
+    protected ulong CloneRustArcPtr() {
+        return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
+            return _UniFFILib.uniffi_engine_fn_clone_importreceiver(this.pointer, ref status);
+        });
+    }
+
+    public void Destroy()
+    {
+        // Only allow a single call to this method.
+        if (Interlocked.CompareExchange(ref _wasDestroyed, 1, 0) == 0)
+        {
+            // This decrement always matches the initial count of 1 given at creation time.
+            if (Interlocked.Decrement(ref _callCounter) == 0)
+            {
+                FreeRustArcPtr();
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        Destroy();
+        GC.SuppressFinalize(this); // Suppress finalization to avoid unnecessary GC overhead.
+    }
+
+    private void IncrementCallCounter() 
+    {
+        // Check and increment the call counter, to keep the object alive.
+        // This needs a compare-and-set retry loop in case of concurrent updates.
+        long count;
+        do
+        {
+            count = Interlocked.Read(ref _callCounter);
+            if (count == 0L) throw new System.ObjectDisposedException(string.Format("'{0}' object has already been destroyed", this.GetType().Name));
+            if (count == long.MaxValue) throw new System.OverflowException(string.Format("'{0}' call counter would overflow", this.GetType().Name));
+
+        } while (Interlocked.CompareExchange(ref _callCounter, count + 1, count) != count);
+    }
+
+    private void DecrementCallCounter() 
+    {
+        // This decrement always matches the increment we performed above.
+        if (Interlocked.Decrement(ref _callCounter) == 0) {
+            FreeRustArcPtr();
+        }
+    }
+
+    internal void CallWithPointer(Action<ulong> action)
+    {
+        IncrementCallCounter();
+        try {
+            action(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    internal T CallWithPointer<T>(Func<ulong, T> func)
+    {   
+        IncrementCallCounter();
+        try {
+            return func(CloneRustArcPtr());
+        }
+        finally {
+            DecrementCallCounter();
+        }
+    }
+
+    
+    public bool Filter(string @path, NodeKind @kind, bool @special, ulong? @fileSize, long @mtime) {
+        return CallWithPointer(thisPtr => FfiConverterBoolean.INSTANCE.Lift(
+    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_importreceiver_filter(thisPtr, FfiConverterString.INSTANCE.Lower(@path), FfiConverterTypeNodeKind.INSTANCE.Lower(@kind), FfiConverterBoolean.INSTANCE.Lower(@special), FfiConverterOptionalUInt64.INSTANCE.Lower(@fileSize), FfiConverterInt64.INSTANCE.Lower(@mtime), ref _status)
+)));
+    }
+    
+    
+
+    
+}
+class UniffiCallbackInterfaceImportReceiver {
+    static void Filter(ulong @uniffiHandle,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,IntPtr /*sbyte*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
+        var handle = @uniffiHandle;
+        try {
+            if (!FfiConverterTypeImportReceiver.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+                throw new InternalException($"No callback in handlemap '{handle}'");
+            }
+            var result =
+            uniffiObject.Filter(
+                FfiConverterString.INSTANCE.Lift(@path), 
+                FfiConverterTypeNodeKind.INSTANCE.Lift(@kind), 
+                FfiConverterBoolean.INSTANCE.Lift(@special), 
+                FfiConverterOptionalUInt64.INSTANCE.Lift(@fileSize), 
+                FfiConverterInt64.INSTANCE.Lift(@mtime));
+            unsafe {
+                *(sbyte*)uniffiOutReturn = FfiConverterBoolean.INSTANCE.Lower(result);
+            }
+
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
+        }
+        catch (System.Exception e){
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
+            try {
+                _uniffi_out_err.error_buf = FfiConverterString.INSTANCE.Lower(e.Message);
+            }
+            catch {
+            }
+        }
+    }
+
+    static void UniffiFree(ulong @handle) {
+        FfiConverterTypeImportReceiver.INSTANCE.handleMap.Remove(@handle);
+    }
+    static _UniFFILib.UniffiCallbackInterfaceImportReceiverMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceImportReceiverMethod0(Filter);
+    static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
+
+    public static void Register() {
+        _UniFFILib.UniffiVTableCallbackInterfaceImportReceiver _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceImportReceiver {
+            @filter = Marshal.GetFunctionPointerForDelegate(_m0),
+            @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free)
+        };
+
+        // Pin vtable to ensure GC does not move the vtable across the heap
+        _UniFFILib.uniffi_engine_fn_init_callback_vtable_importreceiver(GCHandle.Alloc(_vtable, GCHandleType.Pinned).AddrOfPinnedObject());
+    }
+}
+
+
+
+
+class FfiConverterTypeImportReceiver: FfiConverter<ImportReceiver, ulong> {
+    public ConcurrentHandleMap<ImportReceiver> handleMap = new ConcurrentHandleMap<ImportReceiver>();
+    
+    public static FfiConverterTypeImportReceiver INSTANCE = new FfiConverterTypeImportReceiver();
+
+
+    public override ulong Lower(ImportReceiver value) {
+        if (value is ImportReceiverImpl rustObj) {
+            // Rust-implemented object. Clone the handle and return it.
+            return rustObj.CallWithPointer(thisPtr => thisPtr);
+        } else {
+            // C# object, generate a new handle map entry and return it.
+            return handleMap.Insert(value);
+        }
+    }
+
+    public override ImportReceiver Lift(ulong value) {
+        if ((value & 1UL) == 0UL) {
+            // Rust-generated handle, construct a new wrapper.
+            return new ImportReceiverImpl(value);
+        } else {
+            // C#-generated handle, retrieve and remove from the handle map.
+            if (handleMap.Remove(value, out var obj)) {
+                return obj;
+            } else {
+                throw new InternalException($"No callback in handlemap '{value}'");
+            }
+        }
+    }
+
+    public override ImportReceiver Read(BigEndianStream stream) {
+        return Lift(stream.ReadULong());
+    }
+
+    public override int AllocationSize(ImportReceiver value) {
+        return 8;
+    }
+
+    public override void Write(ImportReceiver value, BigEndianStream stream) {
         stream.WriteULong(Lower(value));
     }
 }

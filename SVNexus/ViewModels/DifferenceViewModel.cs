@@ -66,6 +66,9 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     public bool IsTextView => SelectedViewIndex == TextViewIndex;
 
     public bool IsPropertyView => SelectedViewIndex == PropertyViewIndex;
+    
+    [ObservableProperty]
+    public partial bool ChangeOnly { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsTextView))]
@@ -78,6 +81,13 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     public ObservableCollection<PropertyItemViewModel> SelectedPropertyItemViewModels { get; set; } = [];
 
     public string Target { get; set; } = string.Empty;
+
+
+    [RelayCommand]
+    private void ToggleChangeOnly()
+    {
+        ChangeOnly = !ChangeOnly;   
+    }
 
     [RelayCommand]
     private async Task RevertProperties()
@@ -199,18 +209,15 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
 
 
             string? oldText = null;
-            byte[]? oldBytes = null;
 
             try
             {
                 if (oldRevision is not null)
                 {
                     var catOptions = new CatOptions(target, peg, oldRevision, true, false);
-                    oldBytes = (await context.Cat(catOptions)).Content;
+                    var oldBytes = (await context.Cat(catOptions)).Content;
 
-                    Logger.Info("Start decoding");
                     oldText = TextEncoding.GetString(oldBytes);
-                    Logger.Info("Finish decoding");
                 }
             }
             catch (DecoderFallbackException)
@@ -220,14 +227,13 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
 
 
             string? newText = null;
-            byte[]? newBytes = null;
 
             try
             {
                 if (newRevision is not null)
                 {
                     var catOptions = new CatOptions(target, peg, newRevision, true, false);
-                    newBytes = (await context.Cat(catOptions)).Content;
+                    var newBytes = (await context.Cat(catOptions)).Content;
 
                     newText = TextEncoding.GetString(newBytes);
                 }
@@ -346,18 +352,38 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                     // added
                     case 0 when change.Modified.Len > 0:
                     {
-                        original.InsertRange(original.RealIndex((int)change.Original.Pos),
-                            Enumerable.Repeat(new DifferenceLine()
+                        {
+                            var index = original.RealIndex((int)change.Original.Pos);
+                            original.InsertRange(index,
+                                Enumerable.Repeat(new DifferenceLine()
+                                {
+                                    Content = null,
+                                    DifferenceKind = DifferenceLine.Kind.Add
+                                }, (int)change.Modified.Len));
+                            
+                            original.Insert(index, new DifferenceLine()
                             {
                                 Content = null,
-                                DifferenceKind = DifferenceLine.Kind.Add
-                            }, (int)change.Modified.Len));
+                                DifferenceKind = DifferenceLine.Kind.Visual,
+                                VisualText = header
+                            });
+                        }
 
-                        foreach (var differenceLine in modified
-                                     .Skip(modified.RealIndex((int)change.Modified.Pos))
-                                     .Take((int)change.Modified.Len))
                         {
-                            differenceLine.DifferenceKind = DifferenceLine.Kind.Added;
+                            var index = modified.RealIndex((int)change.Modified.Pos);
+                            foreach (var differenceLine in modified
+                                         .Skip(index)
+                                         .Take((int)change.Modified.Len))
+                            {
+                                differenceLine.DifferenceKind = DifferenceLine.Kind.Added;
+                            }
+                            
+                            modified.Insert(index, new DifferenceLine()
+                            {
+                                Content = null,
+                                DifferenceKind = DifferenceLine.Kind.Visual,
+                                VisualText = header
+                            });
                         }
 
                         break;
@@ -365,18 +391,37 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                     // remove
                     case > 0 when change.Modified.Len == 0:
                     {
-                        foreach (var differenceLine in original
-                                     .Skip(original.RealIndex((int)change.Original.Pos)).Take((int)change.Original.Len))
                         {
-                            differenceLine.DifferenceKind = DifferenceLine.Kind.Remove;
-                        }
-
-                        modified.InsertRange(modified.RealIndex((int)change.Modified.Pos),
-                            Enumerable.Repeat(new DifferenceLine()
+                            var index = original.RealIndex((int)change.Original.Pos);
+                            foreach (var differenceLine in original
+                                         .Skip(index).Take((int)change.Original.Len))
+                            {
+                                differenceLine.DifferenceKind = DifferenceLine.Kind.Remove;
+                            }
+                            
+                            original.Insert(index, new DifferenceLine()
                             {
                                 Content = null,
-                                DifferenceKind = DifferenceLine.Kind.Removed
-                            }, (int)change.Original.Len));
+                                DifferenceKind = DifferenceLine.Kind.Visual,
+                                VisualText = header
+                            });
+                        }
+                        {
+                            var index = modified.RealIndex((int)change.Modified.Pos);
+                            modified.InsertRange(index, Enumerable.Repeat(new DifferenceLine()
+                                {
+                                    Content = null,
+                                    DifferenceKind = DifferenceLine.Kind.Removed
+                                }, (int)change.Original.Len));
+                            
+                            modified.Insert(index, new DifferenceLine()
+                            {
+                                Content = null,
+                                DifferenceKind = DifferenceLine.Kind.Visual,
+                                VisualText = header
+                            });
+                        }
+
                         break;
                     }
                     case > 0 when change.Modified.Len > 0:
@@ -399,12 +444,12 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                                 }, (int)(change.Modified.Len - change.Original.Len)));
                             }
 
-                            // original.Insert(index, new DifferenceLine()
-                            // {
-                            //     Content = null,
-                            //     DifferenceKind = DifferenceLine.Kind.Visual,
-                            //     VisualText = header
-                            // });
+                            original.Insert(index, new DifferenceLine()
+                            {
+                                Content = null,
+                                DifferenceKind = DifferenceLine.Kind.Visual,
+                                VisualText = header
+                            });
                         }
                         {
                             var pos = (int)change.Modified.Pos;
@@ -424,12 +469,12 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                                 }, (int)(change.Original.Len - change.Modified.Len)));
                             }
 
-                            // modified.Insert(index, new DifferenceLine()
-                            // {
-                            //     Content = null,
-                            //     DifferenceKind = DifferenceLine.Kind.Visual,
-                            //     VisualText = header
-                            // });
+                            modified.Insert(index, new DifferenceLine()
+                            {
+                                Content = null,
+                                DifferenceKind = DifferenceLine.Kind.Visual,
+                                VisualText = header
+                            });
                         }
                         break;
                     }

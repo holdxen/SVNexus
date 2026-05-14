@@ -67,15 +67,16 @@
                 <Grid>
                     <Grid ColumnDefinitions="*, Auto, *" IsVisible="{Binding IsTextView}">
                         <Grid Grid.Column="0">
-                            <components:OldDifferenceEditor
+                            <components:AdvancedEditor
                                 Name="OldTextEditor"
                                 IsVisible="{Binding !IsOldBinary}"
                                 ShowLineNumbers="False"
                                 IsReadOnly="True"
+                                ChangeOnly="{Binding ChangeOnly}"
                                 Lines="{Binding OldLines}"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Auto">
-                            </components:OldDifferenceEditor>
+                            </components:AdvancedEditor>
                             <Grid IsVisible="{Binding IsOldBinary}">
                                 <StackPanel
                                     VerticalAlignment="Center"
@@ -90,15 +91,16 @@
                             <Canvas x:Name="LinkCanvas" />
                         </Border>
                         <Grid Grid.Column="2">
-                            <components:NewDifferenceEditor
+                            <components:AdvancedEditor
                                 Name="NewTextEditor"
                                 IsVisible="{Binding !IsNewBinary}"
                                 ShowLineNumbers="False"
                                 IsReadOnly="True"
+                                ChangeOnly="{Binding ChangeOnly}"
                                 Lines="{Binding NewLines}"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Auto">
-                            </components:NewDifferenceEditor>
+                            </components:AdvancedEditor>
                             <Grid IsVisible="{Binding IsNewBinary}">
                                 <StackPanel
                                     VerticalAlignment="Center"
@@ -208,6 +210,11 @@
                     </StackPanel>
                     <Rectangle Grid.Column="1"></Rectangle>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                        <components:SvgButton Command="{Binding ToggleChangeOnlyCommand}" 
+                                              Classes.Selected="{Binding ChangeOnly}"
+                                              Classes="ButtonBackground"
+                                              Source="{StaticResource Icons.ChangeOnly}">
+                        </components:SvgButton>
                         <!-- <Label Classes="VCenter Ghost Grey"  -->
                         <!--            Theme="{StaticResource TagLabel}" -->
                         <!--            IsVisible="{Binding SelectedItemLastAuthor, Converter={x:Static ObjectConverters.IsNotNull}}" -->
