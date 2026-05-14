@@ -118,7 +118,8 @@ public class AdvancedEditor: TextEditor
             count++;
         }
         
-        throw new IndexOutOfRangeException();
+        // throw new IndexOutOfRangeException();
+        return -1;
     }
 
 

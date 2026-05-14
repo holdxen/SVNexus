@@ -193,7 +193,6 @@ impl Proxies {
     ) -> error::Result<()> {
         // Implementation details
         //
-
         if let Some(http) = self.http.as_ref() {
             // Apply HTTP proxy settings
             tracing::info!("set http proxy: {:#?}", http);
