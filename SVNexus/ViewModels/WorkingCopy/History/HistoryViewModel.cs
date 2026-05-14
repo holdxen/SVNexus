@@ -578,8 +578,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
             var entries = await context.LogCacheFillLocal(
                 SeaDatabaseConnection.Default, 
                 ThisEntry.RepositoryUuid,
-                ThisEntry.Url,
-                new Revision.Number(ThisEntry.Revision.GetValueOrDefault()), 
+                SendMessage(new OnGetWorkingCopyPath()),
+                new Revision.Working(), 
                 start, 
                 null,
                 true);
@@ -638,8 +638,8 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
             var logs = await context.LogCacheFillLocal(
                 SeaDatabaseConnection.Default, 
                 ThisEntry.RepositoryUuid,
-                ThisEntry.Url,
-                new Revision.Number(ThisEntry.Revision.GetValueOrDefault()),
+                SendMessage(new OnGetWorkingCopyPath()),
+                new Revision.Working(),
                 _logsRange?.Item2 - 1, 
                 64);
         
