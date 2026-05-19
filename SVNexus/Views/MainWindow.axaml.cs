@@ -19,7 +19,8 @@ public partial class MainWindow : Window,
     IRecipient<OnShowToast>, 
     IRecipient<OnFilePickerOpen>,
     IRecipient<OnFilePickerSave>,
-    IRecipient<ClipBoardMessages.SetText>
+    IRecipient<ClipBoardMessages.SetText>,
+    IRecipient<OnShowSystemDialog>
 {
     
     private readonly WindowNotificationManager _notificationManager;
@@ -158,6 +159,23 @@ public partial class MainWindow : Window,
             }
 
             message.Reply(SetText());
+        }
+    }
+
+    public void Receive(OnShowSystemDialog message)
+    {
+        var dialog = new SystemDialog
+        {
+            DataContext = message.Dialog
+        };
+
+        message.Reply(Func());
+        return;
+
+        async Task<Unit> Func()
+        {
+            await dialog.ShowDialog(this);
+            return new Unit();
         }
     }
 }

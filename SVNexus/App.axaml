@@ -15,6 +15,8 @@
                 <ResourceInclude Source="Resources/Style/CommonStyle.axaml"></ResourceInclude>
                 <ResourceInclude Source="Resources/Style/Tab.axaml"></ResourceInclude>
                 <ResourceInclude Source="Resources/Icons/Icons.axaml"></ResourceInclude>
+                <ResourceInclude Source="Resources/Style/Editor.axaml"></ResourceInclude>
+                <ResourceInclude Source="Resources/Style/ScrollViewer.axaml"></ResourceInclude>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
         <FontFamily x:Key="JetBrainsMono">avares://SVNexus/Assets/Fonts#JetBrains Mono</FontFamily>
@@ -32,11 +34,10 @@
          <semi:SemiTheme Locale="zh-CN" />
          <semi:ColorPickerSemiTheme />
          <semi:DataGridSemiTheme />
-         <!-- <semi:TreeDataGridSemiTheme /> -->
          <semi:DockSemiTheme />
-         <semi:AvaloniaEditSemiTheme />
+         <!-- <semi:AvaloniaEditSemiTheme /> -->
          <semi:UrsaSemiTheme Locale="zh-CN"></semi:UrsaSemiTheme>
-         <!-- <u-Semi:SemiTheme Locale="zh-CN"/> -->
+         <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
          <Style Selector=":is(TopLevel)">
              <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
          </Style>

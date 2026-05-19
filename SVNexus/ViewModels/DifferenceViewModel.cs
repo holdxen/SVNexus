@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Components;
@@ -13,8 +12,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Models;
-using SVNexus.Utils;
-using Exception = System.Exception;
+using SVNexus.Views;
 
 namespace SVNexus.ViewModels;
 
@@ -37,6 +35,9 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     }
 
     [ObservableProperty]
+    public partial bool LineChecked { get; set; }
+    
+    [ObservableProperty]
     public partial ObservableCollection<PropertyItemViewModel> PropertyItemViewModels { get; set; } = [];
 
     [ObservableProperty]
@@ -56,7 +57,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
 
     public bool IsNewBinary { get; set; }
 
-    [ObservableProperty] public partial List<DifferenceLine> OldLines { get; set; } = [];
+    [ObservableProperty] 
+    public partial List<DifferenceLine> OldLines { get; set; } = [];
 
     [ObservableProperty] public partial List<DifferenceLine> NewLines { get; set; } = [];
 
@@ -81,7 +83,97 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     public ObservableCollection<PropertyItemViewModel> SelectedPropertyItemViewModels { get; set; } = [];
 
     public string Target { get; set; } = string.Empty;
+    
+    [ObservableProperty]
+    public partial List<bool?> CheckBoxLines { get; set; } = [];
 
+    // public List<bool?> CheckBoxLines => OldLines.Map(e =>
+    // {
+    //     if (ChangeOnly)
+    //     {
+    //         return e.Where(i => i.DifferenceKind != DifferenceLine.Kind.Unchanged);
+    //     }
+    //     return e;
+    // }).Select(i =>
+    // {
+    //     List<string> s = [];
+    //     List<object> o = s.Select(object (i) => i).ToList();
+    //     if (i.DifferenceKind is DifferenceLine.Kind.Visual or DifferenceLine.Kind.Unchanged)
+    //     {
+    //         return new bool?();
+    //     }
+    //
+    //     return false;
+    // }).ToList();
+
+
+    [RelayCommand]
+    private void SelectAllChange()
+    {
+        for (var i = 0; i < CheckBoxLines.Count; i++)
+        {
+            if (CheckBoxLines[i] is not null)
+            {
+                CheckBoxLines[i] = true;
+            }
+        }
+
+        CheckBoxLines = new List<bool?>(CheckBoxLines);
+    }
+
+    [RelayCommand]
+    private void DeselectAllChange()
+    {
+            
+        for (var i = 0; i < CheckBoxLines.Count; i++)
+        {
+            if (CheckBoxLines[i] is not null)
+            {
+                CheckBoxLines[i] = false;
+            }
+        }
+
+        CheckBoxLines = new List<bool?>(CheckBoxLines);
+    }
+    public string CombineToText()
+    {
+        var builder = new StringBuilder();
+        for (var i = 0; i < OldLines.Count; i++)
+        {
+            var oldLine = OldLines[i];
+            var newLine = NewLines[i];
+            switch (oldLine.DifferenceKind)
+            {
+                case DifferenceLine.Kind.Visual:
+                    continue;
+                case DifferenceLine.Kind.Unchanged:
+                    builder.Append(oldLine.Content);
+                    builder.Append(oldLine.EndingText());
+                    break;
+                case DifferenceLine.Kind.Added:
+                case DifferenceLine.Kind.Add:
+                case DifferenceLine.Kind.Removed:
+                case DifferenceLine.Kind.Remove:
+                case DifferenceLine.Kind.Modified:
+                default:
+                {
+                    if (CheckBoxLines[i] == true)
+                    {
+                        builder.Append(newLine.Content);
+                        builder.Append(newLine.EndingText());
+                    }
+                    else
+                    {
+                        builder.Append(oldLine.Content);
+                        builder.Append(oldLine.EndingText());
+                    }
+
+                    break;
+                }
+            }
+        }
+        return builder.ToString();
+    }
 
     [RelayCommand]
     private void ToggleChangeOnly()
@@ -257,28 +349,30 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     {
         var (original, modified) = await Task.Run(() =>
         {
-            var modified = newContent.Split("\n").Select(e =>
+            var modified = DifferenceLine.SplitLines(newContent).Select(e =>
                 new DifferenceLine()
                 {
-                    Content = e,
+                    Content = e.Item1,
+                    Ending = e.Item2,
                     DifferenceKind = DifferenceLine.Kind.Unchanged
                 }).ToList();
-            if (modified.Count > 0 && string.IsNullOrEmpty(modified.Last().Content))
-            {
-                modified.RemoveAt(modified.Count - 1);
-            }
+            // if (modified.Count > 0 && string.IsNullOrEmpty(modified.Last().Content))
+            // {
+            //     modified.RemoveAt(modified.Count - 1);
+            // }
 
-            var original = oldContent.Split("\n")
+            var original = DifferenceLine.SplitLines(oldContent)
                 .Select(e => new DifferenceLine()
                 {
-                    Content = e,
+                    Content = e.Item1,
+                    Ending = e.Item2,
                     DifferenceKind = DifferenceLine.Kind.Unchanged
                 }).ToList();
 
-            if (original.Count > 0 && string.IsNullOrEmpty(original.Last().Content))
-            {
-                original.RemoveAt(original.Count - 1);
-            }
+            // if (original.Count > 0 && string.IsNullOrEmpty(original.Last().Content))
+            // {
+            //     original.RemoveAt(original.Count - 1);
+            // }
 
 
             var diffOptions =
@@ -485,6 +579,15 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
         });
         OldLines = original;
         NewLines = modified;
+        CheckBoxLines = OldLines.Select(i =>
+        {
+            if (i.DifferenceKind is DifferenceLine.Kind.Visual or DifferenceLine.Kind.Unchanged)
+            {
+                return new bool?();
+            }
+            
+            return true;
+        }).ToList();
     }
 
 

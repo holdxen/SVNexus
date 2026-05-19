@@ -1,4 +1,5 @@
 using System;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SVNexus.Extension;
 using SVNexus.Generated;
@@ -56,6 +57,10 @@ public partial class TargetItemViewModel : ViewModelBase
 
     [ObservableProperty] public partial string StatusIcon { get; set; } = string.Empty;
     
+    [ObservableProperty] public partial ICommand? DoubleTappedCommand { get; set; }
+    
+    [ObservableProperty] public partial bool Star { get; set; }
+    
     public string Path { get; set; } = string.Empty;
 
     public virtual void Initialize(StatusEntry statusEntry, bool absolute, string? relateTo)
@@ -104,111 +109,11 @@ public partial class TargetItemViewModel : ViewModelBase
         StatusIcon = statusEntry.NodeStatus.Icon();
         IsLoading = false;
     }
-
-    // public static T FromFactory<T>(StatusEntry statusEntry, bool absolute = false, string? relateTo = null) where T : TargetItemViewModel, new()
-    // {
-    //     string fileName;
-    //     if (absolute)
-    //     {
-    //         fileName = statusEntry.Path;
-    //     }
-    //     else
-    //     {
-    //         fileName = statusEntry.Path == relateTo ? "/" : statusEntry.Path.GetFileName();
-    //     }
-    //     
-    //     string relativeDirectory;
-    //
-    //     if (absolute)
-    //     {
-    //         relativeDirectory = string.Empty;
-    //     }
-    //     else
-    //     {
-    //         if (string.IsNullOrEmpty(relateTo))
-    //         {
-    //             relativeDirectory = statusEntry.Path.GetDirectoryName() ?? string.Empty;
-    //         }
-    //         else if (statusEntry.Path == relateTo)
-    //         {
-    //             relativeDirectory = string.Empty;
-    //         }
-    //         else
-    //         {
-    //             relativeDirectory = statusEntry.Path.TrimStartString(relateTo).TrimStartPathSeparatorChar().GetDirectoryName() ?? string.Empty;
-    //         }
-    //     }
-    //
-    //     return new T()
-    //     {
-    //         Path = statusEntry.Path,
-    //         KindIcon =  statusEntry.NodeKind.Icon(),
-    //         TextToolTip = statusEntry.Path,
-    //         IsDelete = statusEntry.NodeStatus == WorkingCopyStatus.Deleted,
-    //         FileName = fileName,
-    //         RelativeDirectory = relativeDirectory,
-    //         ShowRelateDirectory = true,
-    //         IsLocked = statusEntry.Lock is not null,
-    //         StatusToolTip = statusEntry.NodeStatus.ToString(),
-    //         StatusIcon = statusEntry.NodeStatus.Icon(),
-    //         IsLoading = false,
-    //     };
-    //     
-    //     
-    // }
-    //
     public static TargetItemViewModel From(StatusEntry statusEntry, bool absolute = false, string? relateTo = null)
     {
         return new TargetItemViewModel().Apply(e =>
         {
             e.Initialize(statusEntry, absolute, relateTo);
         });
-        // return FromFactory<TargetItemViewModel>(statusEntry, absolute, relateTo);
-        // string fileName;
-        // if (absolute)
-        // {
-        //     fileName = statusEntry.Path;
-        // }
-        // else
-        // {
-        //     fileName = statusEntry.Path == relateTo ? "/" : statusEntry.Path.GetFileName();
-        // }
-        //
-        // string relativeDirectory;
-        //
-        // if (absolute)
-        // {
-        //     relativeDirectory = string.Empty;
-        // }
-        // else
-        // {
-        //     if (string.IsNullOrEmpty(relateTo))
-        //     {
-        //         relativeDirectory = statusEntry.Path.GetDirectoryName() ?? string.Empty;
-        //     }
-        //     else if (statusEntry.Path == relateTo)
-        //     {
-        //         relativeDirectory = string.Empty;
-        //     }
-        //     else
-        //     {
-        //         relativeDirectory = statusEntry.Path.TrimStartString(relateTo).TrimStartPathSeparatorChar().GetDirectoryName() ?? string.Empty;
-        //     }
-        // }
-        //
-        // return new TargetItemViewModel()
-        // {
-        //     Path = statusEntry.Path,
-        //     KindIcon =  statusEntry.NodeKind.Icon(),
-        //     TextToolTip = statusEntry.Path,
-        //     IsDelete = statusEntry.NodeStatus == WorkingCopyStatus.Deleted,
-        //     FileName = fileName,
-        //     RelativeDirectory = relativeDirectory,
-        //     ShowRelateDirectory = true,
-        //     IsLocked = statusEntry.Lock is not null,
-        //     StatusToolTip = statusEntry.NodeStatus.ToString(),
-        //     StatusIcon = statusEntry.NodeStatus.Icon(),
-        //     IsLoading = false,
-        // };
     }
 }

@@ -14,7 +14,9 @@
                                VerticalScrollBarVisibility="Auto"/>
 
         <!-- 中间列：可用来画 hunk 连接线 / overview -->
-        <Border Grid.Column="1" Width="16" Background="Transparent">
+        <Border Grid.Column="1" 
+                Width="16" 
+                Background="Transparent">
             <Canvas x:Name="LinkCanvas"/>
         </Border>
 

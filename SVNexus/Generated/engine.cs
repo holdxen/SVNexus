@@ -40570,7 +40570,7 @@ class FfiConverterTypeCSharpError : FfiConverterRustBuffer<CSharpException>, Cal
 
 
 
-public record CheckSum {
+public abstract record CheckSum {
     
     public record Md5 (
         byte[] V1
@@ -40668,7 +40668,7 @@ class FfiConverterTypeCheckSum : FfiConverterRustBuffer<CheckSum>{
 
 
 
-public record Conflict {
+public abstract record Conflict {
     
     public record Text (
         ConflictInfo Info,
@@ -41341,7 +41341,7 @@ class FfiConverterTypeNodePropertyName: FfiConverterRustBuffer<NodePropertyName>
 
 
 
-public record PropertySetOptions {
+public abstract record PropertySetOptions {
     
     public record Local (
         string Name,
@@ -41453,7 +41453,7 @@ class FfiConverterTypePropertySetOptions : FfiConverterRustBuffer<PropertySetOpt
 
 
 
-public record Revision {
+public abstract record Revision {
     
     public record Unspecified: Revision {}
     
@@ -42100,7 +42100,7 @@ class FfiConverterTypeWorkingCopyStatus: FfiConverterRustBuffer<WorkingCopyStatu
 
 
 
-public record WorkspaceHistory {
+public abstract record WorkspaceHistory {
     
     public record WorkingCopy (
         string WorkingCopyRoot,

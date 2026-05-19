@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
 using Avalonia.Controls.Primitives;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SVNexus.Extension;
@@ -47,6 +48,8 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     
     public static Type DepthType { get; } = typeof(ValidDepth);
 
+    
+    private Dictionary<string, DifferenceViewModel> Differences { get; } = new();
 
     
     // public static readonly Type DepthType = typeof(Depth);
@@ -62,7 +65,13 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
     private readonly SingleTaskQueue _singleTaskQueue = new();
 
     public List<TargetItemViewModel> DisplayTargetItems =>
-        ShowActualTargetItem ? StatusItems : Targets.Select(i => TargetItemViewModel.From(i, false, RelateTo)).ToList();
+        ShowActualTargetItem ? StatusItems : Targets.Select(i => TargetItemViewModel.From(i, false, RelateTo).Apply(e =>
+        {
+            e.DoubleTappedCommand = new AsyncRelayCommand(async () =>
+            {
+                await OpenDifferenceDialog(e, i);
+            });
+        })).ToList();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayTargetItems))]
@@ -107,7 +116,7 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
             return;
         }
         
-        await _singleTaskQueue.RunAndWait(async token =>
+        await _singleTaskQueue.RunAndWait(async _ =>
         {
             try
             {
@@ -156,6 +165,44 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
             }
 
         });
+    }
+
+
+    private async Task OpenDifferenceDialog(TargetItemViewModel item, StatusEntry entry)
+    {
+        if (entry.NodeKind is not NodeKind.File)
+        {
+            return;
+        }
+
+        if (!Differences.TryGetValue(entry.Path, out var content))
+        {
+            content = new DifferenceViewModel(this)
+            {
+                LineChecked = true
+            }.Apply(e =>
+            {
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await e.CompareWorkingCopyEntry(entry);
+                });
+            });
+            
+            Differences[entry.Path] = content;
+        }
+        
+        
+        var model = new SystemDialogModel()
+        {
+            Content = content,
+        };
+
+        await Manager.Default.Send(new OnShowSystemDialog()
+        {
+            Dialog = model,
+        }, Manager.MainWindowToken);
+
+        item.Star = content.CheckBoxLines.Any(e => e is false);
     }
 
 
@@ -210,7 +257,15 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                 WorkingCopyStatus.Missing or 
                 WorkingCopyStatus.Unversioned or 
                 WorkingCopyStatus.Normal or 
-                WorkingCopyStatus.None)).Select(i => TargetItemViewModel.From(i, false, RelateTo)).ToList();
+                WorkingCopyStatus.None))
+                .Select(i => TargetItemViewModel.From(i, false, RelateTo).Apply(e =>
+                {
+                    e.DoubleTappedCommand = new AsyncRelayCommand(async () =>
+                    {
+                        await OpenDifferenceDialog(e, i);
+                    });
+                }))
+                .ToList();
 
             // TargetItems.Clear();
 

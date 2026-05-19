@@ -2,11 +2,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:avaloniaEdit="https://github.com/avaloniaui/avaloniaedit"
              xmlns:components="clr-namespace:SVNexus.Components"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:viewModel="clr-namespace:SVNexus.ViewModels"
-             xmlns:behaviors="clr-namespace:SVNexus.Behaviors"
+             xmlns:v="clr-namespace:SVNexus.Views"
+             xmlns:editing="https://github.com/avaloniaui/avaloniaedit"             
              xmlns:u="https://irihi.tech/ursa"
              x:DataType="viewModel:DifferenceViewModel"
              x:Class="SVNexus.Views.DifferenceView">
@@ -52,6 +52,9 @@
         <Style Selector="TextBlock.Cell">
             <Setter Property="Margin" Value="6 0"></Setter>
         </Style>
+        <Style Selector="components|SvgButton.Selected">
+            <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
+        </Style>
     </UserControl.Styles>
 
     <components:LoadingOrError
@@ -67,7 +70,15 @@
                 <Grid>
                     <Grid ColumnDefinitions="*, Auto, *" IsVisible="{Binding IsTextView}">
                         <Grid Grid.Column="0">
-                            <components:AdvancedEditor
+                            <Grid.Styles>
+                                <Style Selector="editing|TextArea /template/ ItemsControl#PART_LeftMargins">
+                                    <Setter Property="(DockPanel.Dock)" Value="Right"></Setter>
+                                </Style>
+                                <Style Selector="editing|TextEditor /template/ ScrollViewer#PART_ScrollViewer">
+                                    <Setter Property="Theme" Value="{StaticResource LeftHorizontalBar}"></Setter>
+                                </Style>
+                            </Grid.Styles>
+                            <components:OldDifferenceEditor
                                 Name="OldTextEditor"
                                 IsVisible="{Binding !IsOldBinary}"
                                 ShowLineNumbers="False"
@@ -76,7 +87,7 @@
                                 Lines="{Binding OldLines}"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Auto">
-                            </components:AdvancedEditor>
+                            </components:OldDifferenceEditor>
                             <Grid IsVisible="{Binding IsOldBinary}">
                                 <StackPanel
                                     VerticalAlignment="Center"
@@ -87,11 +98,18 @@
                             </Grid>
                         </Grid>
 
-                        <Border Grid.Column="1" Width="16" Background="Transparent">
-                            <Canvas x:Name="LinkCanvas" />
+                        <Border Grid.Column="1" 
+                                Width="20" 
+                                IsVisible="{Binding LineChecked}"
+                                Background="Transparent">
+                            <v:CheckBoxColumn ClipToBounds="True" x:Name="CheckBoxColumn" 
+                                              TextLines="{Binding OldLines}"
+                                              ChangeOnly="{Binding ChangeOnly}"
+                                              Lines="{Binding CheckBoxLines}"></v:CheckBoxColumn>
                         </Border>
+                        <Border Grid.Column="1" Width="5" IsVisible="{Binding !LineChecked}"></Border>
                         <Grid Grid.Column="2">
-                            <components:AdvancedEditor
+                            <components:NewDifferenceEditor
                                 Name="NewTextEditor"
                                 IsVisible="{Binding !IsNewBinary}"
                                 ShowLineNumbers="False"
@@ -100,7 +118,7 @@
                                 Lines="{Binding NewLines}"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Auto">
-                            </components:AdvancedEditor>
+                            </components:NewDifferenceEditor>
                             <Grid IsVisible="{Binding IsNewBinary}">
                                 <StackPanel
                                     VerticalAlignment="Center"
@@ -161,23 +179,6 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <!-- <Grid> -->
-                    <!--     <Grid.IsVisible> -->
-                    <!--         <MultiBinding Converter="{x:Static BoolConverters.And}"> -->
-                    <!--             <Binding Path="!IsText" /> -->
-                    <!--             <Binding Path="IsTextView" /> -->
-                    <!--         </MultiBinding> -->
-                    <!--     </Grid.IsVisible> -->
-                    <!--     <StackPanel  -->
-                    <!--         VerticalAlignment="Center"  -->
-                    <!--         HorizontalAlignment="Center" > -->
-                    <!--         <components:SvgRender Size="150" Source="{StaticResource Icons.FileKindUnknown}"> -->
-                    <!--         </components:SvgRender> -->
-                    <!--         <Label Content="{Binding SelectedFileName}"  -->
-                    <!--                Classes="Large VCenter HCenter"  -->
-                    <!--                Theme="{StaticResource TagLabel}"></Label> -->
-                    <!--     </StackPanel> -->
-                    <!-- </Grid> -->
                 </Grid>
                 <u:Divider Grid.Row="1"></u:Divider>
                 <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto">
@@ -192,45 +193,24 @@
                                               Classes="ButtonBackground"
                                               Source="{StaticResource Icons.PropertyView}">
                         </components:SvgButton>
-                        <!-- <components:LucideIconButton -->
-                        <!--     Command="{Binding SwitchToTextViewCommand}" -->
-                        <!--     Classes.Selected="{Binding IsTextView}" -->
-                        <!--     LucideKind="BookOpenText"> -->
-                        <!-- </components:LucideIconButton> -->
-                        <!-- <components:LucideIconButton -->
-                        <!--     Command="{Binding SwitchToPropertyViewCommand}" -->
-                        <!--     Classes.Selected="{Binding !IsTextView}" -->
-                        <!--     LucideKind="Table"> -->
-                        <!-- </components:LucideIconButton> -->
-                        <StackPanel.Styles>
-                            <Style Selector="components|SvgButton.Selected">
-                                <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}"></Setter>
-                            </Style>
-                        </StackPanel.Styles>
                     </StackPanel>
                     <Rectangle Grid.Column="1"></Rectangle>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
+                        <components:SvgButton Command="{Binding SelectAllChangeCommand}" 
+                                              Classes="Button"
+                                              IsVisible="{Binding LineChecked}"
+                                              Source="{StaticResource Icons.CheckAll}">
+                        </components:SvgButton>
+                        <components:SvgButton Command="{Binding DeselectAllChangeCommand}" 
+                                              Classes="Button"
+                                              IsVisible="{Binding LineChecked}"
+                                              Source="{StaticResource Icons.ClearAll}">
+                        </components:SvgButton>
                         <components:SvgButton Command="{Binding ToggleChangeOnlyCommand}" 
                                               Classes.Selected="{Binding ChangeOnly}"
                                               Classes="ButtonBackground"
                                               Source="{StaticResource Icons.ChangeOnly}">
                         </components:SvgButton>
-                        <!-- <Label Classes="VCenter Ghost Grey"  -->
-                        <!--            Theme="{StaticResource TagLabel}" -->
-                        <!--            IsVisible="{Binding SelectedItemLastAuthor, Converter={x:Static ObjectConverters.IsNotNull}}" -->
-                        <!--            Content="{Binding SelectedItemLastAuthor}"></Label> -->
-                        <!-- <Label Classes="VCenter Ghost Grey"  -->
-                        <!--            Theme="{StaticResource TagLabel}" -->
-                        <!--            IsVisible="{Binding SelectedFileName, Converter={x:Static ObjectConverters.IsNotNull}}" -->
-                        <!--            Content="{Binding SelectedFileName}"></Label> -->
-                        <!-- <Label Classes="VCenter Ghost Grey"  -->
-                        <!--            Theme="{StaticResource TagLabel}" -->
-                        <!--            IsVisible="{Binding SelectedFileSizeText, Converter={x:Static ObjectConverters.IsNotNull}}" -->
-                        <!--            Content="{Binding SelectedFileSizeText}"></Label> -->
-                        <!-- <Label Classes="VCenter Ghost Grey"  -->
-                        <!--            Theme="{StaticResource TagLabel}" -->
-                        <!--            IsVisible="{Binding SelectedFileEncodingName, Converter={x:Static ObjectConverters.IsNotNull}}" -->
-                        <!--            Content="{Binding SelectedFileEncodingName}"></Label> -->
                     </StackPanel>
                 </Grid>
             </Grid>

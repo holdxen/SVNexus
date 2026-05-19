@@ -89,12 +89,17 @@
                                               Source="{StaticResource Icons.OperationPatch}"
                                               IsEnabled="{Binding ChangesViewModel.IsPatchButtonEnable}"
                                               Command="{Binding ChangesViewModel.PatchCommand}"></components:SvgButton>
+                        <components:SvgButton Classes="ToolButton" 
+                                              ToolTip.Tip="Lock"
+                                              Source="{StaticResource Icons.OperationDelete}"
+                                              IsEnabled="{Binding ChangesViewModel.IsDeleteButtonEnable}"
+                                              Command="{Binding ChangesViewModel.DeleteCommand}"></components:SvgButton>
                         <components:LoadingSvgButton Classes="ToolButton" 
-                                              ToolTip.Tip="Unlock"
-                                              IsLoading="{Binding ChangesViewModel.InfoCommand.IsRunning}"
-                                              Source="{StaticResource Icons.OperationInfo}"
-                                              IsEnabled="{Binding ChangesViewModel.IsInfoButtonEnable}"
-                                              Command="{Binding ChangesViewModel.InfoCommand}"></components:LoadingSvgButton>
+                                                     ToolTip.Tip="Unlock"
+                                                     IsLoading="{Binding ChangesViewModel.InfoCommand.IsRunning}"
+                                                     Source="{StaticResource Icons.OperationInfo}"
+                                                     IsEnabled="{Binding ChangesViewModel.IsInfoButtonEnable}"
+                                                     Command="{Binding ChangesViewModel.InfoCommand}"></components:LoadingSvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Commit"
                                               Source="{StaticResource Icons.OperationCommit}"
@@ -122,7 +127,7 @@
                                               Source="{StaticResource Icons.LoadMoreList}"
                                               Command="{Binding HistoryViewModel.LogCommand}" >
                             <components:SvgButton.CommandParameter>
-                                <system:UInt32>20</system:UInt32>
+                                <system:Boolean>True</system:Boolean>
                             </components:SvgButton.CommandParameter>
                         </components:SvgButton>
                     </StackPanel>

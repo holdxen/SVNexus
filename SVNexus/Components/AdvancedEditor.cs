@@ -2,18 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Media.Immutable;
 using Avalonia.Styling;
 using AvaloniaEdit;
 using AvaloniaEdit.Editing;
 using AvaloniaEdit.Rendering;
 using AvaloniaEdit.Utils;
-using SVNexus.Extension;
 using SVNexus.Models;
 using SVNexus.Utils;
 
@@ -52,8 +51,7 @@ public class AdvancedEditor: TextEditor
         ChangeOnlyProperty.Changed.AddClassHandler<AdvancedEditor, bool>(OnChangeOnlyPropertyChanged);
     }
     
-    private static void OnLinesPropertyChanged(AdvancedEditor target,
-        AvaloniaPropertyChangedEventArgs<List<DifferenceLine>> args)
+    private static void OnLinesPropertyChanged(AdvancedEditor target, AvaloniaPropertyChangedEventArgs<List<DifferenceLine>> args)
     {
         target.AffectRenders();
     }
@@ -69,11 +67,12 @@ public class AdvancedEditor: TextEditor
         LineNumberRenderer = new LineNumberRender(this);
 
         LineBackgroundRenderer = new BackgroundRenderer(this);
-
-        ChangeOnly = true;
         
         TextArea.TextView.BackgroundRenderers.Add(LineBackgroundRenderer);
         
+        ShowLineNumbers = false;
+        
+#if false
         var line = DottedLineMargin.Create();
         TextArea.LeftMargins.Insert(0, LineNumberRenderer);
         TextArea.LeftMargins.Insert(1, line);
@@ -84,8 +83,8 @@ public class AdvancedEditor: TextEditor
         line.Bind(Shape.StrokeProperty, foreground);
         line.Bind(MarginProperty, margin);
         LineNumberRenderer.Bind(ForegroundProperty, foreground);
+#endif
         
-        ShowLineNumbers = false;
     }
 
 
@@ -93,7 +92,32 @@ public class AdvancedEditor: TextEditor
     {
         // LineBackgroundRenderer.Lines = lines;
         // LineNumberRenderer.Lines = lines;
-        Document.Text = string.Join("\n", Lines.Map(l => ChangeOnly ? l.Where(i => i.DifferenceKind != DifferenceLine.Kind.Unchanged) : l).Select(i => i.Text));
+        // Document.Text = string.Join("\n", Lines.Map(l => ChangeOnly ? l.Where(i => i.DifferenceKind != DifferenceLine.Kind.Unchanged) : l).Select(i => i.Text));
+
+        if (ChangeOnly)
+        {
+            var lines = Lines.Where(i => i.DifferenceKind is not DifferenceLine.Kind.Unchanged).ToList();
+            if (lines.Count == 0)
+            {
+                Document.Text = string.Empty;
+                return;
+            }
+
+            lines[^1] = lines[^1] with { Ending = DifferenceLine.LineEnding.None };
+
+            Document.Text = DifferenceLine.ToText(lines);
+        }
+        else
+        {
+            if (Lines.Count == 0)
+            {
+                Document.Text = string.Empty;
+                return;
+            }
+            
+            Document.Text = DifferenceLine.ToText(Lines);
+        }
+        
         LineNumberRenderer.InvalidateMeasure();
         LineNumberRenderer.InvalidateVisual();
     }
@@ -123,10 +147,32 @@ public class AdvancedEditor: TextEditor
     }
 
 
+    protected class CheckBoxColumnMargin(AdvancedEditor editor) : LineNumberMargin
+    {
+        public static readonly StyledProperty<double> SizeProperty = AvaloniaProperty.Register<CheckBoxColumnMargin, double>(
+            nameof(Size));
+
+        public double Size
+        {
+            get => GetValue(SizeProperty);
+            set => SetValue(SizeProperty, value);
+        }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            return new Size(Size, 0);
+        }
+
+        public override void Render(DrawingContext drawingContext)
+        {
+        }
+    }
+
     protected class LineNumberRender(AdvancedEditor editor) : LineNumberMargin
     {
-        
         // public List<DifferenceLine> Lines { get; set; } = [];
+        
+        public bool AlignLeft { get; set; }
         
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -187,7 +233,7 @@ public class AdvancedEditor: TextEditor
                     foreground
                 );
                 var y = line.GetTextLineVisualYPosition(line.TextLines[0], VisualYPosition.TextTop);
-                drawingContext.DrawText(text, new Point(renderSize.Width - text.Width, y - textView.VerticalOffset));
+                drawingContext.DrawText(text, new Point(AlignLeft ? 0 : renderSize.Width - text.Width, y - textView.VerticalOffset));
             }
         }
     }
@@ -221,14 +267,16 @@ public class AdvancedEditor: TextEditor
                 var visualLine = textView.VisualLines[i];
                 var lineNumber = visualLine.FirstDocumentLine.LineNumber - 1;
 
+                // Logger.Info($"LineNumber {lineNumber} {GetHashCode()}");
                 if (editor.Lines.Count > 0)
                 {
                     lineNumber = editor.RealIndex(lineNumber);
                 }
+                // Logger.Info($"Translated lineNumber: {lineNumber} {GetHashCode()}");
                 
                 if (lineNumber < 0 || lineNumber >= editor.Lines.Count)
                 {
-                    Logger.Error($"Line number {lineNumber} is out of range");
+                    // Logger.Error($"Line number {lineNumber} is out of range {GetHashCode()}");
                     continue;
                 }
                 var line = editor.Lines[lineNumber];
@@ -238,7 +286,7 @@ public class AdvancedEditor: TextEditor
                     if (line.DifferenceKind is not DifferenceLine.Kind.Visual)
                     {
                         kind = line.DifferenceKind;
-                        Logger.Info($"Set line to: {line.DifferenceKind}");
+                        // Logger.Info($"Set line to: {line.DifferenceKind} {GetHashCode()}");
                         start = y;
                     }
                 }
@@ -248,8 +296,8 @@ public class AdvancedEditor: TextEditor
                     {
                         var rect = new Rect(0, start, textView.Bounds.Width, y - start);
                         
-                        Logger.Info($"Draw background: {rect}, {colorCollection.BackgroundColor(kind.GetValueOrDefault())}");
-                        Logger.Info($"Kind: {kind} {line.DifferenceKind}");
+                        // Logger.Info($"Draw background: {rect}, {colorCollection.BackgroundColor(kind.GetValueOrDefault())} {GetHashCode()}");
+                        // Logger.Info($"Kind: {kind} {line.DifferenceKind}");
                         
                         drawingContext.DrawRectangle(colorCollection.BackgroundColor(kind.GetValueOrDefault()), null, rect);  
                         kind = line.DifferenceKind;
@@ -261,7 +309,7 @@ public class AdvancedEditor: TextEditor
                 if (i != textView.VisualLines.Count - 1 && lineNumber != editor.Lines.Count - 1) continue;
                 {
                     var rect = new Rect(0, start, textView.Bounds.Width, y - start + visualLine.Height);
-                    Logger.Info($"About to finish: {rect}, {colorCollection.BackgroundColor(kind.GetValueOrDefault())}");
+                    // Logger.Info($"About to finish: {rect}, {colorCollection.BackgroundColor(kind.GetValueOrDefault())} {GetHashCode()}");
                     drawingContext.DrawRectangle(colorCollection.BackgroundColor(line.DifferenceKind), null, rect);
                 }
             }
@@ -273,31 +321,38 @@ public class AdvancedEditor: TextEditor
 
 
 
-// public class OldDifferenceEditor : AdvancedEditor
-// {
-//     static OldDifferenceEditor()
-//     {
-//         LinesProperty.Changed.AddClassHandler<OldDifferenceEditor, List<DifferenceLine>>(OnLinesPropertyChanged);
-//     }
-//
-//     private static void OnLinesPropertyChanged(OldDifferenceEditor target,
-//         AvaloniaPropertyChangedEventArgs<List<DifferenceLine>> args)
-//     {
-//         target.AffectRenders(args.NewValue.Value);
-//     }
-//
-// }
-//
-// public class NewDifferenceEditor : AdvancedEditor
-// {
-//     static NewDifferenceEditor()
-//     {
-//         LinesProperty.Changed.AddClassHandler<NewDifferenceEditor, List<DifferenceLine>>(OnLinesPropertyChanged);
-//     }
-//
-//     private static void OnLinesPropertyChanged(NewDifferenceEditor target,
-//         AvaloniaPropertyChangedEventArgs<List<DifferenceLine>> args)
-//     {
-//         target.AffectRenders(args.NewValue.Value);
-//     }
-// }
+public class OldDifferenceEditor : AdvancedEditor
+{
+    public OldDifferenceEditor()
+    {
+        var line = DottedLineMargin.Create();
+        TextArea.LeftMargins.Insert(0, line);
+        TextArea.LeftMargins.Insert(1, LineNumberRenderer);
+
+        LineNumberRenderer.AlignLeft = true;
+
+        var foreground = this.GetBindingObservable(LineNumbersForegroundProperty);
+        var margin = this.GetBindingObservable(LineNumbersMarginProperty);
+        
+        line.Bind(Shape.StrokeProperty, foreground);
+        line.Bind(MarginProperty, margin);
+        LineNumberRenderer.Bind(ForegroundProperty, foreground);
+    }
+}
+
+public class NewDifferenceEditor : AdvancedEditor
+{
+    public NewDifferenceEditor()
+    {
+        var line = DottedLineMargin.Create();
+        TextArea.LeftMargins.Insert(0, LineNumberRenderer);
+        TextArea.LeftMargins.Insert(1, line);
+
+        var foreground = this.GetBindingObservable(LineNumbersForegroundProperty);
+        var margin = this.GetBindingObservable(LineNumbersMarginProperty);
+        
+        line.Bind(Shape.StrokeProperty, foreground);
+        line.Bind(MarginProperty, margin);
+        LineNumberRenderer.Bind(ForegroundProperty, foreground);
+    }
+}

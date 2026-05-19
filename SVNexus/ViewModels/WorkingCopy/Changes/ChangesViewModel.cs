@@ -56,6 +56,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     [NotifyPropertyChangedFor(nameof(IsInfoButtonEnable))]
     [NotifyPropertyChangedFor(nameof(IsDiffButtonEnable))]
     [NotifyPropertyChangedFor(nameof(IsPatchButtonEnable))]
+    [NotifyPropertyChangedFor(nameof(IsDeleteButtonEnable))]
     public partial List<StatusEntry> SelectedStatusEntries { get; set; } = [];
 
     public bool IsRevertButtonEnable => SelectedStatusEntries.Count > 0;
@@ -72,6 +73,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
     
     public bool IsPatchButtonEnable => SelectedStatusEntries.Count == 1 && SelectedStatusEntries.First().NodeKind == NodeKind.Directory && SelectedStatusEntries.First().NodeStatus != WorkingCopyStatus.Unversioned;
 
+    public bool IsDeleteButtonEnable => SelectedStatusEntries.Count > 0;
 
     
     
@@ -121,6 +123,31 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         SelectedViewIndex = TreeViewIndex;
     }
 
+    [RelayCommand]
+    private async Task Delete()
+    {
+        if (!IsDeleteButtonEnable)
+        {
+            return;
+        }
+        
+        
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+
+        var model = new DeleteDialogModel(this)
+        {
+            Targets = SelectedStatusEntries.Select(i => TargetItemViewModel.From(i,  false, SendMessage(new OnGetWorkingCopyPath()))).ToList()
+        };
+        
+        await OverlayDialog.ShowStandardAsync<DeleteDialog, DeleteDialogModel>(model, hostId, model.OverlayDialogOptions);
+
+        if (model.Accept)
+        {
+            await StatusCommand.ExecuteOrNothingAsync(null);
+        }
+        
+    }
 
     [RelayCommand]
     private async Task Difference()
@@ -424,17 +451,29 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         {
             if (message.Value == null)
             {
-                DifferenceViewModel = new DifferenceViewModel(this);
+                DifferenceViewModel = new DifferenceViewModel(this)
+                {
+                    ChangeOnly = DifferenceViewModel.ChangeOnly,
+                    SelectedViewIndex = DifferenceViewModel.SelectedViewIndex,
+                };
                 return;
             }
             
             if (_differenceViewModels.TryGetValue(message.Value.Path, out var difference))
             {
-                DifferenceViewModel = difference;
+                DifferenceViewModel = difference.Apply(e =>
+                {
+                   e.ChangeOnly = DifferenceViewModel.ChangeOnly; 
+                   SelectedViewIndex = difference.SelectedViewIndex;
+                });
                 return;
             }
             
-            DifferenceViewModel = new DifferenceViewModel(this);
+            DifferenceViewModel = new DifferenceViewModel(this)
+            {
+                ChangeOnly = DifferenceViewModel.ChangeOnly,
+                SelectedViewIndex = DifferenceViewModel.SelectedViewIndex,
+            };
             
             _differenceViewModels.Add(message.Value.Path, DifferenceViewModel);
             

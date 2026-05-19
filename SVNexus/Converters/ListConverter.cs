@@ -24,8 +24,8 @@ public class ListConverter: IValueConverter
     
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        Logger.Info($"value is {value is ICollection}");
-        Console.WriteLine($"value is {value is ICollection}");
+        // Logger.Info($"value is {value is ICollection}");
+        // Console.WriteLine($"value is {value is ICollection}");
         return ConvertFunc.Invoke(value as ICollection);
     }
 

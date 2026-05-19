@@ -96,5 +96,14 @@ public class TargetItem : TemplatedControl
         get => GetValue(IsLoadingProperty);
         set => SetValue(IsLoadingProperty, value);
     }
+
+    public static readonly StyledProperty<bool> StarProperty = AvaloniaProperty.Register<TargetItem, bool>(
+        nameof(Star));
+
+    public bool Star
+    {
+        get => GetValue(StarProperty);
+        set => SetValue(StarProperty, value);
+    }
     
 }

@@ -1195,7 +1195,6 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
             HorizontalScrollBarVisibility =  ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
         };
-        Console.WriteLine("Show dialog");
         var model = new ExportProcessDialogModel(this)
         {
             Options = message

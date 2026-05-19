@@ -16,7 +16,12 @@
                            IsLocked="{Binding IsLocked}"
                            StatusToolTip="{Binding StatusToolTip}"
                            IsLoading="{Binding IsLoading}"
-                           StatusIcon="{Binding StatusIcon}"
-                           >
+                           Star="{Binding Star}"
+                           StatusIcon="{Binding StatusIcon}">
+        <Interaction.Behaviors>
+            <EventTriggerBehavior EventName="DoubleTapped">
+                <InvokeCommandAction Command="{Binding DoubleTappedCommand}"></InvokeCommandAction>
+            </EventTriggerBehavior>
+        </Interaction.Behaviors>
     </components:TargetItem>
 </UserControl>
