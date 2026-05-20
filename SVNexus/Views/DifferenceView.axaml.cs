@@ -185,10 +185,16 @@ public sealed class DiffScrollSynchronizer
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
-            if (change.Property == LinesProperty || change.Property == TextLinesProperty || change.Property == ChangeOnlyProperty)
+            if (change.Property == LinesProperty || change.Property == TextLinesProperty || change.Property == ChangeOnlyProperty || change.Property == BoundsProperty)
             {
                 Rebuild();
             }
+        }
+
+        protected override void OnSizeChanged(SizeChangedEventArgs e)
+        {
+            base.OnSizeChanged(e);
+            Rebuild();
         }
 
         public void Rebuild()

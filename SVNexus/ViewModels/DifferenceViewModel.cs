@@ -49,18 +49,25 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
 
     public bool InOne { get; set; }
 
-    public bool TextModified { get; set; }
+    [ObservableProperty]
+    public partial bool TextModified { get; set; }
 
-    public bool PropertyModified { get; set; }
+    [ObservableProperty]
+    public partial bool PropertyModified { get; set; }
 
-    public bool IsOldBinary { get; set; }
+    [ObservableProperty]
+    public partial bool IsOldBinary { get; set; }
 
-    public bool IsNewBinary { get; set; }
+    [ObservableProperty]
+    public partial bool IsNewBinary { get; set; }
 
     [ObservableProperty] 
     public partial List<DifferenceLine> OldLines { get; set; } = [];
 
-    [ObservableProperty] public partial List<DifferenceLine> NewLines { get; set; } = [];
+    [ObservableProperty] 
+    public partial List<DifferenceLine> NewLines { get; set; } = [];
+
+    [ObservableProperty] public partial bool ExpandKeywords { get; set; } = true;
 
     private const int TextViewIndex = 0;
     private const int PropertyViewIndex = 1;
@@ -135,6 +142,9 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
 
         CheckBoxLines = new List<bool?>(CheckBoxLines);
     }
+    
+    public bool IsPartialChecked => CheckBoxLines.Any(i => i is false);
+    
     public string CombineToText()
     {
         var builder = new StringBuilder();
@@ -631,7 +641,7 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                     catOriginal = () =>
                     {
                         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Base(),
-                            Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
+                            Revision: new Revision.Base(), ExpandKeywords: ExpandKeywords, GetProperties: false);
                         return context.Cat(catOptions);
                     };
                     break;
@@ -667,13 +677,13 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                     catModified = () =>
                     {
                         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-                            Revision: new Revision.Working(), ExpandKeywords: true, GetProperties: false);
+                            Revision: new Revision.Working(), ExpandKeywords: ExpandKeywords, GetProperties: false);
                         return context.Cat(catOptions);
                     };
                     catOriginal = () =>
                     {
                         var catOptions = new CatOptions(Path: statusEntry.Path, PegRevision: new Revision.Unspecified(),
-                            Revision: new Revision.Base(), ExpandKeywords: true, GetProperties: false);
+                            Revision: new Revision.Base(), ExpandKeywords: ExpandKeywords, GetProperties: false);
                         return context.Cat(catOptions);
                     };
                     break;

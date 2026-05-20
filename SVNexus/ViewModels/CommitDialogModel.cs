@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -116,10 +117,31 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
             return;
         }
         
-        await _singleTaskQueue.RunAndWait(async _ =>
+        await _singleTaskQueue.RunAndWait(async token =>
         {
+            var backup = new Dictionary<string, byte[]>();
             try
             {
+                foreach (var (path, d) in Differences)
+                {
+                    if (!d.IsPartialChecked)
+                    {
+                        continue;   
+                    }
+
+                    var file = Path.GetTempFileName();
+                    
+                    Logger.Warn($"Backing file[{path}] to {file}");
+                    
+                    var oldContent = await File.ReadAllBytesAsync(path, token);
+                    
+                    backup[path] = oldContent;
+                    
+                    await File.WriteAllBytesAsync(file, oldContent, token);
+                    
+                    await File.WriteAllTextAsync(path, d.CombineToText(), token);
+                    
+                }
                 var hostId = SendMessage(new OnGetDialogHostId());
             
                 var context = Engine.EngineBackend.Instance.SimpleContext(hostId);
@@ -153,6 +175,13 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
                         Type = NotificationType.Success
                     }, Manager.MainWindowToken);
                 }
+
+                foreach (var (path, content) in backup)
+                {
+                    Logger.Info($"Recover file[{path}]");
+                    await File.WriteAllBytesAsync(path, content, token);
+                }
+                
                 Ok();
             }
             catch (System.Exception e)
@@ -179,7 +208,8 @@ public partial class CommitDialogModel(ViewModelBase parent): DialogModelBase(pa
         {
             content = new DifferenceViewModel(this)
             {
-                LineChecked = true
+                LineChecked = true,
+                ExpandKeywords = false
             }.Apply(e =>
             {
                 Dispatcher.UIThread.InvokeAsync(async () =>

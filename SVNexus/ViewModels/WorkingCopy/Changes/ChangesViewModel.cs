@@ -464,7 +464,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
                 DifferenceViewModel = difference.Apply(e =>
                 {
                    e.ChangeOnly = DifferenceViewModel.ChangeOnly; 
-                   SelectedViewIndex = difference.SelectedViewIndex;
+                   e.SelectedViewIndex = difference.SelectedViewIndex;
                 });
                 return;
             }
