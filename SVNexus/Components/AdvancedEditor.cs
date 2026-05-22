@@ -146,28 +146,6 @@ public class AdvancedEditor: TextEditor
         return -1;
     }
 
-
-    protected class CheckBoxColumnMargin(AdvancedEditor editor) : LineNumberMargin
-    {
-        public static readonly StyledProperty<double> SizeProperty = AvaloniaProperty.Register<CheckBoxColumnMargin, double>(
-            nameof(Size));
-
-        public double Size
-        {
-            get => GetValue(SizeProperty);
-            set => SetValue(SizeProperty, value);
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            return new Size(Size, 0);
-        }
-
-        public override void Render(DrawingContext drawingContext)
-        {
-        }
-    }
-
     protected class LineNumberRender(AdvancedEditor editor) : LineNumberMargin
     {
         // public List<DifferenceLine> Lines { get; set; } = [];

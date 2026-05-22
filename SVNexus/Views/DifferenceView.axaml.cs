@@ -197,7 +197,7 @@ public sealed class DiffScrollSynchronizer
             Rebuild();
         }
 
-        public void Rebuild()
+        private void Rebuild()
         {
             Children.Clear();
             _mapper.Clear();
@@ -221,7 +221,6 @@ public sealed class DiffScrollSynchronizer
                 return;
             }
             
-            Logger.Info($"Render {view.VisualLines.Count}");
             foreach (var line in view.VisualLines)
             {
                 var lineNumber = line.FirstDocumentLine.LineNumber - 1;
@@ -254,7 +253,6 @@ public sealed class DiffScrollSynchronizer
                 var x = (Bounds.Width - s) / 2;
                 var y = top - view.VerticalOffset;
                 
-                Logger.Info($"Add Checkbox: x={x}, y={y}, s={s}");
                 var checkBox = new CheckBox()
                 {
                     IsChecked = state,

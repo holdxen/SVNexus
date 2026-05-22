@@ -1,21 +1,14 @@
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using SVNexus.Engine;
 using SVNexus.Extension;
 using SVNexus.Generated;
-using SVNexus.Inject;
 using SVNexus.Messages;
 using SVNexus.ViewModels.WorkingCopy.Changes;
 using SVNexus.ViewModels.WorkingCopy.History;
 using SVNexus.ViewModels.WorkingCopy.Local;
-using SVNexus.Views;
-using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy;
 
@@ -80,26 +73,26 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     //     }
     // }
 
-    [RelayCommand]
-    private async Task Update()
-    {
-        try
-        {
-            var context = SendMessage(new OnGetContext()).Response;
-            
-            var opts = new UpdateOptions(Paths: [Path], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAsModification: false, MakeParents: true);
-            
-            await context.Update(opts);
-        }
-        catch (System.Exception e)
-        {
-            Manager.Default.Send(new OnShowToast()
-            {
-                Content = $"Failed to update working copy: {e.HumanReadableMessage}",
-                Type = NotificationType.Error
-            }, Manager.MainWindowToken);
-        }
-    }
+    // [RelayCommand]
+    // private async Task Update()
+    // {
+    //     try
+    //     {
+    //         var context = SendMessage(new OnGetContext()).Response;
+    //         
+    //         var opts = new UpdateOptions(Paths: [Path], Revision: new Revision.Head(), Depth.Infinity, DepthIsSticky: false, IgnoreExternals: false, AllowUnverObstructions: true, AddsAsModification: false, MakeParents: true);
+    //         
+    //         await context.Update(opts);
+    //     }
+    //     catch (System.Exception e)
+    //     {
+    //         Manager.Default.Send(new OnShowToast()
+    //         {
+    //             Content = $"Failed to update working copy: {e.HumanReadableMessage}",
+    //             Type = NotificationType.Error
+    //         }, Manager.MainWindowToken);
+    //     }
+    // }
 
     
 
@@ -124,6 +117,11 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     //     Manager.Default.RegisterAllMessages(this, _typeService.Get(this));
     // }
 
+    public Task UpdateChangesView()
+    {
+        return ChangesViewModel.RefreshCommand.ExecuteOrNothingAsync(null);
+    }
+
     public WorkingCopyViewModel(ViewModelBase parent, string path): base(parent)
     {
         Path = path;
@@ -136,36 +134,6 @@ public partial class WorkingCopyViewModel : ViewModelBase,
     {
         IsEnabled = message.Value;
     }
-
-    public void Receive(InitializeRepositoryOptions message)
-    {
-        // var hostId = Manager.Default.Send(new OnGetDialogHostId(), _tabService.Token).Response;
-        var hostId = SendMessage(new OnGetDialogHostId());
-
-        var importProcessDialogModel = new ImportProcessDialogModel(this)
-        {
-            Options = message,
-        };
-
-        Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            var options = new OverlayDialogOptions
-            {
-                Title = "Initialize repository",
-                IsCloseButtonVisible = false,
-                Buttons = DialogButton.None
-            };
-
-            await OverlayDialog.ShowStandardAsync<ImportProcessDialog, ImportProcessDialogModel>(importProcessDialogModel, options: options, hostId: hostId);
-            if (importProcessDialogModel.Error is null)
-            {
-                await ChangesViewModel.Status();
-            }
-        });
-
-    }
-
-
 
     public void Receive(OnGetWorkingCopyPath message)
     {

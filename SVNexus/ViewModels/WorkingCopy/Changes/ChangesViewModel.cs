@@ -18,7 +18,7 @@ using Ursa.Controls;
 
 namespace SVNexus.ViewModels.WorkingCopy.Changes;
 
-public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSelectedItemChanged>, IRecipient<Messages.OnSelectedItemsChanged>, IRecipient<OnRefreshWorkingCopy>
+public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSelectedItemChanged>, IRecipient<Messages.OnSelectedItemsChanged>
 {
     private readonly LimitedDictionary<string, DifferenceViewModel> _differenceViewModels = new()
     {
@@ -144,7 +144,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         if (model.Accept)
         {
-            await StatusCommand.ExecuteOrNothingAsync(null);
+            SendMessage(new OnRefreshWorkingCopy());
         }
         
     }
@@ -198,6 +198,10 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         var hostId = SendMessage(new OnGetDialogHostId());
         
         await OverlayDialog.ShowStandardAsync<PatchDialog, PatchDialogModel>(patchDialogModel, hostId, patchDialogModel.OverlayDialogOptions);
+        if (patchDialogModel.Accept)
+        {
+            SendMessage(new OnRefreshWorkingCopy());
+        }
     }
 
     [RelayCommand]
@@ -260,7 +264,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         await OverlayDialog.ShowStandardAsync<LockDialog, LockDialogModel>(model, hostId, model.OverlayDialogOptions);
         if (model.Accept)
         {
-            await StatusCommand.ExecuteOrNothingAsync(null);
+            SendMessage(new OnRefreshWorkingCopy());
         }
     }
 
@@ -279,7 +283,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         await OverlayDialog.ShowStandardAsync<UnlockDialog, UnlockDialogModel>(model, hostId, model.OverlayDialogOptions);
         if (model.Accept)
         {
-            await StatusCommand.ExecuteOrNothingAsync(null);
+            SendMessage(new  OnRefreshWorkingCopy());
         }
     }
     
@@ -298,14 +302,14 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         if (model.Accept)
         {
-            await StatusCommand.ExecuteOrNothingAsync(null);
+            SendMessage(new OnRefreshWorkingCopy());
         }
 
     }
 
     
     [RelayCommand]
-    public async Task Status()
+    public async Task Refresh()
     {
         try
         {
@@ -350,7 +354,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
                     await context.Cleanup(cleanupOptions);
 
-                    await Status();
+                    await Refresh();
                 }
                 else
                 {
@@ -370,7 +374,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
                 if (boxResult == MessageBoxResult.Yes)
                 {
                     // todo: handle update
-                    await Status();
+                    await Refresh();
                 }
                 else
                 {
@@ -440,7 +444,7 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
 
         if (model.Accept)
         {
-            await StatusCommand.ExecuteOrNothingAsync(null);
+            SendMessage(new OnRefreshWorkingCopy());
         }
 
     }
@@ -481,22 +485,18 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
         });
 
     }
-
-    public void Receive(OnRefreshWorkingCopy message)
-    {
-        Dispatcher.UIThread.InvokeAsync(async () => await Status());
-    }
-
+    
     [RelayCommand]
     private async Task OnShow()
     {
-        await Status();
+        await Refresh();
     }
 
     public void Receive(Messages.OnSelectedItemsChanged message)
     {
         // 当界面显示的时候或者直接调用status进行更新的时候，会导致tree和list都重新计算selected item，
         // 计算完成后都把结果会发送到这里，导致list的结果被tree覆盖，所以要判断消息是否是当前正在显示的view发的，否则直接忽略
+        Logger.Info($"Selected items changed: IsTree={IsTreeView} IsList={IsListView} Sender={Sender?.GetType()}");
         if ((IsTreeView && Sender == ChangesTreeViewModel) || (IsListView && Sender == ChangesListViewModel))
         {
             SelectedStatusEntries = message.Value;

@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
-using Avalonia.Controls.Primitives;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -28,7 +27,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
     IRecipient<OnGetWorkingCopyRoot>,
     IRecipient<OnGetWorkspaceHistory>,
     IRecipient<OnSetWorkspaceHistory>,
-    IRecipient<OnNotWorkingCopy>
+    IRecipient<OnNotWorkingCopy>,
+    IRecipient<OnRefreshWorkingCopy>
 {
 
     public class OnItemIsExpandedChanged()
@@ -39,7 +39,13 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
     public partial class TreeItemViewModel(ViewModelBase parent) : ViewModelBase(parent)
     {
-        public StatusEntry? StatusEntry { get; set; }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Name))]
+        [NotifyPropertyChangedFor(nameof(AbsolutePath))]
+        [NotifyPropertyChangedFor(nameof(NodeKindIcon))]
+        [NotifyPropertyChangedFor(nameof(NodeStatusIcon))]
+        [NotifyPropertyChangedFor(nameof(HasChild))]
+        public partial StatusEntry? StatusEntry { get; set; }
 
         public string Name
         {
@@ -139,6 +145,8 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
     public bool IsInfoButtonEnable => SelectedTreeItems.Count == 1;
     
+    
+    private bool DoNotChangeWorkingCopyView { get; set; }
 
     /// <inheritdoc/>
     public WorkspaceViewModel(string path, ViewModelBase parent) : base(parent)
@@ -187,8 +195,20 @@ public partial class WorkspaceViewModel : ViewModelBase,
         NotifyButtonState();
     }
 
+    partial void OnWorkingCopyViewModelChanged(WorkingCopyViewModel? value)
+    {
+        Logger.Info("WorkingCopyViewModelChanged");
+    }
+
+    
+
     partial void OnSelectedTreeItemChanged(TreeItemViewModel? value)
     {
+        Logger.Info($"Selected Item Changed: {value?.AbsolutePath}");
+        if (DoNotChangeWorkingCopyView)
+        {
+            return;
+        }
         if (value is null || value.StatusEntry?.NodeStatus == WorkingCopyStatus.Unversioned)
         {
             WorkingCopyViewModel = null;
@@ -240,6 +260,16 @@ public partial class WorkspaceViewModel : ViewModelBase,
             return;
         }
         
+        var selectedPath = SelectedTreeItem?.AbsolutePath;
+        if (initialize)
+        {
+            selectedPath = WorkspacePath;
+        }
+
+        DoNotChangeWorkingCopyView = true;
+        
+        using var guard = new DropGuard(() => DoNotChangeWorkingCopyView = false);
+        
         
         var statusOptions = new StatusOptions(WorkspaceRoot, new Revision.Working(), Depth.Infinity, true, false, false, false, false, false, null);
 
@@ -265,7 +295,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         var lockedEntries = new List<StatusEntry>();
         var incompleteEntries = new List<StatusEntry>();
         
-        TreeItemViewModel? selectedTreeItem = null;
+        var selectedTreeItem = selectedPath == WorkspaceRoot ? root : null;
 
         var receiver = new StatusReceiverDelegate()
         {
@@ -320,7 +350,11 @@ public partial class WorkspaceViewModel : ViewModelBase,
                                     AbsolutePath = itemPath,
                                     IsExpanded = isExpanded,
                                 };
-                                if (initialize && itemPath == WorkspacePath)
+                                // if (initialize && itemPath == WorkspacePath)
+                                // {
+                                //     selectedTreeItem = item;
+                                // }
+                                if (itemPath == selectedPath)
                                 {
                                     selectedTreeItem = item;
                                 }
@@ -357,7 +391,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Logger.Warn($"Failed to refresh {e.Message}\n{e.StackTrace}");
                 }
             }
         };
@@ -392,7 +426,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
         if (incompleteEntries.Count > 0)
         {
             var hostId = SendMessage(new OnGetDialogHostId());
-            var result = await OverlayMessageBox.ShowAsync("Working copy is locked, Whether to update", "Error", hostId,  MessageBoxIcon.Error, MessageBoxButton.YesNo);
+            var result = await OverlayMessageBox.ShowAsync("Working copy is locked, whether to update", "Error", hostId,  MessageBoxIcon.Error, MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
 
@@ -417,6 +451,7 @@ public partial class WorkspaceViewModel : ViewModelBase,
 
         if (initialize)
         {
+            DoNotChangeWorkingCopyView = false;
             if (WorkspaceRoot == WorkspacePath)
             {
                 SelectedTreeItem = root;
@@ -431,6 +466,10 @@ public partial class WorkspaceViewModel : ViewModelBase,
         else
         {
             SelectedTreeItems = new ObservableCollection<TreeItemViewModel>(newSelectedTreeItems);
+            
+            DoNotChangeWorkingCopyView = false;
+            
+            SelectedTreeItem = selectedTreeItem;
         }
 
     }
@@ -937,6 +976,23 @@ public partial class WorkspaceViewModel : ViewModelBase,
         {
             await OverlayMessageBox.ShowAsync(title: "Error", hostId: hostId, message: "Not a working copy", button: MessageBoxButton.OK);
             SendMessage(new OnRemoveTabModel());
+        });
+    }
+
+    public void Receive(OnRefreshWorkingCopy message)
+    {
+        Dispatcher.UIThread.InvokeAsync( async () =>
+        {
+            var previous = WorkingCopyViewModel;
+            await RefreshCommand.ExecuteOrNothingAsync(null);
+            if (previous == WorkingCopyViewModel)
+            {
+                var task = WorkingCopyViewModel?.UpdateChangesView();
+                if (task != null)
+                {
+                    await task;
+                }
+            }
         });
     }
 }

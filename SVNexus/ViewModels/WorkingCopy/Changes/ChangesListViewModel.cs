@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
@@ -233,10 +234,6 @@ public partial class ChangesListViewModel : ViewModelBase
         var relateTo = SendMessage(new OnGetWorkingCopyPath());
         foreach (var entry in entries)
         {
-            if (entry.Path.Contains("README"))
-            {
-                Logger.Info($"Entry: {entry}");
-            }
             var index = Items.FindIndex(x => x.Entry.Path == entry.Path);
             if (index < 0)
             {
@@ -252,6 +249,7 @@ public partial class ChangesListViewModel : ViewModelBase
         }
 
         Items = new ObservableCollection<ListItemViewModel>(items);
+        NotifySelectedItemsChanged();
     }
 
     public void NotifySelectedItemsChanged()

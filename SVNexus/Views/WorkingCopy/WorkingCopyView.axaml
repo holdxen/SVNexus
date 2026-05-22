@@ -63,7 +63,7 @@
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Refresh"
                                               Source="{StaticResource Icons.Refresh}"
-                                              Command="{Binding ChangesViewModel.StatusCommand}"></components:SvgButton>
+                                              Command="{Binding ChangesViewModel.RefreshCommand}"></components:SvgButton>
                         <components:SvgButton Classes="ToolButton" 
                                               ToolTip.Tip="Revert"
                                               Source="{StaticResource Icons.OperationRevert}"
