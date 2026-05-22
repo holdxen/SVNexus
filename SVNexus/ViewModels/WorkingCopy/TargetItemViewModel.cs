@@ -61,6 +61,8 @@ public partial class TargetItemViewModel : ViewModelBase
     
     [ObservableProperty] public partial bool Star { get; set; }
     
+    [ObservableProperty] public partial string? Changelist { get; set; }
+    
     public string Path { get; set; } = string.Empty;
 
     public virtual void Initialize(StatusEntry statusEntry, bool absolute, string? relateTo)
@@ -107,6 +109,7 @@ public partial class TargetItemViewModel : ViewModelBase
         IsLocked = statusEntry.Lock is not null;
         StatusToolTip = statusEntry.NodeStatus.ToString();
         StatusIcon = statusEntry.NodeStatus.Icon();
+        Changelist = statusEntry.Changelist;
         IsLoading = false;
     }
     public static TargetItemViewModel From(StatusEntry statusEntry, bool absolute = false, string? relateTo = null)

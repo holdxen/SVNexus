@@ -105,5 +105,13 @@ public class TargetItem : TemplatedControl
         get => GetValue(StarProperty);
         set => SetValue(StarProperty, value);
     }
-    
+
+    public static readonly StyledProperty<string?> ChangelistProperty = AvaloniaProperty.Register<TargetItem, string?>(
+        nameof(Changelist));
+
+    public string? Changelist
+    {
+        get => GetValue(ChangelistProperty);
+        set => SetValue(ChangelistProperty, value);
+    }
 }

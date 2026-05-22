@@ -17,6 +17,7 @@
                            StatusToolTip="{Binding StatusToolTip}"
                            IsLoading="{Binding IsLoading}"
                            Star="{Binding Star}"
+                           Changelist="{Binding Changelist}"
                            StatusIcon="{Binding StatusIcon}">
         <Interaction.Behaviors>
             <EventTriggerBehavior EventName="DoubleTapped">

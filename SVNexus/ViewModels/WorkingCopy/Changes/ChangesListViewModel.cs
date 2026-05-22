@@ -233,6 +233,10 @@ public partial class ChangesListViewModel : ViewModelBase
         var relateTo = SendMessage(new OnGetWorkingCopyPath());
         foreach (var entry in entries)
         {
+            if (entry.Path.Contains("README"))
+            {
+                Logger.Info($"Entry: {entry}");
+            }
             var index = Items.FindIndex(x => x.Entry.Path == entry.Path);
             if (index < 0)
             {

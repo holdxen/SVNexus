@@ -10,7 +10,7 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Padding="2 4" Background="Transparent">
-                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto">
                         <components:SvgRender Source="{TemplateBinding KindIcon}" 
                                               Size="18"
                                               Margin="2 0"
@@ -42,19 +42,26 @@
                         <components:SvgRender Grid.Column="2" 
                                               Size="18"
                                               Margin="2 0"
+                                              IsVisible="{TemplateBinding Changelist, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                              ToolTip.Tip="{TemplateBinding Changelist}"
+                                              Source="{StaticResource Icons.Changelist}"
+                        ></components:SvgRender>
+                        <components:SvgRender Grid.Column="3" 
+                                              Size="18"
+                                              Margin="2 0"
                                               IsVisible="{TemplateBinding Star}"
                                               Source="{StaticResource Icons.Star}"
-                                              ></components:SvgRender>
+                        ></components:SvgRender>
                         <components:SvgRender Size="18" 
                                               IsVisible="{TemplateBinding IsLocked}"
                                               Margin="2 0" 
-                                              Source="{StaticResource Icons.StatusLocked}" Grid.Column="3"></components:SvgRender>
+                                              Source="{StaticResource Icons.StatusLocked}" Grid.Column="4"></components:SvgRender>
                         <components:SvgRender Size="18" 
                                               ToolTip.Tip="{TemplateBinding StatusToolTip}"
                                               Margin="2 0" 
                                               IsVisible="{TemplateBinding IsLoading, Converter={x:Static BoolConverters.Not}}"
-                                              Source="{TemplateBinding StatusIcon}" Grid.Column="4"></components:SvgRender>
-                        <u:LoadingIcon Grid.Column="4" IsVisible="{TemplateBinding IsLoading}">
+                                              Source="{TemplateBinding StatusIcon}" Grid.Column="5"></components:SvgRender>
+                        <u:LoadingIcon Grid.Column="5" IsVisible="{TemplateBinding IsLoading}">
                             <u:LoadingIcon.Styles>
                                 <Style Selector="u|LoadingIcon /template/ Arc#PART_Arc">
                                     <Setter Property="Width" Value="18" />

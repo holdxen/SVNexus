@@ -774,6 +774,11 @@
         <![CDATA[<svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--twemoji" preserveAspectRatio="xMidYMid meet" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill="#FFAC33" d="M27.287 34.627c-.404 0-.806-.124-1.152-.371L18 28.422l-8.135 5.834a1.97 1.97 0 0 1-2.312-.008a1.971 1.971 0 0 1-.721-2.194l3.034-9.792l-8.062-5.681a1.98 1.98 0 0 1-.708-2.203a1.978 1.978 0 0 1 1.866-1.363L12.947 13l3.179-9.549a1.976 1.976 0 0 1 3.749 0L23 13l10.036.015a1.975 1.975 0 0 1 1.159 3.566l-8.062 5.681l3.034 9.792a1.97 1.97 0 0 1-.72 2.194a1.957 1.957 0 0 1-1.16.379z"></path></g></svg>
 ]]>
     </system:String>
+    <system:String x:Key="Icons.Changelist">
+        <![CDATA[
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path style="fill:#E87E04;" d="M512,256c0,141.47-114.487,256-256,256V0C397.47,0,512,114.487,512,256z"></path> <path style="fill:#FEE856;" d="M0,256c0,141.47,114.487,256,256,256V0C114.53,0,0,114.487,0,256z"></path> <path style="fill:#FFCE3E;" d="M272.696,0.534v510.931C267.164,511.822,261.599,512,256,512s-11.164-0.178-16.696-0.534V0.534 C244.836,0.178,250.401,0,256,0S267.164,0.178,272.696,0.534z"></path> <rect x="256" style="fill:#FEE856;" width="0.003" height="512"></rect> <path style="fill:#F59D00;" d="M256,0c-0.001,0-0.002,0-0.003,0v512c0.001,0,0.002,0,0.003,0c5.599,0,11.164-0.178,16.696-0.534 V0.534C267.164,0.178,261.599,0,256,0z"></path> </g></svg>
+]]>
+    </system:String>
     
     <!-- <system:String></system:String> -->
     <!-- <StreamGeometry> -->
