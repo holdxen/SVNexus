@@ -199,6 +199,10 @@
     <Style Selector="Window[IsActive=false] local|DragTabItem">
         <Setter Property="Background" Value="{DynamicResource TabItemBackgroundBrushWindowInactive}" />
     </Style>
+    
+    <Style Selector="local|DragTabItem:not(:selected) /template/ Path#PART_LeftCorner">
+        <Setter Property="Fill" Value="Transparent"></Setter>
+    </Style>
 
     <!-- Selected state -->
     <Style Selector="local|DragTabItem:selected">

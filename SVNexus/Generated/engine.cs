@@ -36589,10 +36589,7 @@ class FfiConverterTypeCleanupOptions: FfiConverterRustBuffer<CleanupOptions> {
 
 public record ClientDifferenceOptions (
     string[]? Options, 
-    string Path1, 
-    Revision Revision1, 
-    string Path2, 
-    Revision Revision2, 
+    ClientDifferenceSource Source, 
     string? RelateTo, 
     Depth Depth, 
     bool IgnoreAncestry, 
@@ -36615,10 +36612,7 @@ class FfiConverterTypeClientDifferenceOptions: FfiConverterRustBuffer<ClientDiff
     public override ClientDifferenceOptions Read(BigEndianStream stream) {
         return new ClientDifferenceOptions(
             Options: FfiConverterOptionalSequenceString.INSTANCE.Read(stream),
-            Path1: FfiConverterString.INSTANCE.Read(stream),
-            Revision1: FfiConverterTypeRevision.INSTANCE.Read(stream),
-            Path2: FfiConverterString.INSTANCE.Read(stream),
-            Revision2: FfiConverterTypeRevision.INSTANCE.Read(stream),
+            Source: FfiConverterTypeClientDifferenceSource.INSTANCE.Read(stream),
             RelateTo: FfiConverterOptionalString.INSTANCE.Read(stream),
             Depth: FfiConverterTypeDepth.INSTANCE.Read(stream),
             IgnoreAncestry: FfiConverterBoolean.INSTANCE.Read(stream),
@@ -36638,10 +36632,7 @@ class FfiConverterTypeClientDifferenceOptions: FfiConverterRustBuffer<ClientDiff
     public override int AllocationSize(ClientDifferenceOptions value) {
         return 0
             + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Options)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Path1)
-            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision1)
-            + FfiConverterString.INSTANCE.AllocationSize(value.Path2)
-            + FfiConverterTypeRevision.INSTANCE.AllocationSize(value.Revision2)
+            + FfiConverterTypeClientDifferenceSource.INSTANCE.AllocationSize(value.Source)
             + FfiConverterOptionalString.INSTANCE.AllocationSize(value.RelateTo)
             + FfiConverterTypeDepth.INSTANCE.AllocationSize(value.Depth)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreAncestry)
@@ -36659,10 +36650,7 @@ class FfiConverterTypeClientDifferenceOptions: FfiConverterRustBuffer<ClientDiff
 
     public override void Write(ClientDifferenceOptions value, BigEndianStream stream) {
             FfiConverterOptionalSequenceString.INSTANCE.Write(value.Options, stream);
-            FfiConverterString.INSTANCE.Write(value.Path1, stream);
-            FfiConverterTypeRevision.INSTANCE.Write(value.Revision1, stream);
-            FfiConverterString.INSTANCE.Write(value.Path2, stream);
-            FfiConverterTypeRevision.INSTANCE.Write(value.Revision2, stream);
+            FfiConverterTypeClientDifferenceSource.INSTANCE.Write(value.Source, stream);
             FfiConverterOptionalString.INSTANCE.Write(value.RelateTo, stream);
             FfiConverterTypeDepth.INSTANCE.Write(value.Depth, stream);
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreAncestry, stream);
@@ -40658,6 +40646,98 @@ class FfiConverterTypeCheckSum : FfiConverterRustBuffer<CheckSum>{
                 break;
             default:
                 throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeCheckSum.Write()", value));
+        }
+    }
+}
+
+
+
+
+
+
+
+public abstract record ClientDifferenceSource {
+    
+    public record Target (
+        string Path1,
+        Revision Revision1,
+        string Path2,
+        Revision Revision2
+    ) : ClientDifferenceSource {}
+    
+    public record Peg (
+        string Path,
+        Revision PegRevision,
+        Revision StartRevision,
+        Revision EndRevision
+    ) : ClientDifferenceSource {}
+    
+
+    
+}
+
+class FfiConverterTypeClientDifferenceSource : FfiConverterRustBuffer<ClientDifferenceSource>{
+    public static FfiConverterRustBuffer<ClientDifferenceSource> INSTANCE = new FfiConverterTypeClientDifferenceSource();
+
+    public override ClientDifferenceSource Read(BigEndianStream stream) {
+        var value = stream.ReadInt();
+        switch (value) {
+            case 1:
+                return new ClientDifferenceSource.Target(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterTypeRevision.INSTANCE.Read(stream),
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterTypeRevision.INSTANCE.Read(stream)
+                );
+            case 2:
+                return new ClientDifferenceSource.Peg(
+                    FfiConverterString.INSTANCE.Read(stream),
+                    FfiConverterTypeRevision.INSTANCE.Read(stream),
+                    FfiConverterTypeRevision.INSTANCE.Read(stream),
+                    FfiConverterTypeRevision.INSTANCE.Read(stream)
+                );
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeClientDifferenceSource.Read()", value));
+        }
+    }
+
+    public override int AllocationSize(ClientDifferenceSource value) {
+        switch (value) {
+            case ClientDifferenceSource.Target variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Path1)
+                    + FfiConverterTypeRevision.INSTANCE.AllocationSize(variant_value.Revision1)
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Path2)
+                    + FfiConverterTypeRevision.INSTANCE.AllocationSize(variant_value.Revision2);
+            case ClientDifferenceSource.Peg variant_value:
+                return 4
+                    + FfiConverterString.INSTANCE.AllocationSize(variant_value.Path)
+                    + FfiConverterTypeRevision.INSTANCE.AllocationSize(variant_value.PegRevision)
+                    + FfiConverterTypeRevision.INSTANCE.AllocationSize(variant_value.StartRevision)
+                    + FfiConverterTypeRevision.INSTANCE.AllocationSize(variant_value.EndRevision);
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeClientDifferenceSource.AllocationSize()", value));
+        }
+    }
+
+    public override void Write(ClientDifferenceSource value, BigEndianStream stream) {
+        switch (value) {
+            case ClientDifferenceSource.Target variant_value:
+                stream.WriteInt(1);
+                FfiConverterString.INSTANCE.Write(variant_value.Path1, stream);
+                FfiConverterTypeRevision.INSTANCE.Write(variant_value.Revision1, stream);
+                FfiConverterString.INSTANCE.Write(variant_value.Path2, stream);
+                FfiConverterTypeRevision.INSTANCE.Write(variant_value.Revision2, stream);
+                break;
+            case ClientDifferenceSource.Peg variant_value:
+                stream.WriteInt(2);
+                FfiConverterString.INSTANCE.Write(variant_value.Path, stream);
+                FfiConverterTypeRevision.INSTANCE.Write(variant_value.PegRevision, stream);
+                FfiConverterTypeRevision.INSTANCE.Write(variant_value.StartRevision, stream);
+                FfiConverterTypeRevision.INSTANCE.Write(variant_value.EndRevision, stream);
+                break;
+            default:
+                throw new InternalException(string.Format("invalid enum value '{0}' in FfiConverterTypeClientDifferenceSource.Write()", value));
         }
     }
 }

@@ -18,7 +18,11 @@
                 </ItemsPanelTemplate>
             </u:Form.ItemsPanel>
             <u:FormItem Grid.Row="0" Label="Path:">
-                <TextBlock Text="{Binding Path}"></TextBlock>
+                <Grid RowDefinitions="Auto, Auto">
+                    <TextBlock Text="{Binding Path1}"></TextBlock>
+                    <TextBlock Grid.Row="1" IsVisible="{Binding Path2, Converter={x:Static ObjectConverters.IsNotNull}}" 
+                               Text="{Binding Path2}"></TextBlock>
+                </Grid>
             </u:FormItem>
             <u:FormItem Grid.Row="1" Classes="GridLayout" VerticalContentAlignment="Stretch">
                 <u:FormItem.Label>
@@ -113,7 +117,9 @@
                     </CheckBox>
                     <CheckBox Content="Git format" IsChecked="{Binding GitFormat}"></CheckBox>
                     <CheckBox Content="Pretty" IsChecked="{Binding Pretty}"></CheckBox>
-                    <CheckBox Content="Relate to root" IsChecked="{Binding RelateToRoot}"></CheckBox>
+                    <CheckBox IsVisible="{Binding RelateTo, Converter={x:Static ObjectConverters.IsNotNull}}" 
+                              Content="Relate to root" 
+                              IsChecked="{Binding RelateToRoot}"></CheckBox>
                 </StackPanel>
             </u:FormItem>
             <u:FormItem Grid.Row="2" Label="Action:">

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
@@ -13,6 +14,7 @@ using AvaloniaEdit;
 using AvaloniaEdit.Editing;
 using AvaloniaEdit.Rendering;
 using AvaloniaEdit.Utils;
+using SVNexus.Extension;
 using SVNexus.Models;
 using SVNexus.Utils;
 
@@ -332,5 +334,514 @@ public class NewDifferenceEditor : AdvancedEditor
         line.Bind(Shape.StrokeProperty, foreground);
         line.Bind(MarginProperty, margin);
         LineNumberRenderer.Bind(ForegroundProperty, foreground);
+    }
+}
+
+public class CombinedDifferenceEditor : TextEditor
+{
+    // public static readonly StyledProperty<List<DifferenceLine>> NewLinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<DifferenceLine>>(
+    //     nameof(NewLines));
+    //
+    // public List<DifferenceLine> NewLines
+    // {
+    //     get => GetValue(NewLinesProperty);
+    //     set => SetValue(NewLinesProperty, value);
+    // }
+    //
+    // public static readonly StyledProperty<List<DifferenceLine>> OldLinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<DifferenceLine>>(
+    //     nameof(OldLines));
+    //
+    // public List<DifferenceLine> OldLines
+    // {
+    //     get => GetValue(OldLinesProperty);
+    //     set => SetValue(OldLinesProperty, value);
+    // }
+
+    // public static readonly StyledProperty<List<DifferenceLine>> LinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<DifferenceLine>>(
+    //     nameof(Lines));
+    //
+    // public List<DifferenceLine> Lines
+    // {
+    //     get => GetValue(LinesProperty);
+    //     set => SetValue(LinesProperty, value);
+    // }
+
+    protected override Type StyleKeyOverride { get; } = typeof(TextEditor);
+
+    private record Line(int Index, bool Old);
+
+    public static readonly StyledProperty<List<Tuple<DifferenceLine, DifferenceLine>>> LinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<Tuple<DifferenceLine, DifferenceLine>>>(
+        nameof(Lines), defaultValue: []);
+
+    public List<Tuple<DifferenceLine, DifferenceLine>> Lines
+    {
+        get => GetValue(LinesProperty);
+        set => SetValue(LinesProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> ChangeOnlyProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, bool>(
+        nameof(ChangeOnly));
+
+    public bool ChangeOnly
+    {
+        get => GetValue(ChangeOnlyProperty);
+        set => SetValue(ChangeOnlyProperty, value);
+    }
+
+    public CombinedDifferenceEditor()
+    {
+        TextArea.TextView.BackgroundRenderers.Add(new BackgroundRenderer(this));
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == LinesProperty ||  change.Property == ChangeOnlyProperty)
+        {
+            AffectRenders();
+        }
+    }
+
+    private void AffectRenders()
+    {
+        // if (OldLines.Count != NewLines.Count)
+        // {
+        //     Logger.Warn($"Invalid text lines: new={NewLines.Count}, old={OldLines.Count}");
+        //     Document.Text = string.Empty;
+        //     return;
+        // }
+
+
+        var builder = new StringBuilder();
+
+        var count = Lines.Count;
+        for (var i = 0; i < count;)
+        {
+            // var oldLine = OldLines[i];
+            // var newLine = NewLines[i];
+            var (oldLine, newLine) = Lines[i];
+            switch (new Tuple<DifferenceLine.Kind, DifferenceLine.Kind>(oldLine.DifferenceKind, newLine.DifferenceKind))
+            {
+                case (DifferenceLine.Kind.Visual, DifferenceLine.Kind.Visual):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Visual && l.Item2.DifferenceKind == DifferenceLine.Kind.Visual);
+
+                    foreach (var line in lines)
+                    {
+                        builder.Append(line.Item1.VisualText);
+                        builder.Append(line.Item1.EndingText());
+                        i++;
+                    }
+                    break;
+                }
+                case (DifferenceLine.Kind.Unchanged, DifferenceLine.Kind.Unchanged):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Unchanged && l.Item2.DifferenceKind == DifferenceLine.Kind.Unchanged);
+
+                    foreach (var line in lines)
+                    {
+                        if (!ChangeOnly)
+                        {
+                            builder.Append(line.Item1.Text);
+                            builder.Append(line.Item1.EndingText());
+                        }
+                        i++;
+                    }
+                    break;
+                }
+                case (DifferenceLine.Kind.Add, DifferenceLine.Kind.Added):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Add && l.Item2.DifferenceKind == DifferenceLine.Kind.Added);
+
+                    foreach (var line in lines)
+                    {
+                        builder.Append(line.Item2.Text);
+                        builder.Append(line.Item2.EndingText());
+                        i++;
+                    }
+
+                    break;
+                }
+                case (DifferenceLine.Kind.Remove, DifferenceLine.Kind.Removed):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Remove && l.Item2.DifferenceKind == DifferenceLine.Kind.Removed);
+
+                    foreach (var line in lines)
+                    {
+                        builder.Append(line.Item1.Text);
+                        builder.Append(line.Item1.EndingText());
+                        i++;
+                    }
+
+                    break;
+                }
+                case (DifferenceLine.Kind.Modified, DifferenceLine.Kind.Modified):
+                {
+                    var newTextBuilder = new StringBuilder();
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Modified && l.Item2.DifferenceKind == DifferenceLine.Kind.Modified);
+
+                    foreach (var line in lines)
+                    {
+                        Logger.Info($"Modified line: {line}");
+                        i++;
+                        if (line.Item1.Content is not null)
+                        {
+                            builder.Append(line.Item1.Content);
+                            builder.Append(line.Item1.EndingText());
+                        }
+
+
+                        if (line.Item2.Content is null) continue;
+                        
+                        newTextBuilder.Append(line.Item2.Content);
+                        newTextBuilder.Append(line.Item2.EndingText());
+                    }
+
+                
+                    builder.Append(newTextBuilder);
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        Document.Text = builder.ToString();
+    }
+
+    private List<Line> SimplifyLines()
+    {
+        List<Line> simplifyLines = [];
+        for (var i = 0; i < Lines.Count;)
+        {
+            var (oldLine, newLine) = Lines[i];
+            switch (new Tuple<DifferenceLine.Kind, DifferenceLine.Kind>(oldLine.DifferenceKind, newLine.DifferenceKind))
+            {
+                case (DifferenceLine.Kind.Visual, DifferenceLine.Kind.Visual):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Visual && l.Item2.DifferenceKind == DifferenceLine.Kind.Visual);
+
+                    var count = lines.Count();
+                    
+                    simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, false)));
+                    
+                    i += count;
+                    
+                    break;
+                }
+                case (DifferenceLine.Kind.Unchanged, DifferenceLine.Kind.Unchanged):
+                {
+                    
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Unchanged && l.Item2.DifferenceKind == DifferenceLine.Kind.Unchanged);
+
+                    var count = lines.Count();
+
+                    if (!ChangeOnly)
+                    {
+                        simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, false)));
+                    }
+                    
+                    i += count;
+                    
+                    break;
+                }
+                case (DifferenceLine.Kind.Add, DifferenceLine.Kind.Added):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Add && l.Item2.DifferenceKind == DifferenceLine.Kind.Added);
+                    
+                    var count = lines.Count();
+                    
+                    simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, false)));
+                    
+                    i += count;
+
+                    break;
+                }
+                case (DifferenceLine.Kind.Remove, DifferenceLine.Kind.Removed):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Remove && l.Item2.DifferenceKind == DifferenceLine.Kind.Removed);
+                    
+                    var count = lines.Count();
+                    
+                    simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, true)));
+    
+                    i += count;
+
+                    break;
+                }
+                case (DifferenceLine.Kind.Modified, DifferenceLine.Kind.Modified):
+                {
+                    var lines = Lines.Skip(i).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Modified && l.Item2.DifferenceKind == DifferenceLine.Kind.Modified).ToList();
+
+                    var count = lines.Count(j => j.Item1.Content is not null);
+                    simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, true)));
+                    
+                    count = lines.Count(j => j.Item2.Content is not null);
+                    simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, false)));
+                    i += lines.Count;
+
+                    // var j = i;
+                    // foreach (var line in lines)
+                    // {
+                    //     if (line.Item1.Content is null) continue;
+                    //     if (count == index)
+                    //     {
+                    //         return j;
+                    //     }
+                    //     count ++;
+                    //     j++;
+                    // }
+                    //
+                    // j = i;
+                    // foreach (var line in lines)
+                    // {
+                    //     if (line.Item2.Content is null) continue;
+                    //     if (count == index)
+                    //     {
+                    //         return j;
+                    //     }
+                    //     count ++;
+                    //     j++;
+                    // }
+                    //
+                    // i = j;
+                    
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        return simplifyLines;
+    }
+    
+    // private int RealIndex(int index)
+    // {
+    //     var count = 0;
+    //     for (var i = 0; i < Lines.Count; i++)
+    //     {
+    //         var (oldLine, newLine) = Lines[i];
+    //         switch (new Tuple<DifferenceLine.Kind, DifferenceLine.Kind>(oldLine.DifferenceKind, newLine.DifferenceKind))
+    //         {
+    //             case (DifferenceLine.Kind.Visual, DifferenceLine.Kind.Visual):
+    //             {
+    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Visual && l.Item2.DifferenceKind == DifferenceLine.Kind.Visual);
+    //
+    //                 foreach (var line in lines)
+    //                 {
+    //                     if (count == index)
+    //                     {
+    //                         return i;
+    //                     }
+    //                     count++;
+    //                     i++;
+    //                 }
+    //                 break;
+    //             }
+    //             case (DifferenceLine.Kind.Unchanged, DifferenceLine.Kind.Unchanged):
+    //             {
+    //                 if (ChangeOnly)
+    //                 {
+    //                     break;
+    //                 }
+    //                 
+    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Unchanged && l.Item2.DifferenceKind == DifferenceLine.Kind.Unchanged);
+    //
+    //                 foreach (var line in lines)
+    //                 {
+    //                     if (count == index)
+    //                     {
+    //                         return i;
+    //                     }
+    //                     count++;
+    //                     i++;
+    //                 }
+    //                 break;
+    //             }
+    //             case (DifferenceLine.Kind.Add, DifferenceLine.Kind.Added):
+    //             {
+    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Add && l.Item2.DifferenceKind == DifferenceLine.Kind.Added);
+    //
+    //                 foreach (var line in lines)
+    //                 {
+    //                     if (count == index)
+    //                     {
+    //                         return i;
+    //                     }
+    //                     count++;
+    //                     i++;
+    //                 }
+    //
+    //                 break;
+    //             }
+    //             case (DifferenceLine.Kind.Remove, DifferenceLine.Kind.Removed):
+    //             {
+    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Remove && l.Item2.DifferenceKind == DifferenceLine.Kind.Removed);
+    //
+    //                 foreach (var line in lines)
+    //                 {
+    //                     if (count == index)
+    //                     {
+    //                         return i;
+    //                     }
+    //
+    //                     i++;
+    //                     count++;
+    //                 }
+    //
+    //                 break;
+    //             }
+    //             case (DifferenceLine.Kind.Modified, DifferenceLine.Kind.Modified):
+    //             {
+    //                 var newTextBuilder = new StringBuilder();
+    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Modified && l.Item2.DifferenceKind == DifferenceLine.Kind.Modified).ToList();
+    //
+    //                 var j = i;
+    //                 foreach (var line in lines)
+    //                 {
+    //                     if (line.Item1.Content is null) continue;
+    //                     if (count == index)
+    //                     {
+    //                         return j;
+    //                     }
+    //                     count ++;
+    //                     j++;
+    //                 }
+    //
+    //                 j = i;
+    //                 foreach (var line in lines)
+    //                 {
+    //                     if (line.Item2.Content is null) continue;
+    //                     if (count == index)
+    //                     {
+    //                         return j;
+    //                     }
+    //                     count ++;
+    //                     j++;
+    //                 }
+    //
+    //                 i = j;
+    //             
+    //                 break;
+    //             }
+    //             default:
+    //                 throw new ArgumentOutOfRangeException();
+    //         }
+    //
+    //         if (count == index)
+    //         {
+    //             return i;
+    //         }
+    //         count++;
+    //     }
+    //     return -1;
+    // }
+    
+    protected class BackgroundRenderer(CombinedDifferenceEditor editor) : IBackgroundRenderer
+    {
+        public void Draw(TextView textView, DrawingContext drawingContext)
+        {
+            // if (editor.NewLines.Count != editor.OldLines.Count)
+            // {
+            //     Logger.Info($"Invalid text lines: new={editor.NewLines.Count}, old={editor.OldLines.Count}");
+            //     return;
+            // }
+            //
+            //
+            // for (var i = 0; i < editor.OldLines.Count; i++)
+            // {
+            //     
+            // }
+            
+            var colorCollection = Application.Current?.ActualThemeVariant == ThemeVariant.Light ? DifferenceColorCollection.Light : DifferenceColorCollection
+                .Dark;
+
+            if (!textView.VisualLinesValid)
+            {
+                return;
+            }
+
+            var simplifyLines = editor.SimplifyLines();
+            
+            DifferenceLine.Kind? kind = null;
+            Line? whichLine = null;
+            var start = 0.0;
+
+            // foreach (var visualLine in textView.VisualLines)
+            for (var i = 0; i < textView.VisualLines.Count; i++)
+            {
+                var visualLine = textView.VisualLines[i];
+                
+                var lineNumber = visualLine.FirstDocumentLine.LineNumber - 1;
+
+                if (lineNumber < 0 || lineNumber >= simplifyLines.Count)
+                {
+                    continue;
+                }
+                
+                var simplifyLine = simplifyLines[lineNumber];
+
+                if (simplifyLine.Index < 0 || simplifyLine.Index >= editor.Lines.Count)
+                {
+                    Logger.Error($"Invalid index: index={simplifyLine.Index}, count={editor.Lines.Count}");
+                }
+                var line = editor.Lines[simplifyLine.Index].Map(j => simplifyLine.Old ? j.Item1 : j.Item2);
+               
+ 
+                var y = visualLine.VisualTop - textView.VerticalOffset;
+                if (kind is null || whichLine is null)
+                {
+                    if (line.DifferenceKind is not DifferenceLine.Kind.Visual)
+                    {
+                        kind = line.DifferenceKind;
+                        whichLine = simplifyLine;
+                        // colorKind = line.DifferenceKind;
+                        // if (colorKind == DifferenceLine.Kind.Modified)
+                        // {
+                        //     colorKind = simplifyLine.Old ? DifferenceLine.Kind.Removed  : DifferenceLine.Kind.Added;
+                        // }
+                        // Logger.Info($"Set line to: {line.DifferenceKind} {GetHashCode()}");
+                        start = y;
+                    }
+                }
+                else
+                {
+                    if (kind != line.DifferenceKind || whichLine.Old != simplifyLine.Old)
+                    {
+                        var rect = new Rect(0, start, textView.Bounds.Width, y - start);
+                        
+                        // Logger.Info($"Draw background: {rect}, {colorCollection.BackgroundColor(kind.GetValueOrDefault())} {GetHashCode()}");
+                        // Logger.Info($"Kind: {kind} {line.DifferenceKind}");
+                        var currentKind = kind;
+                        if (currentKind == DifferenceLine.Kind.Modified)
+                        {
+                            currentKind = whichLine.Old ? DifferenceLine.Kind.Removed : DifferenceLine.Kind.Added;
+                        }
+
+                        drawingContext.DrawRectangle(colorCollection.BackgroundColor(currentKind.GetValueOrDefault()), null, rect);  
+                        kind = line.DifferenceKind;
+                        whichLine = simplifyLine;
+                        start = y;
+                    }
+
+                }
+
+                if (i != textView.VisualLines.Count - 1 && lineNumber != simplifyLines.Count - 1) continue;
+                {
+                    var rect = new Rect(0, start, textView.Bounds.Width, y - start + visualLine.Height);
+                    // Logger.Info($"About to finish: {rect}, {colorCollection.BackgroundColor(kind.GetValueOrDefault())} {GetHashCode()}");
+                    var currentKind = line.DifferenceKind;
+                    if (currentKind == DifferenceLine.Kind.Modified)
+                    {
+                        currentKind = simplifyLine.Old ? DifferenceLine.Kind.Removed : DifferenceLine.Kind.Added;
+                    }
+                    drawingContext.DrawRectangle(colorCollection.BackgroundColor(currentKind), null, rect);
+                }
+
+                
+            }
+        }
+
+        public KnownLayer Layer => KnownLayer.Background;
     }
 }

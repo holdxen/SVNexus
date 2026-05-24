@@ -936,10 +936,14 @@ public partial class LocalViewModel : ViewModelBase,
         {
             return;
         }
+
+        var path = SelectedTreeItems.First().StatusEntry.Path;
         
         var differenceDialogModel = new DifferenceDialogModel(this)
         {
-            Path = SelectedTreeItems.First().StatusEntry.Path,
+            // Path = SelectedTreeItems.First().StatusEntry.Path,
+            Source = new ClientDifferenceSource.Target(path, new Revision.Base(), path, new Revision.Working()),
+            RelateTo = SendMessage(new OnGetWorkingCopyRoot())
         };
 
         await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()),  differenceDialogModel.OverlayDialogOptions);

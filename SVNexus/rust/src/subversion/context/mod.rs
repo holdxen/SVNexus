@@ -1561,13 +1561,30 @@ impl DifferenceOptions {
     }
 }
 
+#[derive(uniffi::Enum, Debug)]
+pub enum ClientDifferenceSource {
+    Target {
+        path1: String,
+        revision1: Revision,
+        path2: String,
+        revision2: Revision,
+    },
+    Peg {
+        path: String,
+        peg_revision: Revision,
+        start_revision: Revision,
+        end_revision: Revision,
+    },
+}
+
 #[derive(uniffi::Record, Debug)]
 pub struct ClientDifferenceOptions {
     options: Option<Vec<String>>,
-    path1: String,
-    revision1: Revision,
-    path2: String,
-    revision2: Revision,
+    // path1: String,
+    // revision1: Revision,
+    // path2: String,
+    // revision2: Revision,
+    source: ClientDifferenceSource,
     relate_to: Option<String>,
     depth: Depth,
     ignore_ancestry: bool,
@@ -2648,10 +2665,6 @@ impl Context {
                 .map(|p| pool.string_array(p.len(), p.iter()))
                 .transpose()?
                 .unwrap_or_default();
-            let path1 = pool.canonicalize_target(&opts.path1)?;
-            let revision1 = pool.revision(opts.revision1);
-            let path2 = pool.canonicalize_target(&opts.path2)?;
-            let revision2 = pool.revision(opts.revision2);
 
             let relate_to = opts
                 .relate_to
@@ -2671,30 +2684,81 @@ impl Context {
             let mut out = Stream::create(Default::default());
             let mut err = Stream::create(Default::default());
 
-            let error = ffi::svn_client_diff7(
-                options,
-                path1,
-                revision1,
-                path2,
-                revision2,
-                relate_to,
-                opts.depth.into(),
-                opts.ignore_ancestry.into(),
-                opts.no_added.into(),
-                opts.no_deleted.into(),
-                opts.show_copies_as_adds.into(),
-                opts.ignore_content_type.into(),
-                opts.ignore_properties.into(),
-                opts.properties_only.into(),
-                opts.use_git_format.into(),
-                opts.pretty_print_merge_info.into(),
-                header_encoding,
-                out.ptr(),
-                err.ptr(),
-                changelists,
-                self.ctx(),
-                pool.as_mut_ptr(),
-            );
+            let error = match opts.source {
+                ClientDifferenceSource::Target {
+                    path1,
+                    revision1,
+                    path2,
+                    revision2,
+                } => {
+                    let path1 = pool.canonicalize_target(&path1)?;
+                    let revision1 = pool.revision(revision1);
+                    let path2 = pool.canonicalize_target(&path2)?;
+                    let revision2 = pool.revision(revision2);
+                    let error = ffi::svn_client_diff7(
+                        options,
+                        path1,
+                        revision1,
+                        path2,
+                        revision2,
+                        relate_to,
+                        opts.depth.into(),
+                        opts.ignore_ancestry.into(),
+                        opts.no_added.into(),
+                        opts.no_deleted.into(),
+                        opts.show_copies_as_adds.into(),
+                        opts.ignore_content_type.into(),
+                        opts.ignore_properties.into(),
+                        opts.properties_only.into(),
+                        opts.use_git_format.into(),
+                        opts.pretty_print_merge_info.into(),
+                        header_encoding,
+                        out.ptr(),
+                        err.ptr(),
+                        changelists,
+                        self.ctx(),
+                        pool.as_mut_ptr(),
+                    );
+                    error
+                }
+                ClientDifferenceSource::Peg {
+                    path,
+                    peg_revision,
+                    start_revision,
+                    end_revision,
+                } => {
+                    let path = pool.canonicalize_target(&path)?;
+                    let peg_revision = pool.revision(peg_revision);
+                    let start_revision = pool.revision(start_revision);
+                    let end_revision = pool.revision(end_revision);
+
+                    let error = ffi::svn_client_diff_peg7(
+                        options,
+                        path,
+                        peg_revision,
+                        start_revision,
+                        end_revision,
+                        relate_to,
+                        opts.depth.into(),
+                        opts.ignore_ancestry.into(),
+                        opts.no_added.into(),
+                        opts.no_deleted.into(),
+                        opts.show_copies_as_adds.into(),
+                        opts.ignore_content_type.into(),
+                        opts.ignore_properties.into(),
+                        opts.properties_only.into(),
+                        opts.use_git_format.into(),
+                        opts.pretty_print_merge_info.into(),
+                        header_encoding,
+                        out.ptr(),
+                        err.ptr(),
+                        changelists,
+                        self.ctx(),
+                        pool.as_mut_ptr(),
+                    );
+                    error
+                }
+            };
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 

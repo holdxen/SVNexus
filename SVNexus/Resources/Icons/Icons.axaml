@@ -779,6 +779,17 @@
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path style="fill:#E87E04;" d="M512,256c0,141.47-114.487,256-256,256V0C397.47,0,512,114.487,512,256z"></path> <path style="fill:#FEE856;" d="M0,256c0,141.47,114.487,256,256,256V0C114.53,0,0,114.487,0,256z"></path> <path style="fill:#FFCE3E;" d="M272.696,0.534v510.931C267.164,511.822,261.599,512,256,512s-11.164-0.178-16.696-0.534V0.534 C244.836,0.178,250.401,0,256,0S267.164,0.178,272.696,0.534z"></path> <rect x="256" style="fill:#FEE856;" width="0.003" height="512"></rect> <path style="fill:#F59D00;" d="M256,0c-0.001,0-0.002,0-0.003,0v512c0.001,0,0.002,0,0.003,0c5.599,0,11.164-0.178,16.696-0.534 V0.534C267.164,0.178,261.599,0,256,0z"></path> </g></svg>
 ]]>
     </system:String>
+    <system:String x:Key="Icons.Split">
+        <![CDATA[
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <g id="SVGRepo_bgCarrier" stroke-width="0" />
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" />
+  <g id="SVGRepo_iconCarrier">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M6 4C4.34315 4 3 5.34315 3 7V17C3 18.6569 4.34315 20 6 20H18C19.6569 20 21 18.6569 21 17V7C21 5.34315 19.6569 4 18 4H6ZM5 7C5 6.44772 5.44772 6 6 6H11V18H6C5.44772 18 5 17.5523 5 17V7ZM13 18H18C18.5523 18 19 17.5523 19 17V7C19 6.44772 18.5523 6 18 6H13V18Z" />
+  </g>
+</svg>
+]]>
+    </system:String>
     
     <!-- <system:String></system:String> -->
     <!-- <StreamGeometry> -->

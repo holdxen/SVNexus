@@ -157,9 +157,13 @@ public partial class ChangesViewModel: ViewModelBase, IRecipient<Messages.OnSele
             return;
         }
         
+        var path = SelectedStatusEntries.First().Path;
+        
         var differenceDialogModel = new DifferenceDialogModel(this)
         {
-            Path = SelectedStatusEntries.First().Path,
+            // Path = SelectedStatusEntries.First().Path,
+            Source = new ClientDifferenceSource.Target(path, new Revision.Base(), path, new Revision.Working()),
+            RelateTo = SendMessage(new OnGetWorkingCopyRoot())
         };
 
         await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()),  differenceDialogModel.OverlayDialogOptions);

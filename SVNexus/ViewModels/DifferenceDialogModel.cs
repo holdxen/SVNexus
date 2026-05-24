@@ -27,10 +27,35 @@ public partial class DifferenceDialogModel : DialogModelBase
         PropertyOnly
     }
 
-    [ObservableProperty]
-    public partial string Path { get; set; } = string.Empty;
+    // [ObservableProperty]
+    // public partial string Path { get; set; } = string.Empty;
+
+    public string Path1
+    {
+        get
+        {
+            return Source switch {
+                ClientDifferenceSource.Peg peg => peg.Path,
+                ClientDifferenceSource.Target target => target.Path1,
+                _ => throw new ArgumentOutOfRangeException(nameof(Source))
+            };
+        }
+    }
     
-    public static Type DepthType = typeof(Depth);
+    public string? Path2
+    {
+        get
+        {
+            return Source switch {
+                ClientDifferenceSource.Peg => null,
+                ClientDifferenceSource.Target target => target.Path1 == target.Path2 ? null : target.Path2,
+                _ => throw new ArgumentOutOfRangeException(nameof(Source))
+            };
+        }
+    }
+    
+    
+    public static Type DepthType => typeof(Depth);
 
     [ObservableProperty]
     public partial Depth Depth { get; set; } = Depth.Infinity;
@@ -43,7 +68,7 @@ public partial class DifferenceDialogModel : DialogModelBase
     
     [ObservableProperty] public partial bool IgnoreContentType { get; set; }
     
-    public static Type DisplayContentType = typeof(DisplayContent);
+    public static Type DisplayContentType => typeof(DisplayContent);
 
     [ObservableProperty]
     public partial DisplayContent Display { get; set; } = DisplayContent.All;
@@ -76,13 +101,21 @@ public partial class DifferenceDialogModel : DialogModelBase
     [ObservableProperty] public partial bool RelateToRoot { get; set; } = true;
 
     private readonly SingleTaskQueue _singleTaskQueue = new();
+    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Path1))]
+    [NotifyPropertyChangedFor(nameof(Path2))]
+    public required partial ClientDifferenceSource Source { get; set; }
+    
+    [ObservableProperty]
+    public partial string? RelateTo { get; set; }
 
     /// <inheritdoc/>
     public DifferenceDialogModel(ViewModelBase parent) : base(parent)
     {
         PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName is nameof(RelateToRoot) or nameof(ShowCopiesAsAdds) or nameof(GitFormat) or nameof(Pretty) or nameof(Path) or nameof(Depth) or nameof(IgnoreAncestry) or nameof(NoAdded) or nameof(NoDeleted) or nameof(IgnoreContentType) or nameof(Display)) 
+            if (args.PropertyName is nameof(Source) or nameof(RelateToRoot) or nameof(ShowCopiesAsAdds) or nameof(GitFormat) or nameof(Pretty) or nameof(Depth) or nameof(IgnoreAncestry) or nameof(NoAdded) or nameof(NoDeleted) or nameof(IgnoreContentType) or nameof(Display)) 
             {
                 _singleTaskQueue.Run(Execute);
             }
@@ -100,10 +133,12 @@ public partial class DifferenceDialogModel : DialogModelBase
 
             var differenceOptions = new ClientDifferenceOptions(
                 null, 
-                Path,
-                new Revision.Base(), 
-                Path, new Revision.Working(), 
-                RelateToRoot ? SendMessage(new OnGetWorkingCopyRoot()).Response : null, 
+                // Path,
+                // new Revision.Base(), 
+                // Path, 
+                // new Revision.Working(), 
+                Source,
+                RelateToRoot && RelateTo is not null ? RelateTo : null, 
                 Depth, 
                 IgnoreAncestry, 
                 NoAdded, 
@@ -114,8 +149,7 @@ public partial class DifferenceDialogModel : DialogModelBase
                 Display == DisplayContent.PropertyOnly, 
                 GitFormat, 
                 Pretty, 
-                "UTF-8", 
-                null);
+                "UTF-8");
         
         
             var result = await context.Difference(differenceOptions);

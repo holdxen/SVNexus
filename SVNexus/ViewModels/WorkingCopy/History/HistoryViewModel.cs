@@ -24,7 +24,7 @@ using Exception = System.Exception;
 
 namespace SVNexus.ViewModels.WorkingCopy.History;
 
-public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(parent)
+public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(parent), IRecipient<Messages.OnGetWorkingCopyUrl>
 {
 
     public const int DetailViewIndex = 0;
@@ -82,8 +82,72 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
             {
                 Header = "Update to this",
                 Command = UpdateToThisCommand
+            },
+            new()
+            {
+                Header = "Diff",
+                Children = [
+                    new MenuItemViewModel()
+                    {
+                        Header = $"To r{Revision.GetValueOrDefault() - 1}",
+                        Command = DifferenceCommand,
+                        CommandParameter = false
+                    },
+                    new MenuItemViewModel()
+                    {
+                        Header = "To another revision",
+                        Command = new AsyncRelayCommand(async () =>
+                        {
+                            
+                        })
+                    }
+                ]
+            },
+            new()
+            {
+                Header = "Diff as local",
+                Children = [
+                    new MenuItemViewModel()
+                    {
+                        Header = $"To r{Revision.GetValueOrDefault() - 1}",
+                        Command = DifferenceCommand,
+                        CommandParameter = true,
+                    },
+                    new MenuItemViewModel()
+                    {
+                        Header = "To another revision",
+                        Command = new AsyncRelayCommand(async () =>
+                        {
+                                
+                        })
+                    }
+                ]
             }
         ];
+
+
+        [RelayCommand]
+        private async Task Difference(bool asLocal)
+        {
+            if (Revision is null)
+            {
+                return;
+            }
+            
+            var revision = Revision.GetValueOrDefault();
+
+            var hostId = SendMessage(new OnGetDialogHostId());
+            
+            var model = new DifferenceDialogModel(this)
+            {
+                Source = new ClientDifferenceSource.Peg(
+                    asLocal ? SendMessage(new OnGetWorkingCopyPath()) : SendMessage(new Messages.OnGetWorkingCopyUrl()), 
+                    asLocal ? new Revision.Working() : new Revision.Number(revision - 1), 
+                    new Revision.Number(revision - 1), new Revision.Number(revision)),
+            };
+            
+            await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(model, hostId, model.OverlayDialogOptions);
+        }
 
         [RelayCommand]
         private async Task UpdateToThis()
@@ -171,26 +235,6 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     public partial HistoryChangesViewModel? ChangesViewModel { get; set; }
     
     public InfoEntry? ThisEntry { get; set; }
-
-    // private readonly Services.ITabService _tabService;
-    //
-    // private readonly Services.IWorkingCopyViewService _workingCopyViewService;
-    //
-    // private readonly IServiceProvider _serviceProvider;
-    // private readonly Services.TypeService _typeService;
-    //
-    // private IServiceScope? _previousScope;
-
-    // public HistoryViewModel(IServiceProvider serviceProvider)
-    // {
-    //     _serviceProvider = serviceProvider;
-    //     _tabService = serviceProvider.GetRequiredService<Services.ITabService>();
-    //     _workingCopyViewService = serviceProvider.GetRequiredService<Services.IWorkingCopyViewService>();
-    //     _typeService = serviceProvider.GetRequiredService<Services.TypeService>();
-    //     
-    //     
-    //     Manager.Default.RegisterAllMessages(this, this.GetToken(_typeService));
-    // }
 
     private void SetHistoryChangesViewModel(HistoryChangesViewModel vm)
     {
@@ -798,4 +842,14 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
         await LogCommand.ExecuteOrNothingAsync(true);
     }
 
+    public void Receive(Messages.OnGetWorkingCopyUrl message)
+    {
+        if (ThisEntry is null)
+        {
+            Logger.Warn("InfoEntry is null");
+            return;
+        }
+        
+        message.Reply(ThisEntry.Url);
+    }
 }

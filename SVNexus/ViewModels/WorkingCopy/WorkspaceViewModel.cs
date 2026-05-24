@@ -865,9 +865,12 @@ public partial class WorkspaceViewModel : ViewModelBase,
     [RelayCommand]
     private async Task Difference()
     {
+        var path = SelectedTreeItems.First().AbsolutePath;
         var differenceDialogModel = new DifferenceDialogModel(this)
         {
-            Path = SelectedTreeItems.First().AbsolutePath,
+            // Path = SelectedTreeItems.First().AbsolutePath,
+            Source = new ClientDifferenceSource.Target(path, new Revision.Base(), path, new Revision.Working()),
+            RelateTo = WorkspaceRoot,
         };
 
         await OverlayDialog.ShowStandardAsync<DifferenceDialog, DifferenceDialogModel>(differenceDialogModel, SendMessage(new OnGetDialogHostId()), differenceDialogModel.OverlayDialogOptions);

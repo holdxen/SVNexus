@@ -62,10 +62,16 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     public partial bool IsNewBinary { get; set; }
 
     [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(CombinedLines))]
     public partial List<DifferenceLine> OldLines { get; set; } = [];
 
     [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(CombinedLines))]
     public partial List<DifferenceLine> NewLines { get; set; } = [];
+
+    public List<Tuple<DifferenceLine, DifferenceLine>> CombinedLines => OldLines.Count != NewLines.Count ? [] : OldLines.Zip(NewLines, Tuple.Create).ToList();
+
+    [ObservableProperty] public partial bool IsCombineView { get; set; } = true;
 
     [ObservableProperty] public partial bool ExpandKeywords { get; set; } = true;
 
@@ -113,6 +119,12 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
     //     return false;
     // }).ToList();
 
+
+    [RelayCommand]
+    private void ToggleIsCombineView()
+    {
+        IsCombineView = !IsCombineView;
+    }
 
     [RelayCommand]
     private void SelectAllChange()
@@ -462,14 +474,16 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                                 Enumerable.Repeat(new DifferenceLine()
                                 {
                                     Content = null,
-                                    DifferenceKind = DifferenceLine.Kind.Add
+                                    DifferenceKind = DifferenceLine.Kind.Add,
+                                    Ending = DifferenceLine.LineEnding.Lf
                                 }, (int)change.Modified.Len));
                             
                             original.Insert(index, new DifferenceLine()
                             {
                                 Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Visual,
-                                VisualText = header
+                                VisualText = header,
+                                Ending = DifferenceLine.LineEnding.Lf
                             });
                         }
 
@@ -486,7 +500,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                             {
                                 Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Visual,
-                                VisualText = header
+                                VisualText = header,
+                                Ending = DifferenceLine.LineEnding.Lf
                             });
                         }
 
@@ -507,7 +522,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                             {
                                 Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Visual,
-                                VisualText = header
+                                VisualText = header,
+                                Ending = DifferenceLine.LineEnding.Lf
                             });
                         }
                         {
@@ -515,14 +531,16 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                             modified.InsertRange(index, Enumerable.Repeat(new DifferenceLine()
                                 {
                                     Content = null,
-                                    DifferenceKind = DifferenceLine.Kind.Removed
+                                    DifferenceKind = DifferenceLine.Kind.Removed,
+                                    Ending = DifferenceLine.LineEnding.Lf
                                 }, (int)change.Original.Len));
                             
                             modified.Insert(index, new DifferenceLine()
                             {
                                 Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Visual,
-                                VisualText = header
+                                VisualText = header,
+                                Ending = DifferenceLine.LineEnding.Lf
                             });
                         }
 
@@ -544,7 +562,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                                 original.InsertRange(index + len, Enumerable.Repeat(new DifferenceLine()
                                 {
                                     Content = null,
-                                    DifferenceKind = DifferenceLine.Kind.Modified
+                                    DifferenceKind = DifferenceLine.Kind.Modified,
+                                    Ending = DifferenceLine.LineEnding.Lf
                                 }, (int)(change.Modified.Len - change.Original.Len)));
                             }
 
@@ -552,7 +571,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                             {
                                 Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Visual,
-                                VisualText = header
+                                VisualText = header,
+                                Ending = DifferenceLine.LineEnding.Lf
                             });
                         }
                         {
@@ -569,7 +589,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                                 modified.InsertRange(index + len, Enumerable.Repeat(new DifferenceLine()
                                 {
                                     Content = null,
-                                    DifferenceKind = DifferenceLine.Kind.Modified
+                                    DifferenceKind = DifferenceLine.Kind.Modified,
+                                    Ending = DifferenceLine.LineEnding.Lf
                                 }, (int)(change.Original.Len - change.Modified.Len)));
                             }
 
@@ -577,7 +598,8 @@ public partial class DifferenceViewModel(ViewModelBase parent) : ViewModelBase(p
                             {
                                 Content = null,
                                 DifferenceKind = DifferenceLine.Kind.Visual,
-                                VisualText = header
+                                VisualText = header,
+                                Ending = DifferenceLine.LineEnding.Lf
                             });
                         }
                         break;

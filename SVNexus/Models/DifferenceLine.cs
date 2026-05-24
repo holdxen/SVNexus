@@ -27,9 +27,9 @@ public record DifferenceLine
     
     public Kind DifferenceKind { get; set; }
 
-    public string? Content { get; set; } = string.Empty;
+    public string? Content { get; set; }
     
-    public LineEnding Ending { get; set; } = LineEnding.Lf;
+    public LineEnding Ending { get; set; } = LineEnding.None;
     
     public string? VisualText { get; set; }
     
