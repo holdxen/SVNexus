@@ -68,7 +68,8 @@
             </Border.Resources>
             <Grid RowDefinitions="*, Auto, Auto">
                 <Grid>
-                    <components:CombinedDifferenceEditor ChangeOnly="{Binding ChangeOnly}" 
+                    <components:CombinedDifferenceEditor Name="CombinedDifferenceEditor" 
+                                                         ChangeOnly="{Binding ChangeOnly}" 
                                                          Lines="{Binding CombinedLines}">
                         <components:CombinedDifferenceEditor.IsVisible>
                             <MultiBinding Converter="{x:Static BoolConverters.And}">

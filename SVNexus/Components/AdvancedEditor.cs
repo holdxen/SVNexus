@@ -339,36 +339,87 @@ public class NewDifferenceEditor : AdvancedEditor
 
 public class CombinedDifferenceEditor : TextEditor
 {
-    // public static readonly StyledProperty<List<DifferenceLine>> NewLinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<DifferenceLine>>(
-    //     nameof(NewLines));
-    //
-    // public List<DifferenceLine> NewLines
-    // {
-    //     get => GetValue(NewLinesProperty);
-    //     set => SetValue(NewLinesProperty, value);
-    // }
-    //
-    // public static readonly StyledProperty<List<DifferenceLine>> OldLinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<DifferenceLine>>(
-    //     nameof(OldLines));
-    //
-    // public List<DifferenceLine> OldLines
-    // {
-    //     get => GetValue(OldLinesProperty);
-    //     set => SetValue(OldLinesProperty, value);
-    // }
 
-    // public static readonly StyledProperty<List<DifferenceLine>> LinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<DifferenceLine>>(
-    //     nameof(Lines));
-    //
-    // public List<DifferenceLine> Lines
-    // {
-    //     get => GetValue(LinesProperty);
-    //     set => SetValue(LinesProperty, value);
-    // }
+    private record Line(int Index, bool? Old);
+    
+    protected class LineNumberRender(CombinedDifferenceEditor editor) : LineNumberMargin
+    {
+        // public List<DifferenceLine> Lines { get; set; } = [];
+        
+        // public bool AlignLeft { get; set; }
+        
+        public bool Old { get; set; }
+        
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            Typeface = this.CreateTypeface();
+            EmSize = GetValue(TextBlock.FontSizeProperty);
 
+            // var text = TextFormatterFactory.CreateFormattedText(
+            //     this,
+            //     new string('9', MaxLineNumberLength),
+            //     Typeface,
+            //     EmSize,
+            //     GetValue(TextBlock.ForegroundProperty)
+            // );
+
+            var count = editor.Lines.Count(i => i.Map(e => Old ? e.Item1 : e.Item2).Content is not null).ToString().Length;
+            
+            var text = new FormattedText(
+                new string('9', count),
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                Typeface,
+                EmSize,
+                GetValue(TextBlock.ForegroundProperty)
+            );
+            return new Size(text.Width, 0);
+        }
+        
+        public override void Render(DrawingContext drawingContext)
+        {
+            var textView = TextView;
+            var renderSize = Bounds.Size;
+
+            
+            var simplifyLines = editor.SimplifyLines();
+
+            if (textView is not { VisualLinesValid: true }) return;
+            var foreground = GetValue(TextBlock.ForegroundProperty);
+            foreach (var line in textView.VisualLines) {
+                var lineNumber = line.FirstDocumentLine.LineNumber - 1;
+
+                if (lineNumber < 0 || lineNumber >= simplifyLines.Count) continue;
+                
+                if (simplifyLines[lineNumber].Old.Map(e => e is not null && e != Old))
+                {
+                    continue;
+                }
+                
+                lineNumber = simplifyLines[lineNumber].Index;
+                    
+                
+                var differenceLine = editor.Lines[lineNumber];
+                    
+                if (differenceLine.Map(e => Old ? e.Item1 : e.Item2).Content is null) continue;
+
+                var number = editor.Lines.Take(lineNumber).Count(i => i.Map(e => Old ? e.Item1 : e.Item2).Content is not null) + 1;
+                    
+                var text = new FormattedText(
+                    number.ToString(CultureInfo.CurrentCulture),
+                    CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    Typeface,
+                    EmSize,
+                    foreground
+                );
+                var y = line.GetTextLineVisualYPosition(line.TextLines[0], VisualYPosition.TextTop);
+                drawingContext.DrawText(text, new Point(renderSize.Width - text.Width, y - textView.VerticalOffset));
+            }
+        }
+    }
+    
     protected override Type StyleKeyOverride { get; } = typeof(TextEditor);
-
-    private record Line(int Index, bool Old);
 
     public static readonly StyledProperty<List<Tuple<DifferenceLine, DifferenceLine>>> LinesProperty = AvaloniaProperty.Register<CombinedDifferenceEditor, List<Tuple<DifferenceLine, DifferenceLine>>>(
         nameof(Lines), defaultValue: []);
@@ -391,12 +442,37 @@ public class CombinedDifferenceEditor : TextEditor
     public CombinedDifferenceEditor()
     {
         TextArea.TextView.BackgroundRenderers.Add(new BackgroundRenderer(this));
+
+        ShowLineNumbers = false;
+
+        var newLineNumberRenderer = new LineNumberRender(this);
+        var oldLineNumberRenderer = new LineNumberRender(this);
+        
+        var line = DottedLineMargin.Create();
+        TextArea.LeftMargins.Insert(0, oldLineNumberRenderer);
+        TextArea.LeftMargins.Insert(1, new Border()
+        {
+            Width = 3
+        });
+        TextArea.LeftMargins.Insert(2, newLineNumberRenderer);
+        TextArea.LeftMargins.Insert(3, line);
+
+        newLineNumberRenderer.Old = false;
+        oldLineNumberRenderer.Old = true;
+
+        var foreground = this.GetBindingObservable(LineNumbersForegroundProperty);
+        var margin = this.GetBindingObservable(LineNumbersMarginProperty);
+        
+        line.Bind(Shape.StrokeProperty, foreground);
+        line.Bind(MarginProperty, margin);
+        newLineNumberRenderer.Bind(ForegroundProperty, foreground);
+        oldLineNumberRenderer.Bind(ForegroundProperty, foreground);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == LinesProperty ||  change.Property == ChangeOnlyProperty)
+        if (change.Property == LinesProperty || change.Property == ChangeOnlyProperty)
         {
             AffectRenders();
         }
@@ -404,13 +480,6 @@ public class CombinedDifferenceEditor : TextEditor
 
     private void AffectRenders()
     {
-        // if (OldLines.Count != NewLines.Count)
-        // {
-        //     Logger.Warn($"Invalid text lines: new={NewLines.Count}, old={OldLines.Count}");
-        //     Document.Text = string.Empty;
-        //     return;
-        // }
-
 
         var builder = new StringBuilder();
 
@@ -538,7 +607,7 @@ public class CombinedDifferenceEditor : TextEditor
 
                     if (!ChangeOnly)
                     {
-                        simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, false)));
+                        simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, null)));
                     }
                     
                     i += count;
@@ -580,32 +649,7 @@ public class CombinedDifferenceEditor : TextEditor
                     simplifyLines.AddRange(Enumerable.Range(i, count).Select(j => new Line(j, false)));
                     i += lines.Count;
 
-                    // var j = i;
-                    // foreach (var line in lines)
-                    // {
-                    //     if (line.Item1.Content is null) continue;
-                    //     if (count == index)
-                    //     {
-                    //         return j;
-                    //     }
-                    //     count ++;
-                    //     j++;
-                    // }
-                    //
-                    // j = i;
-                    // foreach (var line in lines)
-                    // {
-                    //     if (line.Item2.Content is null) continue;
-                    //     if (count == index)
-                    //     {
-                    //         return j;
-                    //     }
-                    //     count ++;
-                    //     j++;
-                    // }
-                    //
-                    // i = j;
-                    
+
                     break;
                 }
                 default:
@@ -614,130 +658,9 @@ public class CombinedDifferenceEditor : TextEditor
         }
         return simplifyLines;
     }
-    
-    // private int RealIndex(int index)
-    // {
-    //     var count = 0;
-    //     for (var i = 0; i < Lines.Count; i++)
-    //     {
-    //         var (oldLine, newLine) = Lines[i];
-    //         switch (new Tuple<DifferenceLine.Kind, DifferenceLine.Kind>(oldLine.DifferenceKind, newLine.DifferenceKind))
-    //         {
-    //             case (DifferenceLine.Kind.Visual, DifferenceLine.Kind.Visual):
-    //             {
-    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Visual && l.Item2.DifferenceKind == DifferenceLine.Kind.Visual);
-    //
-    //                 foreach (var line in lines)
-    //                 {
-    //                     if (count == index)
-    //                     {
-    //                         return i;
-    //                     }
-    //                     count++;
-    //                     i++;
-    //                 }
-    //                 break;
-    //             }
-    //             case (DifferenceLine.Kind.Unchanged, DifferenceLine.Kind.Unchanged):
-    //             {
-    //                 if (ChangeOnly)
-    //                 {
-    //                     break;
-    //                 }
-    //                 
-    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Unchanged && l.Item2.DifferenceKind == DifferenceLine.Kind.Unchanged);
-    //
-    //                 foreach (var line in lines)
-    //                 {
-    //                     if (count == index)
-    //                     {
-    //                         return i;
-    //                     }
-    //                     count++;
-    //                     i++;
-    //                 }
-    //                 break;
-    //             }
-    //             case (DifferenceLine.Kind.Add, DifferenceLine.Kind.Added):
-    //             {
-    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Add && l.Item2.DifferenceKind == DifferenceLine.Kind.Added);
-    //
-    //                 foreach (var line in lines)
-    //                 {
-    //                     if (count == index)
-    //                     {
-    //                         return i;
-    //                     }
-    //                     count++;
-    //                     i++;
-    //                 }
-    //
-    //                 break;
-    //             }
-    //             case (DifferenceLine.Kind.Remove, DifferenceLine.Kind.Removed):
-    //             {
-    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Remove && l.Item2.DifferenceKind == DifferenceLine.Kind.Removed);
-    //
-    //                 foreach (var line in lines)
-    //                 {
-    //                     if (count == index)
-    //                     {
-    //                         return i;
-    //                     }
-    //
-    //                     i++;
-    //                     count++;
-    //                 }
-    //
-    //                 break;
-    //             }
-    //             case (DifferenceLine.Kind.Modified, DifferenceLine.Kind.Modified):
-    //             {
-    //                 var newTextBuilder = new StringBuilder();
-    //                 var lines = Lines.Skip(i + 1).TakeWhile(l => l.Item1.DifferenceKind == DifferenceLine.Kind.Modified && l.Item2.DifferenceKind == DifferenceLine.Kind.Modified).ToList();
-    //
-    //                 var j = i;
-    //                 foreach (var line in lines)
-    //                 {
-    //                     if (line.Item1.Content is null) continue;
-    //                     if (count == index)
-    //                     {
-    //                         return j;
-    //                     }
-    //                     count ++;
-    //                     j++;
-    //                 }
-    //
-    //                 j = i;
-    //                 foreach (var line in lines)
-    //                 {
-    //                     if (line.Item2.Content is null) continue;
-    //                     if (count == index)
-    //                     {
-    //                         return j;
-    //                     }
-    //                     count ++;
-    //                     j++;
-    //                 }
-    //
-    //                 i = j;
-    //             
-    //                 break;
-    //             }
-    //             default:
-    //                 throw new ArgumentOutOfRangeException();
-    //         }
-    //
-    //         if (count == index)
-    //         {
-    //             return i;
-    //         }
-    //         count++;
-    //     }
-    //     return -1;
-    // }
-    
-    protected class BackgroundRenderer(CombinedDifferenceEditor editor) : IBackgroundRenderer
+
+
+    private class BackgroundRenderer(CombinedDifferenceEditor editor) : IBackgroundRenderer
     {
         public void Draw(TextView textView, DrawingContext drawingContext)
         {
@@ -785,7 +708,7 @@ public class CombinedDifferenceEditor : TextEditor
                 {
                     Logger.Error($"Invalid index: index={simplifyLine.Index}, count={editor.Lines.Count}");
                 }
-                var line = editor.Lines[simplifyLine.Index].Map(j => simplifyLine.Old ? j.Item1 : j.Item2);
+                var line = editor.Lines[simplifyLine.Index].Map(j => simplifyLine.Old ?? false ? j.Item1 : j.Item2);
                
  
                 var y = visualLine.VisualTop - textView.VerticalOffset;
@@ -815,7 +738,7 @@ public class CombinedDifferenceEditor : TextEditor
                         var currentKind = kind;
                         if (currentKind == DifferenceLine.Kind.Modified)
                         {
-                            currentKind = whichLine.Old ? DifferenceLine.Kind.Removed : DifferenceLine.Kind.Added;
+                            currentKind = whichLine.Old ?? false ? DifferenceLine.Kind.Removed : DifferenceLine.Kind.Added;
                         }
 
                         drawingContext.DrawRectangle(colorCollection.BackgroundColor(currentKind.GetValueOrDefault()), null, rect);  
@@ -833,7 +756,7 @@ public class CombinedDifferenceEditor : TextEditor
                     var currentKind = line.DifferenceKind;
                     if (currentKind == DifferenceLine.Kind.Modified)
                     {
-                        currentKind = simplifyLine.Old ? DifferenceLine.Kind.Removed : DifferenceLine.Kind.Added;
+                        currentKind = simplifyLine.Old ?? false ? DifferenceLine.Kind.Removed : DifferenceLine.Kind.Added;
                     }
                     drawingContext.DrawRectangle(colorCollection.BackgroundColor(currentKind), null, rect);
                 }
