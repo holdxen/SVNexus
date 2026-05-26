@@ -65,9 +65,18 @@ impl Context {
 
                 if absolute_path.starts_with(relate_to) {
                     let matched = f.matcher.matched(
-                        absolute_path.trim_start_matches(relate_to),
+                        absolute_path
+                            .trim_start_matches(relate_to)
+                            .trim_start_matches("/"),
                         direct.kind == ffi::svn_node_kind_t_svn_node_dir,
                     );
+                    // tracing::info!(
+                    //     "absolute_path={}, relate_to={}, ignore={}, kind={}",
+                    //     absolute_path,
+                    //     relate_to,
+                    //     matched.is_ignore(),
+                    //     direct.kind
+                    // );
                     *filtered = matched.is_ignore().into();
                 } else {
                     tracing::error!(
@@ -96,10 +105,13 @@ impl Context {
                 let mut builder = GitignoreBuilder::new(&opts.path);
 
                 for i in f {
+                    tracing::info!("Add line to filter: {i}");
                     builder.add_line(None, &i)?;
                 }
 
-                builder.build()
+                Ok(Filter {
+                    matcher: builder.build()?,
+                })
             })
             .transpose()
             .context(builder::Glob)?;

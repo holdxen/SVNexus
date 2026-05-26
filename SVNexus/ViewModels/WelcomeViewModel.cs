@@ -35,7 +35,7 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
     // public partial bool IsVisible { get; set; }
 
     [RelayCommand]
-    public async Task OnShow()
+    private async Task OnShow()
     {
         await EngineBackend.Instance.DatabaseQueue.Run(async _ =>
         {
@@ -992,6 +992,16 @@ public partial class WelcomeViewModel(ViewModelBase parent) : ViewModelBase(pare
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         await IPlatform.Create().OpenTerminal(home);
+    }
+
+    [RelayCommand]
+    private async Task ShowImportDialog()
+    {
+        var model = new ImportDialogModel(this);
+        
+        var hostId = SendMessage(new OnGetDialogHostId());
+        
+        await OverlayDialog.ShowStandardAsync<ImportDialog, ImportDialogModel>(model, hostId, model.OverlayDialogOptions);
     }
 
     [RelayCommand]

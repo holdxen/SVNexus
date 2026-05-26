@@ -929,6 +929,7 @@ impl AsyncContext {
             .await
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn import(&self, opts: ImportOptions) -> error::Result<ImportResult> {
         self.call_async(|mut context| context.import(opts)).await
     }

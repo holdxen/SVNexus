@@ -34,34 +34,32 @@
     
     <Style Selector="u|FormItem.GridLayout">
         <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="u:FormItem">
-                    <Grid RowDefinitions="Auto, *">
-                        <StackPanel
-                            Grid.Row="0"
-                            Name="PART_LabelPanel"
-                            Margin="0,0,0,4"
-                            HorizontalAlignment="{TemplateBinding LabelAlignment}"
-                            Orientation="Horizontal">
-                            <Label
-                                Name="PART_Label"
-                                Content="{TemplateBinding Label}"
-                                Background="Transparent"
-                                FontWeight="{DynamicResource TextBlockTitleFontWeight}"
-                                Target="{Binding #PART_ContentPresenter.Content}" />
-                            <TextBlock
-                                Foreground="{DynamicResource FormAsteriskForeground}"
-                                IsVisible="{TemplateBinding IsRequired}"
-                                Text="*" />
-                        </StackPanel>
-                        <ContentPresenter
-                            Grid.Row="1"
-                            Name="PART_ContentPresenter"
-                            ContentTemplate="{TemplateBinding ContentTemplate}"
-                            Content="{TemplateBinding Content}" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
+            <ControlTemplate TargetType="u:FormItem">
+                <Grid RowDefinitions="Auto, *">
+                    <StackPanel
+                        Grid.Row="0"
+                        Name="PART_LabelPanel"
+                        Margin="0,0,0,4"
+                        HorizontalAlignment="{TemplateBinding LabelAlignment}"
+                        Orientation="Horizontal">
+                        <Label
+                            Name="PART_Label"
+                            Content="{TemplateBinding Label}"
+                            Background="Transparent"
+                            FontWeight="{DynamicResource TextBlockTitleFontWeight}"
+                            Target="{Binding #PART_ContentPresenter.Content}" />
+                        <TextBlock
+                            Foreground="{DynamicResource FormAsteriskForeground}"
+                            IsVisible="{TemplateBinding IsRequired}"
+                            Text="*" />
+                    </StackPanel>
+                    <ContentPresenter
+                        Grid.Row="1"
+                        Name="PART_ContentPresenter"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        Content="{TemplateBinding Content}" />
+                </Grid>
+            </ControlTemplate>
         </Setter>
     </Style>
     

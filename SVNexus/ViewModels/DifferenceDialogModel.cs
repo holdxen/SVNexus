@@ -14,6 +14,7 @@ using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Utils;
 using Ursa.Controls;
+using OperationDepth = SVNexus.Generated.Depth;
 
 namespace SVNexus.ViewModels;
 
@@ -53,12 +54,20 @@ public partial class DifferenceDialogModel : DialogModelBase
             };
         }
     }
+
+    public enum ValidDepth
+    {
+        Empty = OperationDepth.Empty,
+        Files = OperationDepth.Files,
+        Immediates = OperationDepth.Immediates,
+        Infinity = OperationDepth.Infinity,
+    }
     
     
-    public static Type DepthType => typeof(Depth);
+    public static Type DepthType => typeof(ValidDepth);
 
     [ObservableProperty]
-    public partial Depth Depth { get; set; } = Depth.Infinity;
+    public partial ValidDepth Depth { get; set; } = ValidDepth.Infinity;
 
     [ObservableProperty] public partial bool IgnoreAncestry { get; set; } = true;
     
@@ -139,7 +148,7 @@ public partial class DifferenceDialogModel : DialogModelBase
                 // new Revision.Working(), 
                 Source,
                 RelateToRoot && RelateTo is not null ? RelateTo : null, 
-                Depth, 
+                (OperationDepth)Depth, 
                 IgnoreAncestry, 
                 NoAdded, 
                 NoDeleted, 

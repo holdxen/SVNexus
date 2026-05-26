@@ -24,7 +24,8 @@
             </u:Form.ItemsPanel>
             <u:FormItem Label="Local:" Grid.Row="0">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBox Name="LocalTextBox" Text="{Binding Local}"></TextBox>
+                    <TextBox Name="LocalTextBox" 
+                             Text="{Binding Local}"></TextBox>
                     <components:SvgButton Grid.Column="1" 
                                           Command="{Binding SelectedLocalDirectoryCommand}"
                                           Margin="2 0"

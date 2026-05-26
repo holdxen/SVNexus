@@ -854,7 +854,7 @@ impl From<*const ffi::svn_wc_notify_t> for WorkingCopyNotify {
             let lock_state =
                 WorkingCopyNotifyLockState::try_from(ptr.lock_state).expect("Invalid notify state");
 
-            tracing::info!("WorkingCopyNotify revision: {}", ptr.revision);
+            // tracing::info!("WorkingCopyNotify revision: {}", ptr.revision);
             let revision = ptr.revision.try_into().ok();
 
             let changelist_name = ptr.changelist_name.to_nullable_string();

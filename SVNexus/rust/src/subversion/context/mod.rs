@@ -873,7 +873,7 @@ unsafe extern "C" fn on_notify(
 
         let notify = WorkingCopyNotify::from(notify);
 
-        tracing::info!("Notify: {:#?}", notify);
+        // tracing::info!("Notify: {:#?}", notify);
 
         let result = this.context_notifier.working_copy_notify(notify);
         if let Err(e) = result {

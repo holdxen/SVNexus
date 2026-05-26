@@ -243,6 +243,10 @@
                                           ToolTip.Tip="Export"
                                           Source="{StaticResource Icons.Download}"
                                           Command="{Binding ShowExportDialogCommand}" />
+                    <components:SvgButton Classes="ToolButton"
+                                          ToolTip.Tip="Import"
+                                          Source="{StaticResource Icons.OperationImport}"
+                                          Command="{Binding ShowImportDialogCommand}" />
                 </StackPanel>
                 <Border Grid.Column="1"></Border>
                 <StackPanel Grid.Column="2"

@@ -11,31 +11,25 @@
              x:Class="SVNexus.Views.LockDialog">
     <Grid RowDefinitions="*, Auto">
         <u:Form Grid.Row="0" HorizontalAlignment="Stretch">
-            <u:FormItem Label="Targets:">
+            <u:Form.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid RowDefinitions="Auto, Auto, *"></Grid>
+                </ItemsPanelTemplate>
+            </u:Form.ItemsPanel>
+            <u:FormItem Label="Targets:" Grid.Row="0">
                 <Border Theme="{StaticResource CardBorder}" Padding="5">
                     <ListBox Height="150" ItemsSource="{Binding Targets}">
-                        <!-- <ListBox.ItemTemplate> -->
-                        <!--     <DataTemplate x:DataType="viewModels:LockDialogModel+TargetItemViewModel"> -->
-                        <!--         <components:TargetItem FileName="{Binding FileName}" -->
-                        <!--                                     TextToolTip="{Binding RelativePath}" -->
-                        <!--                                     RelativeDirectory="{Binding RelativeDirectory}" -->
-                        <!--                                     KindIcon="{Binding KindIcon}" -->
-                        <!--                                     StatusIcon="{Binding StatusIcon}" -->
-                        <!--                                     StatusToolTip="{Binding StatusToolTip}"> -->
-                        <!--         </components:TargetItem> -->
-                        <!--     </DataTemplate> -->
-                        <!-- </ListBox.ItemTemplate> -->
                     </ListBox>
                 </Border>
             </u:FormItem>
-            <u:FormItem Label="Options:">
+            <u:FormItem Label="Options:" Grid.Row="1">
                 <CheckBox Content="Steal lock" IsChecked="{Binding  StealLock}"></CheckBox>
             </u:FormItem>
-            <u:FormItem Classes="GridLayout">
+            <u:FormItem Classes="GridLayout" Grid.Row="2">
                 <u:FormItem.Label>
                     <CheckBox Content="Comment:" IsChecked="{Binding HasComment}"></CheckBox>
                 </u:FormItem.Label>
-                <TextBox AcceptsReturn="True" IsEnabled="{Binding HasComment}" Text="{Binding Comment}"></TextBox>
+                <TextBox AcceptsReturn="True" ScrollViewer.VerticalScrollBarVisibility="Auto" IsEnabled="{Binding HasComment}" Text="{Binding Comment}"></TextBox>
             </u:FormItem>
         </u:Form>
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto">

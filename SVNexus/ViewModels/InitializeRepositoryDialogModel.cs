@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
@@ -59,7 +60,7 @@ public partial class InitializeRepositoryDialogModel (ViewModelBase parent): Dia
     public string Local
     {
         get;
-        set { SetProperty(ref field, value); }
+        set => SetProperty(ref field, value);
     } = string.Empty;
 
     [Required]
@@ -89,15 +90,19 @@ public partial class InitializeRepositoryDialogModel (ViewModelBase parent): Dia
     [ObservableProperty] public partial bool IgnoreInBackup { get; set; }
 
 
-    private SingleTaskQueue? _detectIgnoreFile;
+    private readonly SingleTaskQueue _detectIgnoreFile = new();
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (e.PropertyName == nameof(Local))
+        {
+            OnLocalChanged(Local);
+        }
+    }
 
     private void OnLocalChanged(string value)
     {
-        if (_detectIgnoreFile is null)
-        {
-            return;
-        }
-
         _detectIgnoreFile.Run(async token =>
         {
             await DetectIgnoreFile(value, token);
@@ -166,7 +171,6 @@ public partial class InitializeRepositoryDialogModel (ViewModelBase parent): Dia
     [RelayCommand]
     private void OnLoaded()
     {
-        _detectIgnoreFile = new SingleTaskQueue();
         if (!string.IsNullOrEmpty(Local))
         {
             _detectIgnoreFile.Run(async token =>

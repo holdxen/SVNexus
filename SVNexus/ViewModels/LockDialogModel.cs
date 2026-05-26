@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
+using Avalonia.Controls.Primitives;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Irihi.Avalonia.Shared.Contracts;
@@ -82,6 +83,8 @@ public partial class LockDialogModel(ViewModelBase parent): DialogModelBase(pare
     {
         Title = "Lock",
         IsCloseButtonVisible = false,
-        Buttons = DialogButton.None
+        Buttons = DialogButton.None,
+        VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
     };
 }
