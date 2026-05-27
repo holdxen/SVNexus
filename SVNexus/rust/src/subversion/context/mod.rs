@@ -7,12 +7,14 @@ pub mod patch;
 pub mod status;
 
 pub use conflict::{Conflict, ConflictWalkOptions, ConflictWalkResult};
+use ignore::gitignore::{Gitignore, GitignoreBuilder};
 pub use import::{ImportOptions, ImportResult};
 pub use info::{InfoEntry, InfoOptions, InfoResult};
 pub use list::{ListEntry, ListOptions, ListResult};
 pub use log::{LogChangedPathEntry, LogEntry, LogOptions, LogReceiver, LogResult};
 pub use patch::PatchOptions;
 pub use status::{StatusEntry, StatusOptions, StatusReceiver, StatusResult};
+use tempfile::NamedTempFile;
 
 use super::ffi;
 use super::stream::Stream;
@@ -20,20 +22,41 @@ use super::wc::*;
 use super::{SVNError, svn_no_error};
 use crate::apr::{self, AprArray, AprPool, AutoPool};
 use crate::error::{self, CSharpError, CSharpErrorExtension, builder};
-use crate::extensions::{Canonicalization, OptionExtension};
+use crate::extensions::{Canonicalization, CommonExtension, OptionExtension, ResultExtension};
+use crate::platform;
 use crate::subversion::utils;
 use crate::subversion::version::Version;
 use crate::utils::PointerMutMapper;
-use crate::utils::SubversionStringer;
 use crate::utils::{Boxed, CStringer};
 use crate::utils::{Pointer, PointerMapper};
 use derive_new::new;
 use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
 use std::collections::HashMap;
-use std::ffi::{CStr, c_char, c_void};
-use std::sync::Arc;
+use std::ffi::{CStr, OsString, c_char, c_void};
+use std::io::Write;
+use std::path::PathBuf;
+use std::process::Command;
+use std::sync::{Arc, OnceLock};
 use strum::EnumString;
+
+#[derive(uniffi::Record, Debug)]
+pub struct CancelToken {
+    code: i32,
+    msg: String,
+}
+
+pub static GLOBAL_CANCEL_TOKEN: OnceLock<CancelToken> = OnceLock::new();
+
+#[uniffi::export]
+pub fn set_global_cancel_token(token: CancelToken) -> error::Result<()> {
+    GLOBAL_CANCEL_TOKEN
+        .set(token)
+        .ok()
+        .any_context("Global cancel token is already set")?;
+
+    Ok(())
+}
 
 pub type RevisionNumber = u32;
 
@@ -804,13 +827,21 @@ unsafe extern "C" fn on_progress_notify(
 
 unsafe extern "C" fn on_cancel(baton: *mut c_void) -> *mut ffi::svn_error_t {
     unsafe {
+        let mut pool = apr::Pool::create();
+        if let Some(token) = GLOBAL_CANCEL_TOKEN.get() {
+            return ffi::svn_error_create(
+                token.code,
+                std::ptr::null_mut(),
+                pool.string(token.msg.as_str()).unwrap_or_default() as _,
+            );
+        }
+
         let ctx = (baton as *mut ContextInner).as_mut().unwrap();
         let v = match ctx.context_notifier.cancel() {
             Ok(v) => v,
             Err(e) => return e.native_error(),
         };
         if let Some(msg) = v {
-            let mut pool = apr::Pool::create();
             return ffi::svn_error_create(
                 ffi::svn_errno_t_SVN_ERR_CANCELLED as _,
                 std::ptr::null_mut(),
@@ -1839,6 +1870,101 @@ impl Context {
         opts: InitializeRepositoryOptions,
         notifier: Arc<dyn InitializeRepositoryNotifier>,
     ) -> error::Result<()> {
+        struct Filter {
+            ignore: Gitignore,
+            file: std::fs::File,
+            folders: Vec<String>,
+            relate_to: String,
+        }
+
+        impl Filter {
+            fn create(
+                relate_to: String,
+                file: std::fs::File,
+                filters: Vec<String>,
+            ) -> error::Result<Filter> {
+                let mut builder = GitignoreBuilder::new(&relate_to);
+
+                for line in filters {
+                    builder.add_line(None, &line).context(builder::Glob)?;
+                }
+
+                let ignore = builder.build().context(builder::Glob)?;
+
+                Ok(Self {
+                    ignore,
+                    file,
+                    folders: Vec::new(),
+                    relate_to,
+                })
+            }
+
+            fn create_filter(
+                relate_to: String,
+                file: std::fs::File,
+                filters: Vec<String>,
+            ) -> error::Result<
+                Box<
+                    dyn FnMut(
+                        String,
+                        NodeKind,
+                        bool,
+                        Option<u64>,
+                        i64,
+                    ) -> error::Result<bool, error::CSharpError>,
+                >,
+            > {
+                let mut this = Self::create(relate_to, file, filters)?;
+
+                Ok(Box::new(move |path, kind, _, _, _| {
+                    let relative_path = path
+                        .trim_start_matches(&this.relate_to)
+                        .trim_start_matches("/");
+
+                    let matcher = this
+                        .ignore
+                        .matched(relative_path, matches!(kind, NodeKind::Directory));
+
+                    let ignore = matcher.is_ignore();
+
+                    if ignore {
+                        // if matches!(kind, NodeKind::Directory) {
+
+                        // }
+                        //
+                        let new = this.folders.iter().all(|i| !path.starts_with(i));
+
+                        if new {
+                            if let Err(e) = this
+                                .file
+                                .write_all(format!("{}\n", relative_path).as_bytes())
+                            {
+                                tracing::warn!("Failed to write ignore list to file: {}", e);
+                            }
+                        } else if matches!(kind, NodeKind::Directory) {
+                            this.folders.push(path);
+                        }
+                    }
+
+                    Ok(ignore)
+                }))
+            }
+        }
+
+        let (exclude_file, exclude_file_path) = NamedTempFile::new()?
+            .keep()
+            .with_any_context(|e| format!("Failed to create exclude file: {}", e))?;
+
+        let mut filter = opts
+            .filters
+            .clone()
+            .map(|f| Filter::create_filter(opts.local.clone(), exclude_file, f))
+            .transpose()?;
+
+        let filter = filter.as_mut();
+
+        let filter = filter.map(|v| v.as_mut());
+
         if std::fs::read_dir(&opts.local)?.next().is_none() {
             notifier.on_checkout_directly()?;
             let options = CheckoutOptions {
@@ -1864,20 +1990,89 @@ impl Context {
                 ignore_unknown_node_types: opts.ignore_unknown_node_types,
                 revision_property_table: Default::default(),
                 commit_message: opts.commit_message,
-                filters: opts.filters,
             };
-            self.import(import_optios)?;
+            self.import_filter(import_optios, filter)?;
             self.cancelled()?;
             if let Some(directory) = opts.backup_directory {
                 notifier.on_backup()?;
-                let file = utils::backup(
-                    &opts.local,
-                    if directory.is_empty() {
-                        None
-                    } else {
-                        Some(directory)
-                    },
-                )?;
+                // let file = utils::backup(
+                //     &opts.local,
+                //     if directory.is_empty() {
+                //         None
+                //     } else {
+                //         Some(directory)
+                //     },
+                // )?;
+
+                let path = PathBuf::from(&opts.local);
+                if !path.exists() {
+                    std::fs::create_dir_all(&path)?;
+                } else if !path.is_dir() {
+                    return builder::General {
+                        detail: format!("{} must not be file", path.display()),
+                    }
+                    .fail();
+                }
+
+                // snafu::ensure!(
+                //     path.exists(),
+                //     builder::General {
+                //         detail: "Path does not exist"
+                //     }
+                // );
+                let file_name = path
+                    .canonicalize()?
+                    .file_name()
+                    .map(|v| v.to_os_string())
+                    .unwrap_or(OsString::from("backup"));
+
+                let output = if directory.is_empty() {
+                    tempfile::tempdir()?.keep()
+                } else {
+                    PathBuf::from(directory)
+                };
+
+                let mut index = 0;
+
+                let file = loop {
+                    let name = file_name.clone().also_apply(|f| {
+                        if index == 0 {
+                            f.push(".tar.gz")
+                        } else {
+                            f.push(format!(".{}.tar.gz", index));
+                        }
+                    });
+
+                    let file = output.join(name);
+
+                    if !file.exists() {
+                        break file;
+                    }
+                    index += 1;
+                };
+
+                let tar = platform::tar()?;
+
+                tracing::info!("execute tar in {}", opts.local);
+                let status = Command::new(tar)
+                    .current_dir(&opts.local)
+                    .arg(OsString::new().also_apply(|s| {
+                        s.push("--exclude-from=");
+                        s.push(exclude_file_path);
+                    }))
+                    .arg("-zcvf")
+                    .arg(&file)
+                    .arg("./*")
+                    // .arg(format!("--exclude-from={}", ""))
+                    .status()?;
+
+                snafu::ensure!(
+                    status.success(),
+                    builder::General {
+                        detail: "Failed to backup"
+                    }
+                );
+
                 notifier.on_backup_finished(file.to_str().unwrap().to_string())?;
             }
             self.cancelled()?;

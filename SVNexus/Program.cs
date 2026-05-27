@@ -20,6 +20,10 @@ internal static class Program
         DatabaseConnectionExtension.Create().Wait();
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
+
+        var token = new CancelToken(SvnErrnoConstants.Default.CancelledValue(), "App shutdown");
+        
+        EngineMethods.SetGlobalCancelToken(token);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

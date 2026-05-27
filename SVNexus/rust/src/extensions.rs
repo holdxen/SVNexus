@@ -3,7 +3,12 @@ use std::{any::Any, ffi::c_char, sync::Arc};
 use sea_orm::ActiveValue;
 use snafu::{OptionExt, ResultExt};
 
-use crate::{AnyValue, apr, error::{self, Error, builder}, subversion::SVNError, utils::Pointer};
+use crate::{
+    AnyValue, apr,
+    error::{self, Error, builder},
+    subversion::SVNError,
+    utils::Pointer,
+};
 
 // #[easy_ext::ext(JsonExtension)]
 // pub impl<T> T {
@@ -128,6 +133,10 @@ pub impl<T: Sized> T {
         if value { i(self) } else { o(self) }
     }
 
+    fn also_map<R>(self, f: impl FnOnce(Self) -> R) -> R {
+        f(self)
+    }
+
     fn also_apply(mut self, f: impl FnOnce(&mut Self)) -> Self {
         f(&mut self);
         self
@@ -153,13 +162,9 @@ pub impl<T: Sized> T {
     }
 }
 
-
-
-#[easy_ext::ext(Canonicalization)] 
+#[easy_ext::ext(Canonicalization)]
 pub impl apr::Pool {
-
     fn canonicalize_target(&mut self, target: &str) -> error::Result<*const c_char> {
-
         use crate::subversion::ffi;
 
         unsafe {
@@ -171,7 +176,6 @@ pub impl apr::Pool {
                 self.canonicalize_uri(target)
             }
         }
-        
     }
 
     unsafe fn canonicalize_target_array<T, I>(
@@ -204,7 +208,6 @@ pub impl apr::Pool {
         }
     }
 
-
     fn canonicalize_relpath(&mut self, u: &str) -> error::Result<*const c_char> {
         unsafe {
             let uri = self.string(u)?;
@@ -212,18 +215,24 @@ pub impl apr::Pool {
 
             let mut result: *const c_char = std::ptr::null();
 
-            let error = ffi::svn_relpath_canonicalize_safe(result.pointer_mut(), std::ptr::null_mut(), uri, self.as_mut_ptr(), self.as_mut_ptr());
+            let error = ffi::svn_relpath_canonicalize_safe(
+                result.pointer_mut(),
+                std::ptr::null_mut(),
+                uri,
+                self.as_mut_ptr(),
+                self.as_mut_ptr(),
+            );
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             if ffi::svn_relpath_is_canonical(uri) == 0 {
                 return builder::InvalidArgument {
                     detail: format!("{} is not canonical", u),
-                }.fail();
+                }
+                .fail();
             }
 
             Ok(result)
-
         }
     }
 
@@ -234,14 +243,18 @@ pub impl apr::Pool {
 
             let mut result: *const c_char = std::ptr::null();
 
-            let error = ffi::svn_uri_canonicalize_safe(result.pointer_mut(), std::ptr::null_mut(), uri, self.as_mut_ptr(), self.as_mut_ptr());
+            let error = ffi::svn_uri_canonicalize_safe(
+                result.pointer_mut(),
+                std::ptr::null_mut(),
+                uri,
+                self.as_mut_ptr(),
+                self.as_mut_ptr(),
+            );
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             Ok(result)
-
         }
     }
-
 
     unsafe fn canonicalize_dirent_array<T, I>(
         &mut self,
@@ -274,7 +287,6 @@ pub impl apr::Pool {
     }
 
     fn canonicalize_dirent(&mut self, path: &str) -> error::Result<*const c_char> {
-
         use crate::subversion::ffi;
 
         unsafe {
@@ -284,18 +296,24 @@ pub impl apr::Pool {
 
             let mut absolute: *const c_char = std::ptr::null();
 
-            let error = ffi::svn_dirent_get_absolute(absolute.pointer_mut(), internal, self.as_mut_ptr());
+            let error =
+                ffi::svn_dirent_get_absolute(absolute.pointer_mut(), internal, self.as_mut_ptr());
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             let mut result: *const c_char = std::ptr::null();
 
-            let error = ffi::svn_dirent_canonicalize_safe(result.pointer_mut(), std::ptr::null_mut(), absolute, self.as_mut_ptr(), self.as_mut_ptr());
+            let error = ffi::svn_dirent_canonicalize_safe(
+                result.pointer_mut(),
+                std::ptr::null_mut(),
+                absolute,
+                self.as_mut_ptr(),
+                self.as_mut_ptr(),
+            );
 
             SVNError::from_nullable_ptr(error).context(builder::Svn)?;
 
             Ok(result)
         }
-
     }
 }

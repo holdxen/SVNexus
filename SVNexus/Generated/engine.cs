@@ -745,7 +745,7 @@ static class _UniFFILib {
         ulong @uniffiHandle,IntPtr @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UniffiCallbackInterfaceImportReceiverMethod0(
+    public delegate void UniffiCallbackInterfaceImportFilterMethod0(
         ulong @uniffiHandle,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,IntPtr /*sbyte*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err
     );
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -789,7 +789,7 @@ static class _UniFFILib {
         public IntPtr @onFinished;
     }
     [StructLayout(LayoutKind.Sequential)]
-    public struct UniffiVTableCallbackInterfaceImportReceiver
+    public struct UniffiVTableCallbackInterfaceImportFilter
     {
         public IntPtr @uniffiFree;
         public IntPtr @uniffiClone;
@@ -2496,13 +2496,15 @@ static class _UniFFILib {
     
     
     
+    
+    
 
     static _UniFFILib() {
         _UniFFILib.uniffiCheckContractApiVersion();
         _UniFFILib.uniffiCheckApiChecksums();
         
         UniffiCallbackInterfaceContextNotifier.Register();
-        UniffiCallbackInterfaceImportReceiver.Register();
+        UniffiCallbackInterfaceImportFilter.Register();
         UniffiCallbackInterfaceInitializeRepositoryNotifier.Register();
         UniffiCallbackInterfaceLogReceiver.Register();
         UniffiCallbackInterfaceStatusReceiver.Register();
@@ -10800,7 +10802,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_clone_importreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+     ulong uniffi_engine_fn_clone_importfilter(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -10811,7 +10813,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     void uniffi_engine_fn_free_importreceiver(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
+     void uniffi_engine_fn_free_importfilter(ulong @handle,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -10822,7 +10824,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     void uniffi_engine_fn_init_callback_vtable_importreceiver(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceImportReceiver*/ @vtable
+     void uniffi_engine_fn_init_callback_vtable_importfilter(IntPtr /*_UniFFILib.UniffiVTableCallbackInterfaceImportFilter*/ @vtable
     );
 
     #if NET8_0_OR_GREATER
@@ -10833,7 +10835,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     sbyte uniffi_engine_fn_method_importreceiver_filter(ulong @ptr,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,ref UniffiRustCallStatus _uniffi_out_err
+     sbyte uniffi_engine_fn_method_importfilter_filter(ulong @ptr,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -11108,7 +11110,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ulong uniffi_engine_fn_method_asynccontext_import(ulong @ptr,RustBuffer @opts
+     ulong uniffi_engine_fn_method_asynccontext_import(ulong @ptr,RustBuffer @opts,RustBuffer @filters
     );
 
     #if NET8_0_OR_GREATER
@@ -11637,6 +11639,17 @@ static class _UniFFILib {
     public static extern
 #endif
      void uniffi_engine_fn_func_engine_initialize(ref UniffiRustCallStatus _uniffi_out_err
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     void uniffi_engine_fn_func_set_global_cancel_token(RustBuffer @token,ref UniffiRustCallStatus _uniffi_out_err
     );
 
     #if NET8_0_OR_GREATER
@@ -12297,6 +12310,17 @@ static class _UniFFILib {
     public static extern
 #endif
      ushort uniffi_engine_checksum_func_engine_initialize(
+    );
+
+    #if NET8_0_OR_GREATER
+    [LibraryImport("engine")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static partial
+#else
+    [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
+    public static extern
+#endif
+     ushort uniffi_engine_checksum_func_set_global_cancel_token(
     );
 
     #if NET8_0_OR_GREATER
@@ -20458,7 +20482,7 @@ static class _UniFFILib {
     [DllImport("engine", CallingConvention = CallingConvention.Cdecl)]
     public static extern
 #endif
-     ushort uniffi_engine_checksum_method_importreceiver_filter(
+     ushort uniffi_engine_checksum_method_importfilter_filter(
     );
 
     #if NET8_0_OR_GREATER
@@ -21079,6 +21103,12 @@ static class _UniFFILib {
             var checksum = _UniFFILib.uniffi_engine_checksum_func_engine_initialize();
             if (checksum != 40660) {
                 throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_engine_initialize` checksum `40660`, library returned `{checksum}`");
+            }
+        }
+        {
+            var checksum = _UniFFILib.uniffi_engine_checksum_func_set_global_cancel_token();
+            if (checksum != 19685) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_func_set_global_cancel_token` checksum `19685`, library returned `{checksum}`");
             }
         }
         {
@@ -25528,9 +25558,9 @@ static class _UniFFILib {
             }
         }
         {
-            var checksum = _UniFFILib.uniffi_engine_checksum_method_importreceiver_filter();
-            if (checksum != 35576) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_importreceiver_filter` checksum `35576`, library returned `{checksum}`");
+            var checksum = _UniFFILib.uniffi_engine_checksum_method_importfilter_filter();
+            if (checksum != 9037) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_importfilter_filter` checksum `9037`, library returned `{checksum}`");
             }
         }
         {
@@ -25625,8 +25655,8 @@ static class _UniFFILib {
         }
         {
             var checksum = _UniFFILib.uniffi_engine_checksum_method_asynccontext_import();
-            if (checksum != 24964) {
-                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `24964`, library returned `{checksum}`");
+            if (checksum != 39752) {
+                throw new UniffiContractChecksumException($"SVNexus.Generated: uniffi bindings expected function `uniffi_engine_checksum_method_asynccontext_import` checksum `39752`, library returned `{checksum}`");
             }
         }
         {
@@ -26299,7 +26329,7 @@ public interface IAsyncContext {
     /// <exception cref="Exception"></exception>
     Task<string> GetWcRoot(string @path);
     /// <exception cref="Exception"></exception>
-    Task<ImportResult> Import(ImportOptions @opts);
+    Task<ImportResult> Import(ImportOptions @opts, string[]? @filters);
     /// <exception cref="Exception"></exception>
     Task<InfoResult> Info(InfoOptions @opts);
     /// <exception cref="Exception"></exception>
@@ -26716,11 +26746,11 @@ public class AsyncContext : IAsyncContext, IDisposable {
     }
     
     /// <exception cref="Exception"></exception>
-    public async Task<ImportResult> Import(ImportOptions @opts) {
+    public async Task<ImportResult> Import(ImportOptions @opts, string[]? @filters) {
     return await _UniFFIAsync.UniffiRustCallAsync(
         // Get rust future
         CallWithPointer(thisPtr => {
-            return _UniFFILib.uniffi_engine_fn_method_asynccontext_import(thisPtr, FfiConverterTypeImportOptions.INSTANCE.Lower(@opts));
+            return _UniFFILib.uniffi_engine_fn_method_asynccontext_import(thisPtr, FfiConverterTypeImportOptions.INSTANCE.Lower(@opts), FfiConverterOptionalSequenceString.INSTANCE.Lower(@filters));
         }),
         // Poll
         (ulong future, IntPtr continuation, ulong data) => _UniFFILib.ffi_engine_rust_future_poll_rust_buffer(future, continuation, data),
@@ -28008,31 +28038,32 @@ class FfiConverterTypeContextNotifier: FfiConverter<ContextNotifier, ulong> {
 
 
 
-public interface ImportReceiver {
+public interface ImportFilter {
+    /// <exception cref="CSharpException"></exception>
     bool Filter(string @path, NodeKind @kind, bool @special, ulong? @fileSize, long @mtime);
 }
-public class ImportReceiverImpl : ImportReceiver, IDisposable {
+public class ImportFilterImpl : ImportFilter, IDisposable {
     protected ulong pointer;
     private int _wasDestroyed = 0;
     private long _callCounter = 1;
 
-    public ImportReceiverImpl(ulong pointer) {
+    public ImportFilterImpl(ulong pointer) {
         this.pointer = pointer;
     }
 
-    ~ImportReceiverImpl() {
+    ~ImportFilterImpl() {
         Destroy();
     }
 
     protected void FreeRustArcPtr() {
         _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
-            _UniFFILib.uniffi_engine_fn_free_importreceiver(this.pointer, ref status);
+            _UniFFILib.uniffi_engine_fn_free_importfilter(this.pointer, ref status);
         });
     }
 
     protected ulong CloneRustArcPtr() {
         return _UniffiHelpers.RustCall((ref UniffiRustCallStatus status) => {
-            return _UniFFILib.uniffi_engine_fn_clone_importreceiver(this.pointer, ref status);
+            return _UniFFILib.uniffi_engine_fn_clone_importfilter(this.pointer, ref status);
         });
     }
 
@@ -28100,10 +28131,11 @@ public class ImportReceiverImpl : ImportReceiver, IDisposable {
     }
 
     
+    /// <exception cref="CSharpException"></exception>
     public bool Filter(string @path, NodeKind @kind, bool @special, ulong? @fileSize, long @mtime) {
         return CallWithPointer(thisPtr => FfiConverterBoolean.INSTANCE.Lift(
-    _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
-    _UniFFILib.uniffi_engine_fn_method_importreceiver_filter(thisPtr, FfiConverterString.INSTANCE.Lower(@path), FfiConverterTypeNodeKind.INSTANCE.Lower(@kind), FfiConverterBoolean.INSTANCE.Lower(@special), FfiConverterOptionalUInt64.INSTANCE.Lower(@fileSize), FfiConverterInt64.INSTANCE.Lower(@mtime), ref _status)
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeCSharpError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_method_importfilter_filter(thisPtr, FfiConverterString.INSTANCE.Lower(@path), FfiConverterTypeNodeKind.INSTANCE.Lower(@kind), FfiConverterBoolean.INSTANCE.Lower(@special), FfiConverterOptionalUInt64.INSTANCE.Lower(@fileSize), FfiConverterInt64.INSTANCE.Lower(@mtime), ref _status)
 )));
     }
     
@@ -28111,11 +28143,11 @@ public class ImportReceiverImpl : ImportReceiver, IDisposable {
 
     
 }
-class UniffiCallbackInterfaceImportReceiver {
+class UniffiCallbackInterfaceImportFilter {
     static void Filter(ulong @uniffiHandle,RustBuffer @path,RustBuffer @kind,sbyte @special,RustBuffer @fileSize,long @mtime,IntPtr /*sbyte*/ @uniffiOutReturn,ref UniffiRustCallStatus _uniffi_out_err) {
         var handle = @uniffiHandle;
         try {
-            if (!FfiConverterTypeImportReceiver.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
+            if (!FfiConverterTypeImportFilter.INSTANCE.handleMap.TryGet(handle, out var uniffiObject)) {
                 throw new InternalException($"No callback in handlemap '{handle}'");
             }
             var result =
@@ -28131,6 +28163,10 @@ class UniffiCallbackInterfaceImportReceiver {
 
             _uniffi_out_err.code = UniffiCallbackResponseStatus.SUCCESS;
         }
+        catch (CSharpException e) {
+            _uniffi_out_err.code = UniffiCallbackResponseStatus.ERROR;
+            _uniffi_out_err.error_buf = FfiConverterTypeCSharpError.INSTANCE.Lower(e);
+        }
         catch (System.Exception e){
             _uniffi_out_err.code = UniffiCallbackResponseStatus.UNEXPECTED_ERROR;
             try {
@@ -28142,33 +28178,33 @@ class UniffiCallbackInterfaceImportReceiver {
     }
 
     static void UniffiFree(ulong @handle) {
-        FfiConverterTypeImportReceiver.INSTANCE.handleMap.Remove(@handle);
+        FfiConverterTypeImportFilter.INSTANCE.handleMap.Remove(@handle);
     }
-    static _UniFFILib.UniffiCallbackInterfaceImportReceiverMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceImportReceiverMethod0(Filter);
+    static _UniFFILib.UniffiCallbackInterfaceImportFilterMethod0 _m0 = new _UniFFILib.UniffiCallbackInterfaceImportFilterMethod0(Filter);
     static _UniFFILib.UniffiCallbackInterfaceFree _callback_interface_free = new _UniFFILib.UniffiCallbackInterfaceFree(UniffiFree);
 
     public static void Register() {
-        _UniFFILib.UniffiVTableCallbackInterfaceImportReceiver _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceImportReceiver {
+        _UniFFILib.UniffiVTableCallbackInterfaceImportFilter _vtable = new _UniFFILib.UniffiVTableCallbackInterfaceImportFilter {
             @filter = Marshal.GetFunctionPointerForDelegate(_m0),
             @uniffiFree = Marshal.GetFunctionPointerForDelegate(_callback_interface_free)
         };
 
         // Pin vtable to ensure GC does not move the vtable across the heap
-        _UniFFILib.uniffi_engine_fn_init_callback_vtable_importreceiver(GCHandle.Alloc(_vtable, GCHandleType.Pinned).AddrOfPinnedObject());
+        _UniFFILib.uniffi_engine_fn_init_callback_vtable_importfilter(GCHandle.Alloc(_vtable, GCHandleType.Pinned).AddrOfPinnedObject());
     }
 }
 
 
 
 
-class FfiConverterTypeImportReceiver: FfiConverter<ImportReceiver, ulong> {
-    public ConcurrentHandleMap<ImportReceiver> handleMap = new ConcurrentHandleMap<ImportReceiver>();
+class FfiConverterTypeImportFilter: FfiConverter<ImportFilter, ulong> {
+    public ConcurrentHandleMap<ImportFilter> handleMap = new ConcurrentHandleMap<ImportFilter>();
     
-    public static FfiConverterTypeImportReceiver INSTANCE = new FfiConverterTypeImportReceiver();
+    public static FfiConverterTypeImportFilter INSTANCE = new FfiConverterTypeImportFilter();
 
 
-    public override ulong Lower(ImportReceiver value) {
-        if (value is ImportReceiverImpl rustObj) {
+    public override ulong Lower(ImportFilter value) {
+        if (value is ImportFilterImpl rustObj) {
             // Rust-implemented object. Clone the handle and return it.
             return rustObj.CallWithPointer(thisPtr => thisPtr);
         } else {
@@ -28177,10 +28213,10 @@ class FfiConverterTypeImportReceiver: FfiConverter<ImportReceiver, ulong> {
         }
     }
 
-    public override ImportReceiver Lift(ulong value) {
+    public override ImportFilter Lift(ulong value) {
         if ((value & 1UL) == 0UL) {
             // Rust-generated handle, construct a new wrapper.
-            return new ImportReceiverImpl(value);
+            return new ImportFilterImpl(value);
         } else {
             // C#-generated handle, retrieve and remove from the handle map.
             if (handleMap.Remove(value, out var obj)) {
@@ -28191,15 +28227,15 @@ class FfiConverterTypeImportReceiver: FfiConverter<ImportReceiver, ulong> {
         }
     }
 
-    public override ImportReceiver Read(BigEndianStream stream) {
+    public override ImportFilter Read(BigEndianStream stream) {
         return Lift(stream.ReadULong());
     }
 
-    public override int AllocationSize(ImportReceiver value) {
+    public override int AllocationSize(ImportFilter value) {
         return 8;
     }
 
-    public override void Write(ImportReceiver value, BigEndianStream stream) {
+    public override void Write(ImportFilter value, BigEndianStream stream) {
         stream.WriteULong(Lower(value));
     }
 }
@@ -36381,6 +36417,36 @@ class FfiConverterTypeAuthentication: FfiConverterRustBuffer<Authentication> {
 
 
 
+public record CancelToken (
+    int Code, 
+    string Msg
+) {
+}
+
+class FfiConverterTypeCancelToken: FfiConverterRustBuffer<CancelToken> {
+    public static FfiConverterTypeCancelToken INSTANCE = new FfiConverterTypeCancelToken();
+
+    public override CancelToken Read(BigEndianStream stream) {
+        return new CancelToken(
+            Code: FfiConverterInt32.INSTANCE.Read(stream),
+            Msg: FfiConverterString.INSTANCE.Read(stream)
+        );
+    }
+
+    public override int AllocationSize(CancelToken value) {
+        return 0
+            + FfiConverterInt32.INSTANCE.AllocationSize(value.Code)
+            + FfiConverterString.INSTANCE.AllocationSize(value.Msg);
+    }
+
+    public override void Write(CancelToken value, BigEndianStream stream) {
+            FfiConverterInt32.INSTANCE.Write(value.Code, stream);
+            FfiConverterString.INSTANCE.Write(value.Msg, stream);
+    }
+}
+
+
+
 public record CatOptions (
     string Path, 
     Revision PegRevision, 
@@ -37637,8 +37703,7 @@ public record ImportOptions (
     bool NoAutoprops, 
     bool IgnoreUnknownNodeTypes, 
     Dictionary<string, string>? RevisionPropertyTable, 
-    string CommitMessage, 
-    string[]? Filters
+    string CommitMessage
 ) {
 }
 
@@ -37654,8 +37719,7 @@ class FfiConverterTypeImportOptions: FfiConverterRustBuffer<ImportOptions> {
             NoAutoprops: FfiConverterBoolean.INSTANCE.Read(stream),
             IgnoreUnknownNodeTypes: FfiConverterBoolean.INSTANCE.Read(stream),
             RevisionPropertyTable: FfiConverterOptionalDictionaryStringString.INSTANCE.Read(stream),
-            CommitMessage: FfiConverterString.INSTANCE.Read(stream),
-            Filters: FfiConverterOptionalSequenceString.INSTANCE.Read(stream)
+            CommitMessage: FfiConverterString.INSTANCE.Read(stream)
         );
     }
 
@@ -37668,8 +37732,7 @@ class FfiConverterTypeImportOptions: FfiConverterRustBuffer<ImportOptions> {
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.NoAutoprops)
             + FfiConverterBoolean.INSTANCE.AllocationSize(value.IgnoreUnknownNodeTypes)
             + FfiConverterOptionalDictionaryStringString.INSTANCE.AllocationSize(value.RevisionPropertyTable)
-            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage)
-            + FfiConverterOptionalSequenceString.INSTANCE.AllocationSize(value.Filters);
+            + FfiConverterString.INSTANCE.AllocationSize(value.CommitMessage);
     }
 
     public override void Write(ImportOptions value, BigEndianStream stream) {
@@ -37681,7 +37744,6 @@ class FfiConverterTypeImportOptions: FfiConverterRustBuffer<ImportOptions> {
             FfiConverterBoolean.INSTANCE.Write(value.IgnoreUnknownNodeTypes, stream);
             FfiConverterOptionalDictionaryStringString.INSTANCE.Write(value.RevisionPropertyTable, stream);
             FfiConverterString.INSTANCE.Write(value.CommitMessage, stream);
-            FfiConverterOptionalSequenceString.INSTANCE.Write(value.Filters, stream);
     }
 }
 
@@ -44555,6 +44617,15 @@ public static class EngineMethods {
         
     _UniffiHelpers.RustCall( (ref UniffiRustCallStatus _status) =>
     _UniFFILib.uniffi_engine_fn_func_engine_initialize( ref _status)
+);
+    }
+
+
+    /// <exception cref="Exception"></exception>
+    public static void SetGlobalCancelToken(CancelToken @token) {
+        
+    _UniffiHelpers.RustCallWithError(FfiConverterTypeError.INSTANCE, (ref UniffiRustCallStatus _status) =>
+    _UniFFILib.uniffi_engine_fn_func_set_global_cancel_token(FfiConverterTypeCancelToken.INSTANCE.Lower(@token), ref _status)
 );
     }
 

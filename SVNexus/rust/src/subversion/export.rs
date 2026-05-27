@@ -930,8 +930,13 @@ impl AsyncContext {
     }
 
     #[tracing::instrument(skip(self))]
-    pub async fn import(&self, opts: ImportOptions) -> error::Result<ImportResult> {
-        self.call_async(|mut context| context.import(opts)).await
+    pub async fn import(
+        &self,
+        opts: ImportOptions,
+        filters: Option<Vec<String>>,
+    ) -> error::Result<ImportResult> {
+        self.call_async(move |mut context| context.import(opts, filters))
+            .await
     }
 
     pub async fn export(&self, opts: ExportOptions) -> error::Result<RevisionNumber> {

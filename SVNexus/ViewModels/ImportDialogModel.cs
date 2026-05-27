@@ -165,7 +165,7 @@ public partial class ImportDialogModel(ViewModelBase parent): DialogModelBase(pa
         
         var filters = string.IsNullOrWhiteSpace(Filter) ? null : Filter.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
-        var options = new ImportOptions(Path, Url, (OperationDepth)Depth, NoIgnore, NoAutoProperties, IgnoreUnknownNodeTypes, null, CommitMessage, filters);
+        var options = new ImportOptions(Path, Url, (OperationDepth)Depth, NoIgnore, NoAutoProperties, IgnoreUnknownNodeTypes, null, CommitMessage);
 
         var hostId = SendMessage(new OnGetDialogHostId());
         
@@ -173,7 +173,7 @@ public partial class ImportDialogModel(ViewModelBase parent): DialogModelBase(pa
 
         // var context = SendMessage(new OnGetContext()).Response;
         
-        await context.Import(options);
+        await context.Import(options, filters);
         
         Ok();
     }

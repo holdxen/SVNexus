@@ -10,6 +10,7 @@ mod db;
 mod entities;
 mod error;
 mod extensions;
+mod platform;
 mod subversion;
 mod tests;
 mod utils;
