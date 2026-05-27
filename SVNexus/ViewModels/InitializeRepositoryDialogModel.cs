@@ -40,12 +40,16 @@ public partial class InitializeRepositoryDialogModel (ViewModelBase parent): Dia
             InitializeRepositoryOptions = options
         };
         
-        await OverlayDialog.ShowStandardAsync<InitializeRepositoryProcessDialog, InitializeRepositoryProcessDialogModel>(model, SendMessage(new OnGetDialogHostId()), OverlayDialogOptions);
+        await OverlayDialog.ShowStandardAsync<InitializeRepositoryProcessDialog, InitializeRepositoryProcessDialogModel>(model, SendMessage(new OnGetDialogHostId()), model.OverlayDialogOptions);
+
+        if (!model.Retry)
+        {
+            Accept = model.Accept;
+            RequestToClose(null);
+        }
         
-        Accept = model.Accept;
 
         
-        Ok();
     }
 
     public override OverlayDialogOptions OverlayDialogOptions { get; } = new()

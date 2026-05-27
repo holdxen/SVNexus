@@ -40,6 +40,7 @@ which = "8.0.2"
 directories = "6.0.0"
 ignore = "0.4.25"
 tracing-appender = "0.2.5"
+derive_more = "2.1.1"
 
 
 

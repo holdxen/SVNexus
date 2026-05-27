@@ -7,15 +7,31 @@ namespace SVNexus.Views;
 
 public partial class InitializeRepositoryProcessDialog : UserControl
 {
+
+    static InitializeRepositoryProcessDialog()
+    {
+        ScrollToProperty.Changed.AddClassHandler<InitializeRepositoryProcessDialog, int>(OnScrollToPropertyChanged);
+    }
+
+    private static void OnScrollToPropertyChanged(InitializeRepositoryProcessDialog target, AvaloniaPropertyChangedEventArgs<int> args)
+    {
+        if (args.NewValue.Value >= 0)
+        {
+            target.LogList.ScrollIntoView(args.NewValue.Value);   
+        }
+    }
+
     public InitializeRepositoryProcessDialog()
     {
         InitializeComponent();
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
+    public static readonly StyledProperty<int> ScrollToProperty = AvaloniaProperty.Register<InitializeRepositoryProcessDialog, int>(
+        nameof(ScrollTo), defaultValue: 0);
+
+    public int ScrollTo
     {
-        base.OnLoaded(e);
-        
-        LogList.ScrollIntoView(0);
+        get => GetValue(ScrollToProperty);
+        set => SetValue(ScrollToProperty, value);
     }
 }

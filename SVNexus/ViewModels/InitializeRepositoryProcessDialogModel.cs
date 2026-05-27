@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Avalonia.Controls.Primitives;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,6 +10,7 @@ using SVNexus.Extension;
 using SVNexus.Generated;
 using SVNexus.Messages;
 using SVNexus.Utils;
+using Ursa.Controls;
 using Exception = SVNexus.Generated.Exception;
 
 namespace SVNexus.ViewModels;
@@ -23,6 +25,12 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
         public string ActionText => Notify.Action.ToString();
         
         public string Path => Notify.Path;
+
+        public string FileName => Notify.Path.GetFileName();
+        
+        public string Directory => Notify.Path.GetDirectoryName()?.TrimStartString(RelateTo).TrimStartString("/") ?? string.Empty;
+        
+        public string RelateTo { get; set; } = string.Empty;
     }
     
     public required InitializeRepositoryOptions InitializeRepositoryOptions { get; init; }
@@ -47,10 +55,33 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
 
     public ObservableCollection<LogViewModel> LogViewModels { get; } = [];
 
+    public override OverlayDialogOptions OverlayDialogOptions { get; } = new()
+    {
+        Title = "Import and checkout",
+        IsCloseButtonVisible = false,
+        CanResize = true,
+        Buttons = DialogButton.None,
+        HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        CanDragMove = true
+    };
+
+    [ObservableProperty]
+    public partial bool Retry { get; set; }
+
+    [ObservableProperty] public partial int ScrollTo { get; set; } = -1;
+
     private TaskCompletionSource? _cancelSource;
     
     private LockedValue<string?>? _cancelMessage;
-    
+
+
+    [RelayCommand]
+    private void DoRetry()
+    {
+        Retry = true;
+        RequestToClose(null);
+    }
     
     protected override Task OnConfirm()
     {
@@ -71,12 +102,14 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
         LogViewModels.Add(new LogViewModel()
         {
             Notify = notify,
+            RelateTo = InitializeRepositoryOptions.Local.TrimEndPathSeparatorChar()
         });
 
         if (LogViewModels.Count > max)
         {
             LogViewModels.RemoveAt(0);
         }
+        ScrollTo = LogViewModels.Count - 1;
     }
     
     [RelayCommand]
@@ -225,6 +258,14 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
     [RelayCommand]
     private async Task Cancel()
     {
+        var hostId = SendMessage(new OnGetDialogHostId());
+
+        var result = await OverlayMessageBox.ShowAsync("Whether to cancel", "Question", hostId, MessageBoxIcon.Question, MessageBoxButton.YesNo);
+        if (result != MessageBoxResult.Yes)
+        {
+            return;
+        }
+        
         _cancelSource = new TaskCompletionSource();
 
         _cancelMessage?.Value = "User cancelled";

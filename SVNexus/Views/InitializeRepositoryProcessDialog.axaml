@@ -8,6 +8,7 @@
              xmlns:converters="clr-namespace:SVNexus.Converters"
              xmlns:u="https://irihi.tech/ursa"
              Width="600"
+             ScrollTo="{Binding ScrollTo}"
              x:DataType="viewModels:InitializeRepositoryProcessDialogModel"
              x:Class="SVNexus.Views.InitializeRepositoryProcessDialog">
     <Interaction.Behaviors>
@@ -129,34 +130,78 @@
             </StackPanel>
         </Grid>
         <Border Grid.Row="1" Theme="{StaticResource CardBorder}">
-            <ListBox Height="150" Name="LogList" ItemsSource="{Binding LogViewModels}">
+            <ListBox Height="150" 
+                     Name="LogList" 
+                     ItemsSource="{Binding LogViewModels}">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="viewModels:InitializeRepositoryProcessDialogModel+LogViewModel">
                         <Grid ColumnDefinitions="Auto, *">
                             <TextBlock Grid.Column="0" Text="{Binding ActionText, StringFormat='{}{0}:'}"></TextBlock>
-                            <TextBlock Grid.Column="1" Text="{Binding Path}"></TextBlock>
+                            <!-- <TextBlock Grid.Column="1" Text="{Binding Path}"></TextBlock> -->
+                            <Grid Grid.Column="1" 
+                                  ClipToBounds="True"
+                                  ColumnDefinitions="Auto, *" 
+                                  ToolTip.Tip="{Binding Path}" 
+                                  Background="Transparent">
+                                <TextBlock Grid.Column="0"
+                                           MaxLines="1"
+                                           FontSize="14"
+                                           LineHeight="20"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding FileName}"
+                                           HorizontalAlignment="Left">
+                                </TextBlock>
+                                <TextBlock Margin="5 0 0 0" 
+                                           Classes="Quaternary"
+                                           VerticalAlignment="Center"
+                                           FontSize="12"
+                                           MaxLines="1"
+                                           Text="{Binding Directory}"
+                                           Grid.Column="1">
+                                </TextBlock>
+                            </Grid>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </Border>
-        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto, Auto">
+        <!-- <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto, Auto"> -->
+        <!--     <Border Grid.Column="0"></Border> -->
+        <!--     <u:IconButton Grid.Column="1"  -->
+        <!--             IsVisible="{Binding LoadedCommand.IsRunning}" -->
+        <!--             IsLoading="{Binding CancelCommand.IsRunning}" -->
+        <!--             Classes="Danger" -->
+        <!--             Theme="{StaticResource SolidIconButton}" -->
+        <!--             Content="Cancel"  -->
+        <!--             Command="{Binding CancelCommand}"></u:IconButton> -->
+        <!--     <Border Grid.Column="2" Width="4"></Border> -->
+        <!--     <u:IconButton Grid.Column="3" -->
+        <!--                   Classes="Primary" -->
+        <!--                   IsVisible="{Binding !LoadedCommand.IsRunning}" -->
+        <!--                   Theme="{StaticResource SolidIconButton}" -->
+        <!--                   Command="{Binding ConfirmCommand}" -->
+        <!--                   Content="Ok"> -->
+        <!--     </u:IconButton> -->
+        <!-- </Grid> -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto">
             <Border Grid.Column="0"></Border>
-            <u:IconButton Grid.Column="1" 
-                    IsVisible="{Binding LoadedCommand.IsRunning}"
-                    IsLoading="{Binding CancelCommand.IsRunning}"
-                    Classes="Danger"
-                    Theme="{StaticResource SolidIconButton}"
-                    Content="取消" 
-                    Command="{Binding CancelCommand}"></u:IconButton>
-            <Border Grid.Column="2" Width="4"></Border>
-            <u:IconButton Grid.Column="3"
-                          Classes="Primary"
-                          IsVisible="{Binding !LoadedCommand.IsRunning}"
-                          Theme="{StaticResource SolidIconButton}"
-                          Command="{Binding ConfirmCommand}"
-                          Content="确定">
-            </u:IconButton>
+            <StackPanel Grid.Column="1" Spacing="5" Orientation="Horizontal">
+                <u:IconButton IsVisible="{Binding LoadedCommand.IsRunning}"
+                        IsLoading="{Binding CancelCommand.IsRunning}"
+                        Classes="Danger"
+                        Theme="{StaticResource SolidIconButton}"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"></u:IconButton>
+                <Button Content="Retry"
+                        IsVisible="{Binding !LoadedCommand.IsRunning}"
+                        Command="{Binding DoRetryCommand}"></Button>
+                <u:IconButton Classes="Primary"
+                              Theme="{StaticResource SolidIconButton}"
+                              Content="Close"
+                              IsVisible="{Binding !LoadedCommand.IsRunning}"
+                              Command="{Binding  ConfirmCommand}">
+                </u:IconButton>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

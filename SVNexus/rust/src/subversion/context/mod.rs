@@ -1009,9 +1009,10 @@ pub struct TrustServer {
     save: bool,
 }
 
-#[derive(Debug, Clone, new, Default, uniffi::Record)]
+#[derive(derive_more::Debug, Clone, new, Default, uniffi::Record)]
 pub struct Authentication {
     pub username: String,
+    #[debug(skip)]
     pub password: String,
     pub save: bool,
 }

@@ -1039,6 +1039,7 @@ dependencies = [
  "chrono",
  "clap",
  "derive-new",
+ "derive_more",
  "directories",
  "easy-ext",
  "fontdb",
