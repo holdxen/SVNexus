@@ -2062,7 +2062,7 @@ impl Context {
                     }))
                     .arg("-zcvf")
                     .arg(&file)
-                    .arg("./*")
+                    .arg(".")
                     // .arg(format!("--exclude-from={}", ""))
                     .status()?;
 

@@ -806,6 +806,14 @@ public partial class WorkspaceViewModel : ViewModelBase,
                         Local = WorkspacePath,
                     };
                     await model.Show();
+                    if (model.Accept)
+                    {
+                        await OnLoaded();
+                    }
+                    else
+                    {
+                        SendMessage(new OnRemoveTabModel());
+                    }
                     // var dialogOptions = new OverlayDialogOptions
                     // {
                     //     Title = "Test",

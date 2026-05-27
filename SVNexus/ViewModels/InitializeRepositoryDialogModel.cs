@@ -41,6 +41,8 @@ public partial class InitializeRepositoryDialogModel (ViewModelBase parent): Dia
         };
         
         await OverlayDialog.ShowStandardAsync<InitializeRepositoryProcessDialog, InitializeRepositoryProcessDialogModel>(model, SendMessage(new OnGetDialogHostId()), OverlayDialogOptions);
+        
+        Accept = model.Accept;
 
         
         Ok();

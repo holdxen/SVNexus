@@ -14,7 +14,7 @@ public abstract partial class DialogModelBase(ViewModelBase? parent = null) : Vi
     public void Ok()
     {
         Accept = true;
-        RequestClose?.Invoke(this, null);
+        RequestToClose(null);
     }
 
     protected abstract Task OnConfirm();
@@ -25,16 +25,21 @@ public abstract partial class DialogModelBase(ViewModelBase? parent = null) : Vi
         await OnConfirm();
     }
     
-    public bool Accept { get; set; }
+    public bool Accept { get; protected set; }
     
     [RelayCommand]
     public void Close()
     {
         Accept = false;
-        RequestClose?.Invoke(this, null);
+        RequestToClose(null);
     }
 
     public event EventHandler<object?>? RequestClose;
+
+    public void RequestToClose(object? args)
+    {
+        RequestClose?.Invoke(this, args);
+    }
     
     
     public virtual OverlayDialogOptions OverlayDialogOptions { get; } = new();

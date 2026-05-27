@@ -54,7 +54,8 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
     
     protected override Task OnConfirm()
     {
-        Ok();
+        Accept = false;
+        RequestToClose(null);
         return Task.CompletedTask;
     }
 
@@ -170,6 +171,8 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
         try
         {
             await context.InitializeRepository(InitializeRepositoryOptions, notifier);
+
+            Accept = true;
         }
         catch (Exception e)
         {
@@ -193,6 +196,8 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
                 ImportState = LoadingDot.State.Failure;
                 ImportDetail = e.HumanReadableMessage;
             }
+
+            Accept = false;
         }
         finally
         {
