@@ -240,7 +240,6 @@ public partial class HistoryViewModel(ViewModelBase parent): ViewModelMore(paren
     {
         var leftPartWidth = ChangesViewModel?.LeftPartRealWidth;
         ChangesViewModel = vm;
-        ChangesViewModel.Update();
         if (leftPartWidth != null)
         {
             // ChangesViewModel.LeftPartWidth = new GridLength(leftPartWidth.Value.Value,  GridUnitType.Pixel);

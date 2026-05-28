@@ -36,6 +36,8 @@ public partial class HistoryDetailViewModel: ViewModelLite
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(RelativePath))]
         public partial string Path { get; set; } = string.Empty;
+        
+        public string KindIcon => Entry.NodeKind.Icon();
 
         public string Icon => Entry.Action.Icon();
         
@@ -43,7 +45,7 @@ public partial class HistoryDetailViewModel: ViewModelLite
 
         public bool Copied => Entry.CopyFromPath is not null && Entry.CopyFromRevision is not null;
 
-        public string? CopyToolTip => $"Copy From: {Entry.CopyFromPath}@{Entry.CopyFromRevision}";
+        public string? CopyToolTip => Entry is not { CopyFromPath: null, CopyFromRevision: null } ? $"Copy From: {Entry.CopyFromPath}@{Entry.CopyFromRevision}" : null;
 
         // public string RelativePath => Path == RelativeToRoot
         //     ? "/"
@@ -66,7 +68,9 @@ public partial class HistoryDetailViewModel: ViewModelLite
 
 
     public List<ChangeItemViewModel> ChangeItems =>
-        Entry.ChangedPathEntries.Select(p => new ChangeItemViewModel { RelativeToRoot = RelateToRoot, Entry = p.Value, Path = p.Key }).ToList();
+        Entry.ChangedPathEntries
+            .Select(p => new ChangeItemViewModel { RelativeToRoot = RelateToRoot, Entry = p.Value, Path = p.Key })
+            .OrderBy(e => e.Path).ToList();
 
 
 }

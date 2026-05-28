@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace SVNexus.ViewModels.WorkingCopy.History;
 
 public partial class HistoryChangesViewModel : ViewModelBase
 {
+    public enum SortCondition
+    {
+        FileName,
+        Path
+    }
     
     public partial class ListItemViewModel: ViewModelBase
     {
@@ -55,6 +61,9 @@ public partial class HistoryChangesViewModel : ViewModelBase
         public string NodeKindIcon => Entry.NodeKind.Icon();
     }
 
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(ChangedItems))]
+    public partial SortCondition Sort { get; set; } = SortCondition.Path;
     
     public required string RootUrl { get; set; }
 
@@ -69,13 +78,55 @@ public partial class HistoryChangesViewModel : ViewModelBase
     [ObservableProperty]
     public partial DifferenceViewModel DifferenceViewModel { get; set; }
 
-    [ObservableProperty]
-    public partial ObservableCollection<ListItemViewModel> ChangedItems { get; set; } = [];
+    // [ObservableProperty]
+    // public partial ObservableCollection<ListItemViewModel> ChangedItems { get; set; } = [];
+
+    public List<ListItemViewModel> ChangedItems
+    {
+        get
+        {
+            var directory = new List<ListItemViewModel>();
+
+            var file = new List<ListItemViewModel>();
+
+            foreach (var (k, v) in LogChangedPathEntries)
+            {
+                if (v.NodeKind == NodeKind.Directory)
+                {
+                    directory.Add(new ListItemViewModel()
+                    {
+                        Entry = v,
+                        RelateToRoot = RelateToRoot,
+                        Path = k
+                    });
+                }
+                else
+                {
+                    file.Add(new ListItemViewModel()
+                    {
+                        Entry = v,
+                        RelateToRoot = RelateToRoot,
+                        Path = k
+                    });
+                }
+            }
+            
+            directory.Sort((a, b) => Sort == SortCondition.Path ?  string.CompareOrdinal(a.Path, b.Path) : string.CompareOrdinal(a.FileName, b.FileName));
+            
+            file.Sort((a, b) => Sort == SortCondition.Path ?  string.CompareOrdinal(a.Path, b.Path) : string.CompareOrdinal(a.FileName, b.FileName));
+
+            return directory.Apply(e =>
+            {
+                e.AddRange(file);
+            });
+        }
+    }
     
     [ObservableProperty]
     public partial bool ShowChildrenOnly { get; set; }
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ChangedItems))]
     public required partial Dictionary<string, LogChangedPathEntry> LogChangedPathEntries { get; set; }
     
     
@@ -153,16 +204,16 @@ public partial class HistoryChangesViewModel : ViewModelBase
         }
     }
 
-    public void Update()
-    {
-        ChangedItems = new ObservableCollection<ListItemViewModel>(LogChangedPathEntries.Select(i => new ListItemViewModel()
-        {
-            Entry = i.Value,
-            RelateToRoot = RelateToRoot,
-            Path = i.Key,
-        }));
-        
-    }
+    // public void Update()
+    // {
+    //     ChangedItems = new ObservableCollection<ListItemViewModel>(LogChangedPathEntries.Select(i => new ListItemViewModel()
+    //     {
+    //         Entry = i.Value,
+    //         RelateToRoot = RelateToRoot,
+    //         Path = i.Key,
+    //     }));
+    //     
+    // }
 
     // [RelayCommand]
     // private void SwitchToListView()
