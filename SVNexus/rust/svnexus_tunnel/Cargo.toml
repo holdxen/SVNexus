@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 flatline = "0.0.11"
 tarpc = { workspace = true }
+svnexus_shared = { path = "../svnexus_shared" }
 

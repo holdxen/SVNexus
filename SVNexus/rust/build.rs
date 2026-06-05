@@ -40,6 +40,8 @@ fn svn_path() -> String {
             cfg_if! {
                 if #[cfg(target_arch = "x86_64")] {
                     "./deps/linux-x64/svn".to_string()
+                } else if #[cfg(target_arch = "aarch64")] {
+                    "./deps/linux-aarch64/svn".to_string()
                 } else {
                     panic!("Unsupported Linux arch")
                 }

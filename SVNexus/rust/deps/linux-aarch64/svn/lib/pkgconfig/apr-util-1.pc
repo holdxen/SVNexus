@@ -1,0 +1,15 @@
+# Modified by Xmake: Using relative paths to make package relocatable
+installdir=${pcfiledir}/../..
+prefix=${installdir}
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+APRUTIL_MAJOR_VERSION=1
+includedir=${prefix}/include/apr-${APRUTIL_MAJOR_VERSION}
+
+Name: APR Utils
+Description: Companion library for APR
+Version: 1.7.0
+# assume that apr-util requires libapr of same major version
+Requires: apr-1
+Libs: -L${libdir} -laprutil-${APRUTIL_MAJOR_VERSION}  -lexpat
+Cflags: -I${includedir}
