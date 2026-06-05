@@ -1,4 +1,6 @@
-prefix=/Users/zhouguiqing/Downloads/svn
+# Modified by Xmake: Using relative paths to make package relocatable
+installdir=${pcfiledir}/../..
+prefix=${installdir}
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
@@ -8,5 +10,5 @@ Name: OpenSSL-libcrypto
 Description: OpenSSL cryptography library
 Version: 1.1.1w
 Libs: -L${libdir} -lcrypto
-Libs.private:  
+Libs.private: -lz 
 Cflags: -I${includedir}

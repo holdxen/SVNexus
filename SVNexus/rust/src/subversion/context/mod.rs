@@ -1662,7 +1662,7 @@ pub struct GetRepositoryRootResult {
     pub uuid: String,
 }
 
-#[derive(uniffi::Record)]
+#[derive(uniffi::Record, Debug)]
 pub struct InitializeRepositoryOptions {
     pub local: String,
     pub remote: String,

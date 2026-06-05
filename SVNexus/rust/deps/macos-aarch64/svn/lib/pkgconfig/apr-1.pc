@@ -1,4 +1,6 @@
-prefix=/Users/zhouguiqing/Downloads/svn
+# Modified by Xmake: Using relative paths to make package relocatable
+installdir=${pcfiledir}/../..
+prefix=${installdir}
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 APR_MAJOR_VERSION=1
@@ -8,4 +10,4 @@ Name: APR
 Description: The Apache Portable Runtime library
 Version: 1.7.6
 Libs: -L${libdir} -lapr-${APR_MAJOR_VERSION} -lpthread
-Cflags: -DDARWIN -DSIGPROCMASK_SETS_THREAD_MASK -g -O2 -I${includedir}
+Cflags: -DDARWIN -DSIGPROCMASK_SETS_THREAD_MASK  -I${includedir}

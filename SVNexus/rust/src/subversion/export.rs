@@ -947,6 +947,7 @@ impl AsyncContext {
         self.call_async(|mut context| context.update(opts)).await
     }
 
+    #[tracing::instrument(skip(self, notifier), err)]
     pub async fn initialize_repository(
         &self,
         opts: InitializeRepositoryOptions,

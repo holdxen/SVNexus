@@ -1,10 +1,12 @@
-prefix=/Users/zhouguiqing/Downloads/svn
+# Modified by Xmake: Using relative paths to make package relocatable
+installdir=${pcfiledir}/../..
+prefix=${installdir}
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: expat
-Version: 2.7.5
+Version: 2.8.1
 Description: expat XML parser
 URL: https://libexpat.github.io/
 Libs: -L${libdir} -lexpat

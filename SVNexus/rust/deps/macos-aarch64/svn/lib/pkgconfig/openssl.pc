@@ -1,4 +1,6 @@
-prefix=/Users/zhouguiqing/Downloads/svn
+# Modified by Xmake: Using relative paths to make package relocatable
+installdir=${pcfiledir}/../..
+prefix=${installdir}
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

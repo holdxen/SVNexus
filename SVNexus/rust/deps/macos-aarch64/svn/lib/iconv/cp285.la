@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/Users/zhouguiqing/Downloads/svn/lib/iconv'
+libdir='/Users/zhouguiqing/Documents/svn/build/.packages/a/apr-iconv/latest/a5b4e345986a4740863d88955955c4b5/lib/iconv'

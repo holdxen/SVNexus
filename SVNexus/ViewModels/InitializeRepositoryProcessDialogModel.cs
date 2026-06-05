@@ -231,6 +231,8 @@ public partial class InitializeRepositoryProcessDialogModel(ViewModelBase parent
             }
 
             Accept = false;
+            
+            Logger.Info($"Failed to initialize repository: {e.HumanReadableMessage}\n{e.StackTrace}");
         }
         finally
         {
