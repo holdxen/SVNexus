@@ -1,4 +1,6 @@
-prefix=/home/noname/Documents/build/svn
+# Modified by Xmake: Using relative paths to make package relocatable
+installdir=${pcfiledir}/../..
+prefix=${installdir}
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 sharedlibdir=${libdir}
@@ -6,7 +8,7 @@ includedir=${prefix}/include
 
 Name: zlib
 Description: zlib compression library
-Version: 1.3.2
+Version: 1.3.2.1
 License: Zlib
 
 Requires:

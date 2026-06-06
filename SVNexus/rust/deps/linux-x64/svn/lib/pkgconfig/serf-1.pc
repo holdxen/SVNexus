@@ -1,13 +1,10 @@
-SERF_MAJOR_VERSION=1
-prefix=/home/noname/Documents/build/svn
+prefix=${pcfiledir}/../..
 exec_prefix=${prefix}
-libdir=/home/noname/Documents/build/svn/lib
+libdir=${exec_prefix}/lib
 includedir=${prefix}/include/serf-1
 
 Name: serf
-Description: HTTP client library
+Description: Serf - a high performance HTTP client library
 Version: 1.3.10
-Requires.private: libssl libcrypto
-Libs: -L${libdir} -lserf-${SERF_MAJOR_VERSION}
-Libs.private: /home/noname/Documents/build/svn/lib/libaprutil-1.la     /home/noname/Documents/build/apr-util-1.6.3/../apr-iconv-1.2.2/lib/libapriconv.la                               -lexpat -liconv /home/noname/Documents/build/svn/lib/libapr-1.la -lrt -lcrypt  -lpthread -ldl  -lz
+Libs: -L${libdir} -lserf-1 -L/home/noname/Downloads/svn/build/.packages/o/openssl/latest/4e0143c97b65425b855ad5fd03038b6a/lib -lssl -lcrypto
 Cflags: -I${includedir}
