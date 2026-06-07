@@ -9,4 +9,5 @@ pub struct User {
 #[tarpc::service]
 pub trait TunnelService {
     async fn authenticate(username: Option<String>) -> User;
+    async fn verify_server_hostkey(r#type: String, key: String) -> bool;
 }

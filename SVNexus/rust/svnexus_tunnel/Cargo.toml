@@ -4,11 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-flatline = "0.0.11"
+#flatline = "0.0.11"
+flatline = { git = "https://github.com/holdxen/flatline.git" }
 tarpc = { workspace = true }
 svnexus_shared = { path = "../svnexus_shared" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 clap = { version = "4.6.1", features = ["derive"] }
 tokio.workspace = true
-
+anyhow.workspace = true
+whoami = "2.1.2"
+async-trait = "0.1.89"

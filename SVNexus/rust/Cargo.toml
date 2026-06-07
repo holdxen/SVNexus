@@ -16,6 +16,7 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 tokio = { version = "1.43.0", features = ["full"] }
 serde = { version = "1.0.219", features = ["derive"] }
+anyhow = "1.0.102"
 
 
 [package]
