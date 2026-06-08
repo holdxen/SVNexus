@@ -1,6 +1,4 @@
-# Modified by Xmake: Using relative paths to make package relocatable
-installdir=${pcfiledir}/../..
-prefix=${installdir}
+prefix=/home/parallels/Downloads/svn/output
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 sharedlibdir=${libdir}

@@ -1,4 +1,4 @@
-prefix=${pcfiledir}/../..
+prefix=/home/parallels/Downloads/svn/output
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
