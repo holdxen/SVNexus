@@ -1,4 +1,4 @@
-prefix=${pcfiledir}/../..
+prefix=/home/noname/Downloads/svn/output
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include

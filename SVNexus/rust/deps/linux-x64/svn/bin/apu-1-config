@@ -21,15 +21,15 @@
 APRUTIL_MAJOR_VERSION="1"
 APRUTIL_DOTTED_VERSION="1.7.0"
 
-prefix="/home/noname/Downloads/svn/build/.packages/a/apr-util/latest/4e0143c97b65425b855ad5fd03038b6a"
+prefix="/home/noname/Downloads/svn/output"
 exec_prefix="${prefix}"
 bindir="${exec_prefix}/bin"
 libdir="${exec_prefix}/lib"
 includedir="${prefix}/include/apr-${APRUTIL_MAJOR_VERSION}"
 
 LIBS="-lexpat"
-INCLUDES="-I/home/noname/Downloads/svn/build/.packages/o/openssl/latest/4e0143c97b65425b855ad5fd03038b6a/include -I/home/noname/Downloads/svn/build/.packages/l/libexpat/latest/4e0143c97b65425b855ad5fd03038b6a/include -I/home/noname/Downloads/svn/build/.packages/a/apr-iconv/latest/4e0143c97b65425b855ad5fd03038b6a/include/apr-1 -I/home/noname/Downloads/svn/build/.packages/a/apr-iconv/latest/4e0143c97b65425b855ad5fd03038b6a/include"
-LDFLAGS="-L/home/noname/Downloads/svn/build/.packages/o/openssl/latest/4e0143c97b65425b855ad5fd03038b6a/lib -L/home/noname/Downloads/svn/build/.packages/o/openssl/latest/4e0143c97b65425b855ad5fd03038b6a/lib64 -L/home/noname/Downloads/svn/build/.packages/l/libexpat/latest/4e0143c97b65425b855ad5fd03038b6a/lib -L/home/noname/Downloads/svn/build/.packages/a/apr-iconv/latest/4e0143c97b65425b855ad5fd03038b6a/lib"
+INCLUDES="-I/home/noname/Downloads/svn/output/include -I/home/noname/Downloads/svn/output/include/apr-1"
+LDFLAGS="-L/home/noname/Downloads/svn/output/lib -L/home/noname/Downloads/svn/output/lib64"
 LDAP_LIBS=""
 DBM_LIBS="  "
 

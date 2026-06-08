@@ -17,7 +17,7 @@ old_library=''
 inherited_linker_flags=' -pthread'
 
 # Libraries that this one depends upon.
-dependency_libs=' -L/home/noname/Downloads/svn/build/.packages/o/openssl/latest/4e0143c97b65425b855ad5fd03038b6a/lib -L/home/noname/Downloads/svn/build/.packages/o/openssl/latest/4e0143c97b65425b855ad5fd03038b6a/lib64 -L/home/noname/Downloads/svn/build/.packages/l/libexpat/latest/4e0143c97b65425b855ad5fd03038b6a/lib -L/home/noname/Downloads/svn/build/.packages/a/apr-iconv/latest/4e0143c97b65425b855ad5fd03038b6a/lib -lcrypto'
+dependency_libs=' -L/home/noname/Downloads/svn/output/lib -L/home/noname/Downloads/svn/output/lib64 -lcrypto'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''
@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/home/noname/Downloads/svn/build/.packages/a/apr-util/latest/4e0143c97b65425b855ad5fd03038b6a/lib/apr-util-1'
+libdir='/home/noname/Downloads/svn/output/lib/apr-util-1'

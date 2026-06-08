@@ -21,7 +21,7 @@
 APR_MAJOR_VERSION="1"
 APR_DOTTED_VERSION="1.7.6"
 
-prefix="/home/noname/Downloads/svn/build/.packages/a/apr/latest/4e0143c97b65425b855ad5fd03038b6a"
+prefix="/home/noname/Downloads/svn/output"
 exec_prefix="${prefix}"
 bindir="${exec_prefix}/bin"
 libdir="${exec_prefix}/lib"
