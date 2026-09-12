@@ -41,7 +41,6 @@ import { NiceAboutDialog } from './views/dialogs/AboutDialog'
 import { WelcomeView } from './views/WelcomeView/WelcomeView'
 import { RouteFileHistoryView } from './views/WorkspaceView/FileHitoryView'
 import { WorkspaceView } from './views/WorkspaceView/WorkspaceView'
-import Logger from './utils/Logger'
 
 // // 将 navigator.clipboard 代理到 Tauri 后端，绕过 WKWebView 的剪贴板权限限制
 // // 解决 Monaco Editor 在 WKWebView 中的 NotAllowedError 和 Canceled 错误
