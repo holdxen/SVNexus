@@ -1,17 +1,27 @@
-SVNexus/bin/
-Tabalonia/bin
-obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
 .DS_Store
-csr/target
-SVNexus/rust/target
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+src-tauri/svnexus_macro/target
 
-SVNexus/rust/svnexus_macro/target
-SVNexus/rust/migration/target
-
-*.sln.DotSettings.user
-SVNexus/.deepseek
-.deepseek
+.jj

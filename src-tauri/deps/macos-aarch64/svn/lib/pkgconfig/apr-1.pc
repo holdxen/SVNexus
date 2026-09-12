@@ -1,0 +1,11 @@
+prefix=/Users/zhouguiqing/Documents/new/svn/output
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+APR_MAJOR_VERSION=1
+includedir=${prefix}/include/apr-${APR_MAJOR_VERSION}
+
+Name: APR
+Description: The Apache Portable Runtime library
+Version: 1.7.6
+Libs: -L${libdir} -lapr-${APR_MAJOR_VERSION} -lpthread
+Cflags: -DDARWIN -DSIGPROCMASK_SETS_THREAD_MASK  -I${includedir}

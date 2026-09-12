@@ -1,101 +1,58 @@
 # SVNexus
 
-SVNexus is a modern, cross-platform Subversion (SVN) client designed for performance and ease of use. Built with **Avalonia UI** for a fluid C# frontend and **Rust** for a robust, high-performance engine, SVNexus combines a native feel with modern UI conventions.
+跨平台 Subversion 桌面客户端，基于 Tauri 2 构建。
 
-![SVNexus Icon](SVNexus/Assets/svnexus-icon.svg)
+## 功能特性
 
-## ✨ Features
+- **完整 SVN 操作** — 支持 checkout、commit、update、add、delete、revert、switch、merge、relocate 等常用操作
+- **差异对比** — 内置代码编辑器，直观查看文件变更内容
+- **提交历史** — 浏览日志、查看变更路径与版本快照
+- **工作区管理** — 多工作区分组管理，多标签页并行操作互不干扰
+- **冲突处理** — 冲突检测与解决向导
+- **文件锁** — lock / unlock 操作支持
+- **属性编辑** — 查看与修改文件、目录的 SVN 属性及版本属性
+- **本地缓存** — 工作区配置与版本日志本地持久化，离线可查历史记录
 
-- **🚀 High Performance**: Powered by a Rust backend with direct bindings to Subversion C libraries.
-- **📑 Multi-Tab Interface**: Manage multiple repositories or working copies simultaneously using the integrated Tabalonia system.
-- **🖥️ Cross-Platform**: Native support for **Windows**, **Linux**, and **macOS**.
-- **🔍 Advanced Diff & Merge**: Visual file comparison with syntax highlighting via AvaloniaEdit.
-- **📂 Working Copy Management**: 
-    - Full support for standard SVN operations: `Checkout`, `Commit`, `Update`, `Revert`, `Delete`, `Mkdir`.
-    - Local and Remote repository exploration.
-    - Lock/Unlock management.
-- **📜 History & Logs**: Persistent history tracking using SQLite (SeaORM).
-- **🎨 Modern UI**: Beautifully themed with **Semi.Avalonia** for a clean, professional look.
+## 安装
 
-## 🖥️ Platform Support
+前往 [Releases](../../releases) 页面下载对应平台的安装包：
 
-SVNexus aims to be truly cross-platform. Below is the current status of platform support:
+- **macOS** — `.dmg`
+- **Windows** — `.msi` / `.exe`
+- **Linux** — `.deb` / `.rpm` / `.AppImage`
 
-| OS | Architecture | Status |
-| :--- | :--- | :--- |
-| **macOS** | Apple Silicon (aarch64) | ✅ Supported |
-| **macOS** | Intel (x64) | 🛠️ Planned |
-| **Linux** | x64 | ✅ Supported |
-| **Linux** | aarch64 | 🛠️ Planned |
-| **Linux** | LoongArch | 🛠️ Planned |
-| **Windows** | x64 | 🛠️ Planned |
+## 使用说明
 
-*Note: For currently supported platforms, pre-built Subversion dependencies are included in the repository.*
+### 添加工作区
 
-## 🛠️ Tech Stack
+启动后点击欢迎页的「添加工作区」，选择本地已有的 SVN 工作副本目录，或直接 checkout 远程仓库。
 
-- **Frontend**: 
-    - [Avalonia UI](https://avaloniaui.net/) (Cross-platform .NET UI framework)
-    - [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet)
-    - [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia) (Fluent design system)
-- **Backend (Engine)**: 
-    - [Rust](https://www.rust-lang.org/)
-    - [UniFFI](https://github.com/mozilla/uniffi-rs) (C# to Rust interop)
-    - [SeaORM](https://www.sea-ql.org/SeaORM/) (SQLite management for history)
-    - [Subversion C Bindings](https://subversion.apache.org/) (wrapped via bindgen)
-- **Build System**: 
-    - .NET 10.0 SDK
-    - Rust Toolchain (Cargo)
-    - Python-based packaging script (`package.py`)
+### 基本操作
 
-## 🚀 Getting Started
+在工作区视图中：
 
-### Prerequisites
+- **查看状态** — 左侧树形目录展示文件状态（已修改、未版本控制、冲突等）
+- **提交变更** — 选中文件后点击提交，填写日志消息即可完成 commit
+- **查看差异** — 双击已修改文件打开差异对比视图
+- **查看历史** — 右键文件或目录查看提交历史
+- **更新 / 回退** — 工具栏一键 update 或 revert 选中文件
 
-- **.NET SDK**: `net10.0` or higher.
-- **Rust**: Latest stable toolchain.
-- **Subversion Dependencies**: The project includes pre-built dependencies for common platforms in `SVNexus/rust/deps`, but you may need local development headers (`libsvn-dev`, `libapr1-dev`) for custom builds.
+### 多标签页
 
-### Building from Source
+支持同时打开多个工作区，通过顶部标签页切换，适合需要同时管理多个仓库的场景。
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/holdxen/SVNexus.git
-   ```
-2. **Install build tool**:
-   ```bash
-   cd csr
-   cargo install --path .
-   ```
+## 系统要求
 
-3. **Build the Rust Engine**:
-   ```bash
-   cd ../SVNexus
-   csr
-   ```
+| 平台    | 最低版本                  |
+| ------- | ------------------------- |
+| macOS   | 11+（Apple Silicon 版本） |
+| Windows | 10+                       |
+| Linux   | GTK 3 主流发行版          |
 
-4. **Build the C# Frontend**:
-   ```bash
-   dotnet build -c Release
-   ```
+## 反馈与问题
 
-### Packaging
+遇到问题或有功能建议，欢迎提交 [Issue](../../issues)。
 
-The project provides a `package.py` script to automate the creation of platform-specific installers (e.g., `.deb` for Linux, `.dmg` for macOS):
+## License
 
-```bash
-cd SVNexus
-python3 package.py
-```
-
-## 📄 License
-
-SVNexus is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request or open an Issue for bug reports and feature requests.
-
----
-
-*SVNexus - Bringing Subversion to the modern era.*
+[AGPL-3.0](./LICENSE.txt)

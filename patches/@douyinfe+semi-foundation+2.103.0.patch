@@ -1,0 +1,93 @@
+diff --git a/node_modules/@douyinfe/semi-foundation/lib/es/tooltip/foundation.js b/node_modules/@douyinfe/semi-foundation/lib/es/tooltip/foundation.js
+index 92aadfe..cd680ae 100644
+--- a/node_modules/@douyinfe/semi-foundation/lib/es/tooltip/foundation.js
++++ b/node_modules/@douyinfe/semi-foundation/lib/es/tooltip/foundation.js
+@@ -2,6 +2,7 @@ import _isEmpty from "lodash/isEmpty";
+ import _get from "lodash/get";
+ import BaseFoundation from '../base/foundation';
+ import { handlePrevent } from '../utils/a11y';
++import tr from "date-fns/esm/locale/tr/index.js";
+ const REGS = {
+   TOP: /top/i,
+   RIGHT: /right/i,
+@@ -57,6 +58,7 @@ export default class Tooltip extends BaseFoundation {
+       }
+     };
+     this.show = () => {
++      this._stableWrapperSize = null;
+       this._initContainerPosition();
+       if (this._adapter.getAnimatingState()) {
+         return;
+@@ -137,7 +139,10 @@ export default class Tooltip extends BaseFoundation {
+       triggerRect = (_isEmpty(triggerRect) ? _this._adapter.getTriggerBounding() : triggerRect) || Object.assign({}, defaultRect);
+       containerRect = (_isEmpty(containerRect) ? _this._adapter.getPopupContainerRect() : containerRect) || Object.assign({}, defaultRect);
+       wrapperRect = (_isEmpty(wrapperRect) ? _this._adapter.getWrapperBounding() : wrapperRect) || Object.assign({}, defaultRect);
+-      // console.log('containerRect: ', containerRect, 'triggerRect: ', triggerRect, 'wrapperRect: ', wrapperRect);
++      if (!_this._stableWrapperSize) {
++        _this._stableWrapperSize = { width: wrapperRect.width, height: wrapperRect.height };
++      }
++      const stableWrapperRect = Object.assign({}, wrapperRect, _this._stableWrapperSize);
+       let style = _this.calcPosStyle({
+         triggerRect,
+         wrapperRect,
+@@ -145,12 +150,48 @@ export default class Tooltip extends BaseFoundation {
+       });
+       let position = _this.getProp('position');
+       if (_this.getProp('autoAdjustOverflow')) {
+-        // console.log('style: ', style, '\ntriggerRect: ', triggerRect, '\nwrapperRect: ', wrapperRect);
+         const {
+           position: adjustedPos,
+-          isHeightOverFlow,
+-          isWidthOverFlow
+-        } = _this.adjustPosIfNeed(position, style, triggerRect, wrapperRect, containerRect);
++          isHeightOverFlow: stableHOF,
++          isWidthOverFlow: stableWOF
++        } = _this.adjustPosIfNeed(position, style, triggerRect, stableWrapperRect, containerRect);
++        let isHeightOverFlow = stableHOF;
++        let isWidthOverFlow = stableWOF;
++        if (!isHeightOverFlow && _this.isTB(adjustedPos)) {
++          const rawSp = _this.getProp('spacing');
++          const sp = typeof rawSp === 'number' ? rawSp : (rawSp && rawSp.y) || 0;
++          if (adjustedPos.includes('top')) {
++            if (triggerRect.top - sp - wrapperRect.height < Math.max(containerRect.top, 0)) {
++              isHeightOverFlow = true;
++            }
++          } else {
++            if (triggerRect.bottom + sp + wrapperRect.height > Math.min(containerRect.bottom, window.innerHeight)) {
++              isHeightOverFlow = true;
++            }
++          }
++        }
++        if (!isWidthOverFlow) {
++          const maxRight = Math.min(containerRect.right, window.innerWidth);
++          const minLeft = Math.max(containerRect.left, 0);
++          if (_this.isTB(adjustedPos)) {
++            if (adjustedPos.endsWith('Left')) {
++              if (triggerRect.left + wrapperRect.width > maxRight) isWidthOverFlow = true;
++            } else if (adjustedPos.endsWith('Right')) {
++              if (triggerRect.right - wrapperRect.width < minLeft) isWidthOverFlow = true;
++            } else {
++              const mid = triggerRect.left + triggerRect.width / 2;
++              if (mid - wrapperRect.width / 2 < minLeft || mid + wrapperRect.width / 2 > maxRight) isWidthOverFlow = true;
++            }
++          } else if (_this.isLR(adjustedPos)) {
++            const rawSp = _this.getProp('spacing');
++            const sp = typeof rawSp === 'number' ? rawSp : (rawSp && rawSp.x) || 0;
++            if (adjustedPos.includes('left')) {
++              if (triggerRect.left - sp - wrapperRect.width < minLeft) isWidthOverFlow = true;
++            } else {
++              if (triggerRect.right + sp + wrapperRect.width > maxRight) isWidthOverFlow = true;
++            }
++          }
++        }
+         if (position !== adjustedPos || isHeightOverFlow || isWidthOverFlow) {
+           position = adjustedPos;
+           style = _this.calcPosStyle({
+@@ -164,7 +205,6 @@ export default class Tooltip extends BaseFoundation {
+         }
+       }
+       if (shouldUpdatePos && _this._mounted) {
+-        // this._adapter.updatePlacementAttr(style.position);
+         _this._adapter.setPosition(Object.assign(Object.assign({}, style), {
+           position
+         }));

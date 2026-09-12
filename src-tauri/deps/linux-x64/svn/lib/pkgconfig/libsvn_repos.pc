@@ -1,0 +1,12 @@
+prefix=/home/noname/Downloads/svn/output
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libsvn_repos
+Description: Subversion Repository Library
+Version: 1.16.0
+Requires: apr-1
+Requires.private: libsvn_fs, libsvn_delta, libsvn_subr
+Libs: -L${libdir}  -lsvn_repos-1
+Cflags: -I${includedir}/subversion-1

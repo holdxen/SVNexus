@@ -1,0 +1,43 @@
+diff --git a/node_modules/@douyinfe/semi-ui/lib/es/radio/radioInner.js b/node_modules/@douyinfe/semi-ui/lib/es/radio/radioInner.js
+index e729ced..acf48aa 100644
+--- a/node_modules/@douyinfe/semi-ui/lib/es/radio/radioInner.js
++++ b/node_modules/@douyinfe/semi-ui/lib/es/radio/radioInner.js
+@@ -6,7 +6,6 @@ import BaseComponent from '../_base/baseComponent';
+ import { radioClasses as css } from '@douyinfe/semi-foundation/lib/es/radio/constants';
+ import Context from './context';
+ import classnames from 'classnames';
+-import { IconRadio } from '@douyinfe/semi-icons';
+ class RadioInner extends BaseComponent {
+   constructor(props) {
+     super(props);
+@@ -102,7 +101,7 @@ class RadioInner extends BaseComponent {
+       onBlur: onInputBlur
+     }), /*#__PURE__*/React.createElement("span", {
+       className: inner
+-    }, checked ? /*#__PURE__*/React.createElement(IconRadio, null) : null));
++    }, checked ? /*#__PURE__*/React.createElement("div", { style: { backgroundColor: "rgba(var(--semi-white), 1)", width: 6, height: 6, borderRadius: 3 } }) : null));
+   }
+ }
+ RadioInner.contextType = Context;
+diff --git a/node_modules/@douyinfe/semi-ui/radio/radioInner.tsx b/node_modules/@douyinfe/semi-ui/radio/radioInner.tsx
+index bc43ce6..c683e1d 100644
+--- a/node_modules/@douyinfe/semi-ui/radio/radioInner.tsx
++++ b/node_modules/@douyinfe/semi-ui/radio/radioInner.tsx
+@@ -124,6 +124,8 @@ class RadioInner extends BaseComponent<RadioInnerProps, RadioInnerState> {
+             [`${prefix}-inner-display`]: !isButtonRadio,
+         });
+ 
++        const icon = <div style={{ backgroundColor: "rgba(var(--semi-white), 1)", width: 6, height: 6, borderRadius: 3 }}></div>
++
+         return (
+             <span className={wrapper}>
+                 <input
+@@ -142,7 +144,7 @@ class RadioInner extends BaseComponent<RadioInnerProps, RadioInnerState> {
+                     onFocus={onInputFocus}
+                     onBlur={onInputBlur}
+                 />
+-                <span className={inner}>{checked ? <IconRadio /> : null}</span>
++                <span className={inner}>{checked ? icon : null}</span>
+             </span>
+         );
+     }

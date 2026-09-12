@@ -1,0 +1,16 @@
+[env]
+TS_RS_EXPORT_DIR = { value = "../src/bindings", relative = true }
+TS_RS_LARGE_INT = "number"
+
+
+LOONGARCH64_UNKNOWN_LINUX_GNU_OPENSSL_DIR = { value = "deps/linux-loongarch64/svn", relative = true, force = true }
+
+X86_64_UNKNOWN_LINUX_GNU_OPENSSL_DIR = { value = "deps/linux-x64/svn", relative = true, force = true }
+
+AARCH64_UNKNOWN_LINUX_GNU_OPENSSL_DIR = { value = "deps/linux-aarch64/svn", relative = true, force = true }
+
+X86_64_PC_WINDOWS_MSVC_OPENSSL_DIR = { value = "deps/win-x64/svn", relative = true, force = true }
+
+AARCH64_APPLE_DARWIN_OPENSSL_DIR = { value = "deps/macos-aarch64/svn", relative = true, force = true }
+
+# X86_64_APPLE_DARWIN_OPENSSL_DIR = { value = "openssl/x86_64-apple-darwin", relative = true, force = true }

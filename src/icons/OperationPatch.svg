@@ -1,0 +1,23 @@
+<svg viewBox="-0.96 -0.96 25.92 25.92" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink" fill="currentColor">
+  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+  <g id="SVGRepo_iconCarrier">
+    <title></title>
+    <g fill="none" fill-rule="evenodd" id="页面-1" stroke-linecap="round" stroke-width="1.8240000000000003">
+      <g id="导航图标" stroke="currentColor" stroke-width="1.8240000000000003" transform="translate(-103.000000, -334.000000)">
+        <g id="申请" transform="translate(103.000000, 334.000000)">
+          <g id="路径" transform="translate(4.000000, 2.000000)">
+            <path d="M16,14.5 L16,19 C16,19.5523 15.5523,20 15,20 L11.75,20" stroke-linejoin="round"></path>
+            <path
+              d="M16,6 L16,1 C16,0.447715 15.5523,0 15,0 L1,0 C0.447715,0 0,0.447715 0,1 L0,19 C0,19.5523 0.447715,20 1,20 L4,20"
+              stroke-linejoin="round"></path>
+            <line x1="4" x2="11" y1="6" y2="6"></line>
+            <line x1="7.5" x2="16" y1="20" y2="9.5"></line>
+            <line x1="4" x2="8" y1="10" y2="10"></line>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

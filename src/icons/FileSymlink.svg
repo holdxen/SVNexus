@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <!-- 纸张 -->
+    <path d="M18 6 H40 L50 16 V56 Q50 58 48 58 H18 Q16 58 16 56 V8 Q16 6 18 6 Z" fill="#d8d4f2" stroke="#5b4b9e"
+        stroke-width="2" stroke-linejoin="round" />
+    <!-- 折角 -->
+    <path d="M40 6 V14 Q40 16 42 16 H50 Z" fill="#b3a9e6" stroke="#5b4b9e" stroke-width="2" stroke-linejoin="round" />
+    <!-- 快捷箭头：弯杆 + 箭头 -->
+    <path d="M46 52 C46 45 42 43 39 41" stroke="#5b4b9e" stroke-width="3" stroke-linecap="round" fill="none" />
+    <path d="M34 38 L43 39 L38 47 Z" fill="#5b4b9e" stroke="#5b4b9e" stroke-width="2" stroke-linejoin="round" />
+</svg>

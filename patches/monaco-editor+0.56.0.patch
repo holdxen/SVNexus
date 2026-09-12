@@ -1,0 +1,19 @@
+diff --git a/node_modules/monaco-editor/esm/vs/platform/hover/browser/hoverService.js b/node_modules/monaco-editor/esm/vs/platform/hover/browser/hoverService.js
+index fced1e9..576763f 100644
+--- a/node_modules/monaco-editor/esm/vs/platform/hover/browser/hoverService.js
++++ b/node_modules/monaco-editor/esm/vs/platform/hover/browser/hoverService.js
+@@ -278,8 +278,12 @@ let HoverService = class HoverService extends Disposable {
+         }, undefined, hoverDisposables);
+         // Set the container explicitly to enable aux window support
+         if (!options.container) {
+-            const targetElement = isHTMLElement(options.target) ? options.target : options.target.targetElements[0];
+-            options.container = this._layoutService.getContainer(getWindow(targetElement));
++            const targetElement = isHTMLElement(options.target)
++                ? options.target
++                : options.target.targetElements[0];
++
++            // Render hover ContextView directly under the target document's body.
++            options.container = getWindow(targetElement).document.body;
+         }
+         hoverDisposables.add(addDisposableListener(getWindow(options.container).document, EventType.MOUSE_DOWN, e => {
+             if (!isAncestor(e.target, hover.domNode)) {

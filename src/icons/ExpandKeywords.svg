@@ -1,0 +1,60 @@
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+    <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    ></g>
+    <g id="SVGRepo_iconCarrier">
+        <path
+            d="M11 5H21"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        ></path>
+        <path
+            d="M11 9H16"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        ></path>
+        <rect
+            height="4"
+            rx="1"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            width="4"
+            x="3"
+            y="5"
+        ></rect>
+        <path
+            d="M11 15H21"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        ></path>
+        <path
+            d="M11 19H16"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        ></path>
+        <rect
+            height="4"
+            rx="1"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            width="4"
+            x="3"
+            y="15"
+        ></rect>
+    </g>
+</svg>

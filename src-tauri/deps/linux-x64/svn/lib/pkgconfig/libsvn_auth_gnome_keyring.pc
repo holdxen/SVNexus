@@ -1,0 +1,12 @@
+prefix=/home/noname/Downloads/svn/output
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libsvn_auth_gnome_keyring
+Description: Subversion GNOME Keyring Library
+Version: 1.16.0
+Requires: apr-1
+Requires.private: libsvn_subr, 
+Libs: -L${libdir}  -lsvn_auth_gnome_keyring-1
+Cflags: -I${includedir}/subversion-1
