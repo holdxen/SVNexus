@@ -133,7 +133,6 @@ export class Subversion {
   }
 
   public cancel(msg: string): Promise<void> {
-    console.log('cancel now: ', msg)
     return invokeMessagePack('subversion_cancel', { id: this.id, msg })
   }
   public status(options: StatusOptions): Promise<StatusResult> {

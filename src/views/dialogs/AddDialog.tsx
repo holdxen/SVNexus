@@ -1,5 +1,12 @@
 import { Card, Checkbox, Toast } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
+import { useState } from 'react'
+
+import { AddOptions } from '@/bindings/AddOptions'
+import { Depth } from '@/bindings/Depth'
+import { ScrollArea } from '@/components/ScrollArea'
+import { Subversion, useSubversion } from '@/context/Subversion'
+import { useCurrentModal } from '@/lib/multi-modal'
 import {
   flex,
   flex_1,
@@ -11,13 +18,6 @@ import {
   overflow_visible,
   whitespace_nowrap,
 } from '@/styles/Classes'
-import { useState } from 'react'
-
-import { AddOptions } from '@/bindings/AddOptions'
-import { Depth } from '@/bindings/Depth'
-import { ScrollArea } from '@/components/ScrollArea'
-import { Subversion, useSubversion } from '@/context/Subversion'
-import { useCurrentModal } from '@/lib/multi-modal'
 import { disable_move, list_item, list_item_selected } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 

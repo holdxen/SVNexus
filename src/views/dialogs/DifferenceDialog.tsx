@@ -1,6 +1,5 @@
 import { Button, Checkbox, Select, Typography } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
-import { Editor } from '@monaco-editor/react'
 import { save } from '@tauri-apps/plugin-dialog'
 import { writeTextFile } from '@tauri-apps/plugin-fs'
 import { useEffect, useMemo, useState } from 'react'
@@ -8,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ClientDifferenceOptions } from '@/bindings/ClientDifferenceOptions'
 import { ClientDifferenceSource } from '@/bindings/ClientDifferenceSource'
 import { Depth } from '@/bindings/Depth'
+import { LazyEditor } from '@/components/monaco/LazyEditors'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal } from '@/lib/multi-modal'
@@ -205,7 +205,6 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
   })
 
   useEffect(() => {
-    console.log('DifferenceDialog execute')
     queue.run(execute)
   }, [
     depth,
@@ -240,13 +239,13 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
         <DialogFormItem className={cx(flex_1, min_h_0)} wrapperClassName={min_h_0} title="Result:">
           <div className={cx(flex, flex_1, min_h_0, gap_x_2)}>
             <div className={cx(flex_1, min_h_0, min_w_0)}>
-              <Editor
+              <LazyEditor
                 value={content}
                 options={{
                   readOnly: true,
                   fixedOverflowWidgets: true,
                 }}
-              ></Editor>
+              ></LazyEditor>
             </div>
             <div className={cx(flex, flex_col, min_h_0)}>
               <div className={cx(flex_1, min_h_0)}></div>
@@ -277,7 +276,6 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
                   className={cx(flex_1)}
                   value={relateTo}
                   onSelect={(e) => {
-                    console.log('selected:', e)
                     setRelateTo(e as RelativePath)
                   }}
                 >

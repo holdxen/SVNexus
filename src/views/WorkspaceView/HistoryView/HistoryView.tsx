@@ -146,7 +146,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
           }
 
           let count = 0
-          const before = instantEntries.current.length
           const channel = new MessagePackChannel<LogEntry>()
           channel.onmessage = (entry) => {
             if (start) {
@@ -168,7 +167,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
           //   console.log('set reach bottom: ', count, limit)
           //   setReachBottom(true)
           // }
-          console.log('got entry:', before, instantEntries.current.length)
 
           // if (start) {
           //   logEntries = logEntries.filter((e) => e.revision !== start)
@@ -320,7 +318,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
   }
 
   const onSelectionChanged = (selection: TableSelection | null) => {
-    console.log('onSelectionChange', selection)
     if (selection === null) {
       props.onSelectionChanged?.(null)
       return

@@ -1,10 +1,10 @@
 import { Button, Checkbox, InputNumber, Typography } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
-import { Editor } from '@monaco-editor/react'
 import { readFile } from '@tauri-apps/plugin-fs'
 import { useEffect, useState } from 'react'
 
 import { PatchOptions } from '@/bindings/PatchOptions'
+import { LazyEditor } from '@/components/monaco/LazyEditors'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
@@ -111,12 +111,12 @@ export default function PatchDialog(props: PatchDialogProps) {
         <DialogFormItem className={cx(flex_1, min_h_0)} wrapperClassName={min_h_0} title="Result:">
           <div className={cx(flex, flex_1, min_h_0, gap_x_2)}>
             <div className={cx(flex_1, min_h_0, min_w_0)}>
-              <Editor
+              <LazyEditor
                 value={content}
                 options={{
                   readOnly: true,
                 }}
-              ></Editor>
+              ></LazyEditor>
             </div>
             <div className={cx(flex, flex_col, min_h_0)}>
               <div className={cx(flex_1, min_h_0)}></div>

@@ -1,6 +1,9 @@
 import { Spin, Tooltip } from '@douyinfe/semi-ui'
 import { Typography } from '@douyinfe/semi-ui'
 import { css, cx } from '@linaria/core'
+
+import HoverTooltip from '@/components/HoverTooltip'
+import FileKindIcon from '@/components/subversion/FileKindIcon'
 import {
   flex,
   items_center,
@@ -14,8 +17,6 @@ import {
   py_5px,
   overflow_hidden,
 } from '@/styles/Classes'
-
-import FileKindIcon from '@/components/subversion/FileKindIcon'
 import { localPath } from '@/utils/Path'
 
 import { NodeKind } from '../../bindings/NodeKind'
@@ -23,6 +24,8 @@ import { StatusEntry } from '../../bindings/StatusEntry'
 import { WorkingCopyStatus } from '../../bindings/WorkingCopyStatus'
 import Container from '../../components/Container'
 import ChangelistIcon from '../../icons/Changelist.svg?react'
+import CopyFromIcon from '../../icons/CopyFrom.svg?react'
+import ExchangeIcon from '../../icons/Exchange.svg?react'
 import StarIcon from '../../icons/Star.svg?react'
 import StatusAddedIcon from '../../icons/StatusAdded.svg?react'
 import StatusConflictedIcon from '../../icons/StatusConflicted.svg?react'
@@ -38,9 +41,6 @@ import StatusNormalIcon from '../../icons/StatusNormal.svg?react'
 import StatusObstructedIcon from '../../icons/StatusObstructed.svg?react'
 import StatusReplacedIcon from '../../icons/StatusReplaced.svg?react'
 import StatusUnversionedIcon from '../../icons/StatusUnversioned.svg?react'
-import CopyFromIcon from '../../icons/CopyFrom.svg?react'
-import ExchangeIcon from '../../icons/Exchange.svg?react'
-import HoverTooltip from '@/components/HoverTooltip'
 
 const { Text } = Typography
 
@@ -140,7 +140,7 @@ export function fromStatusEntry(
     changelist: entry.changelist,
     isLoading: false,
     switched: entry.switched,
-    copied: entry.copied
+    copied: entry.copied,
   }
 }
 
@@ -151,7 +151,6 @@ export const WorkingCopyIconStyle = css`
   }
 `
 
-
 export function WorkingCopyItem(props: WorkingCopyItemProps) {
   // grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto]
   // grid grid-cols-[auto_minmax(0,1fr)]
@@ -160,7 +159,16 @@ export function WorkingCopyItem(props: WorkingCopyItemProps) {
     <div
       onClick={props.onClick}
       onContextMenu={props.onContextMenu}
-      className={cx(flex, items_center, min_w_0, py_5px, px_2px, WorkingCopyIconStyle, '_____________workitem', props.className)}
+      className={cx(
+        flex,
+        items_center,
+        min_w_0,
+        py_5px,
+        px_2px,
+        WorkingCopyIconStyle,
+        '_____________workitem',
+        props.className,
+      )}
     >
       <Container>
         <Spin
@@ -174,20 +182,31 @@ export function WorkingCopyItem(props: WorkingCopyItemProps) {
         </Tooltip>
       </Container>
       <FileKindIcon kind={props.kind}></FileKindIcon>
-      <div className={cx(grid, min_w_0, flex_1, grid_cols_auto_minmax_0_1fr, gap_x_1, overflow_hidden)}>
+      <div
+        className={cx(grid, min_w_0, flex_1, grid_cols_auto_minmax_0_1fr, gap_x_1, overflow_hidden)}
+      >
         <Text delete={props.status === 'deleted'}>{props.fileName}</Text>
         <Text type="quaternary" className={cx(!props.showRelativeDirectory && hidden)}>
           {props.relativeDirectory}
         </Text>
       </div>
-      <HoverTooltip wrapperClassName={cx(flex, items_center, !props.copied && hidden)} content="Copied">
+      <HoverTooltip
+        wrapperClassName={cx(flex, items_center, !props.copied && hidden)}
+        content="Copied"
+      >
         <CopyFromIcon></CopyFromIcon>
       </HoverTooltip>
-      <HoverTooltip content={props.changelist ?? ''} wrapperClassName={cx(flex, items_center, props.changelist === null && hidden)}>
+      <HoverTooltip
+        content={props.changelist ?? ''}
+        wrapperClassName={cx(flex, items_center, props.changelist === null && hidden)}
+      >
         <ChangelistIcon></ChangelistIcon>
       </HoverTooltip>
       <StarIcon className={hidden}></StarIcon>
-      <HoverTooltip wrapperClassName={cx(flex, items_center, !props.switched && hidden)} content={'Switched'}>
+      <HoverTooltip
+        wrapperClassName={cx(flex, items_center, !props.switched && hidden)}
+        content={'Switched'}
+      >
         <ExchangeIcon></ExchangeIcon>
       </HoverTooltip>
       <StatusLockedIcon className={cx(!props.isLocked && hidden)}></StatusLockedIcon>

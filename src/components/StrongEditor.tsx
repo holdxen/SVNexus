@@ -1,9 +1,10 @@
 import { Card, Spin } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
-import { Editor, OnMount } from '@monaco-editor/react'
+import type { OnMount } from '@monaco-editor/react'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { RefObject, useImperativeHandle, useState } from 'react'
 
+import { LazyEditor } from '@/components/monaco/LazyEditors'
 import { flex_1, flex, flex_col, border_box, min_w_0, hidden } from '@/styles/Classes'
 import { LimitedDictionary } from '@/utils/LimitedDictionary'
 
@@ -19,7 +20,7 @@ export interface StrongEditorProps {
 }
 
 export default function StrongEditor({ ref, ...props }: StrongEditorProps) {
-  const [editors, setEditors] = useState(new LimitedDictionary<string, string>(100))
+  const [editors, setEditors] = useState(new LimitedDictionary<string, string>(10))
   // const [isLoading, setIsLoading] = useState(false);
 
   useImperativeHandle(ref, () => ({
@@ -30,7 +31,7 @@ export default function StrongEditor({ ref, ...props }: StrongEditorProps) {
       })
     },
     clear: () => {
-      setEditors(new LimitedDictionary<string, string>(100))
+      setEditors(new LimitedDictionary<string, string>(10))
     },
   }))
 
@@ -68,18 +69,17 @@ export default function StrongEditor({ ref, ...props }: StrongEditorProps) {
         spinning={isLoading}
         childStyle={{ display: 'flex', flex: '1' }}
       >
-        {Array.from(editors.dictionary).map(([key, content]) => {
-          return (
-            <div key={key} className={cx(flex_1, key !== props.currentKey && hidden)}>
-              <Editor onMount={onMount} options={{ readOnly: true }} value={content}></Editor>
-            </div>
-          )
-        })}
-        {
-          <div className={cx(flex_1, !placeholder && hidden)}>
-            <Editor options={{ readOnly: true }}></Editor>
+        {props.currentKey && editors.dictionary.has(props.currentKey) ? (
+          <div className={cx(flex_1)}>
+            <LazyEditor
+              onMount={onMount}
+              options={{ readOnly: true }}
+              value={editors.dictionary.get(props.currentKey)}
+            />
           </div>
-        }
+        ) : (
+          <div className={cx(flex_1, !placeholder && hidden)}></div>
+        )}
       </Spin>
     </Card>
   )

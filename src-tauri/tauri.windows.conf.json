@@ -1,0 +1,10 @@
+{
+  "build": {
+    "beforeBuildCommand": "node ./src-tauri/scripts/beforeBuild.js && npm run build"
+  },
+  "bundle": {
+    "resources": {
+      "./target/svnexus-svn/*": ""
+    }
+  }
+}

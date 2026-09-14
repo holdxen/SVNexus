@@ -60,15 +60,14 @@ pub enum Error {
         backtrace: Backtrace,
     },
 
-    #[snafu(display("Invalid uuid: {source}"))]
-    InvalidID {
-        #[serde(serialize_with = "serialize_with_display")]
-        #[ts(type = "string")]
-        source: uuid::Error,
-        #[serde(skip)]
-        backtrace: Backtrace,
-    },
-
+    // #[snafu(display("Invalid uuid: {source}"))]
+    // InvalidID {
+    //     #[serde(serialize_with = "serialize_with_display")]
+    //     #[ts(type = "string")]
+    //     source: uuid::Error,
+    //     #[serde(skip)]
+    //     backtrace: Backtrace,
+    // },
     #[snafu(display("General error: {detail}"))]
     GeneralError {
         detail: String,
@@ -191,11 +190,11 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<uuid::Error> for Error {
-    fn from(source: uuid::Error) -> Self {
-        builder::InvalidID {}.into_error(source)
-    }
-}
+// impl From<uuid::Error> for Error {
+//     fn from(source: uuid::Error) -> Self {
+//         builder::InvalidID {}.into_error(source)
+//     }
+// }
 
 impl From<which::Error> for Error {
     fn from(value: which::Error) -> Self {

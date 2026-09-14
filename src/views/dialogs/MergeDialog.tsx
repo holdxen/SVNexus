@@ -24,7 +24,6 @@ import DepthSelect from '@/components/subversion/DepthSelect'
 import RevisionSelect from '@/components/subversion/RevisionSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
-import { box_shadow } from '@/styles/Components'
 import {
   border_box,
   border_radius_5,
@@ -43,6 +42,7 @@ import {
   p_2,
   self_center,
 } from '@/styles/Classes'
+import { box_shadow } from '@/styles/Components'
 
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'

@@ -1,6 +1,6 @@
 const platform = process.env.TAURI_ENV_PLATFORM
 const arch = process.env.TAURI_ENV_ARCH
-const debug = process.env.TAURI_ENV_DEBUG === "true";
+const debug = process.env.TAURI_ENV_DEBUG === 'true'
 
 let svn = null
 
@@ -32,21 +32,41 @@ if (svn === null) {
   throw new Error(`Unsupported platform: ${platform} ${arch}`)
 }
 
-import { cp } from 'node:fs/promises'
+import { readdir, cp } from 'node:fs/promises'
 import { rm } from 'node:fs/promises'
-
+import path from 'node:path'
 
 process.chdir('./src-tauri')
 
 const dir = debug ? 'debug' : 'release'
 
-await rm(`./target/${dir}/svnexus-svn`, {
-  recursive: true,
-  force: true,
-})
+const windowsRun = async () => {
+  const srcDir = path.join(svn, 'bin')
+  const destDir = `./target/${dir}`
 
-await cp(svn, `./target/${dir}/svnexus-svn`, {
-  recursive: true,
-  dereference: false,
-  verbatimSymlinks: true,
-})
+  const entries = await readdir(srcDir, { withFileTypes: true })
+  await Promise.all(
+    entries.map((entry) =>
+      cp(path.join(srcDir, entry.name), path.join(destDir, entry.name), { recursive: true }),
+    ),
+  )
+}
+
+const unixRun = async () => {
+  await rm(`./target/${dir}/svnexus-svn`, {
+    recursive: true,
+    force: true,
+  })
+
+  await cp(svn, `./target/${dir}/svnexus-svn`, {
+    recursive: true,
+    dereference: false,
+    verbatimSymlinks: true,
+  })
+}
+
+if (platform === 'windows') {
+  await windowsRun()
+} else {
+  await unixRun()
+}

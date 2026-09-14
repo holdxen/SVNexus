@@ -16,7 +16,6 @@ import ChangeActionIcon from '@/components/subversion/ChangeActionIcon'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
 import VirtualList from '@/components/VirtualList'
 import { Subversion, useSubversion } from '@/context/Subversion'
-import { list_item, list_item_selected } from '@/styles/Components'
 import {
   border_box,
   flex,
@@ -31,6 +30,7 @@ import {
   py_1,
   whitespace_nowrap,
 } from '@/styles/Classes'
+import { list_item, list_item_selected } from '@/styles/Components'
 import { getSubversionError } from '@/utils/Error'
 import simplifyPath, { repoPath } from '@/utils/Path'
 
@@ -76,7 +76,6 @@ export function ChangesView(props: ChangesViewProps) {
     }
 
     const [path, entry] = entries[selected]
-    console.log('add path', path)
     // const target: IDifferenceTarget = {
     //   target: props.repositoryRoot + path,
     //   pegRevision: { number: props.currentRevision },
@@ -344,9 +343,6 @@ export function ChangesView(props: ChangesViewProps) {
               if (displayPath === '') {
                 displayPath = '/'
               }
-              console.log('change path: ', path)
-              console.log("display path:", displayPath)
-              console.log("relateive path:", props.relativePath)
               return (
                 <div
                   onClick={() => setSelected(index)}

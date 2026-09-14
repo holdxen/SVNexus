@@ -18,6 +18,7 @@ import { WcReplacedNode } from '@/bindings/WcReplacedNode'
 import { ContextMenuItemModel } from '@/components/ContextMenu'
 import { BinaryFile } from '@/components/DifferenceEditor'
 import PureAutoComplete from '@/components/PureAutoComplete'
+import PureTextArea from '@/components/PureTextArea'
 import StrongDifferenceEditor, {
   IDifferenceTarget,
   StrongDifferenceEditorRef,
@@ -52,7 +53,6 @@ import {
 } from '../../../styles/Classes'
 import { ChangesListView } from './ChangesListView/ChangesListView'
 import { ChangesTreeView } from './ChangesTreeView/ChangesTreeView'
-import PureTextArea from '@/components/PureTextArea'
 
 const Div = styled.div`
   > svg {

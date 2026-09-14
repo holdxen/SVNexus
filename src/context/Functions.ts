@@ -75,7 +75,6 @@ export function extendedVersion(verbose: boolean): Promise<ExtendedVersion> {
   return invokeMessagePack('extended_version', { verbose })
 }
 
-
 export function logInfo(message: string, location: SourceLocation): Promise<void> {
   return invokeMessagePack('log_info', { message, location })
 }

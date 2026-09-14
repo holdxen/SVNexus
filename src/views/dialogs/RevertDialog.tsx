@@ -6,7 +6,6 @@ import { Depth } from '@/bindings/Depth'
 import { RevertOptions } from '@/bindings/RevertOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal } from '@/lib/multi-modal'
-import { disable_move, list_item, list_item_selected } from '@/styles/Components'
 import {
   flex,
   flex_col,
@@ -16,6 +15,7 @@ import {
   overflow_hidden,
   whitespace_nowrap,
 } from '@/styles/Classes'
+import { disable_move, list_item, list_item_selected } from '@/styles/Components'
 
 import DepthSelect from '../../components/subversion/DepthSelect'
 import { WorkingCopyItem, WorkingCopyPathItemModel } from '../WorkspaceView/WorkingCopyItem'

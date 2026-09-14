@@ -12,8 +12,8 @@ set_target_properties(ZLIB::ZLIBSTATIC PROPERTIES
   IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libz.a"
   )
 
-list(APPEND _cmake_import_check_targets ZLIB::ZLIBSTATIC )
-list(APPEND _cmake_import_check_files_for_ZLIB::ZLIBSTATIC "${_IMPORT_PREFIX}/lib/libz.a" )
+list(APPEND _IMPORT_CHECK_TARGETS ZLIB::ZLIBSTATIC )
+list(APPEND _IMPORT_CHECK_FILES_FOR_ZLIB::ZLIBSTATIC "${_IMPORT_PREFIX}/lib/libz.a" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

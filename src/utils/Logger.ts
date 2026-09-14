@@ -1,6 +1,5 @@
-import { logDebug, logError, logInfo, logTrace, logWarn } from '@/context/Functions'
-
 import type { SourceLocation } from '@/bindings/SourceLocation'
+import { logDebug, logError, logInfo, logTrace, logWarn } from '@/context/Functions'
 
 // 约定:编译期插件 vite-plugins/inject-source-location.ts 会在每个 Logger.xxx(...) 调用的
 // 最后追加一个 SourceLocation 实参(类似 C++ std::source_location)。所以这里把「最后一个参数」

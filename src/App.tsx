@@ -3,19 +3,12 @@ import { ConfigProvider, Divider, Dropdown } from '@douyinfe/semi-ui'
 import MoreMenuIcon from '@icons/MoreMenu.svg?react'
 import RecordsIcon from '@icons/Records.svg?react'
 import { css, cx } from '@linaria/core'
-import loader from '@monaco-editor/loader'
 // import {
 //   writeText as tauriWriteText,
 //   readText as tauriReadText,
 // } from '@tauri-apps/plugin-clipboard-manager'
 import { useMemoizedFn } from 'ahooks'
-import * as monaco from 'monaco-editor'
-import editorWorker from 'monaco-editor/editor/editor.worker?worker'
-import cssWorker from 'monaco-editor/language/css/css.worker?worker'
-import htmlWorker from 'monaco-editor/language/html/html.worker?worker'
-import jsonWorker from 'monaco-editor/language/json/json.worker?worker'
-import tsWorker from 'monaco-editor/language/typescript/ts.worker?worker'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import * as uuid from 'uuid'
 
@@ -37,6 +30,7 @@ import {
   px_1,
 } from './styles/Classes'
 import { TabContent, Tab } from './tab/Tab'
+import Logger from './utils/Logger'
 import { NiceAboutDialog } from './views/dialogs/AboutDialog'
 import { WelcomeView } from './views/WelcomeView/WelcomeView'
 import { RouteFileHistoryView } from './views/WorkspaceView/FileHitoryView'
@@ -67,25 +61,30 @@ import { WorkspaceView } from './views/WorkspaceView/WorkspaceView'
 //   Object.defineProperty(navigator, 'clipboard', { value: proxy, configurable: true })
 // }
 
-self.MonacoEnvironment = {
-  getWorker(_, label) {
-    if (label === 'json') {
-      return new jsonWorker()
+export type TabContentModel =
+  | {
+      welcomeView: {}
     }
-    if (label === 'css' || label === 'scss' || label === 'less') {
-      return new cssWorker()
+  | {
+      workspaceView: {
+        from: Identity
+        path: string
+      }
     }
-    if (label === 'html' || label === 'handlebars' || label === 'razor') {
-      return new htmlWorker()
-    }
-    if (label === 'typescript' || label === 'javascript') {
-      return new tsWorker()
-    }
-    return new editorWorker()
-  },
-}
 
-loader.config({ monaco })
+function TabContentView({ content }: { content: TabContentModel }) {
+  if ('welcomeView' in content) {
+    return <WelcomeView></WelcomeView>
+  } else if ('workspaceView' in content) {
+    return (
+      <WorkspaceView
+        from={content.workspaceView.from}
+        path={content.workspaceView.path}
+      ></WorkspaceView>
+    )
+  }
+  return <></>
+}
 
 function App() {
   return (
@@ -133,18 +132,19 @@ function Home() {
   // 添加新 tab
   const addTab = () => {
     const identity = uuid.v4()
+    const content: TabContentModel = {
+      welcomeView: {},
+    }
     const model: TabViewModel = {
       identity,
       title: 'Welcome',
       onClose: () => {
-        console.log('close uuid', identity, tabs)
         closeTab(identity)
       },
       onClick: () => {
-        console.log('set active: ', identity)
         setActiveIdentity(identity)
       },
-      content: <WelcomeView></WelcomeView>,
+      content,
     }
     setTabs((items) => [...items, model])
     setActiveIdentity(identity)
@@ -170,80 +170,85 @@ function Home() {
       // setTabs((items) => items.filter((i) => i.identity !== model.identity))
     }
   }
+  const goTo = useMemoizedFn((identity: Identity) => {
+    if (tabs.findIndex((i) => i.identity === identity) < 0) {
+      Logger.warn('No such tab:', identity)
+      return
+    }
+    setActiveIdentity(identity)
+  })
 
-  const tabManager: TabManagerContext = {
-    add: (model, jump) => {
-      setupModel(model)
-      setTabs((items) => [...items, model])
-      if (jump) {
-        setActiveIdentity(model.identity)
-      }
-    },
-    goTo: (identity) => {
-      setTimeout(() => {
-        if (tabs.findIndex((i) => i.identity === identity) < 0) {
-          return
+  const tabManager: TabManagerContext = useMemo(
+    () => ({
+      add: (model, jump) => {
+        setupModel(model)
+        setTabs((items) => [...items, model])
+        if (jump) {
+          setActiveIdentity(model.identity)
         }
-        setActiveIdentity(identity)
-      }, 0)
-    },
-    goToLast: () => {
-      goToLast()
-    },
-    setTitle: (identity, title) => {
-      setTabs((items) => {
-        for (let i of items) {
-          if (i.identity === identity) {
-            i.title = title
-          }
-        }
-        return [...items]
-      })
-    },
-    setTooltip: (identity, tooltip) => {
-      setTabs((items) => {
-        for (let i of items) {
-          if (i.identity === identity) {
-            console.log('set tooltip: ', identity, tooltip)
-            i.tooltip = tooltip
-          }
-        }
-        return [...items]
-      })
-    },
-    close: (identity) => {
-      closeTab(identity)
-    },
-    openWorkingCopy(from, path) {
-      const identity = uuid.v4()
-      const model: TabViewModel = {
-        identity,
-        title: 'Workspace',
-        content: <WorkspaceView from={from} path={path}></WorkspaceView>,
-      }
-      setupModel(model)
-      setTabs((items) => [...items, model])
-      setActiveIdentity(identity)
-      console.log('open workspace: ', from, path, identity)
-    },
-    closeOnly: (identity: Identity) => {
-      setTimeout(() => {
-        setTabs((items) => items.filter((e) => e.identity !== identity))
-      }, 0)
-    },
-    reload: (identity: Identity) => {
-      setTimeout(() => {
+      },
+      goTo,
+      goToLast,
+      setTitle: (identity, title) => {
         setTabs((items) => {
           for (let i of items) {
             if (i.identity === identity) {
-              i.identity = uuid.v4()
+              i.title = title
             }
           }
           return [...items]
         })
-      }, 0)
-    },
-  }
+      },
+      setTooltip: (identity, tooltip) => {
+        setTabs((items) => {
+          for (let i of items) {
+            if (i.identity === identity) {
+              i.tooltip = tooltip
+            }
+          }
+          return [...items]
+        })
+      },
+      close: (identity) => {
+        closeTab(identity)
+      },
+      openWorkingCopy(from, path) {
+        const identity = uuid.v4()
+        const content: TabContentModel = {
+          workspaceView: {
+            path,
+            from,
+          },
+        }
+        const model: TabViewModel = {
+          identity,
+          title: 'Workspace',
+          content,
+        }
+        setupModel(model)
+        setTabs((items) => [...items, model])
+        setActiveIdentity(identity)
+      },
+      closeOnly: (identity: Identity) => {
+        setTimeout(() => {
+          setTabs((items) => items.filter((e) => e.identity !== identity))
+        }, 0)
+      },
+      reload: (identity: Identity) => {
+        setTimeout(() => {
+          setTabs((items) => {
+            for (let i of items) {
+              if (i.identity === identity) {
+                i.identity = uuid.v4()
+              }
+            }
+            return [...items]
+          })
+        }, 0)
+      },
+    }),
+    [],
+  )
 
   return (
     <ConfigProvider>
@@ -307,7 +312,9 @@ function Home() {
                   visible={tab.identity === activeIdentity}
                   // style={{ display: tab.key === activeKey ? 'grid' : 'none', height: '100%' }}
                 >
-                  <ModalProvider>{tab.content}</ModalProvider>
+                  <ModalProvider>
+                    <TabContentView content={tab.content as TabContentModel}></TabContentView>
+                  </ModalProvider>
                 </TabContent>
               </TabContentContextProvider.Provider>
             ))}

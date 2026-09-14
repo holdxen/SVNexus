@@ -44,15 +44,12 @@ export function SubversionProvider({
   const factory = useMemo(() => {
     const onCreated = (subversion: Subversion) => {
       subversion.on('authenticate', (data) => {
-        console.log('on authenticate: ', data)
         setAuthenticateDialogs((items) => [...items, data])
       })
       subversion.on('sslServerTrustPrompt', (data) => {
-        console.log('on sslServerTrustPrompt: ', data)
         setSslServerTrustPromptDialogs((items) => [...items, data])
       })
       subversion.on('savePasswordAsPlainText', (data) => {
-        console.log('on savePasswordAsPlainText: ', data)
         setMaySavePasswordAsPlainTextDialogs((items) => [...items, data])
       })
       subversion.on('conflict', (data) => {

@@ -16,7 +16,7 @@ import { m_1, gap_x_2, flex, flex_1 } from '../../styles/Classes'
 import { NiceCheckoutDialog } from '../dialogs/CheckoutDialog'
 import { NiceExportDialog } from '../dialogs/ExportDialog'
 import { OpenFromPathDialog } from '../dialogs/OpenFromPathDialog'
-import { WorkspaceView } from '../WorkspaceView/WorkspaceView'
+import { TabContentModel } from '@/App'
 
 export function CommandBar() {
   const tabManager = useTabManager()
@@ -27,15 +27,20 @@ export function CommandBar() {
       multiple: false,
       directory: true,
     })
-    console.log(selected)
     if (selected === null) {
       return
     }
     // const uuid = await uuidCreate()
     const identity = uuid.v4()
+    const content: TabContentModel = {
+      'workspaceView': {
+        from: tabContent.identity,
+        path: selected
+      }
+    }
     tabManager.add(
       {
-        content: <WorkspaceView from={tabContent.identity} path={selected}></WorkspaceView>,
+        content,
         title: 'Workspace',
         identity,
       },

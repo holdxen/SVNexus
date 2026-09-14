@@ -15,8 +15,8 @@ import { ScrollArea } from '@/components/ScrollArea'
 import RevisionSelect, { RevisionKind } from '@/components/subversion/RevisionSelect'
 import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subversion'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
-import { disable_move } from '@/styles/Components'
 import { cursor_pointer, flex, flex_1, flex_col, gap_y_2, gap_y_3, min_h_0 } from '@/styles/Classes'
+import { disable_move } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 import { localPath } from '@/utils/Path'
 
@@ -75,19 +75,15 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
 
   const cleanup = useMemoizedFn(() => {
     if (cancel !== null) {
-      cancel('Destroyed').catch((error) => {
-        console.log('Failed to destroy task: ', error)
-      })
+      cancel('Destroyed').catch(() => {})
     }
   })
 
   useEffect(() => {
     if (finished) {
-      console.log('Task has finished, you should create another dialog to exec this task')
       return
     }
     async function call() {
-      console.log('export now', options)
       await Subversion.callOnce({
         factory: subversion,
         call: async (context: Subversion) => {
@@ -168,9 +164,7 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
     if (cancel !== null) {
       try {
         await cancel('Cancelled by user')
-      } catch (error) {
-        console.log('Cancel error: ', error)
-      }
+      } catch (error) {}
     }
     setCancel(null)
   }
@@ -210,11 +204,7 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
               <div className={cx(flex_1)}></div>
               <div>{`${pos < 0 ? 'unknown' : String(pos)}/${total < 0 ? 'unknown' : String(total)}`}</div>
             </div>
-            <Progress
-              indeterminate={isIndeterminate}
-              percent={percent}
-              size="large"
-            />
+            <Progress indeterminate={isIndeterminate} percent={percent} size="large" />
           </div>
         </DialogFormItem>
       </div>
@@ -256,7 +246,7 @@ export interface ExportDialogProps {
 }
 
 export default function ExportDialog(props: ExportDialogProps) {
-  const revisionKinds: RevisionKind[] = ['head', 'number', 'date', 'base']
+  const revisionKinds: RevisionKind[] = ['head', 'number', 'date', 'base', 'working']
 
   const [pegRevision, setPegRevision] = useState<Revision>('unspecified')
   const [revision, setRevision] = useState<Revision>('head')
@@ -327,8 +317,6 @@ export default function ExportDialog(props: ExportDialogProps) {
       depth,
       nativeEol,
     }
-
-    console.log('Start export: ', options)
 
     const result = await modal.show(ExportingDialog, { options }).as<boolean>()
 

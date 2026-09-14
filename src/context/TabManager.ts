@@ -5,7 +5,7 @@ import { TabModel } from '@/tab/Tab'
 import { Identity } from './TabContent'
 
 export interface TabViewModel extends TabModel {
-  content: React.ReactNode
+  content: any
 }
 
 export interface TabManagerContext {

@@ -1,4 +1,4 @@
-import { Divider } from '@douyinfe/semi-ui'
+import { Divider, Toast } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
 import { useMemoizedFn } from 'ahooks'
 import React, {
@@ -18,7 +18,7 @@ import { Subversion, useSubversion } from '@/context/Subversion'
 import { Identity, useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
 import { ModalProvider, useCurrentModal, useModal } from '@/lib/multi-modal'
-import { isSubversionError } from '@/utils/Error'
+import errorHumanString, { isSubversionError } from '@/utils/Error'
 import { localPath } from '@/utils/Path'
 import { workspaceItemGetWorkingCopy } from '@/utils/WorkspaceItem'
 
@@ -40,6 +40,7 @@ import { SubversionProvider } from '../SubversionProvider'
 import { NavigationBar } from './NavigationBar'
 import { WorkingCopyView } from './WorkingCopyView'
 import { useWorkingspaceViewStore } from './WorkspaceView.Store'
+import Logger from '@/utils/Logger'
 
 const GoToDialog = (props: { children?: React.ReactNode }) => {
   const modal = useCurrentModal()
@@ -124,6 +125,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
 
   const modal = useModal()
   const handleError = useMemoizedFn(async (error: any) => {
+    Logger.warn('Error: ', error)
     if (isSubversionError(error)) {
       if (error.subversionError.source.code === 'wcNotWorkingCopyOrDirectory') {
         const target = root !== null ? root : path
@@ -166,6 +168,11 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
           tabManager.goTo(from)
           tabManager.closeOnly(tabContent.identity)
         }
+      } else {
+        Toast.error({
+          stack: true,
+          content: errorHumanString(error)
+        })
       }
     }
   })
@@ -184,6 +191,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
   })
 
   useEffect(() => {
+    Logger.info('workspace start', path)
     async function call() {
       await Subversion.callOnce({
         factory: subversion,
@@ -233,10 +241,10 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
           if (workspaceItem) {
             item = workspaceItemGetWorkingCopy(workspaceItem)
           }
+          Logger.info('ready to update workspace item')
 
           const name = item?.name ?? localPath.getFileName(root) ?? 'Untitled'
           currentWorkspaceItem.current = await addWorkspaceItem(async (order) => {
-            console.log('add item: ', item?.identity)
             return {
               workingCopy: {
                 workingCopyRoot: root,

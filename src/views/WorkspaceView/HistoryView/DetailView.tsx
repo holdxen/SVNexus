@@ -8,7 +8,6 @@ import { RevisionPropertyName } from '@/bindings/RevisionPropertyName'
 import ChangeActionIcon from '@/components/subversion/ChangeActionIcon'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
 import VirtualList from '@/components/VirtualList'
-import { list_item, list_item_selected } from '@/styles/Components'
 import {
   border_box,
   flex,
@@ -25,6 +24,7 @@ import {
   py_2,
   whitespace_nowrap,
 } from '@/styles/Classes'
+import { list_item, list_item_selected } from '@/styles/Components'
 import simplifyPath from '@/utils/Path'
 
 export interface DetailViewProps {

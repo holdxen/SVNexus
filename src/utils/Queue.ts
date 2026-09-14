@@ -107,7 +107,6 @@ export class SingleTaskQueue {
         msg.deferred?.resolve()
       } catch (ex) {
         if (msg.controller.signal.aborted) {
-          console.info('Task is cancelled')
           msg.deferred?.reject(new DOMException('Aborted', 'AbortError'))
         } else {
           console.error(`Task execution failed, ${ex}`)

@@ -10,7 +10,6 @@ import { ScrollArea } from '@/components/ScrollArea'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal } from '@/lib/multi-modal'
-import { list_item, list_item_selected } from '@/styles/Components'
 import {
   border_box,
   flex,
@@ -28,6 +27,7 @@ import {
   pb_3,
   whitespace_nowrap,
 } from '@/styles/Classes'
+import { list_item, list_item_selected } from '@/styles/Components'
 import { SingleTaskQueue } from '@/utils/Queue'
 
 import {
@@ -48,7 +48,6 @@ export const NiceCommitDialog = (props: {
     <CommitDialog
       relateTo={props.relateTo}
       afterClose={() => {
-        console.log('remove')
         remove()
       }}
       items={props.items}

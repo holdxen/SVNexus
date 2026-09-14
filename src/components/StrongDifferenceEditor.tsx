@@ -139,7 +139,6 @@ const propertyColumns: ColumnDef<PropertyRow, any>[] = [
     header: 'Orignal Value',
     size: 200,
     cell: (info) => {
-      console.log('cell info: ', info, info.getValue())
       return info.getValue() === undefined ? '' : info.getValue()
     },
   },
@@ -330,7 +329,6 @@ function DifferenceContent(props: DifferenceContentProps) {
 
   useChangedEffect(
     ([expandKeywordsChanged]) => {
-      console.log('Effect:', expandKeywordsChanged)
       if (!props.visible) {
         return
       }
@@ -350,7 +348,6 @@ function DifferenceContent(props: DifferenceContentProps) {
       //   return
       // }
       if (content !== undefined && expandKeywordsChanged === false && loadedContent.current) {
-        console.log('return has content')
         return
       }
 
@@ -391,7 +388,6 @@ function DifferenceContent(props: DifferenceContentProps) {
         status: propertyStatusOf(oldValue, newValue),
       }
     })
-    console.log('property row: ', rows)
     return props.hideUnchanged ? rows.filter((row) => row.status !== 'unchanged') : rows
   }, [property, props.hideUnchanged])
 

@@ -73,8 +73,6 @@ export const useDatabase = create<Database>()((set, get) => {
 
       const items = await invokeMessagePack<WorkspaceItem[]>('database_workspace_items')
 
-      console.log('got workspace items:', items)
-
       items.sort((first, second) => {
         const a = workspaceItemOrder(first)
         const b = workspaceItemOrder(second)
@@ -151,11 +149,8 @@ export const useDatabase = create<Database>()((set, get) => {
         return
       }
       if (from === to) {
-        console.log('Skip reorder')
         return
       }
-
-      console.log('groups', groups)
 
       let order: string | null = null
       if (to === 0) {
@@ -175,8 +170,6 @@ export const useDatabase = create<Database>()((set, get) => {
         order,
       }
 
-      console.log('update order:', group)
-
       await invokeMessagePack('database_update_workspace_group', {
         group,
       })
@@ -188,8 +181,6 @@ export const useDatabase = create<Database>()((set, get) => {
         if (first.order > second.order) return 1
         return 0
       })
-
-      console.log('order:', groups)
 
       set({
         workspaceGroups: [...groups],
@@ -203,9 +194,7 @@ export const useDatabase = create<Database>()((set, get) => {
       const order = generateKeyBetween(null, first)
       const item = await builder(order)
 
-      console.log('try to add workspace item', items, item)
       await invokeMessagePack('database_add_workspace_item', { item })
-      console.log('add workspace item')
       if (update) {
         set((state) => ({
           workspaceItems: [

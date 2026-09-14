@@ -1,11 +1,12 @@
 import BinaryFileIconRaw from '@icons/BinaryFile.svg?raw'
 import { css, cx } from '@linaria/core'
-import { DiffEditor, type DiffOnMount, type MonacoDiffEditor } from '@monaco-editor/react'
+import type { DiffOnMount, MonacoDiffEditor } from '@monaco-editor/react'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import * as uuid from 'uuid'
 
+import { LazyDiffEditor } from '@/components/monaco/LazyEditors'
 import { formatSize } from '@/context/Functions'
 import {
   flex,
@@ -44,7 +45,7 @@ const size40 = css`
 `
 
 class BinaryFileOverlayWidget implements monaco.editor.IOverlayWidget {
-  onDidLayout: monaco.IEvent<void>
+  onDidLayout: monaco.IEvent<void> = () => ({ dispose() {} })
   allowEditorOverflow?: boolean = false
 
   id: string
@@ -58,8 +59,6 @@ class BinaryFileOverlayWidget implements monaco.editor.IOverlayWidget {
   sizeText?: HTMLDivElement
 
   constructor(id: string, file?: BinaryFile) {
-    const emitter = new monaco.Emitter<void>()
-    this.onDidLayout = emitter.event
     this.id = id
     this.file = file
   }
@@ -239,13 +238,11 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
       const overlay = new BinaryFileOverlayWidget(uuid.v4())
       oldOverlayWidget.current = overlay
       editorRef.current.getOriginalEditor().addOverlayWidget(overlay)
-      console.log('add old overlay')
     }
     if (newOverlayWidget.current === null) {
       const overlay = new BinaryFileOverlayWidget(uuid.v4())
       newOverlayWidget.current = overlay
       editorRef.current.getModifiedEditor().addOverlayWidget(overlay)
-      console.log('add new overlay')
     }
     if (typeof props.oldContent === 'object') {
       oldOverlayWidget.current?.setFile(props.oldContent)
@@ -253,9 +250,6 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
     if (typeof props.newContent === 'object') {
       newOverlayWidget.current?.setFile(props.newContent)
     }
-
-    console.log('onMount', props.oldContent)
-    console.log('onMount', props.newContent)
   }
 
   const newOverlayWidget = useRef<BinaryFileOverlayWidget>(null)
@@ -288,7 +282,7 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
   return (
     <div className={cx(flex, props.className)}>
       <div className={cx(flex_1)}>
-        <DiffEditor
+        <LazyDiffEditor
           className={cx(
             relative,
             isNewBinary && modifiedOverlayWidget,
@@ -316,7 +310,7 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
           }}
           original={oldContent}
           modified={newContent}
-        ></DiffEditor>
+        ></LazyDiffEditor>
       </div>
     </div>
   )

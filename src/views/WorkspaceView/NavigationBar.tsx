@@ -102,8 +102,6 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
   const [title, setTitle] = useState('')
   const [parent, setParent] = useState<string | null>(null)
 
-  console.log('folder len:', folders.length)
-
   const dropDown = (
     <Dropdown.Menu>
       <Dropdown.Title key={0}>{folders.length === 0 ? `${title}(empty)` : title}</Dropdown.Title>
@@ -112,15 +110,11 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
           <Dropdown.Item
             active={e.active}
             onClick={() => {
-              console.log('parent is: ', parent)
-              console.log('e.name', e.name)
               if (parent === null) {
                 return
               }
 
               let selected = localPath.combine([parent, e.name])
-
-              console.log('selected=', selected)
 
               onSelected(selected)
             }}
@@ -152,8 +146,6 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
     }
 
     try {
-      console.log('status now: ', options)
-
       let context = await subversion.context()
       let result = await context.status(options)
 
@@ -167,11 +159,8 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
 
         items.push({ name, status: i.nodeStatus, active })
       }
-      console.log('setFolders:', items)
       setFolders(items)
-    } catch (error) {
-      console.log('Failed to status:', error)
-    }
+    } catch (error) {}
   }
 
   const modal = useModal()

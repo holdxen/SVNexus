@@ -4,6 +4,7 @@ import { Checkbox } from '@douyinfe/semi-ui/lib/es/checkbox'
 import {
   AsyncDataLoaderDataRef,
   asyncDataLoaderFeature,
+  buildProxiedInstance,
   expandAllFeature,
   FeatureImplementation,
   hotkeysCoreFeature,
@@ -29,27 +30,28 @@ import OperationUnlockIcon from '@icons/OperationUnlock.svg?react'
 import OperationUpdateIcon from '@icons/OperationUpdate.svg?react'
 import RefreshIcon from '@icons/Refresh.svg?react'
 import { cx, css } from '@linaria/core'
+import type { OverlayScrollbars } from 'overlayscrollbars'
+import { OverlayScrollbarsComponent, OverlayScrollbarsComponentRef } from 'overlayscrollbars-react'
 import { open } from '@tauri-apps/plugin-dialog'
-import { useMemoizedFn } from 'ahooks'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 import { InfoOptions } from '@/bindings/InfoOptions'
 import { StatusEntry } from '@/bindings/StatusEntry'
 import { StatusOptions } from '@/bindings/StatusOptions'
 import OperationBar, { OperationIconProps } from '@/components/OperationBar'
-import { ScrollArea } from '@/components/ScrollArea'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import TreeCollapseIcon from '@/icons/TreeCollapse.svg?react'
 import TreeExpandIcon from '@/icons/TreeExpand.svg?react'
 import { useModal } from '@/lib/multi-modal'
 import {
+  border_box,
   flex,
   flex_1,
   gap_x_1,
   hidden,
   items_center,
-  min_w_0,
   overflow_hidden,
   whitespace_nowrap,
 } from '@/styles/Classes'
@@ -60,20 +62,7 @@ import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
-
-const treeContainer = css`
-  overflow-x: hidden;
-  /*overflow-y: auto;*/
-  box-sizing: border-box;
-  padding: 8px 0;
-
-  ul,
-  li {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-`
+import Logger from '@/utils/Logger'
 
 const treeNode = css`
   display: flex;
@@ -261,6 +250,16 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     movedToAbsolutePath: null,
   }
 
+  const scrollRef = useRef<OverlayScrollbarsComponentRef>(null)
+  const virtualizerRef = useRef<any>(null)
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+  const [isReady, setIsReady] = useState(false)
+  const [hasYOverflow, setHasYOverflow] = useState(false)
+
+  const syncOverflow = useCallback((instance: OverlayScrollbars) => {
+    setHasYOverflow(instance.state().hasOverflow.y)
+  }, [])
+
   const doubleClickBehavior: FeatureImplementation = {
     itemInstance: {
       getProps: ({ item, prev }) => ({
@@ -287,6 +286,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   const root = ''
 
   const getItem = async (itemId: string) => {
+    Logger.info('on get tree item', itemId)
     if (itemId === root) {
       return loadingItem
     }
@@ -322,6 +322,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   }
 
   const tree = useTree<TreeEntry>({
+    instanceBuilder: buildProxiedInstance,
     createLoadingItemData: () => loadingItem,
     rootItemId: root,
     state: {
@@ -336,9 +337,12 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
       expandedItems: [workingCopy.path],
       selectedItems,
     },
+    scrollToItem: (item) => {
+      virtualizerRef.current?.scrollToIndex(item.getItemMeta().index)
+    },
     dataLoader: {
       getChildrenWithData: async (itemId: string) => {
-        console.log('get children:', itemId)
+        Logger.info('on get tree children', itemId)
         const options: StatusOptions =
           itemId === root
             ? {
@@ -626,7 +630,6 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
           changelist: null,
         }
         const result = await context.status(options)
-        console.log('status result:', result)
         setStatusEntries(result.entries)
       },
     })
@@ -644,14 +647,29 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     }
   }, [selectedItems])
 
-  const itemIsVisible = useMemoizedFn((path: string) => {
-    for (let i of statusEntries) {
-      if (i.path.startsWith(path)) {
-        return true
+  // 一次性构建所有可见节点的路径集合：
+  // 对每个 status entry 向上收集其全部祖先前缀，判断某节点是否可见即为 O(1) 查表，
+  // 避免此前每个节点都对 statusEntries 做一次线性前缀扫描（O(n^2)）。
+  const visiblePaths = useMemo(() => {
+    const paths = new Set<string>()
+    for (const entry of statusEntries) {
+      let path: string | null = entry.path
+      while (path !== null && path !== '') {
+        if (paths.has(path)) {
+          break
+        }
+        paths.add(path)
+        const parent = localPath.getParent(path)
+        if (parent === null || parent === path) {
+          break
+        }
+        path = parent
       }
     }
-    return false
-  })
+    return paths
+  }, [statusEntries])
+
+  const itemIsVisible = (path: string) => path === '' || visiblePaths.has(path)
 
   const optionBar = (
     <div className={cx(!props.visible && hidden, flex_1, flex, items_center)}>
@@ -684,65 +702,122 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     </div>
   )
 
-  console.log('selection:', tree.getSelectedItems().map(i => i.getItemData()))
+  const treeItems = tree.getItems()
+  const visibleItems = showAll
+    ? treeItems
+    : treeItems.filter((item) => itemIsVisible(item.getItemData().path))
+
+  const virtualizer = useVirtualizer({
+    count: visibleItems.length,
+    getScrollElement: () => {
+      if (!isReady) return null
+      return scrollRef.current?.osInstance()?.elements().viewport ?? null
+    },
+    estimateSize: () => 30,
+    overscan: 5,
+    getItemKey: (index) => visibleItems[index].getId(),
+  })
+
+  virtualizerRef.current = virtualizer
+
+  useEffect(() => {
+    return () => {
+      resizeObserverRef.current?.disconnect()
+    }
+  }, [])
 
   return (
     <div className={cx(flex_1, flex, !props.visible && hidden)}>
-      <ScrollArea className={cx(flex_1)}>
-        <div className={cx(min_w_0, flex)}>
-          <div {...tree.getContainerProps()} className={cx(treeContainer, flex_1)}>
-            {tree.getItems().map((item) => {
-              const level = item.getItemMeta().level
-              const isFolder = item.isFolder()
-              const isExpanded = item.isExpanded()
-              const isSelected = item.isSelected()
+      <OverlayScrollbarsComponent
+          events={{
+            initialized(instance) {
+              setIsReady(true)
+              syncOverflow(instance)
 
-              const model = fromStatusEntry(item.getItemData(), false)
+              const host = instance.elements().host
+              const observer = new ResizeObserver((entries) => {
+                for (const entry of entries) {
+                  if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+                    instance.update()
+                    virtualizerRef.current?.measure()
+                  }
+                }
+              })
+              observer.observe(host)
+              resizeObserverRef.current = observer
+            },
+            updated: syncOverflow,
+          }}
+          className={cx(flex_1, border_box, hasYOverflow && css`padding-right: var(--scrollbar-size);`)}
+          ref={scrollRef}
+          options={{ overflow: { x: 'hidden', y: 'scroll' } }}
+        >
+        <div
+          {...tree.getContainerProps()}
+          style={{
+            height: virtualizer.getTotalSize(),
+            position: 'relative',
+            width: '100%',
+          }}
+        >
+          {virtualizer.getVirtualItems().map((virtualItem) => {
+            const item = visibleItems[virtualItem.index]
+            const props = item.getProps()
+            const level = item.getItemMeta().level
+            const isFolder = item.isFolder()
+            const isExpanded = item.isExpanded()
+            const isSelected = item.isSelected()
+            const model = fromStatusEntry(item.getItemData(), false)
 
-              return (
-                <div
-                  key={item.getId()}
-                  {...item.getProps()}
-                  className={cx(
-                    treeNode,
-                    isSelected && treeNodeSelected,
-                    !showAll && !itemIsVisible(item.getItemData().path) && hidden,
+            return (
+              <div
+                {...props}
+                key={virtualItem.key}
+                data-index={virtualItem.index}
+                ref={(r) => {
+                  virtualizer.measureElement(r)
+                  props.ref(r)
+                }}
+                className={cx(treeNode, isSelected && treeNodeSelected)}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualItem.start}px)`,
+                  paddingLeft: level * 20 + 8,
+                  borderRadius: 'var(--semi-border-radius-medium, 6px)',
+                }}
+              >
+                <span className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}>
+                  {isFolder ? (
+                    <IconTreeTriangleDown
+                      size="default"
+                      onClick={item.isExpanded() ? item.collapse : item.expand}
+                    />
+                  ) : (
+                    <span style={{ width: 12 }} />
                   )}
-                  style={{
-                    paddingLeft: level * 20 + 8,
-                    borderRadius: 'var(--semi-border-radius-medium, 6px)',
-                  }}
-                >
-                  <span className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}>
-                    {isFolder ? (
-                      <IconTreeTriangleDown
-                        size="default"
-                        onClick={item.isExpanded() ? item.collapse : item.expand}
-                      />
-                    ) : (
-                      <span style={{ width: 12 }} />
-                    )}
-                  </span>
-                  <WorkingCopyItem
-                    {...model}
-                    className={cx(overflow_hidden, whitespace_nowrap, flex_1)}
-                  ></WorkingCopyItem>
-                </div>
-              )
-            })}
-          </div>
-          {props.optionBarContainer === null ? (
-            <></>
-          ) : (
-            createPortal(optionBar, props.optionBarContainer)
-          )}
-          {workingCopy.changesViewOperationContainer === null ? (
-            <></>
-          ) : (
-            createPortal(bar, workingCopy.changesViewOperationContainer)
-          )}
+                </span>
+                <WorkingCopyItem
+                  {...model}
+                  className={cx(overflow_hidden, whitespace_nowrap, flex_1)}
+                ></WorkingCopyItem>
+              </div>
+            )
+          })}
         </div>
-      </ScrollArea>
+      </OverlayScrollbarsComponent>
+      {props.optionBarContainer === null ? (
+        <></>
+      ) : (
+        createPortal(optionBar, props.optionBarContainer)
+      )}
+      {workingCopy.changesViewOperationContainer === null ? (
+        <></>
+      ) : (
+        createPortal(bar, workingCopy.changesViewOperationContainer)
+      )}
     </div>
   )
 }

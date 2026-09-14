@@ -1,4 +1,4 @@
-import { css } from "@linaria/core";
+import { css } from '@linaria/core'
 
 export const globalStyles = css`
   :global() {
@@ -56,4 +56,4 @@ export const globalStyles = css`
     }
 
   }
-`;
+`

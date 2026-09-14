@@ -61,7 +61,6 @@ export default function LoadingDialog(props: LoadingDialogProps) {
         return
       }
     }
-    console.log('close cancel')
     props.onClose?.()
   }
   useEffect(() => {

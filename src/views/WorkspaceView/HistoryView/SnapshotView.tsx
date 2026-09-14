@@ -22,9 +22,9 @@ import { CatOptions } from '@/bindings/CatOptions'
 import { ListEntry } from '@/bindings/ListEntry'
 import { ListOptions } from '@/bindings/ListOptions'
 import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
-import { ScrollArea } from '@/components/ScrollArea'
 import StrongEditor, { StrongEditorRef } from '@/components/StrongEditor'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
+import VirtualList from '@/components/VirtualList'
 import { base64Encode } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { flex_1, min_w_0, flex, hidden, items_center, p_1, gap_x_1 } from '@/styles/Classes'
@@ -56,20 +56,6 @@ export interface SnapshotViewProps {
 // type Entry = ListEntry & {
 //   name: string
 // }
-
-const treeContainer = css`
-  overflow-x: hidden;
-  /*overflow-y: auto;*/
-  box-sizing: border-box;
-  padding: 8px 0;
-
-  ul,
-  li {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-`
 
 const treeNode = css`
   display: flex;
@@ -224,7 +210,6 @@ export function SnapshotView(props: SnapshotViewProps) {
             entries = [...dirEntries, ...fileEntries]
 
             if (isRoot) {
-              console.log('ListEntry', entries, options)
               if (entries.length !== 1) {
                 throw new Error('expected exactly one entry, got ' + entries.length)
               }
@@ -266,7 +251,6 @@ export function SnapshotView(props: SnapshotViewProps) {
           factory: subversion,
           call: async (context) => {
             const result = await context.list(options)
-            console.log('ListEntry', result.entries)
             if (result.entries.length !== 1) {
               throw new Error('expected exactly one entry')
             }
@@ -322,6 +306,8 @@ export function SnapshotView(props: SnapshotViewProps) {
     }
   }, [selectedItems])
 
+  const treeItems = tree.getItems()
+
   return (
     <div className={cx(props.className, min_w_0)}>
       <Group style={{ overflow: 'visible' }} orientation="horizontal" className={cx(min_w_0)}>
@@ -331,135 +317,133 @@ export function SnapshotView(props: SnapshotViewProps) {
             wrapperClassName={cx(flex_1, min_w_0)}
             childStyle={{ display: 'flex', minWidth: 0, flex: 1 }}
           >
-            <ScrollArea className={cx(flex_1, min_w_0)}>
-              <div className={cx(min_w_0, flex)}>
-                <div {...tree.getContainerProps()} className={cx(treeContainer, flex_1)}>
-                  {tree.getItems().map((item) => {
-                    const level = item.getItemMeta().level
-                    const isFolder = item.isFolder()
-                    const isExpanded = item.isExpanded()
-                    const isSelected = item.isSelected()
-                    const isLoading = item.isLoading()
+            <VirtualList
+              className={cx(flex_1, min_w_0)}
+              count={treeItems.length}
+              itemHeight={28}
+              autoMeasure
+              getItemKey={(index) => treeItems[index].getId()}
+              containerProps={tree.getContainerProps()}
+              itemRender={({ index }) => {
+                const item = treeItems[index]
+                const level = item.getItemMeta().level
+                const isFolder = item.isFolder()
+                const isExpanded = item.isExpanded()
+                const isSelected = item.isSelected()
+                const isLoading = item.isLoading()
 
-                    const menu: ContextMenuItemModel[] = []
-                    if (item.getItemData().kind === 'file') {
-                      menu.push({
-                        item: {
-                          content: 'Save',
-                          onSelect: async () => {
-                            const result = await save({
-                              title: '保存文件',
-                              defaultPath: item.getItemData().path,
-                              canCreateDirectories: true,
-                            })
-                            if (result) {
-                              await Subversion.callOnce({
-                                factory: subversion,
-                                call: async (context) => {
-                                  const path = item.getItemMeta().itemId
-                                  const options: CatOptions = {
-                                    path,
-                                    pegRevision: { number: props.revision },
-                                    revision: { number: props.revision },
-                                    expandKeywords: false,
-                                    getProperties: false,
-                                  }
-                                  const content = await context.cat(options)
+                const menu: ContextMenuItemModel[] = []
+                if (item.getItemData().kind === 'file') {
+                  menu.push({
+                    item: {
+                      content: 'Save',
+                      onSelect: async () => {
+                        const result = await save({
+                          title: '保存文件',
+                          defaultPath: item.getItemData().path,
+                          canCreateDirectories: true,
+                        })
+                        if (result) {
+                          await Subversion.callOnce({
+                            factory: subversion,
+                            call: async (context) => {
+                              const path = item.getItemMeta().itemId
+                              const options: CatOptions = {
+                                path,
+                                pegRevision: { number: props.revision },
+                                revision: { number: props.revision },
+                                expandKeywords: false,
+                                getProperties: false,
+                              }
+                              const content = await context.cat(options)
 
-                                  await writeFile(result, content.content)
-                                  Toast.success({
-                                    content: `Save ${result} successfully`,
-                                    stack: true,
-                                  })
-                                },
-                                onError: (e) => {
-                                  Toast.error({
-                                    content: `Save ${result} failed: ${e}`,
-                                    stack: true,
-                                  })
-                                },
+                              await writeFile(result, content.content)
+                              Toast.success({
+                                content: `Save ${result} successfully`,
+                                stack: true,
                               })
-                            }
-                          },
-                          disabled: item.getItemData().kind !== 'file',
-                        },
-                      })
-                      menu.push({
-                        item: {
-                          content: 'File history',
-                          onSelect: async () => {
-                            try {
-                              // const uuid = await uuidCreate()
-                              const id = uuid.v4()
-                              const itemId = item.getItemMeta().itemId
-                              const url = `/FileHistoryView/${await base64Encode(new TextEncoder().encode(itemId), false)}/${props.pegRevision}`
-                              const window = new WebviewWindow(id, {
-                                url,
-                                title: itemId,
-                                width: 800,
-                                height: 600,
+                            },
+                            onError: (e) => {
+                              Toast.error({
+                                content: `Save ${result} failed: ${e}`,
+                                stack: true,
                               })
-                              await window.show()
-                            } catch (e) {
-                              console.error('Failed to create window', e)
-                            }
-                          },
-                          disabled: false,
-                        },
-                      })
-                    }
+                            },
+                          })
+                        }
+                      },
+                      disabled: item.getItemData().kind !== 'file',
+                    },
+                  })
+                  menu.push({
+                    item: {
+                      content: 'File history',
+                      onSelect: async () => {
+                        try {
+                          // const uuid = await uuidCreate()
+                          const id = uuid.v4()
+                          const itemId = item.getItemMeta().itemId
+                          const url = `/FileHistoryView/${await base64Encode(new TextEncoder().encode(itemId), false)}/${props.pegRevision}`
+                          const window = new WebviewWindow(id, {
+                            url,
+                            title: itemId,
+                            width: 800,
+                            height: 600,
+                          })
+                          await window.show()
+                        } catch (e) {
+                          console.error('Failed to create window', e)
+                        }
+                      },
+                      disabled: false,
+                    },
+                  })
+                }
 
-                    return (
-                      <ContextMenu
-                        menu={menu}
-                        key={item.getId()}
-                        {...item.getProps()}
-                        className={cx(
-                          treeNode,
-                          isSelected && treeNodeSelected,
-                          p_1,
-                          flex,
-                          gap_x_1,
-                          items_center,
-                        )}
-                        style={{
-                          paddingLeft: level * 20 + 8,
-                          borderRadius: 'var(--semi-border-radius-medium, 6px)',
-                        }}
+                return (
+                  <ContextMenu
+                    menu={menu}
+                    {...item.getProps()}
+                    className={cx(
+                      treeNode,
+                      isSelected && treeNodeSelected,
+                      p_1,
+                      flex,
+                      gap_x_1,
+                      items_center,
+                    )}
+                    style={{
+                      paddingLeft: level * 20 + 8,
+                      borderRadius: 'var(--semi-border-radius-medium, 6px)',
+                    }}
+                  >
+                    {isLoading ? (
+                      <Spin size="small" wrapperClassName={cx(flex, items_center, spin)}></Spin>
+                    ) : (
+                      <span
+                        className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}
                       >
-                        {isLoading ? (
-                          <Spin size="small" wrapperClassName={cx(flex, items_center, spin)}></Spin>
+                        {isFolder ? (
+                          <IconTreeTriangleDown
+                            size="default"
+                            onClick={() => {
+                              const call = item.isExpanded() ? item.collapse : item.expand
+                              call()
+                            }}
+                          />
                         ) : (
-                          <span
-                            className={cx(
-                              expandIcon,
-                              isFolder && !isExpanded && expandIconCollapsed,
-                            )}
-                          >
-                            {isFolder ? (
-                              <IconTreeTriangleDown
-                                size="default"
-                                onClick={() => {
-                                  console.log('expand:', item.isExpanded())
-                                  const call = item.isExpanded() ? item.collapse : item.expand
-                                  call()
-                                }}
-                              />
-                            ) : (
-                              <span style={{ width: 12 }} />
-                            )}
-                          </span>
+                          <span style={{ width: 12 }} />
                         )}
-                        <div className={cx(svg, flex, items_center)}>
-                          <FileKindIcon kind={item.getItemData().kind ?? 'unknown'}></FileKindIcon>
-                        </div>
-                        <span>{item.getItemName()}</span>
-                      </ContextMenu>
-                    )
-                  })}
-                </div>
-              </div>
-            </ScrollArea>
+                      </span>
+                    )}
+                    <div className={cx(svg, flex, items_center)}>
+                      <FileKindIcon kind={item.getItemData().kind ?? 'unknown'}></FileKindIcon>
+                    </div>
+                    <span>{item.getItemName()}</span>
+                  </ContextMenu>
+                )
+              }}
+            />
           </Spin>
         </Panel>
         <Separator style={{ width: 4 }}></Separator>

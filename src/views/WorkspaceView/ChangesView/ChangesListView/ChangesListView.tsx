@@ -17,12 +17,24 @@ import OperationUnlockIcon from '@icons/OperationUnlock.svg?react'
 import OperationUpdateIcon from '@icons/OperationUpdate.svg?react'
 import RefreshIcon from '@icons/Refresh.svg?react'
 import { cx } from '@linaria/core'
-import { list_item, list_item_selected } from '@/styles/Components'
+import { useMemoizedFn } from 'ahooks'
+import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+import { InfoOptions } from '@/bindings/InfoOptions'
+import { NodePropertyName } from '@/bindings/NodePropertyName'
+import { PropertyGetOptions } from '@/bindings/PropertyGetOptions'
+import { PropertySetOptions } from '@/bindings/PropertySetOptions'
+import { StatusOptions } from '@/bindings/StatusOptions'
+import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
+import OperationBar, { OperationIconProps } from '@/components/OperationBar'
+import VirtualList from '@/components/VirtualList'
+import { Subversion, useSubversion } from '@/context/Subversion'
+import { useModal } from '@/lib/multi-modal'
 import {
   hidden,
   min_w_0,
   overflow_hidden,
-  py_2px,
   whitespace_nowrap,
   flex,
   items_center,
@@ -30,17 +42,7 @@ import {
   flex_1,
   flex_wrap,
 } from '@/styles/Classes'
-import { useMemoizedFn } from 'ahooks'
-import React, { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
-
-import { InfoOptions } from '@/bindings/InfoOptions'
-import { StatusOptions } from '@/bindings/StatusOptions'
-import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
-import OperationBar, { OperationIconProps } from '@/components/OperationBar'
-import { ScrollArea } from '@/components/ScrollArea'
-import { Subversion, useSubversion } from '@/context/Subversion'
-import { useModal } from '@/lib/multi-modal'
+import { list_item, list_item_selected } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 import { repoPath } from '@/utils/Path'
 import itemSelection, { ItemSelection } from '@/utils/selection/immutable'
@@ -51,9 +53,6 @@ import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
-import { PropertyGetOptions } from '@/bindings/PropertyGetOptions'
-import { NodePropertyName } from '@/bindings/NodePropertyName'
-import { PropertySetOptions } from '@/bindings/PropertySetOptions'
 
 export interface ChangesListViewProps {
   visible: boolean
@@ -105,7 +104,6 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
         setSelection(itemSelection(result.entries))
       },
       onError: (error: any) => {
-        console.log('Failed to status: ', error)
         Toast.error({
           content: `Failed to get status: ${errorHumanString(error)}`,
           stack: true,
@@ -115,7 +113,6 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
     onRefresh?.()
   }
   useEffect(() => {
-    console.log('refresh')
     refresh()
   }, [])
 
@@ -136,8 +133,6 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
 
     const length = selection.get().length
     const selectedEntries = selection.get()
-
-    console.log('selectedEntries: ', selectedEntries)
 
     return {
       ...state,
@@ -363,10 +358,8 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
 
   let extension = null
   if (state.ignore) {
-    console.log('selection:', selection.get())
     extension = repoPath.getExtension(selection.get()[0].path)
   }
-
 
   const addIgnoreLine = async (path: string, pattern: string, recursively: boolean) => {
     const parent = repoPath.getParent(path)
@@ -386,16 +379,13 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
           depth: 'empty',
           inherited: false,
           actualRevision: false,
-          changelists: null
+          changelists: null,
         }
         const result = await context.propertyGet(options)
         const entries = new Map(Object.entries(result.properties))
-        console.log('on get properties', entries)
         let value = entries.get(path)
-        console.log('onget vlaue:', value?.replace(/\n/g, "\\n"))
         if (value) {
-          console.log('value is:', value.split('\n'))
-          value = [...value.split('\n').filter(i => i !== ''), pattern].join('\n')
+          value = [...value.split('\n').filter((i) => i !== ''), pattern].join('\n')
         } else {
           value = pattern
         }
@@ -407,17 +397,15 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
               targets: [path],
               depth: 'empty',
               skipChecks: false,
-              changelists: null
-            }
+              changelists: null,
+            },
           }
-          console.log('set property: ', options, options.local.value?.replace(/\n/g, '\\n'))
           await context.propertySet(options)
         }
       },
     })
     await refresh()
   }
-
 
   if (extension) {
     ignoreItems.push({
@@ -495,7 +483,10 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
     {
       subitem: {
         content: 'Ignore',
-        disabled: !state.ignore && selection.get().length !== 0 && selection.get()[0].path !== workspace.path,
+        disabled:
+          !state.ignore &&
+          selection.get().length !== 0 &&
+          selection.get()[0].path !== workspace.path,
         items: ignoreItems,
       },
     },
@@ -526,38 +517,42 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
 
   return (
     <div className={cx(flex_1, flex, min_w_0, !visible && hidden)}>
-      <ScrollArea className={cx(flex_1)}>
-        <div className={cx(py_2px)}>
-          {entries.map((entry, index) => {
-            const model = fromStatusEntry(entry, false, workingCopy.path)
-            return (
-              <ContextMenu menu={menu} key={entry.path}>
-                <WorkingCopyItem
-                  onClick={(event) => {
-                    onClick(index, event)
-                  }}
-                  onContextMenu={() => {
-                    onContextMenu(index)
-                  }}
-                  {...model}
-                  showRelativeDirectory={true}
-                  className={cx(
-                    list_item,
-                    overflow_hidden,
-                    whitespace_nowrap,
-                    selection.isSelectedIndex(index) && list_item_selected,
-                  )}
-                ></WorkingCopyItem>
-              </ContextMenu>
-            )
-          })}
-        </div>
-        {workingCopy.changesViewOperationContainer === null ? (
-          <></>
-        ) : (
-          createPortal(bar, workingCopy.changesViewOperationContainer)
-        )}
-      </ScrollArea>
+      <VirtualList
+        className={cx(flex_1)}
+        count={entries.length}
+        itemHeight={30}
+        getItemKey={(index) => entries[index].path}
+        itemRender={(virtualRow) => {
+          const index = virtualRow.index
+          const entry = entries[index]
+          const model = fromStatusEntry(entry, false, workingCopy.path)
+          return (
+            <ContextMenu menu={menu}>
+              <WorkingCopyItem
+                onClick={(event) => {
+                  onClick(index, event)
+                }}
+                onContextMenu={() => {
+                  onContextMenu(index)
+                }}
+                {...model}
+                showRelativeDirectory={true}
+                className={cx(
+                  list_item,
+                  overflow_hidden,
+                  whitespace_nowrap,
+                  selection.isSelectedIndex(index) && list_item_selected,
+                )}
+              />
+            </ContextMenu>
+          )
+        }}
+      />
+      {workingCopy.changesViewOperationContainer === null ? (
+        <></>
+      ) : (
+        createPortal(bar, workingCopy.changesViewOperationContainer)
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 [package]
 name = "svnexus"
-version = "0.1.0"
+version = "0.1.1"
 description = "A modern Subversion client built with Tauri"
 authors = ["holdxen"]
 edition = "2021"
@@ -32,15 +32,15 @@ ts-rs = { version = "12.0", features = ["serde-json-impl"] }
 
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "tracing-log"] }
-tokio = { version = "1.43.0", features = ["full"] }
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros", "sync", "fs", "io-util"] }
 chrono = "0.4.40"
 derive-new = "0.7.0"
-num_enum = "0.7.3"
+#num_enum = "0.7.3"
 parking_lot = "0.12.3"
 snafu = { version = "0.8.5", features = ["backtrace"] }
 strum = { version = "0.27.1", features = ["derive"] }
 tokio-stream = { version = "0.1.17", features = ["io-util", "sync"] }
-uuid = { version = "1.15.1", features = ["v4"] }
+#uuid = { version = "1.15.1", features = ["v4"] }
 bitflags = "2.9.0"
 once_cell = { version = "1.21.3", features = ["parking_lot"] }
 tempfile = "3.23.0"
@@ -57,10 +57,10 @@ tracing-appender = "0.2.5"
 derive_more = "2.1.1"
 flatline = { git = "https://github.com/holdxen/flatline.git", features = [] }
 tauri-plugin-dialog = "2"
-dashmap = "6.2.1"
+#dashmap = "6.2.1"
 camino = "1.2.4"
 rmp-serde = "1.3.0"
-rmpv = { version = "1.3.0", features = ["with-serde"] }
+#rmpv = { version = "1.3.0", features = ["with-serde"] }
 serde_bytes = "0.11.19"
 tauri-plugin-fs = "2"
 tauri-plugin-clipboard-manager = "2"

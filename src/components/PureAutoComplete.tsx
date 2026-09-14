@@ -21,7 +21,6 @@ export default function PureAutoComplete<T extends AutoCompleteItems>(
       input.autocorrect = false
       input.autocomplete = 'off'
     }
-    console.log('auto AutoComplete', dom.current?.triggerRef)
   }, [])
   return (
     <AutoComplete

@@ -5359,17 +5359,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rmpv"
-version = "1.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a4e1d4b9b938a26d2996af33229f0ca0956c652c1375067f0b45291c1df8417"
-dependencies = [
- "rmp",
- "serde",
- "serde_bytes",
-]
-
-[[package]]
 name = "roaring"
 version = "0.11.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6464,7 +6453,7 @@ dependencies = [
 
 [[package]]
 name = "svnexus"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bindgen",
  "bitflags 2.13.1",
@@ -6472,7 +6461,6 @@ dependencies = [
  "cc",
  "cfg-if",
  "chrono",
- "dashmap",
  "derive-new",
  "derive_more",
  "directories",
@@ -6481,11 +6469,9 @@ dependencies = [
  "humansize",
  "ignore",
  "log",
- "num_enum",
  "once_cell",
  "parking_lot",
  "rmp-serde",
- "rmpv",
  "serde",
  "serde_bytes",
  "serde_json",
@@ -6506,7 +6492,6 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "ts-rs",
- "uuid",
  "walkdir",
  "which",
 ]
@@ -7167,9 +7152,7 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
- "parking_lot",
  "pin-project-lite",
- "signal-hook-registry",
  "socket2",
  "tokio-macros",
  "windows-sys 0.61.2",

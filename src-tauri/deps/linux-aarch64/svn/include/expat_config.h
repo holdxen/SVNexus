@@ -7,10 +7,10 @@
 #define BYTEORDER 1234
 
 /* Define to 1 if you have the `arc4random' function. */
-#define HAVE_ARC4RANDOM
+/* #undef HAVE_ARC4RANDOM */
 
 /* Define to 1 if you have the `arc4random_buf' function. */
-#define HAVE_ARC4RANDOM_BUF
+/* #undef HAVE_ARC4RANDOM_BUF */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H
@@ -22,10 +22,10 @@
 /* #undef HAVE_GETPAGESIZE */
 
 /* Define to 1 if you have the `getrandom' function. */
-#define HAVE_GETRANDOM
+/* #undef HAVE_GETRANDOM */
 
 /* Define to 1 if you have the `getentropy' function. */
-#define HAVE_GETENTROPY
+/* #undef HAVE_GETENTROPY */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H

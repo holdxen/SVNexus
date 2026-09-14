@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { UnlockOptions } from '@/bindings/UnlockOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal } from '@/lib/multi-modal'
-import { list_item, list_item_selected } from '@/styles/Components'
 import {
   flex,
   flex_1,
@@ -16,6 +15,7 @@ import {
   overflow_hidden,
   whitespace_nowrap,
 } from '@/styles/Classes'
+import { list_item, list_item_selected } from '@/styles/Components'
 
 import { WorkingCopyItem, WorkingCopyPathItemModel } from '../WorkspaceView/WorkingCopyItem'
 import { Dialog } from './Dialog'

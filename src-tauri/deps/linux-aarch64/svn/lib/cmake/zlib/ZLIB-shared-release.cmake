@@ -12,8 +12,8 @@ set_target_properties(ZLIB::ZLIB PROPERTIES
   IMPORTED_SONAME_RELEASE "libz.so.1"
   )
 
-list(APPEND _cmake_import_check_targets ZLIB::ZLIB )
-list(APPEND _cmake_import_check_files_for_ZLIB::ZLIB "${_IMPORT_PREFIX}/lib/libz.so.1.3.2.1" )
+list(APPEND _IMPORT_CHECK_TARGETS ZLIB::ZLIB )
+list(APPEND _IMPORT_CHECK_FILES_FOR_ZLIB::ZLIB "${_IMPORT_PREFIX}/lib/libz.so.1.3.2.1" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

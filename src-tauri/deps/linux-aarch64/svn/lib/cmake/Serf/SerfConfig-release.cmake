@@ -12,8 +12,8 @@ set_target_properties(Serf::serf-1 PROPERTIES
   IMPORTED_SONAME_RELEASE "libserf-1.so"
   )
 
-list(APPEND _cmake_import_check_targets Serf::serf-1 )
-list(APPEND _cmake_import_check_files_for_Serf::serf-1 "${_IMPORT_PREFIX}/lib/libserf-1.so" )
+list(APPEND _IMPORT_CHECK_TARGETS Serf::serf-1 )
+list(APPEND _IMPORT_CHECK_FILES_FOR_Serf::serf-1 "${_IMPORT_PREFIX}/lib/libserf-1.so" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

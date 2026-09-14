@@ -125,7 +125,6 @@ export default function RevisionSelect(props: RevisionSelectProps) {
     if (isEqual(props.value, revisionKind, time, revisionNumber)) {
       return
     }
-    console.log('on revision change:', get(), props.value)
     props.onChange(get())
   }, [revisionKind, revisionNumber, time])
 
@@ -133,7 +132,6 @@ export default function RevisionSelect(props: RevisionSelectProps) {
     if (isEqual(props.value, revisionKind, time, revisionNumber)) {
       return
     }
-    console.log('on value change:', props.value, get())
     set(props.value)
   }, [props.value])
 

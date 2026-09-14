@@ -16,8 +16,8 @@ import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subvers
 import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
-import { disable_move } from '@/styles/Components'
 import { cursor_pointer, flex, flex_1, flex_col, gap_y_3, min_h_0 } from '@/styles/Classes'
+import { disable_move } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 import { localPath } from '@/utils/Path'
 
@@ -87,16 +87,12 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
 
   const cleanup = useMemoizedFn(() => {
     if (cancel !== null) {
-      console.log('reload to cancel')
-      cancel('Destroyed').catch((error) => {
-        console.log('Failed to destroy task: ', error)
-      })
+      cancel('Destroyed').catch(() => {})
     }
   })
 
   useEffect(() => {
     if (finished) {
-      console.log('Task has finished, you should create another dialog to exec this task')
       return
     }
     async function call() {
@@ -106,9 +102,7 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
           context.on('progressNotify', onProgressNotify)
           context.on('workingCopyNotify', onWorkingNotify)
           const promise = context.checkout(options)
-          console.log('cancel')
           setCancel(() => async (msg: string) => {
-            console.log('cancel now on set', msg)
             await context?.cancel(msg)
             await promise
           })
@@ -197,19 +191,15 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
   // }
 
   const onCancel = async () => {
-    console.log('click to cancel')
     if (cancel !== null) {
       try {
         await cancel('Cancelled by user')
-      } catch (error) {
-        console.log('Cancel error: ', error)
-      }
+      } catch (error) {}
     }
     setCancel(null)
   }
 
   const onOk = () => {
-    console.log('hasError:', hasError)
     modal.resolve(!hasError)
     modal.hide()
   }
@@ -226,7 +216,6 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
         type="primary"
         theme="solid"
         onClick={() => {
-          console.log('open working copy:', options)
           tabManager.openWorkingCopy(tabContent.identity, options.path)
           modal.resolve(true)
           modal.hide()
@@ -275,11 +264,7 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
               <div className={cx(flex_1)}></div>
               <div>{`${pos < 0 ? 'unknown' : String(pos)}/${total < 0 ? 'unknown' : String(total)}`}</div>
             </div>
-            <Progress
-              indeterminate={isIndeterminate}
-              percent={percent}
-              size="large"
-            />
+            <Progress indeterminate={isIndeterminate} percent={percent} size="large" />
           </div>
         </DialogFormItem>
       </div>
@@ -338,7 +323,6 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
       multiple: false,
       directory: true,
     })
-    console.log(selected)
     if (selected === null) {
       return
     }
@@ -378,8 +362,6 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
       allowUnversionedObstructions: false,
       storePristine: null,
     }
-
-    console.log('Start checkout: ', options)
 
     const result = await modal.show(CheckoutingDialog, { options }).as<boolean>()
 

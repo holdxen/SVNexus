@@ -1,4 +1,4 @@
-prefix=/home/parallels/Downloads/svn/output
+prefix=/home/noname/svn/output
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include/serf-1

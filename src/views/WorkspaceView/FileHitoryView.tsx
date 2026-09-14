@@ -68,13 +68,9 @@ export function RouteFileHistoryView() {
     const call = async () => {
       if (url) {
         try {
-          console.log('url is', url)
           const decoded = await base64Decode(url)
-          console.log('typeof decoded', typeof decoded)
           setDecodeUrl(new TextDecoder('utf-8').decode(decoded))
-        } catch (error) {
-          console.log('Failed to handle:', error)
-        }
+        } catch (error) {}
       }
     }
     call()

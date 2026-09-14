@@ -22,9 +22,15 @@ jobs:
           - name: linux-x86_64
             runner: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
+          - name: linux-aarch64
+            runner: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
           - name: macos-arm64
             runner: macos-14
             target: aarch64-apple-darwin
+          - name: windows-x64
+            runner: windows-2022
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.runner }}
     env:
@@ -58,6 +64,27 @@ jobs:
           brew install llvm
           echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
 
+      - name: Install Windows dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Install libclang (LLVM)
+          $llvmVersion = "18.1.8"
+          $llvmUrl = "https://github.com/llvm/llvm-project/releases/download/llvmorg-$llvmVersion/clang+llvm-$llvmVersion-x86_64-pc-windows-msvc.tar.xz"
+          Invoke-WebRequest -Uri $llvmUrl -OutFile "llvm.tar.xz"
+          7z x llvm.tar.xz
+          7z x llvm.tar
+          $llvmDir = "clang+llvm-$llvmVersion-x86_64-pc-windows-msvc"
+          echo "LIBCLANG_PATH=$pwd\$llvmDir\lib" >> $env:GITHUB_ENV
+
+          # Install NASM
+          $nasmVersion = "2.16.03"
+          $nasmUrl = "https://www.nasm.us/pub/nasm/releasebuilds/$nasmVersion/win64/nasm-$nasmVersion-win64.zip"
+          Invoke-WebRequest -Uri $nasmUrl -OutFile "nasm.zip"
+          Expand-Archive -Path "nasm.zip" -DestinationPath "."
+          $nasmDir = "nasm-$nasmVersion"
+          echo "$pwd\$nasmDir" >> $env:GITHUB_PATH
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -84,6 +111,8 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
             src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
             src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
+            src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+            src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
           if-no-files-found: error
           retention-days: 1
 
@@ -106,7 +135,9 @@ jobs:
             */*.deb \
             */*.rpm \
             */*.AppImage \
-            */*.dmg; do
+            */*.dmg \
+            */*.msi \
+            */*.exe; do
             [ -f "$file" ] && sha256sum "$file"
           done > SHA256SUMS
 

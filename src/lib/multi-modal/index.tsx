@@ -235,7 +235,6 @@ export function useCurrentModal() {
   const modal = store[currentModalId]
 
   const hide = useCallback(() => {
-    console.log('dispatch hide')
     dispatch({ type: 'hide', payload: { id: currentModalId } })
   }, [dispatch, currentModalId])
 

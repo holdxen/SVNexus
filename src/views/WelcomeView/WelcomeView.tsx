@@ -160,13 +160,11 @@ function WorkspaceGroupListItem({
                 title: `Whether to delete ${item.name}`,
               })
               .as<boolean>()
-            console.log('ondelete', result, item)
             if (result) {
               await deleteWorkspaceGroup(item.identity)
             }
           }}
           onClick={() => {
-            console.log('On clicked')
             setSelected({
               group: item.identity,
             })
@@ -255,7 +253,6 @@ function Navigation(props: { onFilterChange?: (filter: WorkspaceItemFilter) => v
     const { active, over } = event
     const from = workspaceGroups.findIndex((i) => i.identity == active.id)
     const to = workspaceGroups.findIndex((i) => i.identity == over?.id)
-    console.log('move from to to', from, to)
     moveWorkspaceGroup(from, to)
   }
 
@@ -340,7 +337,6 @@ function Navigation(props: { onFilterChange?: (filter: WorkspaceItemFilter) => v
               <div className={cx(flex_1)}></div>
               <IconButton
                 onClick={async () => {
-                  console.log('show dialog')
                   const name = await modal.show(AddGroupDialog, {}).as<string | null>()
                   if (name !== null) {
                     await onAddGroup(name)

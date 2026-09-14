@@ -13,6 +13,8 @@ export interface VirtualListProps {
   className?: string
   getItemKey?: (index: number) => Key
   autoMeasure?: boolean
+  // 附加到内部列表容器上的属性（例如 headless-tree 的 getContainerProps）
+  containerProps?: Record<string, any>
 }
 
 const scrollAreaPadding = css`
@@ -53,7 +55,14 @@ export default function VirtualList(props: VirtualListProps) {
       ref={scrollRef}
       options={{ overflow: { x: 'hidden', y: 'scroll' } }}
     >
-      <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+      <div
+        {...props.containerProps}
+        style={{
+          height: virtualizer.getTotalSize(),
+          position: 'relative',
+          ...props.containerProps?.style,
+        }}
+      >
         {virtualizer.getVirtualItems().map((virtualRow) => {
           // const item = items[virtualRow.index]
           return (

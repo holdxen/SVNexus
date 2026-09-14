@@ -9,7 +9,6 @@ import DepthSelect from '@/components/subversion/DepthSelect'
 import RevisionSelect from '@/components/subversion/RevisionSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useCurrentModal } from '@/lib/multi-modal'
-import { disable_move, list_item, list_item_selected } from '@/styles/Components'
 import {
   flex,
   min_h_0,
@@ -20,6 +19,7 @@ import {
   whitespace_nowrap,
   flex_1,
 } from '@/styles/Classes'
+import { disable_move, list_item, list_item_selected } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 import { delay } from '@/utils/Time'
 
