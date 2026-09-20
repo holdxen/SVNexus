@@ -1,10 +1,8 @@
-import { css, cx } from '@linaria/core'
+import { cx } from '@linaria/core'
 import { useVirtualizer, VirtualItem } from '@tanstack/react-virtual'
-import type { OverlayScrollbars } from 'overlayscrollbars'
-import { OverlayScrollbarsComponent, OverlayScrollbarsComponentRef } from 'overlayscrollbars-react'
-import { Key, useCallback, useRef, useState } from 'react'
+import { Key, useEffect, useRef, useState } from 'react'
 
-import { border_box } from '@/styles/Classes'
+import { overflow_y_auto } from '@/styles/Classes'
 
 export interface VirtualListProps {
   itemRender: (row: VirtualItem) => React.ReactNode
@@ -17,43 +15,31 @@ export interface VirtualListProps {
   containerProps?: Record<string, any>
 }
 
-const scrollAreaPadding = css`
-  padding-right: var(--scrollbar-size);
-`
-
 export default function VirtualList(props: VirtualListProps) {
   'use no memo'
-  const scrollRef = useRef<OverlayScrollbarsComponentRef>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [isReady, setIsReady] = useState(false)
-  const [hasYOverflow, setHasYOverflow] = useState(false)
-
-  const syncOverflow = useCallback((instance: OverlayScrollbars) => {
-    setHasYOverflow(instance.state().hasOverflow.y)
-  }, [])
 
   const virtualizer = useVirtualizer({
     count: props.count, // 总共多少项
     getScrollElement: () => {
       if (!isReady) return null
-      return scrollRef.current?.osInstance()?.elements().viewport ?? null
+      return scrollRef.current
     },
     estimateSize: () => props.itemHeight, // 每项预估高度
     overscan: 5, // 上下多渲染几个，减少白屏
     getItemKey: props.getItemKey,
   })
 
+  useEffect(() => {
+    setIsReady(true)
+  }, [])
+
   return (
-    <OverlayScrollbarsComponent
-      events={{
-        initialized(instance) {
-          setIsReady(true)
-          syncOverflow(instance)
-        },
-        updated: syncOverflow,
-      }}
-      className={cx(props.className, border_box, hasYOverflow && scrollAreaPadding)}
+    <div
       ref={scrollRef}
-      options={{ overflow: { x: 'hidden', y: 'scroll' } }}
+      className={cx(props.className, overflow_y_auto)}
+      style={{ overflowX: 'hidden' }}
     >
       <div
         {...props.containerProps}
@@ -64,7 +50,6 @@ export default function VirtualList(props: VirtualListProps) {
         }}
       >
         {virtualizer.getVirtualItems().map((virtualRow) => {
-          // const item = items[virtualRow.index]
           return (
             <div
               key={virtualRow.key}
@@ -83,6 +68,6 @@ export default function VirtualList(props: VirtualListProps) {
           )
         })}
       </div>
-    </OverlayScrollbarsComponent>
+    </div>
   )
 }

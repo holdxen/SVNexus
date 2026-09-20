@@ -1,6 +1,7 @@
 import { encode } from '@msgpack/msgpack'
 
 import { ExtendedVersion } from '@/bindings/ExtendedVersion'
+import { ExternalApplication } from '@/bindings/ExternalApplication'
 import { FrontendError } from '@/bindings/FrontendError'
 import { ReplyMessage } from '@/bindings/ReplyMessage'
 import { SourceLocation } from '@/bindings/SourceLocation'
@@ -93,4 +94,8 @@ export function logDebug(message: string, location: SourceLocation): Promise<voi
 
 export function logTrace(message: string, location: SourceLocation): Promise<void> {
   return invokeMessagePack('log_trace', { message, location })
+}
+
+export function OpenInExternalApplication(app: ExternalApplication, path?: string): Promise<void> {
+  return invokeMessagePack('open_in_external_application', { app, path })
 }

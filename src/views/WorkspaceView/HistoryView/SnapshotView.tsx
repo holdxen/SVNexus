@@ -4,6 +4,7 @@ import { IconTreeTriangleDown } from '@douyinfe/semi-icons'
 import { Spin, Toast } from '@douyinfe/semi-ui'
 import {
   asyncDataLoaderFeature,
+  buildProxiedInstance,
   expandAllFeature,
   FeatureImplementation,
   hotkeysCoreFeature,
@@ -11,10 +12,11 @@ import {
 } from '@headless-tree/core'
 import { useTree } from '@headless-tree/react'
 import { css, cx } from '@linaria/core'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { save } from '@tauri-apps/plugin-dialog'
 import { writeFile } from '@tauri-apps/plugin-fs'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import * as uuid from 'uuid'
 
@@ -24,17 +26,33 @@ import { ListOptions } from '@/bindings/ListOptions'
 import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
 import StrongEditor, { StrongEditorRef } from '@/components/StrongEditor'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
-import VirtualList from '@/components/VirtualList'
 import { base64Encode } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
-import { flex_1, min_w_0, flex, hidden, items_center, p_1, gap_x_1 } from '@/styles/Classes'
+import {
+  flex_1,
+  min_w_0,
+  flex,
+  hidden,
+  items_center,
+  p_1,
+  gap_x_1,
+  visibility_hidden,
+  min_h_0,
+  whitespace_nowrap,
+  overflow_hidden,
+  overflow_y_auto,
+} from '@/styles/Classes'
+import Logger from '@/utils/Logger'
+import { combineUrl } from '@/utils/Url'
 
 export interface SnapshotViewProps {
-  url: string
+  // url: string
+
+  root: string
   pegRevision: number
   revision: number
   className?: string
-  relateTo: string
+  location: string
 }
 
 // function testEntry(): ListEntry {
@@ -118,11 +136,17 @@ const svg = css`
 `
 
 export function SnapshotView(props: SnapshotViewProps) {
+  // Logger.info("Snap shot view:", props.url)
   const subversion = useSubversion()
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const editor = useRef<StrongEditorRef | null>(null)
   const [currentEditor, setCurrentEditor] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const virtualizerRef = useRef<any>(null)
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+  const [isReady, setIsReady] = useState(false)
 
   const doubleClickBehavior: FeatureImplementation = {
     itemInstance: {
@@ -149,13 +173,21 @@ export function SnapshotView(props: SnapshotViewProps) {
 
   const root = ''
 
+  const url = useMemo(() => {
+    return combineUrl(props.root, props.location)
+  }, [props.root, props.location])
+
   const tree = useTree<ListEntry>({
+    instanceBuilder: buildProxiedInstance,
+    scrollToItem: (item) => {
+      virtualizerRef.current?.scrollToIndex(item.getItemMeta().index)
+    },
     state: {
       selectedItems,
     },
     setSelectedItems,
     initialState: {
-      expandedItems: [props.url],
+      expandedItems: [url],
       selectedItems,
     },
     getItemName: (item) => {
@@ -176,7 +208,7 @@ export function SnapshotView(props: SnapshotViewProps) {
           call: async (context) => {
             const isRoot = itemId === root
             const options: ListOptions = {
-              path: isRoot ? props.url : itemId,
+              path: isRoot ? url : itemId,
               pegRevision: { number: props.pegRevision },
               revision: { number: props.revision },
               patterns: null,
@@ -214,7 +246,7 @@ export function SnapshotView(props: SnapshotViewProps) {
                 throw new Error('expected exactly one entry, got ' + entries.length)
               }
               const entry = entries[0]
-              return [{ id: props.url, data: { ...entry, name: '/' } }]
+              return [{ id: url, data: { ...entry, name: '/' } }]
             } else {
               const result: { id: string; data: ListEntry }[] = []
               for (let i of entries) {
@@ -222,7 +254,8 @@ export function SnapshotView(props: SnapshotViewProps) {
                   continue
                 }
                 // const name = await pathGetFileName(i.absolutePath)
-                result.push({ id: itemId + '/' + i.path, data: i })
+                // Logger.info('item is', itemId, ' path is', i.path)
+                result.push({ id: combineUrl(itemId, i.path), data: i })
               }
               return result
             }
@@ -233,7 +266,7 @@ export function SnapshotView(props: SnapshotViewProps) {
       },
       getItem: async (itemId: string) => {
         const options: ListOptions = {
-          path: itemId === root ? props.url : itemId,
+          path: itemId === root ? url : itemId,
           pegRevision: { number: props.pegRevision },
           revision: { number: props.revision },
           patterns: null,
@@ -308,122 +341,173 @@ export function SnapshotView(props: SnapshotViewProps) {
 
   const treeItems = tree.getItems()
 
+  const virtualizer = useVirtualizer({
+    count: treeItems.length,
+    getScrollElement: () => {
+      if (!isReady) return null
+      return scrollRef.current
+    },
+    estimateSize: () => 30,
+    overscan: 5,
+    getItemKey: (index) => treeItems[index].getId(),
+  })
+
+  virtualizerRef.current = virtualizer
+
+  useEffect(() => {
+    setIsReady(true)
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          virtualizerRef.current?.measure()
+        }
+      }
+    })
+    if (scrollRef.current) {
+      observer.observe(scrollRef.current)
+    }
+    resizeObserverRef.current = observer
+
+    return () => {
+      resizeObserverRef.current?.disconnect()
+    }
+  }, [])
+
   return (
     <div className={cx(props.className, min_w_0)}>
-      <Group style={{ overflow: 'visible' }} orientation="horizontal" className={cx(min_w_0)}>
+      <Group orientation="horizontal" className={cx(min_w_0)}>
         <Panel className={cx(flex)} defaultSize={'30%'}>
           <Spin
             spinning={isLoading}
-            wrapperClassName={cx(flex_1, min_w_0)}
-            childStyle={{ display: 'flex', minWidth: 0, flex: 1 }}
+            wrapperClassName={cx(flex_1, flex, min_w_0, min_h_0)}
+            childStyle={{ display: 'flex', minWidth: 0, minHeight: 0, flex: 1 }}
           >
-            <VirtualList
-              className={cx(flex_1, min_w_0)}
-              count={treeItems.length}
-              itemHeight={28}
-              autoMeasure
-              getItemKey={(index) => treeItems[index].getId()}
-              containerProps={tree.getContainerProps()}
-              itemRender={({ index }) => {
-                const item = treeItems[index]
-                const level = item.getItemMeta().level
-                const isFolder = item.isFolder()
-                const isExpanded = item.isExpanded()
-                const isSelected = item.isSelected()
-                const isLoading = item.isLoading()
+            <div className={cx(flex_1, min_w_0, min_h_0, overflow_y_auto)} ref={scrollRef}>
+              <div
+                {...tree.getContainerProps()}
+                style={{
+                  height: virtualizer.getTotalSize(),
+                  position: 'relative',
+                  width: '100%',
+                }}
+              >
+                {virtualizer.getVirtualItems().map((virtualItem) => {
+                  const item = treeItems[virtualItem.index]
+                  const itemProps = item.getProps()
+                  const level = item.getItemMeta().level
+                  const isFolder = item.isFolder()
+                  const isExpanded = item.isExpanded()
+                  const isSelected = item.isSelected()
+                  const isLoading = item.isLoading()
 
-                const menu: ContextMenuItemModel[] = []
-                if (item.getItemData().kind === 'file') {
-                  menu.push({
-                    item: {
-                      content: 'Save',
-                      onSelect: async () => {
-                        const result = await save({
-                          title: '保存文件',
-                          defaultPath: item.getItemData().path,
-                          canCreateDirectories: true,
-                        })
-                        if (result) {
-                          await Subversion.callOnce({
-                            factory: subversion,
-                            call: async (context) => {
-                              const path = item.getItemMeta().itemId
-                              const options: CatOptions = {
-                                path,
-                                pegRevision: { number: props.revision },
-                                revision: { number: props.revision },
-                                expandKeywords: false,
-                                getProperties: false,
-                              }
-                              const content = await context.cat(options)
-
-                              await writeFile(result, content.content)
-                              Toast.success({
-                                content: `Save ${result} successfully`,
-                                stack: true,
-                              })
-                            },
-                            onError: (e) => {
-                              Toast.error({
-                                content: `Save ${result} failed: ${e}`,
-                                stack: true,
-                              })
-                            },
+                  const menu: ContextMenuItemModel[] = []
+                  if (item.getItemData().kind === 'file') {
+                    menu.push({
+                      item: {
+                        content: 'Save',
+                        onSelect: async () => {
+                          const result = await save({
+                            title: '保存文件',
+                            defaultPath: item.getItemData().path,
+                            canCreateDirectories: true,
                           })
-                        }
-                      },
-                      disabled: item.getItemData().kind !== 'file',
-                    },
-                  })
-                  menu.push({
-                    item: {
-                      content: 'File history',
-                      onSelect: async () => {
-                        try {
-                          // const uuid = await uuidCreate()
-                          const id = uuid.v4()
-                          const itemId = item.getItemMeta().itemId
-                          const url = `/FileHistoryView/${await base64Encode(new TextEncoder().encode(itemId), false)}/${props.pegRevision}`
-                          const window = new WebviewWindow(id, {
-                            url,
-                            title: itemId,
-                            width: 800,
-                            height: 600,
-                          })
-                          await window.show()
-                        } catch (e) {
-                          console.error('Failed to create window', e)
-                        }
-                      },
-                      disabled: false,
-                    },
-                  })
-                }
+                          if (result) {
+                            await Subversion.callOnce({
+                              factory: subversion,
+                              call: async (context) => {
+                                const path = item.getItemMeta().itemId
+                                const options: CatOptions = {
+                                  path,
+                                  pegRevision: { number: props.revision },
+                                  revision: { number: props.revision },
+                                  expandKeywords: false,
+                                  getProperties: false,
+                                }
+                                const content = await context.cat(options)
 
-                return (
-                  <ContextMenu
-                    menu={menu}
-                    {...item.getProps()}
-                    className={cx(
-                      treeNode,
-                      isSelected && treeNodeSelected,
-                      p_1,
-                      flex,
-                      gap_x_1,
-                      items_center,
-                    )}
-                    style={{
-                      paddingLeft: level * 20 + 8,
-                      borderRadius: 'var(--semi-border-radius-medium, 6px)',
-                    }}
-                  >
-                    {isLoading ? (
-                      <Spin size="small" wrapperClassName={cx(flex, items_center, spin)}></Spin>
-                    ) : (
-                      <span
-                        className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}
+                                await writeFile(result, content.content)
+                                Toast.success({
+                                  content: `Save ${result} successfully`,
+                                  stack: true,
+                                })
+                              },
+                              onError: (e) => {
+                                Toast.error({
+                                  content: `Save ${result} failed: ${e}`,
+                                  stack: true,
+                                })
+                              },
+                            })
+                          }
+                        },
+                        disabled: item.getItemData().kind !== 'file',
+                      },
+                    })
+                    menu.push({
+                      item: {
+                        content: 'File history',
+                        onSelect: async () => {
+                          Logger.info('open file history: ', props.revision)
+                          try {
+                            const id = uuid.v4()
+                            const itemId = item.getItemMeta().itemId
+                            const url = `/FileHistoryView/${await base64Encode(new TextEncoder().encode(itemId), false)}/${props.revision}`
+                            const window = new WebviewWindow(id, {
+                              url,
+                              title: itemId,
+                              width: 800,
+                              height: 600,
+                            })
+                            await window.show()
+                          } catch (e) {
+                            console.error('Failed to create window', e)
+                          }
+                        },
+                        disabled: false,
+                      },
+                    })
+                  }
+
+                  return (
+                    <ContextMenu
+                      menu={menu}
+                      {...itemProps}
+                      key={virtualItem.key}
+                      data-index={virtualItem.index}
+                      ref={itemProps.ref}
+                      className={cx(
+                        treeNode,
+                        isSelected && treeNodeSelected,
+                        p_1,
+                        flex,
+                        gap_x_1,
+                        items_center,
+                        whitespace_nowrap,
+                        overflow_hidden,
+                      )}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualItem.start}px)`,
+                        paddingLeft: level * 20 + 8,
+                        borderRadius: 'var(--semi-border-radius-medium, 6px)',
+                      }}
+                    >
+                      <Spin
+                        size="small"
+                        wrapperClassName={cx(flex, items_center, spin)}
+                        spinning={isLoading}
                       >
-                        {isFolder ? (
+                        <span
+                          className={cx(
+                            expandIcon,
+                            (!isFolder || isLoading) && visibility_hidden,
+                            isFolder && !isExpanded && expandIconCollapsed,
+                          )}
+                        >
                           <IconTreeTriangleDown
                             size="default"
                             onClick={() => {
@@ -431,19 +515,17 @@ export function SnapshotView(props: SnapshotViewProps) {
                               call()
                             }}
                           />
-                        ) : (
-                          <span style={{ width: 12 }} />
-                        )}
-                      </span>
-                    )}
-                    <div className={cx(svg, flex, items_center)}>
-                      <FileKindIcon kind={item.getItemData().kind ?? 'unknown'}></FileKindIcon>
-                    </div>
-                    <span>{item.getItemName()}</span>
-                  </ContextMenu>
-                )
-              }}
-            />
+                        </span>
+                      </Spin>
+                      <div className={cx(svg, flex, items_center)}>
+                        <FileKindIcon kind={item.getItemData().kind ?? 'unknown'}></FileKindIcon>
+                      </div>
+                      <span>{item.getItemName()}</span>
+                    </ContextMenu>
+                  )
+                })}
+              </div>
+            </div>
           </Spin>
         </Panel>
         <Separator style={{ width: 4 }}></Separator>

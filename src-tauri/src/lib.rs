@@ -1,6 +1,8 @@
 use std::backtrace::Backtrace;
 
 use std::panic;
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
+use tauri::{Manager, WebviewWindowBuilder};
 use tracing_appender::non_blocking::WorkerGuard;
 
 use crate::extensions::CommonExtension;
@@ -9,7 +11,7 @@ mod app;
 mod apr;
 mod backend;
 mod db;
-mod entities;
+// mod entities;
 mod error;
 mod extensions;
 pub mod messagepack_command;
@@ -121,6 +123,115 @@ fn initialize() {
     setup_panic_hook();
 }
 
+#[cfg(target_os = "macos")]
+#[easy_ext::ext]
+impl tauri::App {
+    fn setup_menu(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let handle = self.handle().clone();
+
+        let about_item = MenuItem::with_id(&handle, "about", "About SVNexus", true, None::<&str>)?;
+        let quit_item = MenuItem::with_id(&handle, "quit", "Quit SVNexus", true, None::<&str>)?;
+
+        let app_submenu = Submenu::with_id_and_items(
+            &handle,
+            "app",
+            "SVNexus",
+            true,
+            &[
+                &about_item,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::services(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::hide(&handle, None)?,
+                &PredefinedMenuItem::hide_others(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &quit_item,
+            ],
+        )?;
+
+        let edit_submenu = Submenu::with_id_and_items(
+            &handle,
+            "edit",
+            "Edit",
+            true,
+            &[
+                &PredefinedMenuItem::undo(&handle, None)?,
+                &PredefinedMenuItem::redo(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::cut(&handle, None)?,
+                &PredefinedMenuItem::copy(&handle, None)?,
+                &PredefinedMenuItem::paste(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::select_all(&handle, None)?,
+            ],
+        )?;
+
+        let view_submenu = Submenu::with_id_and_items(
+            &handle,
+            "view",
+            "View",
+            true,
+            &[&PredefinedMenuItem::fullscreen(&handle, None)?],
+        )?;
+
+        let window_submenu = Submenu::with_id_and_items(
+            &handle,
+            "window",
+            "Window",
+            true,
+            &[
+                &PredefinedMenuItem::close_window(&handle, None)?,
+                &PredefinedMenuItem::minimize(&handle, None)?,
+                &PredefinedMenuItem::separator(&handle)?,
+                &PredefinedMenuItem::show_all(&handle, None)?,
+                &PredefinedMenuItem::bring_all_to_front(&handle, None)?,
+            ],
+        )?;
+
+        let help_submenu = Submenu::with_id_and_items(&handle, "help", "Help", true, &[])?;
+
+        let menu = Menu::with_items(
+            &handle,
+            &[
+                &app_submenu,
+                &edit_submenu,
+                &view_submenu,
+                &window_submenu,
+                &help_submenu,
+            ],
+        )?;
+        self.set_menu(menu)?;
+
+        self.on_menu_event(move |_window, event| {
+            if event.id() == "about" {
+                if let Some(existing) = handle.get_webview_window("about") {
+                    let _ = existing.set_focus();
+                    return;
+                }
+
+                let result = WebviewWindowBuilder::new(
+                    &handle,
+                    "about",
+                    tauri::WebviewUrl::App("/About".into()),
+                )
+                .minimizable(false)
+                .maximizable(false)
+                .title("About SVNexus")
+                .inner_size(400.0, 350.0)
+                .resizable(false)
+                .build();
+                if let Err(err) = result {
+                    tracing::warn!("Failed to create window: {}", err)
+                }
+            } else if event.id() == "quit" {
+                handle.exit(0);
+            }
+        });
+
+        Ok(())
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     std::env::set_var("GTK_OVERLAY_SCROLLING", "0"); // ← 加这行
@@ -137,8 +248,10 @@ pub fn run() {
                     let _ = scope.allow_directory(&drive_path, true);
                 }
             }
-
-            let _ = app;
+            #[cfg(target_os = "macos")]
+            {
+                app.setup_menu()?;
+            }
 
             Ok(())
         })
@@ -193,10 +306,13 @@ pub fn run() {
             backend::subversion_log_cache_reverse,
             // subversion ra
             backend::subversion_ra_get_locations,
+            backend::subversion_ra_get_location_segments,
             backend::subversion_ra_get_latest_revision_number,
             // subversion wc
             backend::subversion_wc_revision_status,
             backend::subversion_wc_get_replaced_file,
+            //subversion utils
+            backend::subversion_time_from_string,
             // database subversion
             backend::database_revision_location,
             backend::database_update_revision_location,
@@ -231,7 +347,9 @@ pub fn run() {
             backend::log_error,
             backend::log_warn,
             // version
-            backend::extended_version
+            backend::extended_version,
+            // open in app
+            backend::open_in_external_application
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

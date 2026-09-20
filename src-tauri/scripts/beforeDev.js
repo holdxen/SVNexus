@@ -10,7 +10,7 @@ if (platform === 'windows' && arch === 'x86_64') {
 
 if (platform === 'windows' && arch === 'aarch64') {
   // Windows ARM64
-  svn = 'deps/win-arm64/svn'
+  svn = 'deps/win-aarch64/svn'
 }
 
 if (platform === 'darwin' && arch === 'aarch64') {
@@ -50,6 +50,10 @@ const windowsRun = async () => {
       cp(path.join(srcDir, entry.name), path.join(destDir, entry.name), { recursive: true }),
     ),
   )
+
+  // 同时创建 ./target/svnexus-svn/ 目录以满足 tauri.windows.conf.json 的资源路径校验
+  await rm('./target/svnexus-svn', { recursive: true, force: true })
+  await cp(`${svn}/bin`, './target/svnexus-svn', { recursive: true })
 }
 
 const unixRun = async () => {

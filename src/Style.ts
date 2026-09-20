@@ -28,10 +28,6 @@ export const globalStyles = css`
       height: 100%;
     }
 
-    * {
-      scrollbar-width: thin;
-    }
-
     body {
       ---svnexus-list-item-default-background: transparent;
       ---svnexus-list-item-hover-background: var(--semi-color-fill-1);
@@ -51,9 +47,14 @@ export const globalStyles = css`
       user-select: none;
       overflow: hidden;
       --svnexus-base-color: #ebebeb;
-      --os-size: 10px;
-      --scrollbar-size: 10px;
+      --scrollbar-color: rgba(0, 0, 0, 0.2);
     }
-
+    body[theme-mode="dark"] {
+      --scrollbar-color: rgba(255, 255, 255, 0.2);
+    }
+    * {
+      scrollbar-color: var(--scrollbar-color) transparent;
+      scrollbar-width: thin;
+    }
   }
 `

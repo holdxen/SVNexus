@@ -31,6 +31,9 @@ jobs:
           - name: windows-x64
             runner: windows-2022
             target: x86_64-pc-windows-msvc
+          - name: windows-arm64
+            runner: windows-11-arm
+            target: aarch64-pc-windows-msvc
 
     runs-on: ${{ matrix.runner }}
     env:
@@ -64,8 +67,8 @@ jobs:
           brew install llvm
           echo "LIBCLANG_PATH=$(brew --prefix llvm)/lib" >> "$GITHUB_ENV"
 
-      - name: Install Windows dependencies
-        if: runner.os == 'Windows'
+      - name: Install Windows dependencies (x64)
+        if: matrix.name == 'windows-x64'
         shell: pwsh
         run: |
           # Install libclang (LLVM)
@@ -75,6 +78,27 @@ jobs:
           7z x llvm.tar.xz
           7z x llvm.tar
           $llvmDir = "clang+llvm-$llvmVersion-x86_64-pc-windows-msvc"
+          echo "LIBCLANG_PATH=$pwd\$llvmDir\lib" >> $env:GITHUB_ENV
+
+          # Install NASM
+          $nasmVersion = "2.16.03"
+          $nasmUrl = "https://www.nasm.us/pub/nasm/releasebuilds/$nasmVersion/win64/nasm-$nasmVersion-win64.zip"
+          Invoke-WebRequest -Uri $nasmUrl -OutFile "nasm.zip"
+          Expand-Archive -Path "nasm.zip" -DestinationPath "."
+          $nasmDir = "nasm-$nasmVersion"
+          echo "$pwd\$nasmDir" >> $env:GITHUB_PATH
+
+      - name: Install Windows dependencies (arm64)
+        if: matrix.name == 'windows-arm64'
+        shell: pwsh
+        run: |
+          # Install libclang (LLVM)
+          $llvmVersion = "22.1.8"
+          $llvmUrl = "https://github.com/llvm/llvm-project/releases/download/llvmorg-$llvmVersion/clang+llvm-$llvmVersion-aarch64-pc-windows-msvc.tar.xz"
+          Invoke-WebRequest -Uri $llvmUrl -OutFile "llvm.tar.xz"
+          7z x llvm.tar.xz
+          7z x llvm.tar
+          $llvmDir = "clang+llvm-$llvmVersion-aarch64-pc-windows-msvc"
           echo "LIBCLANG_PATH=$pwd\$llvmDir\lib" >> $env:GITHUB_ENV
 
           # Install NASM

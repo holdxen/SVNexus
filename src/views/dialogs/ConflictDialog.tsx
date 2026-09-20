@@ -459,7 +459,7 @@ function TextBody({ description }: { description: WorkingCopyConflictDescription
         </div>
       )}
       <h3 className={section_title}>冲突文件</h3>
-      <div className={cx(grid_cols_1fr_1fr, gap_x_2, gap_y_2)}>
+      <div className={cx(flex, flex_col, gap_x_2, gap_y_2)}>
         {files.map((f) => (
           <div key={f.label} className={cx(file_card, f.colorClass)}>
             <span className={file_card_label}>{f.label}</span>

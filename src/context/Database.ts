@@ -214,9 +214,14 @@ export const useDatabase = create<Database>()((set, get) => {
     async deleteWorkspaceItem(identity) {
       await invokeMessagePack('database_delete_workspace_item', { identity })
 
-      set((state) => ({
-        workspaceItems: state.workspaceItems.filter((i) => workspaceItemIdentity(i) !== identity),
-      }))
+      set((state) => {
+        const next = new Map(state.workspaceItemStates)
+        next.delete(identity)
+        return {
+          workspaceItems: state.workspaceItems.filter((i) => workspaceItemIdentity(i) !== identity),
+          workspaceItemStates: next,
+        }
+      })
     },
     async updateWorkspaceItem(item) {
       await invokeMessagePack('database_add_workspace_item', { item })

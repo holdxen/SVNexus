@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use derive_new::new;
+use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
 
 use super::context;
@@ -11,9 +12,32 @@ use crate::apr::Pool;
 use crate::error;
 use crate::error::builder;
 use crate::extensions::*;
+use crate::subversion::ffi::svn_location_segment_t;
 use crate::subversion::SubversionError;
 use crate::utils::CStringer;
 use crate::utils::Pointer;
+
+#[derive(Serialize, Deserialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct LocationSegment {
+    range_start: u32,
+    range_end: u32,
+    path: String
+}
+
+impl From<*const ffi::svn_location_segment_t> for LocationSegment {
+    fn from(value: *const svn_location_segment_t) -> Self {
+        unsafe {
+            let value = value.as_ref().unwrap();
+            Self {
+                range_start: value.range_start.try_into().unwrap(),
+                range_end: value.range_end.try_into().unwrap(),
+                path: value.path.to_str().to_string()
+            }
+        }
+    }
+}
 
 #[derive(new)]
 pub struct AsyncContext {
@@ -71,6 +95,34 @@ impl AsyncContext {
             Ok(number.try_into().expect("Failed to convert number"))
         })
         .await
+    }
+
+    pub async fn get_location_segments(&self, path: String, peg_revision: u32, start_revision: u32, end_revision: u32) -> error::Result<Vec<LocationSegment>> {
+
+        let mut segments: Vec<LocationSegment> = Vec::with_capacity(32);
+
+        unsafe extern "C" fn receiver(segment: *mut ffi::svn_location_segment_t, baton: *mut std::ffi::c_void, _pool: *mut ffi::apr_pool_t) -> *mut ffi::svn_error_t {
+
+            unsafe {
+                let baton = (baton as *mut Vec<LocationSegment>).as_mut().unwrap();
+                baton.push(LocationSegment::from(segment as *const _));
+            }
+            super::svn_no_error()
+        }
+
+        self.call_async(move |session| unsafe {
+
+            let mut pool = Pool::create();
+
+            let path = pool.canonicalize_uri(&path)?;
+
+            let error = ffi::svn_ra_get_location_segments(session, path, peg_revision.try_into().unwrap(), start_revision.try_into().unwrap(), end_revision.try_into().unwrap(), Some(receiver), segments.pointer_mut() as _, pool.as_mut_ptr());
+
+            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+
+            Ok(segments)
+        }).await
+
     }
 
     #[tracing::instrument(skip(self))]

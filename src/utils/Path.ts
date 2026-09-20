@@ -238,5 +238,5 @@ export class PathUtil {
 // 仓库路径：SVN 协议保证恒为 '/'
 export const repoPath = new PathUtil('/', '/')
 
-// 本地路径：与 std::path 一致，Windows 上识别 '/' 和 '\'，输出 '\'
-export const localPath = new PathUtil(isWindows ? '/\\' : '/', isWindows ? '\\' : '/')
+// 本地路径
+export const localPath = new PathUtil('/', '/')

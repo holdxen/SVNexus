@@ -8,7 +8,6 @@ export type Error =
   | { subversionError: { source: SubversionError } }
   | { invalidArgument: { detail: string } }
   | { iOError: { source: string } }
-  | { invalidID: { source: string } }
   | { generalError: { detail: string } }
   | { runtimeError: { source: string } }
   | { whatever: { message: string } }

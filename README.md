@@ -1,57 +1,75 @@
 # SVNexus
 
-跨平台 Subversion 桌面客户端，基于 Tauri 2 构建。
+Cross-platform Subversion desktop client built on Tauri 2.
 
-## 功能特性
+**Repositories:** [GitHub](https://github.com/holdxen/SVNexus) | [SourceForge](https://sourceforge.net/projects/svnexus/)
 
-- **完整 SVN 操作** — 支持 checkout、commit、update、add、delete、revert、switch、merge、relocate 等常用操作
-- **差异对比** — 内置代码编辑器，直观查看文件变更内容
-- **提交历史** — 浏览日志、查看变更路径与版本快照
-- **工作区管理** — 多工作区分组管理，多标签页并行操作互不干扰
-- **冲突处理** — 冲突检测与解决向导
-- **文件锁** — lock / unlock 操作支持
-- **属性编辑** — 查看与修改文件、目录的 SVN 属性及版本属性
-- **本地缓存** — 工作区配置与版本日志本地持久化，离线可查历史记录
+**[中文](./README.zh.md)**
 
-## 安装
+![SVNexus Screenshot](./screenshots/mac.png)
 
-前往 [Releases](../../releases) 页面下载对应平台的安装包：
+## Features
+
+- **Full SVN Operations** — checkout, commit, update, add, delete, revert, switch, merge, relocate, and more
+- **Diff Viewer** — built-in code editor for inspecting file changes side by side
+- **Commit History** — browse logs, view changed paths, and inspect revision snapshots
+- **Workspace Management** — group multiple workspaces; work across tabs in parallel without interference
+- **Conflict Resolution** — detect and resolve merge conflicts with a guided workflow
+- **File Locking** — lock / unlock support
+- **Property Editing** — view and modify SVN properties on files and directories, including versioned props
+
+## TODO
+
+- [ ] SSH protocol support with OpenSSH compatibility
+- [ ] File history version browsing
+- [ ] Standalone remote repository browsing
+- [ ] One-click bug reporting
+- [ ] Hunk-level revert for working copy changes
+- [ ] Display current working copy revision in History view
+- [ ] Cross-tab navigation from error toasts
+- [ ] Support copy and move operations
+- [ ] Improve merge operations
+- [ ] Rust code optimization, pass cargo clippy and fmt checks
+
+## Installation
+
+Download the installer for your platform from the [Releases](../../releases) page:
 
 - **macOS** — `.dmg`
 - **Windows** — `.msi` / `.exe`
 - **Linux** — `.deb` / `.rpm` / `.AppImage`
 
-## 使用说明
+## Usage
 
-### 添加工作区
+### Add a Workspace
 
-启动后点击欢迎页的「添加工作区」，选择本地已有的 SVN 工作副本目录，或直接 checkout 远程仓库。
+Launch SVNexus and click "Add Workspace" on the welcome page. Select an existing local SVN working copy, or check out a remote repository directly.
 
-### 基本操作
+### Basic Operations
 
-在工作区视图中：
+In the workspace view:
 
-- **查看状态** — 左侧树形目录展示文件状态（已修改、未版本控制、冲突等）
-- **提交变更** — 选中文件后点击提交，填写日志消息即可完成 commit
-- **查看差异** — 双击已修改文件打开差异对比视图
-- **查看历史** — 右键文件或目录查看提交历史
-- **更新 / 回退** — 工具栏一键 update 或 revert 选中文件
+- **View Status** — the left-hand tree shows file statuses (modified, unversioned, conflicted, etc.)
+- **Commit Changes** — select files, click Commit, and enter a log message
+- **View Diffs** — double-click a modified file to open the diff viewer
+- **View History** — right-click a file or directory to see its commit history
+- **Update / Revert** — one-click update or revert selected files from the toolbar
 
-### 多标签页
+### Multi-Tab
 
-支持同时打开多个工作区，通过顶部标签页切换，适合需要同时管理多个仓库的场景。
+Open multiple workspaces simultaneously and switch between them via top tabs — ideal for managing several repositories at once.
 
-## 系统要求
+## System Requirements
 
-| 平台    | 最低版本                  |
-| ------- | ------------------------- |
-| macOS   | 11+（Apple Silicon 版本） |
-| Windows | 10+                       |
-| Linux   | GTK 3 主流发行版          |
+| Platform | Minimum Version           |
+| -------- | ------------------------- |
+| macOS    | 11+ (Apple Silicon build) |
+| Windows  | 10+                       |
+| Linux    | GTK 3 mainstream distros  |
 
-## 反馈与问题
+## Feedback & Issues
 
-遇到问题或有功能建议，欢迎提交 [Issue](../../issues)。
+Encountered a problem or have a feature request? Feel free to open an [Issue](../../issues).
 
 ## License
 

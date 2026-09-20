@@ -24,6 +24,7 @@ import {
   border_box,
 } from '../../styles/Classes'
 import { NiceRelocateDialog } from '../dialogs/RelocateDialog'
+import Logger from '@/utils/Logger'
 
 export interface NavigationBarProps {
   path: string
@@ -159,6 +160,7 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
 
         items.push({ name, status: i.nodeStatus, active })
       }
+      Logger.info("items is:", items)
       setFolders(items)
     } catch (error) {}
   }

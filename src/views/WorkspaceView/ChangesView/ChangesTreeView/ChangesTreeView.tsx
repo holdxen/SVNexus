@@ -30,12 +30,10 @@ import OperationUnlockIcon from '@icons/OperationUnlock.svg?react'
 import OperationUpdateIcon from '@icons/OperationUpdate.svg?react'
 import RefreshIcon from '@icons/Refresh.svg?react'
 import { cx, css } from '@linaria/core'
-import type { OverlayScrollbars } from 'overlayscrollbars'
-import { OverlayScrollbarsComponent, OverlayScrollbarsComponentRef } from 'overlayscrollbars-react'
-import { open } from '@tauri-apps/plugin-dialog'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { open } from '@tauri-apps/plugin-dialog'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import { InfoOptions } from '@/bindings/InfoOptions'
 import { StatusEntry } from '@/bindings/StatusEntry'
@@ -46,15 +44,17 @@ import TreeCollapseIcon from '@/icons/TreeCollapse.svg?react'
 import TreeExpandIcon from '@/icons/TreeExpand.svg?react'
 import { useModal } from '@/lib/multi-modal'
 import {
-  border_box,
   flex,
   flex_1,
   gap_x_1,
   hidden,
   items_center,
   overflow_hidden,
+  overflow_y_auto,
+  visibility_hidden,
   whitespace_nowrap,
 } from '@/styles/Classes'
+import Logger from '@/utils/Logger'
 import { localPath } from '@/utils/Path'
 
 import { defaultOperationState, OperationState } from '../../Operation'
@@ -62,7 +62,6 @@ import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
-import Logger from '@/utils/Logger'
 
 const treeNode = css`
   display: flex;
@@ -250,15 +249,10 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     movedToAbsolutePath: null,
   }
 
-  const scrollRef = useRef<OverlayScrollbarsComponentRef>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const virtualizerRef = useRef<any>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const [isReady, setIsReady] = useState(false)
-  const [hasYOverflow, setHasYOverflow] = useState(false)
-
-  const syncOverflow = useCallback((instance: OverlayScrollbars) => {
-    setHasYOverflow(instance.state().hasOverflow.y)
-  }, [])
 
   const doubleClickBehavior: FeatureImplementation = {
     itemInstance: {
@@ -711,7 +705,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     count: visibleItems.length,
     getScrollElement: () => {
       if (!isReady) return null
-      return scrollRef.current?.osInstance()?.elements().viewport ?? null
+      return scrollRef.current
     },
     estimateSize: () => 30,
     overscan: 5,
@@ -721,6 +715,20 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   virtualizerRef.current = virtualizer
 
   useEffect(() => {
+    setIsReady(true)
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          virtualizerRef.current?.measure()
+        }
+      }
+    })
+    if (scrollRef.current) {
+      observer.observe(scrollRef.current)
+    }
+    resizeObserverRef.current = observer
+
     return () => {
       resizeObserverRef.current?.disconnect()
     }
@@ -728,30 +736,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
 
   return (
     <div className={cx(flex_1, flex, !props.visible && hidden)}>
-      <OverlayScrollbarsComponent
-          events={{
-            initialized(instance) {
-              setIsReady(true)
-              syncOverflow(instance)
-
-              const host = instance.elements().host
-              const observer = new ResizeObserver((entries) => {
-                for (const entry of entries) {
-                  if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-                    instance.update()
-                    virtualizerRef.current?.measure()
-                  }
-                }
-              })
-              observer.observe(host)
-              resizeObserverRef.current = observer
-            },
-            updated: syncOverflow,
-          }}
-          className={cx(flex_1, border_box, hasYOverflow && css`padding-right: var(--scrollbar-size);`)}
-          ref={scrollRef}
-          options={{ overflow: { x: 'hidden', y: 'scroll' } }}
-        >
+      <div className={cx(flex_1, overflow_y_auto)} ref={scrollRef}>
         <div
           {...tree.getContainerProps()}
           style={{
@@ -790,14 +775,11 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
                 }}
               >
                 <span className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}>
-                  {isFolder ? (
-                    <IconTreeTriangleDown
-                      size="default"
-                      onClick={item.isExpanded() ? item.collapse : item.expand}
-                    />
-                  ) : (
-                    <span style={{ width: 12 }} />
-                  )}
+                  <IconTreeTriangleDown
+                    className={cx(!isFolder && visibility_hidden)}
+                    size="default"
+                    onClick={item.isExpanded() ? item.collapse : item.expand}
+                  />
                 </span>
                 <WorkingCopyItem
                   {...model}
@@ -807,7 +789,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
             )
           })}
         </div>
-      </OverlayScrollbarsComponent>
+      </div>
       {props.optionBarContainer === null ? (
         <></>
       ) : (

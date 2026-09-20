@@ -9,7 +9,7 @@ if (platform === 'windows' && arch === 'x86_64') {
 
 if (platform === 'windows' && arch === 'aarch64') {
   // Windows ARM64
-  svn = 'deps/win-arm64/svn'
+  svn = 'deps/win-aarch64/svn'
 }
 
 if (platform === 'darwin' && arch === 'aarch64') {

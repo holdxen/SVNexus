@@ -280,7 +280,7 @@ export default function MergeDialog(props: MergeDialogProps) {
           async call(context) {
             await context.merge(options)
             Toast.success({
-              content: 'Merge successful',
+              content: 'Merge successfully',
               stack: true,
             })
             loadingDialog.current?.close()

@@ -51,6 +51,7 @@ import { NiceEditWorkspaceItemDialog } from '../dialogs/EditWorkspaceItemDialog'
 import { SubversionProvider } from '../SubversionProvider'
 import { CommandBar } from './CommandBar'
 import { WorkspaceGroupView } from './WorkspaceGroupView'
+import { WorkspaceItemDetail } from './WorkspaceItemDetail'
 import WorkspaceItemView from './WorkspaceItemView'
 
 const { Title, Text } = Typography
@@ -613,10 +614,13 @@ function workspaceItemContainText(item: WorkspaceItem, text: string): boolean {
   }
 }
 
-function WorkspaceItems(props: { filter?: WorkspaceItemFilter }) {
+function WorkspaceItems(props: {
+  filter?: WorkspaceItemFilter
+  selected: string | null
+  onSelect: (identity: string | null) => void
+}) {
   const workspaceItems = useDatabase((state) => state.workspaceItems)
   const deleteWorkspaceItem = useDatabase((state) => state.deleteWorkspaceItem)
-  const [selected, setSelected] = useState<string | null>(null)
   const [searchText, setSearchText] = useState('')
   const tabManager = useTabManager()
   const tabContent = useTabContent()
@@ -664,13 +668,13 @@ function WorkspaceItems(props: { filter?: WorkspaceItemFilter }) {
           return (
             <ContextMenu
               onDoubleClick={() => open(e)}
-              onClick={() => setSelected(identity)}
+              onClick={() => props.onSelect(identity)}
               key={identity}
               className={cx(
                 border_box,
                 p_2,
                 list_item,
-                identity === selected && list_item_selected,
+                identity === props.selected && list_item_selected,
                 flex,
                 !visible && hidden,
                 min_w_0,
@@ -708,6 +712,18 @@ function WorkspaceItems(props: { filter?: WorkspaceItemFilter }) {
 
 export function WelcomeView() {
   const [filter, setFilter] = useState<WorkspaceItemFilter>()
+  const [selectedItem, setSelectedItem] = useState<string | null>(null)
+  const workspaceItems = useDatabase((state) => state.workspaceItems)
+  const tabManager = useTabManager()
+  const tabContent = useTabContent()
+
+  const openSelected = () => {
+    const item = workspaceItems.find((e) => workspaceItemIdentity(e) === selectedItem)
+    if (item && 'workingCopy' in item) {
+      tabManager.openWorkingCopy(tabContent.identity, item.workingCopy.workingCopyPath)
+    }
+  }
+
   return (
     <SubversionProvider className={h_full} singleton={false}>
       <ModalProvider>
@@ -719,8 +735,15 @@ export function WelcomeView() {
             style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '8px' }}
           >
             <Navigation onFilterChange={(e) => setFilter(() => e)}></Navigation>
-            <WorkspaceItems filter={filter}></WorkspaceItems>
-            <Card shadows="always" className={cx(h_full)}></Card>
+            <WorkspaceItems
+              filter={filter}
+              selected={selectedItem}
+              onSelect={setSelectedItem}
+            ></WorkspaceItems>
+            <WorkspaceItemDetail
+              identity={selectedItem}
+              onOpen={openSelected}
+            ></WorkspaceItemDetail>
           </div>
         </div>
       </ModalProvider>

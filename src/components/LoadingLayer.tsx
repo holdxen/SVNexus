@@ -3,7 +3,7 @@ import { Button, Spin, Typography } from '@douyinfe/semi-ui'
 import { css, cx } from '@linaria/core'
 import React from 'react'
 
-import { flex, flex_1, flex_col, gap_y_1 } from '@/styles/Classes'
+import { flex, flex_1, flex_col, gap_y_1, select_none } from '@/styles/Classes'
 
 export type LoadingState = 'none' | 'loading' | 'error'
 
@@ -80,11 +80,10 @@ export default function LoadingLayer({
       )}
       {/* 子内容 — spinning 时降低透明度 */}
       <div
-        className={cx(flex_1, flex, contentClassName)}
+        className={cx(flex_1, flex, contentClassName, layer && select_none)}
         style={{
           opacity: layer ? 0.5 : 1,
           filter: layer ? 'blur(2px)' : 'none',
-          userSelect: layer ? 'none' : 'auto',
         }}
       >
         {children}

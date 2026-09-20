@@ -82,6 +82,12 @@ export function TabContent({
       }, hideToNoneInterval * 1000)
       setVisibilityStyle(true)
     }
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current)
+        timer.current = null
+      }
+    }
   }, [visible])
 
   return (
@@ -337,11 +343,12 @@ export function Tab(props: TabProps) {
         <div className={cx(flex, tabContainer, maxWdith, items_center, props.className)}>
           {props.models.map((e, index) => {
             let dividerVisible = true
-            if (index === props.models.length - 1) {
+            if (props.models[index].identity === props.activeIdentity) {
               dividerVisible = false
-            } else if (props.models[index].identity === props.activeIdentity) {
-              dividerVisible = false
-            } else if (props.models[index + 1].identity === props.activeIdentity) {
+            } else if (
+              index < props.models.length - 1 &&
+              props.models[index + 1].identity === props.activeIdentity
+            ) {
               dividerVisible = false
             }
             return (

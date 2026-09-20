@@ -2,7 +2,10 @@ import { Tag, Toast } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
 import * as ContextMenu from '@radix-ui/react-context-menu'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
+import { useRef, useState } from 'react'
 
+import PureInput from '@/components/PureInput'
+import { useDatabase } from '@/context/Database'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import {
   font_normal,
@@ -25,10 +28,7 @@ import {
   context_menu_separator,
 } from '../../styles/Components'
 import { Dialog } from '../dialogs/Dialog'
-import { useDatabase } from '@/context/Database'
 import DialogFormItem from '../dialogs/DialogFormItem'
-import PureInput from '@/components/PureInput'
-import { useRef, useState } from 'react'
 
 export interface WorkspaceGroupViewProps {
   item: WorkspaceGroup
@@ -40,34 +40,34 @@ export interface WorkspaceGroupViewProps {
 function RenameWorkspaceGroupDialog(props: { identity: string }) {
   const modal = useCurrentModal()
 
-  const updateWorkspaceGroup = useDatabase(status => status.updateWorkspaceGroup)
+  const updateWorkspaceGroup = useDatabase((status) => status.updateWorkspaceGroup)
 
-  const workspaceGroups = useDatabase(status => status.workspaceGroups)
+  const workspaceGroups = useDatabase((status) => status.workspaceGroups)
 
-  const item = workspaceGroups.find(i => i.identity === props.identity)
+  const item = workspaceGroups.find((i) => i.identity === props.identity)
 
   const [name, setName] = useState(item?.name ?? '')
 
   const onOk = async () => {
     if (item === undefined) {
       Toast.error({
-        content: "Group not exists",
-        stack: true
+        content: 'Group not exists',
+        stack: true,
       })
       return
     }
 
-    if (workspaceGroups.findIndex(i => i.identity != props.identity && i.name === name) >= 0) {
+    if (workspaceGroups.findIndex((i) => i.identity != props.identity && i.name === name) >= 0) {
       Toast.error({
-        content: "Name already exists",
-        stack: true
+        content: 'Name already exists',
+        stack: true,
       })
       return
     }
 
     const group: WorkspaceGroup = {
       ...item,
-      name
+      name,
     }
 
     await updateWorkspaceGroup(group)
@@ -81,7 +81,7 @@ function RenameWorkspaceGroupDialog(props: { identity: string }) {
   return (
     <Dialog
       initialFocusRef={input}
-      title='Rename group'
+      title="Rename group"
       visible={modal.visible}
       onOk={onOk}
       onCancel={() => {
@@ -89,8 +89,8 @@ function RenameWorkspaceGroupDialog(props: { identity: string }) {
         modal.hide()
       }}
     >
-      <DialogFormItem title='Name:'>
-        <PureInput ref={input} value={name} onChange={setName}/>
+      <DialogFormItem title="Name:">
+        <PureInput ref={input} value={name} onChange={setName} />
       </DialogFormItem>
     </Dialog>
   )
@@ -145,10 +145,13 @@ export function WorkspaceGroupView({
               onSelect={() => {
                 dialogOpenedFromMenu.current = true
                 modal.show(RenameWorkspaceGroupDialog, {
-                  identity: item.identity
+                  identity: item.identity,
                 })
               }}
-              className={context_menu_item}>Rename</ContextMenu.Item>
+              className={context_menu_item}
+            >
+              Rename
+            </ContextMenu.Item>
 
             <ContextMenu.Separator className={context_menu_separator} />
 

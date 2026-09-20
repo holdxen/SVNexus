@@ -1,7 +1,6 @@
 import { IconChevronDown, IconChevronUp } from '@douyinfe/semi-icons'
 import { Checkbox, Collapsible, Descriptions } from '@douyinfe/semi-ui'
 import { css, cx } from '@linaria/core'
-import { OverlayScrollbarsComponentRef } from 'overlayscrollbars-react'
 import { useRef, useState } from 'react'
 
 import { TrustServer } from '@/bindings/TrustServer'
@@ -81,7 +80,7 @@ export default function SslServerTrustPromptDialog(props: SslServerTrustPromptDi
     close()
   }
 
-  const scrollArea = useRef<OverlayScrollbarsComponentRef>(null)
+  const scrollArea = useRef<HTMLDivElement>(null)
 
   const [padding, setPadding] = useState(false)
 
@@ -109,7 +108,6 @@ export default function SslServerTrustPromptDialog(props: SslServerTrustPromptDi
         <Descriptions data={descriptions}></Descriptions>
         <Collapsible
           onMotionEnd={() => {
-            scrollArea.current?.osInstance()?.update(true)
             requestAnimationFrame(() => {
               setPadding((v) => !v)
             })

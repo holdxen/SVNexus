@@ -202,7 +202,7 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
     return () => {
       queue.dispose()
     }
-  })
+  }, [])
 
   useEffect(() => {
     queue.run(execute)

@@ -1,11 +1,11 @@
 import { Card, Spin } from '@douyinfe/semi-ui'
-import { cx } from '@linaria/core'
+import { css, cx } from '@linaria/core'
 import type { OnMount } from '@monaco-editor/react'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { RefObject, useImperativeHandle, useState } from 'react'
 
 import { LazyEditor } from '@/components/monaco/LazyEditors'
-import { flex_1, flex, flex_col, border_box, min_w_0, hidden } from '@/styles/Classes'
+import { flex_1, flex, hidden, minimizable, block_minimizable } from '@/styles/Classes'
 import { LimitedDictionary } from '@/utils/LimitedDictionary'
 
 export interface StrongEditorRef {
@@ -18,6 +18,24 @@ export interface StrongEditorProps {
   currentKey?: string
   ref?: RefObject<StrongEditorRef | null>
 }
+
+const editor = css``
+
+// const minimizable = css`
+//   min-width: 0px;
+//   min-height: 0px;
+//   & *:not(.${editor} *) {
+//     min-width: 0px;
+//     min-height: 0px;
+//   }
+// `
+
+const box = css`
+  & *:not(.${editor}, .${editor} *) {
+    display: flex;
+    flex: 1;
+  }
+`
 
 export default function StrongEditor({ ref, ...props }: StrongEditorProps) {
   const [editors, setEditors] = useState(new LimitedDictionary<string, string>(10))
@@ -60,17 +78,10 @@ export default function StrongEditor({ ref, ...props }: StrongEditorProps) {
   }
 
   return (
-    <Card
-      className={cx(flex, flex_col, border_box, min_w_0, props.className)}
-      bodyStyle={{ display: 'flex', flex: '1', flexDirection: 'column' }}
-    >
-      <Spin
-        wrapperClassName={cx(flex_1, flex)}
-        spinning={isLoading}
-        childStyle={{ display: 'flex', flex: '1' }}
-      >
+    <Card className={cx(flex, minimizable, box, props.className)}>
+      <Spin spinning={isLoading}>
         {props.currentKey && editors.dictionary.has(props.currentKey) ? (
-          <div className={cx(flex_1)}>
+          <div className={cx(flex_1, editor, block_minimizable)}>
             <LazyEditor
               onMount={onMount}
               options={{ readOnly: true }}

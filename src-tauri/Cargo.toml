@@ -1,6 +1,6 @@
 [package]
 name = "svnexus"
-version = "0.1.1"
+version = "0.1.2"
 description = "A modern Subversion client built with Tauri"
 authors = ["holdxen"]
 edition = "2021"

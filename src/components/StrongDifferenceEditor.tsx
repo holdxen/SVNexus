@@ -27,6 +27,8 @@ import {
   m_2,
   absolute,
   inset_0,
+  block_minimizable,
+  minimizable,
 } from '@/styles/Classes'
 import errorHumanString from '@/utils/Error'
 import { LimitedDictionary } from '@/utils/LimitedDictionary'
@@ -400,12 +402,11 @@ function DifferenceContent(props: DifferenceContentProps) {
   const addPropertyIcon = (
     <Tooltip content="Add property">
       <IconButton
-        className={cx(
-          (!props.visible ||
-            props.target?.addProperty === undefined ||
-            props.viewType !== 'property') &&
-            hidden,
-        )}
+        data-status={
+          !props.visible || props.target?.addProperty === undefined || props.viewType !== 'property'
+            ? 'none'
+            : undefined
+        }
         onClick={() => {
           const call = props.target?.addProperty?.({
             update: loadProperty,
@@ -420,24 +421,27 @@ function DifferenceContent(props: DifferenceContentProps) {
     </Tooltip>
   )
 
+  // Logger.info(
+  //   'Add property icon visible: ',
+  //   props.visible,
+  //   props.target?.addProperty === undefined,
+  //   props.viewType,
+  //   !props.visible || props.target?.addProperty === undefined || props.viewType !== 'property',
+  // )
+
   return (
-    <div className={cx(!props.visible && hidden, min_w_0, min_h_0, flex, props.className)}>
-      {props.iconContainer === null ? (
-        <></>
-      ) : (
-        createPortal(addPropertyIcon, props.iconContainer, 'add proprty icon')
-      )}
+    <div className={cx(!props.visible && hidden, flex, props.className)}>
+      {props.iconContainer &&
+        createPortal(addPropertyIcon, props.iconContainer, 'add proprty icon')}
       <LoadingLayer
         errorMessage={errorModel(content)?.message}
         retry={errorModel(content)?.retry}
         state={state(content)}
-        className={cx(props.viewType !== 'text' && hidden, flex_1)}
+        className={cx(props.viewType !== 'text' && hidden, flex_1, block_minimizable)}
       >
         <DifferenceEditor
           newContent={differenceModel(content)?.newContent}
           oldContent={differenceModel(content)?.oldContent}
-          // newContent={isDifferenceModel(content) ? content.newContent : undefined}
-          // oldContent={isDifferenceModel(content) ? content.oldContent : undefined}
           className={cx(flex_1)}
           hideUnChanged={props.hideUnchanged}
           sideBySide={props.sideBySide}
@@ -447,14 +451,13 @@ function DifferenceContent(props: DifferenceContentProps) {
         errorMessage={errorModel(property)?.message}
         retry={errorModel(property)?.retry}
         state={state(property)}
-        className={cx(props.viewType !== 'property' && hidden, flex_1, min_w_0, min_h_0)}
-        contentClassName={cx(min_w_0, min_h_0)}
+        className={cx(props.viewType !== 'property' && hidden, flex_1)}
       >
         <Table
           selectionMode="row"
           data={propertyRows}
           columns={propertyColumns}
-          className={cx(flex_1, min_h_0, min_w_0)}
+          className={cx(flex_1, block_minimizable)}
           onGetRowId={(row) => row.name}
           rowContextMenu={props.target?.propertyRowContextMenu?.({
             update: loadProperty,
@@ -564,13 +567,11 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
       <InPortal node={portalNode}>
         {/*<div ref={root} className={cx(flex, min_h_0, min_w_0, border_box, props.className)}>*/}
         <Card
-          className={cx(flex, flex_col, border_box, min_w_0, flex_1, maximized && m_2)}
+          className={cx(flex, flex_col, border_box, minimizable, flex_1, maximized && m_2)}
           bodyStyle={{
             display: 'flex',
             flex: '1',
             flexDirection: 'column',
-            minWidth: 0,
-            minHeight: 0,
           }}
         >
           <DifferenceContent
@@ -600,8 +601,8 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
               ></DifferenceContent>
             )
           })}
-          <Divider></Divider>
-          <div className={cx(flex)}>
+          <Divider className={cx(block_minimizable)}></Divider>
+          <div className={cx(flex, block_minimizable)}>
             <RadioIconGroup
               active={currentViewType}
               icons={[

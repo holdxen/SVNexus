@@ -19,6 +19,7 @@ import { Identity, useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
 import { ModalProvider, useCurrentModal, useModal } from '@/lib/multi-modal'
 import errorHumanString, { isSubversionError } from '@/utils/Error'
+import Logger from '@/utils/Logger'
 import { localPath } from '@/utils/Path'
 import { workspaceItemGetWorkingCopy } from '@/utils/WorkspaceItem'
 
@@ -27,7 +28,6 @@ import {
   grid,
   h_full,
   min_h_0,
-  hidden,
   flex_1,
   grid_rows_auto_auto_1fr,
   min_w_0,
@@ -40,7 +40,6 @@ import { SubversionProvider } from '../SubversionProvider'
 import { NavigationBar } from './NavigationBar'
 import { WorkingCopyView } from './WorkingCopyView'
 import { useWorkingspaceViewStore } from './WorkspaceView.Store'
-import Logger from '@/utils/Logger'
 
 const GoToDialog = (props: { children?: React.ReactNode }) => {
   const modal = useCurrentModal()
@@ -112,8 +111,6 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
 
   const [current, setCurrent] = useState<string | null>(null)
 
-  const [views, setViews] = useState(new Set<string>())
-
   const self = useRef<WorkspaceViewRef>(null)
   const tabManager = useTabManager()
   const tabContent = useTabContent()
@@ -171,7 +168,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
       } else {
         Toast.error({
           stack: true,
-          content: errorHumanString(error)
+          content: errorHumanString(error),
         })
       }
     }
@@ -181,13 +178,12 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
   const success = useRef(false)
 
   const cleanup = useMemoizedFn(() => {
-    if (success.current) {
-      workspaceViewStore.openWorkingCopyQueue.run(() => {
-        if (root) {
-          workspaceViewStore.removeOpenedWorkingCopy(root)
-        }
-      })
-    }
+    const currentRoot = root
+    workspaceViewStore.openWorkingCopyQueue.run(() => {
+      if (currentRoot) {
+        workspaceViewStore.removeOpenedWorkingCopy(currentRoot)
+      }
+    })
   })
 
   useEffect(() => {
@@ -228,7 +224,6 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
 
           setRoot(root)
 
-          setViews((items) => new Set(items).add(path))
           setCurrent(path)
           workspaceViewStore.addOpendWorkingCopy(root, self)
 
@@ -273,9 +268,6 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
   }, [])
 
   const onSwitched = (selected: string) => {
-    if (!views.has(selected)) {
-      setViews((v) => new Set(v).add(selected))
-    }
     setCurrent(selected)
   }
 
@@ -315,13 +307,11 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
         )}
         <Divider></Divider>
         <Container className={cx(min_h_0, min_w_0)}>
-          {Array.from(views).map((v) => {
-            return (
-              <Container className={cx(min_h_0, min_w_0, current !== v && hidden)} key={v}>
-                <WorkingCopyView path={v}></WorkingCopyView>
-              </Container>
-            )
-          })}
+          {current && (
+            <Container className={cx(min_h_0, min_w_0)} key={current}>
+              <WorkingCopyView path={current}></WorkingCopyView>
+            </Container>
+          )}
         </Container>
       </div>
     </WorkspaceViewContext.Provider>

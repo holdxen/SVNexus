@@ -1,4 +1,4 @@
-mod migrations;
+// mod migrations;
 pub mod models;
 mod tables;
 
@@ -81,14 +81,14 @@ impl DatabaseConnection {
             .await
             .context(builder::Database)?;
 
-        migrations::execute(&connection).await?;
+        // migrations::execute(&connection).await?;
 
         Ok(Self { connection })
     }
 
-    pub async fn truncate_repository_logs(&self, _repository_uuid: &str) -> error::Result<()> {
-        Ok(())
-    }
+    // pub async fn truncate_repository_logs(&self, _repository_uuid: &str) -> error::Result<()> {
+    //     Ok(())
+    // }
 
     // ========== WorkspaceItem ==========
 
@@ -148,18 +148,18 @@ impl DatabaseConnection {
         Ok(groups)
     }
 
-    pub async fn workspace_group(
-        &self,
-        identity: String,
-    ) -> error::Result<Option<models::WorkspaceGroup>> {
-        // typed API: 按 record ID 查询单条记录
-        let group: Option<models::WorkspaceGroup> = self
-            .connection
-            .select((WORKSPACE_GROUP, identity.as_str()))
-            .await
-            .context(builder::Database)?;
-        Ok(group)
-    }
+    // pub async fn workspace_group(
+    //     &self,
+    //     identity: String,
+    // ) -> error::Result<Option<models::WorkspaceGroup>> {
+    //     // typed API: 按 record ID 查询单条记录
+    //     let group: Option<models::WorkspaceGroup> = self
+    //         .connection
+    //         .select((WORKSPACE_GROUP, identity.as_str()))
+    //         .await
+    //         .context(builder::Database)?;
+    //     Ok(group)
+    // }
 
     pub async fn update_workspace_group(&self, item: models::WorkspaceGroup) -> error::Result<()> {
         let identity = item.identity.clone();

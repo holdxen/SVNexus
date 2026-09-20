@@ -177,8 +177,6 @@ export default function errorHumanString(error: any): string {
       return error.invalidArgument.detail
     } else if ('iOError' in error) {
       return error.iOError.source
-    } else if ('invalidID' in error) {
-      return error.invalidID.source
     } else if ('generalError' in error) {
       return error.generalError.detail
     } else if ('runtimeError' in error) {

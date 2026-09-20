@@ -29,6 +29,8 @@ fn svn_path() -> String {
     if target_os == "windows" {
         if target_arch == "x86_64" {
             return ".\\deps\\win-x64\\svn".to_string();
+        } else if target_arch == "aarch64" {
+            return ".\\deps\\win-aarch64\\svn".to_string();
         }
     } else if target_os == "linux" {
         if target_arch == "x86_64" {
@@ -113,15 +115,31 @@ impl CompileTarget {
 
         for i in self.headers.iter() {
             eprintln!("add header: {:?}", i);
-            builder = builder.header(relative_path.join(i).to_str().expect("Invalid UTF-8 string"));
+            builder = builder.header(
+                relative_path
+                    .join(i)
+                    .to_str()
+                    .expect("Invalid UTF-8 string"),
+            );
         }
 
         for i in self.include_paths.iter() {
-            builder = builder.clang_arg(format!("-I{}", relative_path.join(i).to_str().expect("Invalid UTF-8 string")));
+            builder = builder.clang_arg(format!(
+                "-I{}",
+                relative_path
+                    .join(i)
+                    .to_str()
+                    .expect("Invalid UTF-8 string")
+            ));
         }
 
         for i in self.link_paths.iter() {
-            set_library_search_path(relative_path.join(i).to_str().expect("Invalid UTF-8 string"));
+            set_library_search_path(
+                relative_path
+                    .join(i)
+                    .to_str()
+                    .expect("Invalid UTF-8 string"),
+            );
         }
 
         for i in self.libraries.iter() {

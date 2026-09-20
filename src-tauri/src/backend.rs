@@ -1,6 +1,6 @@
 use camino::Utf8PathBuf;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use snafu::OptionExt;
+use snafu::{OptionExt, ResultExt};
 
 use std::{
     collections::HashMap,
@@ -12,6 +12,7 @@ use crate::{
     error::{builder, FrontendError},
     extensions::CommonExtension,
     messagepack_command::MessagePackChannel,
+    platform::Platform,
     subversion::{
         context::{
             blame::{BlameOptions, BlameResult},
@@ -46,6 +47,7 @@ use crate::{
 
 use super::*;
 
+use crate::subversion::ra::LocationSegment;
 use db::DatabaseConnection;
 use error::Result;
 use tokio::sync::{oneshot, Mutex, OnceCell};
@@ -692,6 +694,7 @@ pub async fn subversion_log_next(
     #[channel] channel: MessagePackChannel,
 ) -> error::Result<()> {
     let context = context!(id);
+    let cloned = channel.clone();
     context
         .log_next(options, move |entry| {
             channel.send(&entry).ok().context(error::UnexpectedSnafu {
@@ -699,7 +702,14 @@ pub async fn subversion_log_next(
             })?;
             Ok(())
         })
-        .await
+        .await?;
+    cloned
+        .send(&None::<LogEntry>)
+        .ok()
+        .context(error::UnexpectedSnafu {
+            detail: "Failed to send message from channel",
+        })?;
+    Ok(())
 }
 
 #[svnexus_macro::messagepack_command]
@@ -888,6 +898,24 @@ pub async fn subversion_wc_get_replaced_file(
     let context = context!(id);
     let context = context.working_copy_context();
     let result = context.get_replaced_file(path).await?;
+    Ok(result)
+}
+
+#[svnexus_macro::messagepack_command]
+pub async fn subversion_ra_get_location_segments(
+    id: u64,
+    url: String,
+    peg_revision: u32,
+    start_revision: u32,
+    end_revision: u32,
+) -> error::Result<Vec<LocationSegment>> {
+    let context = context!(id);
+
+    let context = context.open_repository_access_session(url, None).await?;
+
+    let result = context
+        .get_location_segments(String::new(), peg_revision, start_revision, end_revision)
+        .await?;
     Ok(result)
 }
 
@@ -1082,6 +1110,11 @@ pub async fn subversion_log_cache(
     Ok(entries)
 }
 
+#[svnexus_macro::messagepack_command]
+pub async fn subversion_time_from_string(time: &str) -> error::Result<i64> {
+    subversion::time_from_string(time)
+}
+
 #[derive(Default)]
 pub struct Reply {
     next: u64,
@@ -1135,7 +1168,6 @@ impl Reply {
 }
 
 #[svnexus_macro::messagepack_command]
-#[tracing::instrument]
 pub async fn reply(id: u64, value: ReplyMessage) -> error::Result<()> {
     let mut instance = Reply::instance().lock().await;
     instance.reply(id, value)
@@ -1168,4 +1200,17 @@ pub fn base64_decode(data: &str) -> serde_bytes::ByteBuf {
 #[svnexus_macro::messagepack_command]
 pub fn extended_version(verbose: bool) -> version::ExtendedVersion {
     version::extended_version(verbose)
+}
+
+#[svnexus_macro::messagepack_command]
+pub async fn open_in_external_application(
+    app: platform::ExternalApplication,
+    path: Option<String>,
+) -> error::Result<()> {
+    tokio::task::spawn_blocking(move || {
+        let current = platform::current();
+        current.open_external_app(app, path)
+    })
+    .await
+    .context(builder::Runtime)?
 }

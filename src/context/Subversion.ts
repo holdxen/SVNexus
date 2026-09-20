@@ -59,6 +59,7 @@ import { WcReplacedNode } from '@/bindings/WcReplacedNode'
 import { WorkingCopyRevisionStatusOptions } from '@/bindings/WorkingCopyRevisionStatusOptions'
 import { WorkingCopyRevisionStatusResult } from '@/bindings/WorkingCopyRevisionStatusResult'
 import errorHumanString from '@/utils/Error'
+import Logger from '@/utils/Logger'
 import { MessagePackChannel, invokeMessagePack } from '@/utils/MessagePack'
 
 export type SubversionEventMap = {
@@ -125,11 +126,10 @@ export class Subversion {
       if (listeners) {
         for (const listener of listeners) {
           listener(data)
-          return
         }
       }
     }
-    console.warn('No match event handler: ', event)
+    // console.warn('No match event handler: ', event)
   }
 
   public cancel(msg: string): Promise<void> {
@@ -153,7 +153,7 @@ export class Subversion {
     return invokeMessagePack('subversion_log', { id: this.id, options: options })
   }
 
-  public logNext(options: LogOptions, channel: MessagePackChannel<LogEntry>): Promise<void> {
+  public logNext(options: LogOptions, channel: MessagePackChannel<LogEntry | null>): Promise<void> {
     return invokeMessagePack('subversion_log_next', { id: this.id, options: options, channel })
   }
 
@@ -372,15 +372,20 @@ export class Subversion {
     })
   }
 
-  async destroy() {
+  static timeFromString(time: string): Promise<number> {
+    return invokeMessagePack('subversion_time_from_string', { time })
+  }
+
+  destroy() {
     this.listeners = {}
     const id = this._id
     if (id < 0) {
-      console.warn('This subversion context has been destroyed')
       return
     }
     this._id = -1
-    await invokeMessagePack('subversion_destroy', { id })
+    invokeMessagePack('subversion_destroy', { id }).catch((err) => {
+      console.warn('Failed to destroy subversion context:', err)
+    })
   }
 
   public static async call<T extends unknown = unknown>({
@@ -397,6 +402,7 @@ export class Subversion {
       context = await factory.context()
       return await call(context)
     } catch (error) {
+      Logger.info('Got error', new Error().stack)
       return onError(error)
       // console.warn('Subversion context error: ', error)
       // if (onError) {
@@ -431,7 +437,7 @@ export class Subversion {
       context = await factory.context()
       return await call(context)
     } catch (error) {
-      console.warn('Subversion context error: ', error)
+      Logger.warn('Subversion context error: ', error, new Error().stack)
       const handler = () => {
         Toast.error({
           content: errorHumanString(error),
@@ -522,17 +528,23 @@ export function createSingletonSubversion(
     },
     release() {},
     releaseAll() {
-      async function call() {
-        if (subversion === null) {
-          return
-        }
-        if (subversion instanceof Promise) {
-          subversion = await subversion
-        }
+      if (subversion === null) {
+        return
+      }
+      if (subversion instanceof Promise) {
+        subversion
+          .then((s) => {
+            s.destroy()
+            subversion = null
+          })
+          .catch((err) => {
+            console.warn('Failed to release singleton subversion:', err)
+            subversion = null
+          })
+      } else {
         subversion.destroy()
         subversion = null
       }
-      call()
     },
   }
 }

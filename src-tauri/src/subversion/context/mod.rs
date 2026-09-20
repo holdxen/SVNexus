@@ -651,13 +651,9 @@ unsafe extern "C" fn on_progress_notify(
 
 unsafe extern "C" fn on_cancel(baton: *mut c_void) -> *mut ffi::svn_error_t {
     unsafe {
-        let mut pool = apr::Pool::create();
         if let Some(token) = GLOBAL_CANCEL_TOKEN.get() {
-            return ffi::svn_error_create(
-                token.code,
-                std::ptr::null_mut(),
-                pool.string(token.msg.as_str()).unwrap_or_default() as _,
-            );
+            let msg = std::ffi::CString::new(token.msg.as_str()).unwrap_or_default();
+            return ffi::svn_error_create(token.code, std::ptr::null_mut(), msg.as_ptr());
         }
 
         let ctx = (baton as *mut ContextInner)
@@ -668,10 +664,11 @@ unsafe extern "C" fn on_cancel(baton: *mut c_void) -> *mut ffi::svn_error_t {
             Err(e) => return e.native_error(),
         };
         if let Some(msg) = v {
+            let msg = std::ffi::CString::new(msg.as_str()).unwrap_or_default();
             return ffi::svn_error_create(
                 ffi::svn_errno_t_SVN_ERR_CANCELLED as _,
                 std::ptr::null_mut(),
-                pool.string(msg.as_str()).unwrap_or_default() as _,
+                msg.as_ptr(),
             );
         }
     }

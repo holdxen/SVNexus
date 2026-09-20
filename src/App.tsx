@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import * as uuid from 'uuid'
 
+import { AboutPanel } from './components/AboutPanel'
 import { Identity, TabContentContextProvider } from './context/TabContent'
 import { TabManager, TabManagerContext, TabViewModel } from './context/TabManager'
 import { IconButton } from './icons/IconButton'
@@ -28,6 +29,8 @@ import {
   items_center,
   flex_row_reverse,
   px_1,
+  w_full,
+  p_4,
 } from './styles/Classes'
 import { TabContent, Tab } from './tab/Tab'
 import Logger from './utils/Logger'
@@ -93,6 +96,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/FileHistoryView/:url/:revision" element={<RouteFileHistoryView />}></Route>
+          <Route
+            path="/About"
+            element={<AboutPanel className={cx(w_full, h_full, border_box, p_4)}></AboutPanel>}
+          ></Route>
         </Routes>
       </BrowserRouter>
     </ModalProvider>
@@ -213,6 +220,7 @@ function Home() {
         closeTab(identity)
       },
       openWorkingCopy(from, path) {
+        path = path.replace(/\\/g, '/')
         const identity = uuid.v4()
         const content: TabContentModel = {
           workspaceView: {

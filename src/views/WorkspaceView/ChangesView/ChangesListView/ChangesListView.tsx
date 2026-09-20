@@ -53,6 +53,7 @@ import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
+import Logger from '@/utils/Logger'
 
 export interface ChangesListViewProps {
   visible: boolean
@@ -526,6 +527,7 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
           const index = virtualRow.index
           const entry = entries[index]
           const model = fromStatusEntry(entry, false, workingCopy.path)
+          Logger.info("Working copy status entry", workingCopy.path, entry)
           return (
             <ContextMenu menu={menu}>
               <WorkingCopyItem

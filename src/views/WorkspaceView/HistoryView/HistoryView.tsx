@@ -5,10 +5,11 @@ import SearchIcon from '@icons/Search.svg?react'
 import { css, cx } from '@linaria/core'
 import type { ColumnDef } from '@tanstack/react-table'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
-import { useMemoizedFn } from 'ahooks'
+import { useMemoizedFn, useReactive } from 'ahooks'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Group, Separator, Panel } from 'react-resizable-panels'
+import * as uuid from 'uuid'
 
 import { InfoEntry } from '@/bindings/InfoEntry'
 import { InfoOptions } from '@/bindings/InfoOptions'
@@ -59,15 +60,21 @@ interface RevisionLogViewProps {
 }
 
 function RevisionLogView(props: RevisionLogViewProps) {
+  const maxLogSize = 100
   type Data = {
-    message?: string
     revision?: number
+    message?: string
     author?: string
     date?: string
+    uuid?: string
     entry: LogEntry
   }
-  const [isBottomLoading, setIsBottomLoading] = useState(false)
-  const [isTopLoading, setIsTopLoading] = useState(false)
+  const state = useReactive({
+    isBottomLoading: false,
+    isTopLoading: false,
+  })
+  // const [isBottomLoading, setIsBottomLoading] = useState(false)
+  // const [isTopLoading, setIsTopLoading] = useState(false)
   const [entries, setEntries] = useState<LogEntry[]>([])
   const info = useRef<InfoEntry | null>(null)
   const [reachBottom, setReachBottom] = useState(false)
@@ -87,106 +94,128 @@ function RevisionLogView(props: RevisionLogViewProps) {
   const subversion = useSubversion()
 
   const loadBottom = async () => {
-    if (reachBottom || isBottomLoading) {
+    if (reachBottom || state.isBottomLoading) {
       return
     }
-    setIsBottomLoading(true)
-    try {
-      await Subversion.callOnce({
-        factory: subversion,
-        async call(context) {
-          if (info.current === null) {
-            const options: InfoOptions = {
-              path: workingCopy.path,
-              pegRevision: 'unspecified',
-              revision: 'unspecified',
-              depth: 'empty',
-              fetchExcluded: false,
-              fetchActualOnly: false,
-              includeExternals: false,
-              changelists: null,
-            }
-            const result = await context.info(options)
-            const entries = Object.entries(result.entries)
-            if (entries.length !== 1) {
-              Toast.error({
-                content: `Failed to query repository of ${workingCopy.path}`,
-                stack: true,
-              })
-              return
-            }
-
-            info.current = entries[0][1]
-            props.onReady?.(info.current)
+    state.isBottomLoading = true
+    // setIsBottomLoading(true)
+    await Subversion.callOnce({
+      factory: subversion,
+      async call(context) {
+        if (info.current === null) {
+          const options: InfoOptions = {
+            path: workingCopy.path,
+            pegRevision: 'unspecified',
+            revision: 'unspecified',
+            depth: 'empty',
+            fetchExcluded: false,
+            fetchActualOnly: false,
+            includeExternals: false,
+            changelists: null,
           }
-
-          if (info.current.revision === null || info.current.url === null) {
+          const result = await context.info(options)
+          const entries = Object.entries(result.entries)
+          if (entries.length !== 1) {
+            Toast.error({
+              content: `Failed to query repository of ${workingCopy.path}`,
+              stack: true,
+            })
             return
           }
 
-          const limit = 100
-          let start: number | undefined = undefined
+          info.current = entries[0][1]
+          props.onReady?.(info.current)
+        }
 
-          if (entries.length > 0) {
-            const revision = entries[entries.length - 1].revision
-            if (revision) {
-              start = revision
-            }
+        if (info.current.revision === null || info.current.url === null) {
+          return
+        }
+
+        const limit = 100
+        let start: number | undefined = undefined
+
+        if (instantEntries.current.length > 0) {
+          const revision = instantEntries.current[instantEntries.current.length - 1].revision
+          if (revision !== null) {
+            start = revision
           }
+        }
 
-          const options: LogOptions = {
-            targets: [info.current.url],
-            pegRevision: { number: info.current.revision },
-            limit,
-            revisions: [{ start: start ? { number: start } : 'head', end: { number: 0 } }],
-            discoverChangedPaths: true,
-            strictNodeHistory: false,
-            includeMergedRevisions: false,
-            revisionsProperties: null,
-          }
+        const options: LogOptions = {
+          targets: [info.current.url],
+          pegRevision: { number: info.current.revision },
+          limit,
+          revisions: [
+            { start: start !== undefined ? { number: start } : 'head', end: { number: 0 } },
+          ],
+          discoverChangedPaths: true,
+          strictNodeHistory: false,
+          includeMergedRevisions: false,
+          revisionsProperties: null,
+        }
 
-          let count = 0
-          const channel = new MessagePackChannel<LogEntry>()
+        let count = 0
+        const channel = new MessagePackChannel<LogEntry | null>()
+        const promise = new Promise((resolve) => {
           channel.onmessage = (entry) => {
-            if (start) {
+            if (entry === null) {
+              resolve(null)
+              return
+            }
+            if (start !== undefined) {
               if (entry.revision === start) {
                 return
               }
+            }
+            if (instantEntries.current.findIndex((i) => i.revision === entry.revision) >= 0) {
+              console.warn('Log has been loaded:', entry.revision, options, uuid)
             }
             count++
             instantEntries.current = [...instantEntries.current, entry]
 
             setEntries(instantEntries.current)
           }
+        })
 
-          await context.logNext(options, channel)
 
-          setReachBottom(count === 0)
+        await context.logNext(options, channel)
 
-          // if (count < limit) {
-          //   console.log('set reach bottom: ', count, limit)
-          //   setReachBottom(true)
-          // }
+        await promise
 
-          // if (start) {
-          //   logEntries = logEntries.filter((e) => e.revision !== start)
-          // }
 
-          // if (logEntries.length < limit) {
-          //   setReachBottom(true)
-          // }
-          // console.log('got entry', logEntries)
+        const offset = instantEntries.current.length - maxLogSize
 
-          // instantEntries.current = [...instantEntries.current, ...logEntries]
+        if (offset > 0 && !state.isTopLoading) {
+          instantEntries.current = instantEntries.current.slice(offset)
+          setEntries(instantEntries.current)
+        }
 
-          // setEntries(instantEntries.current)
+        setReachBottom(count === 0)
 
-          // setEntries((entries) => [...entries, ...logEntries])
-        },
-      })
-    } finally {
-      setIsBottomLoading(false)
-    }
+        // if (count < limit) {
+        //   console.log('set reach bottom: ', count, limit)
+        //   setReachBottom(true)
+        // }
+
+        // if (start) {
+        //   logEntries = logEntries.filter((e) => e.revision !== start)
+        // }
+
+        // if (logEntries.length < limit) {
+        //   setReachBottom(true)
+        // }
+        // console.log('got entry', logEntries)
+
+        // instantEntries.current = [...instantEntries.current, ...logEntries]
+
+        // setEntries(instantEntries.current)
+
+        // setEntries((entries) => [...entries, ...logEntries])
+      },
+    })
+    state.isBottomLoading = false
+    console.log('Finished loading bottom', uuid)
+    // setIsBottomLoading(false)
   }
 
   const loadTop = async () => {
@@ -209,11 +238,12 @@ function RevisionLogView(props: RevisionLogViewProps) {
 
     const url = infoEntry.url
 
-    if (isTopLoading) {
+    if (state.isTopLoading) {
       return
     }
 
-    setIsTopLoading(true)
+    // setIsTopLoading(true)
+    state.isTopLoading = true
 
     let start = instantEntries.current[0].revision
 
@@ -231,17 +261,36 @@ function RevisionLogView(props: RevisionLogViewProps) {
             includeMergedRevisions: false,
             revisionsProperties: null,
           }
-          const channel = new MessagePackChannel<LogEntry>()
+          const channel = new MessagePackChannel<LogEntry | null>()
           let count = 0
-          channel.onmessage = (entry) => {
-            count++
-            if (entry.revision === start) {
-              return
+          const promise = new Promise((resolve) => {
+            channel.onmessage = (entry) => {
+              if (entry === null) {
+                resolve(null)
+                return
+              }
+              count++
+              if (entry.revision === start) {
+                return
+              }
+              console.log('Load top add entry: ', entry)
+              instantEntries.current = [entry, ...instantEntries.current]
+              setEntries(instantEntries.current)
             }
-            instantEntries.current = [entry, ...instantEntries.current]
-            setEntries(instantEntries.current)
-          }
+          })
+          console.log('Ready to load top', options)
           await context.logNext(options, channel)
+          await promise
+          console.log('load top finished', options)
+
+          const offset = instantEntries.current.length - maxLogSize
+          if (offset > 0 && !state.isBottomLoading) {
+            console.log('too many logs, remove now', instantEntries.current)
+            instantEntries.current = instantEntries.current.slice(0, -offset)
+            console.log('too many logs, remove', instantEntries.current)
+            setEntries(instantEntries.current)
+            setReachBottom(false)
+          }
 
           // instantEntries.current = [
           //   ...result.filter((e) => e.revision !== start),
@@ -260,7 +309,8 @@ function RevisionLogView(props: RevisionLogViewProps) {
       },
     })
 
-    setIsTopLoading(false)
+    state.isTopLoading = false
+    // setIsTopLoading(false)
   }
 
   useEffect(() => {
@@ -281,14 +331,16 @@ function RevisionLogView(props: RevisionLogViewProps) {
       }
 
       return {
+        revision: e.revision === null ? undefined : e.revision,
         message: revisionsValue('svn:log'),
         author: revisionsValue('svn:author'),
-        revision: e.revision ?? undefined,
         date: revisionsValue('svn:date'),
+        uuid: e.revision === undefined ? uuid.v4() : undefined,
         entry: e,
       }
     })
   }, [entries])
+  console.log('rowData', rowData)
 
   // const onBodyScroll: UIEventHandler<HTMLDivElement> = (event) => {
   //   console.log('on body scroll: ', event)
@@ -307,15 +359,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
   //     }
   //   }
   // }
-
-  const onTopReached = () => {
-    loadTop()
-  }
-  const onBottomReached = () => {
-    if (!isBottomLoading && !reachBottom) {
-      loadBottom()
-    }
-  }
 
   const onSelectionChanged = (selection: TableSelection | null) => {
     if (selection === null) {
@@ -393,22 +436,19 @@ function RevisionLogView(props: RevisionLogViewProps) {
         onChange={setSearchText}
       ></PureInput>
       <div className={cx(flex, flex_1, overflow_hidden, shadow)}>
-        {workingCopy.historyViewOperationContainer === null ? (
-          <></>
-        ) : (
-          createPortal(bar, workingCopy.historyViewOperationContainer)
-        )}
+        {workingCopy.historyViewOperationContainer !== null &&
+          createPortal(bar, workingCopy.historyViewOperationContainer)}
         <Table
           selectionMode="row"
           data={rowData}
-          onBottomReached={onBottomReached}
-          onTopReached={onTopReached}
+          onBottomReached={loadBottom}
+          onTopReached={loadTop}
           columns={columnDefinitions}
           className={cx(flex_1, min_h_0, min_w_0)}
-          loading={isBottomLoading || isTopLoading}
+          loading={state.isBottomLoading || state.isTopLoading}
           threshold={1}
           onSelectionChange={onSelectionChanged}
-          onGetRowId={(e) => String(e.revision)}
+          onGetRowId={(e) => (e.revision === undefined ? (e.uuid ?? '') : String(e.revision))}
           globalFilter={searchText}
           rowContextMenu={(row) => {
             return [
@@ -541,6 +581,7 @@ export function HistoryView(props: HistoryViewProps) {
           const revision = selectedlogEntry.revision
 
           const result = await databaseRevisionLocation(repository, path, pegRevision, revision)
+          console.log('On revision location get result:', result, infoEntry)
           if (signal.aborted) return
           if (result === null) {
             await Subversion.callOnce({
@@ -659,8 +700,9 @@ export function HistoryView(props: HistoryViewProps) {
                   >
                     <SnapshotView
                       className={cx(activeView !== snapshotKey && hidden, flex_1)}
-                      relateTo={location}
-                      url={`${infoEntry.repositoryRootUrl}/${location}`}
+                      location={location}
+                      root={infoEntry.repositoryRootUrl}
+                      // url={combineUrl(infoEntry.repositoryRootUrl, location)}
                       pegRevision={selectedlogEntry.revision}
                       revision={selectedlogEntry.revision}
                     />

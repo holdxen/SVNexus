@@ -6453,7 +6453,7 @@ dependencies = [
 
 [[package]]
 name = "svnexus"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "bindgen",
  "bitflags 2.13.1",

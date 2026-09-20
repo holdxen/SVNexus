@@ -407,3 +407,25 @@ export const select_none = css`
 export const select_text = css`
   user-select: text;
 `
+
+export const not_minimizable = css``
+export const block_minimizable = css``
+
+export const minimizable = css`
+  min-width: 0px;
+  min-height: 0px;
+  & *:not(.${not_minimizable}, .${block_minimizable} *) {
+    min-width: 0px;
+    min-height: 0px;
+  }
+`
+
+export const box = css`
+  &:has(> :only-child) {
+    display: flex;
+  }
+
+  & > :only-child {
+    flex: 1;
+  }
+`

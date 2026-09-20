@@ -10,8 +10,16 @@ pub mod wc;
 #[cfg(test)]
 mod tests;
 
-use crate::utils::CStringer;
+use std::{ffi::CString, str::FromStr};
+
+use crate::{
+    apr,
+    error::{self, builder},
+    extensions::ResultExtension,
+    utils::{CStringer, Pointer},
+};
 use serde::{Deserialize, Serialize};
+use snafu::ResultExt;
 
 #[allow(bad_style)]
 #[allow(non_snake_case)]
@@ -2044,6 +2052,17 @@ impl SubversionError {
 
 const fn svn_no_error() -> *mut ffi::svn_error_t {
     ffi::SVN_NO_ERROR as *mut _
+}
+
+pub fn time_from_string(time: &str) -> error::Result<i64> {
+    let mut timestamp: apr::ffi::apr_time_t = 0;
+    unsafe {
+        let mut pool = apr::Pool::create();
+        let time = pool.string(time)?;
+        let error = ffi::svn_time_from_cstring(timestamp.pointer_mut(), time, pool.as_mut_ptr());
+        SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+    }
+    Ok(timestamp.try_into().expect("Timestamp should be i64"))
 }
 
 #[cfg(false)]

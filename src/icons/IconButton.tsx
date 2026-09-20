@@ -8,6 +8,10 @@ export const IconButton = styled.div<{ size?: number; color?: string }>`
   height: ${({ size }) => size || 24}px;
   box-sizing: border-box;
 
+  &[data-status='none'] {
+    display: none;
+  }
+
   &:not(.disabled):not(.inactive):hover {
     background-color: var(--semi-color-fill-1);
   }

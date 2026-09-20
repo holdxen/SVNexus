@@ -49,7 +49,7 @@ export function OpenFromPathDialog() {
         // path invalid, ignore
       }
     }
-    const selected = await open({
+    let selected = await open({
       title: 'Select working copy',
       multiple: false,
       directory: true,
@@ -58,6 +58,7 @@ export function OpenFromPathDialog() {
     if (selected === null) {
       return
     }
+    selected = selected.replace(/\\/g, '/')
     setPath(selected)
   }
 
