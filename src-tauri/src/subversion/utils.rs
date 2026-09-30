@@ -202,8 +202,10 @@ pub fn base64_encode(data: &[u8], break_lines: bool) -> error::Result<String> {
         let output = svn_base64_encode_string2(input, break_lines.into(), pool.as_mut_ptr())
             .as_ref()
             .expect("Unexpected failure");
-        let output =
-            std::slice::from_raw_parts(output.data as *const u8, output.len.try_into().expect("Failed to convert size"));
+        let output = std::slice::from_raw_parts(
+            output.data as *const u8,
+            output.len.try_into().expect("Failed to convert size"),
+        );
 
         Ok(std::str::from_utf8(output)
             .any_context("Invalid output string")?
@@ -222,8 +224,10 @@ pub fn base64_decode(data: &str) -> Vec<u8> {
         let output = svn_base64_decode_string(input, pool.as_mut_ptr())
             .as_ref()
             .expect("Unexpected failure");
-        let output =
-            std::slice::from_raw_parts(output.data as *const u8, output.len.try_into().expect("Failed to convert size"));
+        let output = std::slice::from_raw_parts(
+            output.data as *const u8,
+            output.len.try_into().expect("Failed to convert size"),
+        );
 
         output.to_vec()
     }

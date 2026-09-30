@@ -45,29 +45,32 @@ pub struct ImportOptions {
 }
 
 impl Context {
-    pub fn import_filter<'c, 'b>(
-        &mut self,
-        opts: ImportOptions,
-        filter: Option<
-            &'b mut (dyn FnMut(
-                /*path*/ String,
+    pub fn import_filter<
+        'a,
+        F: (for<'c> FnMut(
+                /*path*/ &'c str,
                 /*kind*/ NodeKind,
                 /*special*/ bool,
                 /*file_size*/ Option<u64>,
                 /*mtime*/ i64,
-            ) -> error::Result<bool, error::FrontendError>
-                         + 'c),
-        >,
+            ) -> error::Result<bool, error::FrontendError>)
+            + 'a,
+    >(
+        &mut self,
+        opts: ImportOptions,
+        filter: Option<F>,
     ) -> error::Result<ImportResult> {
         // use ignore::gitignore::*;
-        struct Filter<'a> {
-            filter: &'a mut dyn FnMut(
-                /*path*/ String,
+        struct Filter<
+            F: for<'c> FnMut(
+                /*path*/ &'c str,
                 /*kind*/ NodeKind,
                 /*special*/ bool,
                 /*file_size*/ Option<u64>,
                 /*mtime*/ i64,
             ) -> error::Result<bool, error::FrontendError>,
+        > {
+            filter: F,
         }
         unsafe extern "C" fn filter_none(
             _: *mut c_void,
@@ -78,7 +81,15 @@ impl Context {
         ) -> *mut ffi::svn_error_t {
             svn_no_error()
         }
-        unsafe extern "C" fn filter_some(
+        unsafe extern "C" fn filter_some<
+            F: for<'c> FnMut(
+                /*path*/ &'c str,
+                /*kind*/ NodeKind,
+                /*special*/ bool,
+                /*file_size*/ Option<u64>,
+                /*mtime*/ i64,
+            ) -> error::Result<bool, error::FrontendError>,
+        >(
             baton: *mut c_void,
             filtered: *mut ffi::svn_boolean_t,
             local_abspath: *const c_char,
@@ -86,17 +97,23 @@ impl Context {
             _pool: *mut ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
-                let filter = &mut (baton as *mut Filter).as_mut().expect("Failed to cast baton to mutable reference").filter;
-                let path = local_abspath.to_str().to_string();
+                let filter = &mut (baton as *mut Filter<F>)
+                    .as_mut()
+                    .expect("Failed to cast baton to mutable reference")
+                    .filter;
+                let path = local_abspath.to_str();
 
-                let (kind, special, file_size, mtime) = direct.as_ref().expect("Failed to get reference to dirent").also_map(|e| {
-                    (
-                        NodeKind::try_from(e.kind).expect("Unexpected failure"),
-                        e.special != 0,
-                        u64::try_from(e.filesize).ok(),
-                        i64::try_from(e.mtime).expect("Unexpected failure"),
-                    )
-                });
+                let (kind, special, file_size, mtime) = direct
+                    .as_ref()
+                    .expect("Failed to get reference to dirent")
+                    .also_map(|e| {
+                        (
+                            NodeKind::try_from(e.kind).expect("Unexpected failure"),
+                            e.special != 0,
+                            u64::try_from(e.filesize).ok(),
+                            i64::try_from(e.mtime).expect("Unexpected failure"),
+                        )
+                    });
 
                 match filter(path, kind, special, file_size, mtime) {
                     Ok(f) => *filtered = f.into(),
@@ -105,38 +122,7 @@ impl Context {
             }
             svn_no_error()
         }
-        // unsafe extern "C" fn filter_none(
-        //     _: *mut c_void,
-        //     _: *mut ffi::svn_boolean_t,
-        //     _: *const c_char,
-        //     _: *const ffi::svn_io_dirent2_t,
-        //     _: *mut ffi::apr_pool_t,
-        // ) -> *mut ffi::svn_error_t {
-        //     svn_no_error()
-        // }
 
-        // let mut matcher = opts
-        //     .filters
-        //     .map(|f| {
-        //         let mut builder = GitignoreBuilder::new(&opts.path);
-
-        //         for i in f {
-        //             tracing::info!("Add line to filter: {i}");
-        //             builder.add_line(None, &i)?;
-        //         }
-
-        //         Ok(Filter {
-        //             matcher: builder.build()?,
-        //         })
-        //     })
-        //     .transpose()
-        //     .context(builder::Glob)?;
-
-        // let baton = matcher
-        //     .as_mut()
-        //     .map(|v| v.pointer_mut())
-        //     .unwrap_or_default();
-        //
         let mut filter = filter.map(|e| Filter { filter: e });
 
         let baton = filter.as_mut().map(|e| e.pointer_mut()).unwrap_or_default();
@@ -175,7 +161,7 @@ impl Context {
                 Some(if baton.is_null() {
                     filter_none
                 } else {
-                    filter_some
+                    filter_some::<F>
                 }),
                 baton as _,
                 Some(commit_callback),
@@ -210,7 +196,9 @@ impl Context {
             unsafe {
                 let absolute_path = local_abspath.to_str();
 
-                let f = (baton as *mut Filter).as_mut().expect("Failed to cast baton to mutable reference");
+                let f = (baton as *mut Filter)
+                    .as_mut()
+                    .expect("Failed to cast baton to mutable reference");
 
                 let direct = direct.as_ref().expect("Failed to get reference to dirent");
 

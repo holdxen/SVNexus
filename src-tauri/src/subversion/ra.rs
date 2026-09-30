@@ -23,7 +23,7 @@ use crate::utils::Pointer;
 pub struct LocationSegment {
     range_start: u32,
     range_end: u32,
-    path: String
+    path: String,
 }
 
 impl From<*const ffi::svn_location_segment_t> for LocationSegment {
@@ -33,7 +33,7 @@ impl From<*const ffi::svn_location_segment_t> for LocationSegment {
             Self {
                 range_start: value.range_start.try_into().unwrap(),
                 range_end: value.range_end.try_into().unwrap(),
-                path: value.path.to_str().to_string()
+                path: value.path.to_str().to_string(),
             }
         }
     }
@@ -97,12 +97,20 @@ impl AsyncContext {
         .await
     }
 
-    pub async fn get_location_segments(&self, path: String, peg_revision: u32, start_revision: u32, end_revision: u32) -> error::Result<Vec<LocationSegment>> {
-
+    pub async fn get_location_segments(
+        &self,
+        path: String,
+        peg_revision: u32,
+        start_revision: u32,
+        end_revision: u32,
+    ) -> error::Result<Vec<LocationSegment>> {
         let mut segments: Vec<LocationSegment> = Vec::with_capacity(32);
 
-        unsafe extern "C" fn receiver(segment: *mut ffi::svn_location_segment_t, baton: *mut std::ffi::c_void, _pool: *mut ffi::apr_pool_t) -> *mut ffi::svn_error_t {
-
+        unsafe extern "C" fn receiver(
+            segment: *mut ffi::svn_location_segment_t,
+            baton: *mut std::ffi::c_void,
+            _pool: *mut ffi::apr_pool_t,
+        ) -> *mut ffi::svn_error_t {
             unsafe {
                 let baton = (baton as *mut Vec<LocationSegment>).as_mut().unwrap();
                 baton.push(LocationSegment::from(segment as *const _));
@@ -111,18 +119,26 @@ impl AsyncContext {
         }
 
         self.call_async(move |session| unsafe {
-
             let mut pool = Pool::create();
 
             let path = pool.canonicalize_uri(&path)?;
 
-            let error = ffi::svn_ra_get_location_segments(session, path, peg_revision.try_into().unwrap(), start_revision.try_into().unwrap(), end_revision.try_into().unwrap(), Some(receiver), segments.pointer_mut() as _, pool.as_mut_ptr());
+            let error = ffi::svn_ra_get_location_segments(
+                session,
+                path,
+                peg_revision.try_into().unwrap(),
+                start_revision.try_into().unwrap(),
+                end_revision.try_into().unwrap(),
+                Some(receiver),
+                segments.pointer_mut() as _,
+                pool.as_mut_ptr(),
+            );
 
             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
 
             Ok(segments)
-        }).await
-
+        })
+        .await
     }
 
     #[tracing::instrument(skip(self))]
@@ -150,7 +166,9 @@ impl AsyncContext {
                 session,
                 locations.pointer_mut(),
                 path,
-                revision.try_into().expect("Failed to convert revision number"),
+                revision
+                    .try_into()
+                    .expect("Failed to convert revision number"),
                 location_revisions,
                 pool.as_mut_ptr(),
             );

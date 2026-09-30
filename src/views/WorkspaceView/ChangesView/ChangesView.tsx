@@ -199,6 +199,7 @@ export function ChangesView({ className }: ChangesViewProps) {
   const [optionBarContainer, setOptionBarContainer] = useState<HTMLDivElement | null>(null)
   const subversion = useSubversion()
   const editor = useRef<StrongDifferenceEditorRef>(null)
+  const [statusEntries, setStatusEntries] = useState<StatusEntry[]>()
 
   const modal = useModal()
 
@@ -730,11 +731,15 @@ export function ChangesView({ className }: ChangesViewProps) {
             <Divider></Divider>
             <Container className={cx(flex_1, min_w_0, min_h_0, flex, flex_col)}>
               <ChangesListView
+                statusEntries={statusEntries}
+                onStatusEntriesChanged={setStatusEntries}
                 onRefresh={refresh}
                 onSelected={onSelected}
                 visible={isListView}
               ></ChangesListView>
               <ChangesTreeView
+                onStatusEntriesChanged={setStatusEntries}
+                statusEntries={statusEntries}
                 onRefresh={refresh}
                 onSelected={onSelected}
                 optionBarContainer={optionBarContainer}

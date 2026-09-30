@@ -2,12 +2,12 @@ import { Descriptions, Divider, Spin, Typography } from '@douyinfe/semi-ui'
 import { Data } from '@douyinfe/semi-ui/lib/es/descriptions'
 import { css, cx } from '@linaria/core'
 import { getVersion, getTauriVersion } from '@tauri-apps/api/app'
+import Bowser from 'bowser'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ExtendedVersion } from '@/bindings/ExtendedVersion'
 import { extendedVersion } from '@/context/Functions'
 import { flex, flex_col, items_center, min_h_0 } from '@/styles/Classes'
-import Bowser from "bowser"
 
 import { ScrollArea } from './ScrollArea'
 
@@ -42,7 +42,6 @@ export function AboutPanel({ className }: AboutPanelProps) {
   const browser = useMemo(() => {
     return Bowser.getParser(navigator.userAgent)
   }, [navigator.userAgent])
-
 
   useEffect(() => {
     getVersion().then(setAppVersion)
@@ -98,7 +97,10 @@ export function AboutPanel({ className }: AboutPanelProps) {
                 value: `${extVersion.version.major}.${extVersion.version.minor}.${extVersion.version.patch}${extVersion.version.tag}(${extVersion.buildDate} ${extVersion.buildTime})`,
               },
               { key: 'Tauri', value: tauriVersion },
-              { key: 'WebView', value: `${browser.getEngine().name} ${browser.getEngine().version}` },
+              {
+                key: 'WebView',
+                value: `${browser.getEngine().name} ${browser.getEngine().version}`,
+              },
               { key: 'Host', value: extVersion.buildHost },
               { key: 'Runtime Host', value: extVersion.runtimeHost },
             ]}

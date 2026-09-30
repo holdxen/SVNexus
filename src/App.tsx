@@ -1,14 +1,16 @@
 import '@douyinfe/semi-ui/react19-adapter'
-import { ConfigProvider, Divider, Dropdown } from '@douyinfe/semi-ui'
+import { ConfigProvider, Divider, Dropdown, Toast } from '@douyinfe/semi-ui'
 import MoreMenuIcon from '@icons/MoreMenu.svg?react'
 import RecordsIcon from '@icons/Records.svg?react'
+import UpgradeIcon from '@icons/Upgrade.svg?react'
 import { css, cx } from '@linaria/core'
 // import {
 //   writeText as tauriWriteText,
 //   readText as tauriReadText,
 // } from '@tauri-apps/plugin-clipboard-manager'
+import { check, Update } from '@tauri-apps/plugin-updater'
 import { useMemoizedFn } from 'ahooks'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import * as uuid from 'uuid'
 
@@ -35,6 +37,7 @@ import {
 import { TabContent, Tab } from './tab/Tab'
 import Logger from './utils/Logger'
 import { NiceAboutDialog } from './views/dialogs/AboutDialog'
+import { NiceAppUpdateDialog } from './views/dialogs/AppUpdateDialog'
 import { WelcomeView } from './views/WelcomeView/WelcomeView'
 import { RouteFileHistoryView } from './views/WorkspaceView/FileHitoryView'
 import { WorkspaceView } from './views/WorkspaceView/WorkspaceView'
@@ -109,10 +112,61 @@ function App() {
 function Home() {
   const [activeIdentity, setActiveIdentity] = useState<string | number>('')
   const [tabs, setTabs] = useState<TabViewModel[]>([])
+  const [update, setUpdate] = useState<Update | null>(null)
   const modal = useModal()
 
   const showAboutDialog = () => {
     modal.show(NiceAboutDialog, {})
+  }
+
+  const showUpdateDialog = () => {
+    if (!update) {
+      return
+    }
+    modal.show(NiceAppUpdateDialog, { update })
+  }
+
+  // 启动时检查更新；有新版本才显示升级图标
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      return
+    }
+    check()
+      .then((available) => {
+        if (available) {
+          setUpdate(available)
+        }
+      })
+      .catch((e) => {
+        Logger.info('Update check failed: ', e)
+      })
+  }, [])
+
+  // 手动检查更新：有更新直接弹窗并显示升级图标，无更新提示已最新
+  const checkingRef = useRef(false)
+  const checkUpdateManually = async () => {
+    if (update) {
+      modal.show(NiceAppUpdateDialog, { update })
+      return
+    }
+    if (checkingRef.current) {
+      return
+    }
+    checkingRef.current = true
+    try {
+      const available = await check()
+      if (available) {
+        setUpdate(available)
+        modal.show(NiceAppUpdateDialog, { update: available })
+      } else {
+        Toast.success({ content: '当前已是最新版本', stack: true })
+      }
+    } catch (e) {
+      Logger.warn('Manual update check failed: ', e)
+      Toast.error({ content: '检查更新失败，请稍后重试', stack: true })
+    } finally {
+      checkingRef.current = false
+    }
   }
 
   const closeTab = useMemoizedFn((identity: Identity) => {
@@ -177,9 +231,16 @@ function Home() {
       // setTabs((items) => items.filter((i) => i.identity !== model.identity))
     }
   }
-  const goTo = useMemoizedFn((identity: Identity) => {
+  const goTo = useMemoizedFn((identity: Identity, exclude?: Identity) => {
     if (tabs.findIndex((i) => i.identity === identity) < 0) {
       Logger.warn('No such tab:', identity)
+      for (let tab of tabs.reverse()) {
+        if (tab.identity === exclude) {
+          continue;
+        }
+        setActiveIdentity(tab.identity)
+        break;
+      }
       return
     }
     setActiveIdentity(identity)
@@ -296,6 +357,7 @@ function Home() {
                 trigger="click"
                 render={
                   <Dropdown.Menu>
+                    <Dropdown.Item onClick={checkUpdateManually}>检查更新</Dropdown.Item>
                     <Dropdown.Item onClick={showAboutDialog}>About</Dropdown.Item>
                   </Dropdown.Menu>
                 }
@@ -307,6 +369,11 @@ function Home() {
               <IconButton>
                 <RecordsIcon></RecordsIcon>
               </IconButton>
+              {update ? (
+                <IconButton onClick={showUpdateDialog}>
+                  <UpgradeIcon></UpgradeIcon>
+                </IconButton>
+              ) : null}
             </div>
           </div>
           <Divider></Divider>

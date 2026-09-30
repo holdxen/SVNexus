@@ -19,6 +19,7 @@ export interface OperationState {
   move: boolean
   export: boolean
   ignore: boolean
+  history: boolean
 }
 
 export const defaultOperationState: OperationState = {
@@ -42,4 +43,5 @@ export const defaultOperationState: OperationState = {
   move: false,
   export: false,
   ignore: false,
+  history: false
 }

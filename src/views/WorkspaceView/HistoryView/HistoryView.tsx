@@ -6,6 +6,7 @@ import { css, cx } from '@linaria/core'
 import type { ColumnDef } from '@tanstack/react-table'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { useMemoizedFn, useReactive } from 'ahooks'
+import dayjs from 'dayjs'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Group, Separator, Panel } from 'react-resizable-panels'
@@ -19,7 +20,7 @@ import { RevisionPropertyName } from '@/bindings/RevisionPropertyName'
 import LazyComponent from '@/components/LazyComponent'
 import OperationBar, { OperationIconProps } from '@/components/OperationBar'
 import PureInput from '@/components/PureInput'
-import { Table, TableSelection } from '@/components/Table'
+import { Table, TableHandle, TableSelection } from '@/components/Table'
 import { databaseRevisionLocation, databaseUpdateRevisionLocation } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useModal } from '@/lib/multi-modal'
@@ -60,7 +61,7 @@ interface RevisionLogViewProps {
 }
 
 function RevisionLogView(props: RevisionLogViewProps) {
-  const maxLogSize = 100
+  const maxLogSize = 500
   type Data = {
     revision?: number
     message?: string
@@ -79,6 +80,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
   const info = useRef<InfoEntry | null>(null)
   const [reachBottom, setReachBottom] = useState(false)
   const instantEntries = useRef<LogEntry[]>([])
+  const tableRef = useRef<TableHandle>(null)
 
   // Column Definitions: Defines the columns to be displayed.
   const columnDefinitions = useMemo<ColumnDef<Data>[]>(() => {
@@ -177,45 +179,27 @@ function RevisionLogView(props: RevisionLogViewProps) {
           }
         })
 
-
         await context.logNext(options, channel)
 
         await promise
-
 
         const offset = instantEntries.current.length - maxLogSize
 
         if (offset > 0 && !state.isTopLoading) {
           instantEntries.current = instantEntries.current.slice(offset)
           setEntries(instantEntries.current)
+          // Rows were removed from the head; shift the viewport up by the same
+          // amount so the rows currently on screen stay in place.
+          tableRef.current?.scrollByRows(-offset)
         }
 
         setReachBottom(count === 0)
 
-        // if (count < limit) {
-        //   console.log('set reach bottom: ', count, limit)
-        //   setReachBottom(true)
-        // }
-
-        // if (start) {
-        //   logEntries = logEntries.filter((e) => e.revision !== start)
-        // }
-
-        // if (logEntries.length < limit) {
-        //   setReachBottom(true)
-        // }
-        // console.log('got entry', logEntries)
-
-        // instantEntries.current = [...instantEntries.current, ...logEntries]
-
-        // setEntries(instantEntries.current)
-
-        // setEntries((entries) => [...entries, ...logEntries])
       },
     })
-    state.isBottomLoading = false
-    console.log('Finished loading bottom', uuid)
-    // setIsBottomLoading(false)
+    setTimeout(() => {
+      state.isBottomLoading = false
+    }, 500)
   }
 
   const loadTop = async () => {
@@ -250,66 +234,65 @@ function RevisionLogView(props: RevisionLogViewProps) {
     await Subversion.callOnce({
       factory: subversion,
       call: async (context) => {
-        while (true) {
-          const options: LogOptions = {
-            targets: [url],
-            pegRevision: { number: infoEntry.revision! },
-            limit: 0,
-            revisions: [{ start: { number: start }, end: 'head' }],
-            discoverChangedPaths: true,
-            strictNodeHistory: false,
-            includeMergedRevisions: false,
-            revisionsProperties: null,
-          }
-          const channel = new MessagePackChannel<LogEntry | null>()
-          let count = 0
-          const promise = new Promise((resolve) => {
-            channel.onmessage = (entry) => {
-              if (entry === null) {
-                resolve(null)
-                return
-              }
-              count++
-              if (entry.revision === start) {
-                return
-              }
-              console.log('Load top add entry: ', entry)
-              instantEntries.current = [entry, ...instantEntries.current]
-              setEntries(instantEntries.current)
-            }
-          })
-          console.log('Ready to load top', options)
-          await context.logNext(options, channel)
-          await promise
-          console.log('load top finished', options)
-
-          const offset = instantEntries.current.length - maxLogSize
-          if (offset > 0 && !state.isBottomLoading) {
-            console.log('too many logs, remove now', instantEntries.current)
-            instantEntries.current = instantEntries.current.slice(0, -offset)
-            console.log('too many logs, remove', instantEntries.current)
-            setEntries(instantEntries.current)
-            setReachBottom(false)
-          }
-
-          // instantEntries.current = [
-          //   ...result.filter((e) => e.revision !== start),
-          //   ...instantEntries.current,
-          // ]
-          // setEntries(instantEntries.current)
-          // setEntries(items => [...result, ...items])
-          // if (result.length > 0) {
-          //   start = result[0].revision!
-          // }
-          start = instantEntries.current[0].revision!
-          if (count < 100) {
-            break
-          }
+        const options: LogOptions = {
+          targets: [url],
+          pegRevision: { number: infoEntry.revision! },
+          limit: 100,
+          revisions: [{ start: { number: start }, end: 'head' }],
+          discoverChangedPaths: true,
+          strictNodeHistory: false,
+          includeMergedRevisions: false,
+          revisionsProperties: null,
         }
+        const channel = new MessagePackChannel<LogEntry | null>()
+        let count = 0
+        const promise = new Promise((resolve) => {
+          channel.onmessage = (entry) => {
+            if (entry === null) {
+              resolve(null)
+              return
+            }
+            count++
+            if (entry.revision === start) {
+              return
+            }
+            instantEntries.current = [entry, ...instantEntries.current]
+            setEntries(instantEntries.current)
+            // A row was inserted at the head; shift the viewport down by the
+            // same amount so the rows currently on screen stay in place.
+            tableRef.current?.scrollByRows(1)
+          }
+        })
+        await context.logNext(options, channel)
+        await promise
+
+        const offset = instantEntries.current.length - maxLogSize
+        if (offset > 0 && !state.isBottomLoading) {
+          console.log('offset is', offset)
+          console.log('too many logs, remove now', instantEntries.current)
+          instantEntries.current = instantEntries.current.slice(0, -offset)
+          console.log('too many logs, remove', instantEntries.current)
+          setEntries(instantEntries.current)
+          setReachBottom(false)
+        }
+
+        // instantEntries.current = [
+        //   ...result.filter((e) => e.revision !== start),
+        //   ...instantEntries.current,
+        // ]
+        // setEntries(instantEntries.current)
+        // setEntries(items => [...result, ...items])
+        // if (result.length > 0) {
+        //   start = result[0].revision!
+        // }
+        start = instantEntries.current[0].revision!
       },
     })
 
-    state.isTopLoading = false
+    setTimeout(() => {
+      state.isTopLoading = false
+    }, 500)
+
     // setIsTopLoading(false)
   }
 
@@ -330,17 +313,23 @@ function RevisionLogView(props: RevisionLogViewProps) {
         return e.revisionProperties[key]
       }
 
+      let date = revisionsValue('svn:date')
+
+      if (date !== undefined) {
+        date = dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+      }
+
       return {
         revision: e.revision === null ? undefined : e.revision,
         message: revisionsValue('svn:log'),
         author: revisionsValue('svn:author'),
-        date: revisionsValue('svn:date'),
-        uuid: e.revision === undefined ? uuid.v4() : undefined,
+        date,
+        uuid: e.revision === null ? uuid.v4() : undefined,
         entry: e,
       }
     })
   }, [entries])
-  console.log('rowData', rowData)
+  // console.log('rowData', rowData)
 
   // const onBodyScroll: UIEventHandler<HTMLDivElement> = (event) => {
   //   console.log('on body scroll: ', event)
@@ -393,7 +382,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
       children: <LoadMoreIcon></LoadMoreIcon>,
       onClick: async () => {
         await loadBottom()
-        await loadTop()
       },
     },
     {
@@ -439,6 +427,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
         {workingCopy.historyViewOperationContainer !== null &&
           createPortal(bar, workingCopy.historyViewOperationContainer)}
         <Table
+          ref={tableRef}
           selectionMode="row"
           data={rowData}
           onBottomReached={loadBottom}
@@ -446,7 +435,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
           columns={columnDefinitions}
           className={cx(flex_1, min_h_0, min_w_0)}
           loading={state.isBottomLoading || state.isTopLoading}
-          threshold={1}
           onSelectionChange={onSelectionChanged}
           onGetRowId={(e) => (e.revision === undefined ? (e.uuid ?? '') : String(e.revision))}
           globalFilter={searchText}
@@ -581,7 +569,6 @@ export function HistoryView(props: HistoryViewProps) {
           const revision = selectedlogEntry.revision
 
           const result = await databaseRevisionLocation(repository, path, pegRevision, revision)
-          console.log('On revision location get result:', result, infoEntry)
           if (signal.aborted) return
           if (result === null) {
             await Subversion.callOnce({

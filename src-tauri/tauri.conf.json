@@ -30,6 +30,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -66,6 +67,12 @@
   "plugins": {
     "fs": {
       "requireLiteralLeadingDot": false
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg2MTIxM0QyNjhBN0M0ODIKUldTQ3hLZG8waE1TaHZmN2g5N1hjOHNRd0RuQ0FMUk8zK0UxcmZjVVhvVnhweU1rNGlFK1BqMUgK",
+      "endpoints": [
+        "https://github.com/holdxen/SVNexus/releases/latest/download/latest.json"
+      ]
     }
   }
 }

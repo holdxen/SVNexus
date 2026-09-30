@@ -1,35 +1,9 @@
+import { resolveSvnPath } from './lib.js'
+
 const platform = process.env.TAURI_ENV_PLATFORM
 const arch = process.env.TAURI_ENV_ARCH
 
-let svn = null
-
-if (platform === 'windows' && arch === 'x86_64') {
-  svn = 'deps/win-x64/svn'
-}
-
-if (platform === 'windows' && arch === 'aarch64') {
-  // Windows ARM64
-  svn = 'deps/win-aarch64/svn'
-}
-
-if (platform === 'darwin' && arch === 'aarch64') {
-  // macOS Apple Silicon
-  svn = 'deps/macos-aarch64/svn'
-}
-
-if (platform === 'darwin' && arch === 'x86_64') {
-  // macOS Intel
-  svn = 'deps/macos-x64/svn'
-}
-
-if (platform === 'linux' && arch === 'x86_64') {
-  // Linux x64
-  svn = 'deps/linux-x64/svn'
-}
-
-if (svn === null) {
-  throw new Error(`Unsupported platform: ${platform} ${arch}`)
-}
+const svn = resolveSvnPath(platform, arch)
 
 import { cp } from 'node:fs/promises'
 import { rm } from 'node:fs/promises'

@@ -218,11 +218,12 @@ const inputIcon = css`
   }
 `
 
-export function NiceExportDialog(props: { defaultPath?: string }) {
+export function NiceExportDialog(props: { defaultPath?: string, defaultRevision?: Revision }) {
   const modal = useCurrentModal()
   return (
     <ExportDialog
       defaultPath={props.defaultPath}
+      defaultRevision={props.defaultRevision}
       visible={modal.visible}
       onOk={() => {
         modal.resolve(true)
@@ -243,13 +244,14 @@ export interface ExportDialogProps {
   onCancel?: () => void
   afterClose?: () => void
   defaultPath?: string
+  defaultRevision?: Revision
 }
 
 export default function ExportDialog(props: ExportDialogProps) {
   const revisionKinds: RevisionKind[] = ['head', 'number', 'date', 'base', 'working']
 
   const [pegRevision, setPegRevision] = useState<Revision>('unspecified')
-  const [revision, setRevision] = useState<Revision>('head')
+  const [revision, setRevision] = useState<Revision>(props.defaultRevision ?? 'head')
 
   const [override, setOverride] = useState(false)
   const [ignoreExternals, setIgnoreExternals] = useState(false)

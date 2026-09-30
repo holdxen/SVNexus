@@ -7,7 +7,6 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import * as uuid from 'uuid'
 
 import { LazyDiffEditor } from '@/components/monaco/LazyEditors'
-import { formatSize } from '@/context/Functions'
 import {
   flex,
   flex_1,
@@ -20,6 +19,8 @@ import {
   text_center,
   select_none,
 } from '@/styles/Classes'
+import { filesize } from 'filesize'
+import { usePrevious } from 'ahooks'
 
 export interface BinaryFile {
   name: string
@@ -35,6 +36,7 @@ export interface DifferenceEditorProps extends DifferenceModel {
   sideBySide: boolean
   hideUnChanged: boolean
   className?: string
+  diffMethod?: number
 }
 
 const size40 = css`
@@ -78,11 +80,9 @@ class BinaryFileOverlayWidget implements monaco.editor.IOverlayWidget {
     if (this.fileName) {
       this.fileName.innerText = file.name
     }
-    formatSize(file.size).then((v) => {
-      if (this.sizeText) {
-        this.sizeText.innerText = v
-      }
-    })
+    if (this.sizeText !== undefined) {
+      this.sizeText.innerText = filesize(file.size)
+    }
   }
 
   getId(): string {
@@ -131,9 +131,7 @@ class BinaryFileOverlayWidget implements monaco.editor.IOverlayWidget {
       size.classList.add(text_center)
 
       if (this.file) {
-        formatSize(this.file.size).then((v) => {
-          size.innerText = v
-        })
+        size.innerText = filesize(this.file.size)
       }
 
       this.sizeText = size
@@ -187,6 +185,8 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
     newContent = props.newContent
   }
 
+  const previousDiffMethod = usePrevious(props.diffMethod)
+
   // 接管 DiffEditor 的 dispose 顺序：先销毁 widget，再销毁 model
   // 避免 @monaco-editor/react 默认先销毁 model 触发 Monaco 0.52+ 的断言错误
   // "TextModel got disposed before DiffEditorWidget model got reset"
@@ -197,6 +197,16 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
   const isOldBinary = typeof props.oldContent === 'object'
 
   const isSideBySide = props.sideBySide || isNewBinary || isOldBinary
+
+  useEffect(() => {
+
+    const offset = (props.diffMethod ?? 0) - (previousDiffMethod ?? 0);
+    if (offset > 0) {
+      editorRef.current?.goToDiff('next')
+    } else if (offset < 0) {
+      editorRef.current?.goToDiff('previous')
+    }
+  }, [props.diffMethod])
 
   const onCopy = useCallback((e: ClipboardEvent) => {
     if (editorRef.current === null) {

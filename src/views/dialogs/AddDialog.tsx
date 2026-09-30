@@ -1,6 +1,6 @@
 import { Card, Checkbox, Toast } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { AddOptions } from '@/bindings/AddOptions'
 import { Depth } from '@/bindings/Depth'
@@ -36,7 +36,7 @@ export function NiceAddDialog(props: { items: WorkingCopyPathItemModel[] }) {
         modal.hide()
       }}
       onCancel={() => {
-        modal.resolve(true)
+        modal.resolve(false)
         modal.hide()
       }}
       afterClose={modal.remove}
@@ -62,9 +62,14 @@ export default function AddDialog(props: AddDialogProps) {
   const [noAutoProperties, setNoAutoProperties] = useState(false)
   const [addParents, setAddParents] = useState(false)
   const subversion = useSubversion()
+  const added = useRef(false)
 
   const onCancel = () => {
-    props.onCancel()
+    if (added.current) {
+      props.onOk()
+    } else {
+      props.onCancel()
+    }
   }
 
   const onOk = async () => {
@@ -83,6 +88,7 @@ export default function AddDialog(props: AddDialogProps) {
             addParents,
           }
           await context.add(options)
+          added.current = true
         }
         props.onOk()
       },

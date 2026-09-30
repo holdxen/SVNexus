@@ -10,10 +10,15 @@ import {
 } from '@/context/Subversion'
 import { useModal } from '@/lib/multi-modal'
 import { flex, flex_1, min_w_0 } from '@/styles/Classes'
+import Logger from '@/utils/Logger'
 
 import AuthenticateDialog from './dialogs/AuthenticateDialog'
 import { NiceConflictDialog } from './dialogs/ConflictDialog'
 import MaySavePasswordAsPlainText from './dialogs/MaySavePasswordAsPlainText'
+import { NiceSSHAuthenticateDialog } from './dialogs/SSHAuthenticateDialog'
+import { NiceSSHKeyboardInteractiveDialog } from './dialogs/SSHKeyboardInteractiveDialog'
+import { NiceSSHPassphraseDialog } from './dialogs/SSHPassphraseDialog'
+import { NiceSSHVerifyNewHostKeyDialog } from './dialogs/SSHVerifyNewHostKeyDialog'
 import { NiceSslClientCertificateDialog } from './dialogs/SslClientCertificateDialog'
 import SslServerTrustPromptDialog from './dialogs/SslServerTrustPromptDialog'
 
@@ -59,6 +64,18 @@ export function SubversionProvider({
       })
       subversion.on('sslClientCertificate', (data) => {
         modal.show(NiceSslClientCertificateDialog, data)
+      })
+      subversion.on('tunnel', (data) => {
+        Logger.info('On get tunnel event: ', data.ssh)
+        if ('authenticate' in data.ssh) {
+          modal.show(NiceSSHAuthenticateDialog, data.ssh.authenticate)
+        } else if ('verifyNewHostKey' in data.ssh) {
+          modal.show(NiceSSHVerifyNewHostKeyDialog, data.ssh.verifyNewHostKey)
+        } else if ('keyboardInteractive' in data.ssh) {
+          modal.show(NiceSSHKeyboardInteractiveDialog, data.ssh.keyboardInteractive)
+        } else if ('passphrase' in data.ssh) {
+          modal.show(NiceSSHPassphraseDialog, data.ssh.passphrase)
+        }
       })
     }
 

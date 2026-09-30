@@ -43,8 +43,13 @@ impl Context {
 
             let sources = ffi::apr_array_make(
                 pool.as_mut_ptr(),
-                opts.sources.len().try_into().expect("Failed to convert size"),
-                size_of::<usize>().try_into().expect("Failed to convert size"),
+                opts.sources
+                    .len()
+                    .try_into()
+                    .expect("Failed to convert size"),
+                size_of::<usize>()
+                    .try_into()
+                    .expect("Failed to convert size"),
             );
 
             for source in &opts.sources {

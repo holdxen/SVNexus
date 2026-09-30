@@ -46,7 +46,9 @@ unsafe extern "C" fn svn_write_fn(
 ) -> *mut ffi::svn_error_t {
     unsafe {
         let inner = baton as *mut StreamInner;
-        let inner = inner.as_mut().expect("Failed to get mutable reference to inner");
+        let inner = inner
+            .as_mut()
+            .expect("Failed to get mutable reference to inner");
         inner
             .write_buffer
             .extend_from_slice(std::slice::from_raw_parts(
@@ -65,11 +67,19 @@ unsafe extern "C" fn svn_read_fn(
 ) -> *mut ffi::svn_error_t {
     unsafe {
         let inner = baton as *mut StreamInner;
-        let inner = inner.as_mut().expect("Failed to get mutable reference to inner");
+        let inner = inner
+            .as_mut()
+            .expect("Failed to get mutable reference to inner");
 
-        let min = std::cmp::min(usize::try_from(*len).expect("Unexpected failure"), inner.read_buffer.len());
+        let min = std::cmp::min(
+            usize::try_from(*len).expect("Unexpected failure"),
+            inner.read_buffer.len(),
+        );
 
-        let buf = std::slice::from_raw_parts_mut(buf as *mut u8, (*len).try_into().expect("Failed to convert size"));
+        let buf = std::slice::from_raw_parts_mut(
+            buf as *mut u8,
+            (*len).try_into().expect("Failed to convert size"),
+        );
 
         buf.copy_from_slice(&inner.read_buffer[..min]);
 
@@ -328,7 +338,9 @@ pub impl Box<dyn Streaming> {
     unsafe fn into_stream(self, pool: *mut ffi::apr_pool_t) -> *mut ffi::svn_stream_t {
         unsafe {
             let this = pool.boxed(self);
-            this.as_mut().expect("Failed to get mutable reference").as_stream(pool)
+            this.as_mut()
+                .expect("Failed to get mutable reference")
+                .as_stream(pool)
         }
     }
 
@@ -337,8 +349,13 @@ pub impl Box<dyn Streaming> {
             baton: *mut c_void,
             data_available: *mut ffi::svn_boolean_t,
         ) -> *mut ffi::svn_error_t {
-            let context = (baton as *mut Box<dyn Streaming>).as_mut().expect("Failed to cast baton to mutable reference");
-            *data_available = context.read_available().expect("Failed to check data availability").into();
+            let context = (baton as *mut Box<dyn Streaming>)
+                .as_mut()
+                .expect("Failed to cast baton to mutable reference");
+            *data_available = context
+                .read_available()
+                .expect("Failed to check data availability")
+                .into();
             super::svn_no_error()
         }
 
@@ -348,8 +365,10 @@ pub impl Box<dyn Streaming> {
             len: *mut ffi::apr_size_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
-                let data =
-                    std::slice::from_raw_parts(data as *const u8, (*len).try_into().expect("Failed to convert size"));
+                let data = std::slice::from_raw_parts(
+                    data as *const u8,
+                    (*len).try_into().expect("Failed to convert size"),
+                );
                 match (baton as *mut Box<dyn Streaming>)
                     .as_mut()
                     .expect("Unexpected failure")
@@ -367,8 +386,10 @@ pub impl Box<dyn Streaming> {
             len: *mut ffi::apr_size_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
-                let data =
-                    std::slice::from_raw_parts_mut(buffer as *mut u8, (*len).try_into().expect("Failed to convert size"));
+                let data = std::slice::from_raw_parts_mut(
+                    buffer as *mut u8,
+                    (*len).try_into().expect("Failed to convert size"),
+                );
                 match (baton as *mut Box<dyn Streaming>)
                     .as_mut()
                     .expect("Unexpected failure")
@@ -382,7 +403,11 @@ pub impl Box<dyn Streaming> {
         }
         unsafe extern "C" fn close(baton: *mut c_void) -> *mut ffi::svn_error_t {
             unsafe {
-                if let Err(e) = (baton as *mut Box<dyn Streaming>).as_mut().expect("Failed to cast baton to mutable reference").close() {
+                if let Err(e) = (baton as *mut Box<dyn Streaming>)
+                    .as_mut()
+                    .expect("Failed to cast baton to mutable reference")
+                    .close()
+                {
                     return e.native_error();
                 }
             }

@@ -91,11 +91,14 @@ impl StatusEntry {
 
             let conflicted = entry.conflicted != 0;
 
-            let node_status = WorkingCopyStatus::try_from(entry.node_status).expect("Unexpected failure");
+            let node_status =
+                WorkingCopyStatus::try_from(entry.node_status).expect("Unexpected failure");
 
-            let text_status = WorkingCopyStatus::try_from(entry.text_status).expect("Unexpected failure");
+            let text_status =
+                WorkingCopyStatus::try_from(entry.text_status).expect("Unexpected failure");
 
-            let property_status = WorkingCopyStatus::try_from(entry.prop_status).expect("Unexpected failure");
+            let property_status =
+                WorkingCopyStatus::try_from(entry.prop_status).expect("Unexpected failure");
 
             let wc_is_locked = entry.wc_is_locked != 0;
 
@@ -111,7 +114,10 @@ impl StatusEntry {
 
             let last_changed_revision = entry.changed_rev.try_into().ok();
 
-            let last_changed_date: i64 = entry.changed_date.try_into().expect("Failed to convert time");
+            let last_changed_date: i64 = entry
+                .changed_date
+                .try_into()
+                .expect("Failed to convert time");
 
             let last_changed_author = entry.changed_author.to_nullable_string();
 
@@ -143,7 +149,12 @@ impl StatusEntry {
             let out_of_date_changed_date = if entry.ood_changed_date == 0 {
                 None
             } else {
-                Some(entry.ood_changed_date.try_into().expect("Failed to convert time"))
+                Some(
+                    entry
+                        .ood_changed_date
+                        .try_into()
+                        .expect("Failed to convert time"),
+                )
             };
 
             let out_of_date_changed_author = entry.ood_changed_author.to_nullable_string();
@@ -225,7 +236,9 @@ impl Context {
             _pool: *mut ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
-                let this = (baton as *mut ContextInner).as_mut().expect("Failed to cast baton to mutable reference");
+                let this = (baton as *mut ContextInner)
+                    .as_mut()
+                    .expect("Failed to cast baton to mutable reference");
 
                 let mut entry = StatusEntry::from_path_and_ptr(path, status);
 
@@ -294,7 +307,9 @@ impl Context {
             _pool: *mut ffi::apr_pool_t,
         ) -> *mut ffi::svn_error_t {
             unsafe {
-                let this = (baton as *mut ContextInner).as_mut().expect("Failed to cast baton to mutable reference");
+                let this = (baton as *mut ContextInner)
+                    .as_mut()
+                    .expect("Failed to cast baton to mutable reference");
 
                 let mut entry = StatusEntry::from_path_and_ptr(path, status);
 

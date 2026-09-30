@@ -4,19 +4,20 @@ import type { FrontendError } from './FrontendError'
 import type { SubversionError } from './SubversionError'
 
 export type Error =
-  | { aprError: { source: AprError } }
-  | { subversionError: { source: SubversionError } }
-  | { invalidArgument: { detail: string } }
-  | { iOError: { source: string } }
-  | { generalError: { detail: string } }
-  | { runtimeError: { source: string } }
-  | { whatever: { message: string } }
-  | { jsonError: { source: string } }
-  | { enumParseError: { source: string; detail: string } }
-  | { tauriError: { source: FrontendError } }
-  | { cacheBrokenError: { uuid: string } }
-  | { databaseError: { source: string } }
-  | { whichError: { source: string } }
-  | { globError: { source: string } }
-  | { unexpectedMessage: { detail: string } }
-  | { messagePackError: { source: string } }
+  | { aprError: { source: AprError; location: import('./Location').Location } }
+  | { subversionError: { source: SubversionError; location: import('./Location').Location } }
+  | { invalidArgument: { detail: string; location: import('./Location').Location } }
+  | { iOError: { source: string; location: import('./Location').Location } }
+  | { generalError: { detail: string; location: import('./Location').Location } }
+  | { runtimeError: { source: string; location: import('./Location').Location } }
+  | { whatever: { message: string; location: import('./Location').Location } }
+  | { jsonError: { source: string; location: import('./Location').Location } }
+  | { enumParseError: { source: string; detail: string; location: import('./Location').Location } }
+  | { tauriError: { source: FrontendError; location: import('./Location').Location } }
+  | { cacheBrokenError: { uuid: string; location: import('./Location').Location } }
+  | { databaseError: { source: string; location: import('./Location').Location } }
+  | { whichError: { source: string; location: import('./Location').Location } }
+  | { globError: { source: string; location: import('./Location').Location } }
+  | { unexpectedMessage: { detail: string; location: import('./Location').Location } }
+  | { messagePackError: { source: string; location: import('./Location').Location } }
+  | { flatlineError: { source: string; location: import('./Location').Location } }

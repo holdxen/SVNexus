@@ -196,7 +196,9 @@ impl Context {
             let mut property_conflict: *mut ffi::apr_array_header_t = std::ptr::null_mut();
 
             unsafe {
-                let inner = (baton as *mut ContextInner).as_mut().expect("Failed to cast baton to mutable reference");
+                let inner = (baton as *mut ContextInner)
+                    .as_mut()
+                    .expect("Failed to cast baton to mutable reference");
 
                 let error = ffi::svn_client_conflict_get_conflicted(
                     is_text.pointer_mut(),

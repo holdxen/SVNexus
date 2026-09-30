@@ -7,6 +7,8 @@ import FullscreenExitIcon from '@icons/FullscreenExit.svg?react'
 import PropertyViewIcon from '@icons/PropertyView.svg?react'
 import SideBySideIcon from '@icons/SideBySide.svg?react'
 import TextViewIcon from '@icons/TextView.svg?react'
+import TextChangePreviousIcon from '@icons/TextChangePrevious.svg?react'
+import TextChangeNextIcon from '@icons/TextChangeNext.svg?react'
 import { css, cx } from '@linaria/core'
 import { Row, type ColumnDef } from '@tanstack/react-table'
 import { useMemoizedFn, useUpdateLayoutEffect } from 'ahooks'
@@ -399,6 +401,7 @@ function DifferenceContent(props: DifferenceContentProps) {
   //   console.log('property state changed:', state(property), property)
   // }, [property])
 
+  const [diffMethod, setDiffMethod] = useState(0)
   const addPropertyIcon = (
     <Tooltip content="Add property">
       <IconButton
@@ -421,6 +424,41 @@ function DifferenceContent(props: DifferenceContentProps) {
     </Tooltip>
   )
 
+  const textChangeNextIcon = (
+    <Tooltip content="Next change">
+      <IconButton
+        data-status={
+          !props.visible || props.viewType !== 'text'
+            ? 'none'
+            : undefined
+        }
+        onClick={() => {
+          setDiffMethod(v => (v ?? 0) + 1)
+        }}
+      >
+        <TextChangeNextIcon />
+      </IconButton>
+    </Tooltip>
+  )
+
+  const textChangePreviousIcon = (
+    <Tooltip content="Previous change">
+      <IconButton
+        data-status={
+          !props.visible || props.viewType !== 'text'
+            ? 'none'
+            : undefined
+        }
+        onClick={() => {
+          setDiffMethod(v => (v ?? 0) - 1)
+        }}
+      >
+        <TextChangePreviousIcon/>
+      </IconButton>
+    </Tooltip>
+  )
+
+
   // Logger.info(
   //   'Add property icon visible: ',
   //   props.visible,
@@ -433,6 +471,10 @@ function DifferenceContent(props: DifferenceContentProps) {
     <div className={cx(!props.visible && hidden, flex, props.className)}>
       {props.iconContainer &&
         createPortal(addPropertyIcon, props.iconContainer, 'add proprty icon')}
+      {props.iconContainer &&
+        createPortal(textChangePreviousIcon, props.iconContainer, 'text change previous icon')}
+      {props.iconContainer &&
+        createPortal(textChangeNextIcon, props.iconContainer, 'text change next icon')}
       <LoadingLayer
         errorMessage={errorModel(content)?.message}
         retry={errorModel(content)?.retry}
@@ -440,6 +482,7 @@ function DifferenceContent(props: DifferenceContentProps) {
         className={cx(props.viewType !== 'text' && hidden, flex_1, block_minimizable)}
       >
         <DifferenceEditor
+          diffMethod={diffMethod}
           newContent={differenceModel(content)?.newContent}
           oldContent={differenceModel(content)?.oldContent}
           className={cx(flex_1)}
@@ -509,7 +552,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
   //   ? editors.dictionary.get(props.currentKey)?.addProperty
   //   : undefined
 
-  const [propertyIconContainer, setPropertyIconContainer] = useState<HTMLDivElement | null>(null)
+  const [iconContainer, setIconContainer] = useState<HTMLDivElement | null>(null)
 
   // const root = useRef(null)
 
@@ -597,7 +640,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
                 sideBySide={sideBySide}
                 viewType={currentViewType}
                 hideUnchanged={hideUnchanged}
-                iconContainer={propertyIconContainer}
+                iconContainer={iconContainer}
               ></DifferenceContent>
             )
           })}
@@ -625,7 +668,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
               ]}
             ></RadioIconGroup>
             <div className={cx(flex_1)}></div>
-            <div ref={setPropertyIconContainer}></div>
+            <div className={cx(flex)} ref={setIconContainer}></div>
             <HoverTooltip content={maximized ? 'Exit Fullscreen' : 'Enter Fullscreen'}>
               <IconButton onClick={() => setMaximized((v) => !v)}>
                 {maximized ? (

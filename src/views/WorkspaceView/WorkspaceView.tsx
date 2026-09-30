@@ -137,7 +137,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
             icon: 'error',
           })
           .as<boolean>()
-        tabManager.goTo(from)
+        tabManager.goTo(from, tabContent.identity)
         tabManager.closeOnly(tabContent.identity)
       } else if (error.subversionError.source.code === 'wcUpgradeRequired') {
         const target = root !== null ? root : path
@@ -162,7 +162,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
           })
           tabManager.reload(tabContent.identity)
         } else {
-          tabManager.goTo(from)
+          tabManager.goTo(from, tabContent.identity)
           tabManager.closeOnly(tabContent.identity)
         }
       } else {
@@ -210,11 +210,11 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
               .as<boolean>()
             if (result) {
               if (view.current) {
-                tabManager.goTo(view.current.identity())
+                tabManager.goTo(view.current.identity(), tabContent.identity)
                 view.current.switch(path)
               }
             } else {
-              tabManager.goTo(from)
+              tabManager.goTo(from, tabContent.identity)
             }
             tabManager.closeOnly(tabContent.identity)
             return
@@ -273,7 +273,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
 
   useImperativeHandle(self, () => ({
     active() {
-      tabManager.goTo(tabContent.identity)
+      tabManager.goTo(tabContent.identity, tabContent.identity)
     },
     switch(path) {
       onSwitched(path)

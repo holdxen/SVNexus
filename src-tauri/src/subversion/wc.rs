@@ -892,9 +892,7 @@ pub enum WorkingCopyNotifyLockState {
     Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, ts_rs::TS,
 )]
 pub struct MergeRange {
-    #[ts(type = "number")]
     start: i64,
-    #[ts(type = "number")]
     end: i64,
     inheritable: bool,
 }
@@ -916,46 +914,38 @@ impl From<*const ffi::svn_merge_range_t> for MergeRange {
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
-pub struct WorkingCopyNotify {
-    pub path: String,
+pub struct WorkingCopyNotify<'a> {
+    pub path: &'a str,
     pub action: WorkingCopyNotifyAction,
     pub kind: context::NodeKind,
-    pub mime_type: Option<String>,
+    pub mime_type: Option<&'a str>,
     pub lock: Option<context::Lock>,
     pub err: Option<SubversionError>,
     pub content_state: WorkingCopyNotifyState,
     pub property_state: WorkingCopyNotifyState,
     pub lock_state: WorkingCopyNotifyLockState,
-    #[ts(type = "number | null")]
     pub revision: Option<context::RevisionNumber>,
-    pub changelist_name: Option<String>,
+    pub changelist_name: Option<&'a str>,
     pub merge_range: Option<MergeRange>,
-    pub url: Option<String>,
-    pub path_prefix: Option<String>,
-    pub property_name: Option<String>,
+    pub url: Option<&'a str>,
+    pub path_prefix: Option<&'a str>,
+    pub property_name: Option<&'a str>,
     pub revision_properties: HashMap<String, String>,
-    #[ts(type = "number | null")]
     pub old_revision: Option<context::RevisionNumber>,
-    #[ts(type = "number")]
     pub hunk_original_start: u32,
-    #[ts(type = "number")]
     pub hunk_original_length: u32,
-    #[ts(type = "number")]
     pub hunk_modified_start: u32,
-    #[ts(type = "number")]
     pub hunk_modified_length: u32,
-    #[ts(type = "number")]
     pub hunk_matched_line: u32,
-    #[ts(type = "number")]
     pub hunk_fuzz: u32,
 }
 
-impl From<*const ffi::svn_wc_notify_t> for WorkingCopyNotify {
+impl<'a> From<*const ffi::svn_wc_notify_t> for WorkingCopyNotify<'a> {
     fn from(ptr: *const ffi::svn_wc_notify_t) -> Self {
         unsafe {
             let ptr = ptr.as_ref().expect("Failed to get reference from pointer");
 
-            let path = ptr.path.to_str().to_string();
+            let path = ptr.path.to_str();
 
             let action = WorkingCopyNotifyAction::try_from(ptr.action)
                 .expect(format!("Invalid notify action: {}", ptr.action).as_str());
@@ -963,7 +953,7 @@ impl From<*const ffi::svn_wc_notify_t> for WorkingCopyNotify {
             let kind = context::NodeKind::try_from(ptr.kind)
                 .expect(format!("Invalid node kind: {}", ptr.kind).as_str());
 
-            let mime_type = ptr.mime_type.to_nullable_string();
+            let mime_type = ptr.mime_type.to_nullable_str();
 
             // let lock = if ptr.lock.is_null() {
             //     None
@@ -993,16 +983,17 @@ impl From<*const ffi::svn_wc_notify_t> for WorkingCopyNotify {
             // tracing::info!("WorkingCopyNotify revision: {}", ptr.revision);
             let revision = ptr.revision.try_into().ok();
 
-            let changelist_name = ptr.changelist_name.to_nullable_string();
+            let changelist_name = ptr.changelist_name.to_nullable_str();
 
             let merge_range = ptr.merge_range.map(MergeRange::from);
 
-            let url = ptr.url.to_nullable_string();
+            let url = ptr.url.to_nullable_str();
 
-            let path_prefix = ptr.path_prefix.to_nullable_string();
+            let path_prefix = ptr.path_prefix.to_nullable_str();
 
-            let property_name = ptr.prop_name.to_nullable_string();
+            let property_name = ptr.prop_name.to_nullable_str();
 
+            // todo: translate rev_props
             let revision_properties = HashMap::default();
 
             let old_revision = ptr.old_revision.try_into().ok();

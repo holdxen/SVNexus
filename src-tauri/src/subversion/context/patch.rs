@@ -37,7 +37,9 @@ impl Context {
                 patch,
                 wc,
                 opts.dry_run.into(),
-                opts.strip_count.try_into().expect("Failed to convert value"),
+                opts.strip_count
+                    .try_into()
+                    .expect("Failed to convert value"),
                 opts.reverse.into(),
                 opts.ignore_whitespace.into(),
                 opts.remove_tempfiles.into(),

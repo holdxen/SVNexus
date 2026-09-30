@@ -32,7 +32,7 @@ import RefreshIcon from '@icons/Refresh.svg?react'
 import { cx, css } from '@linaria/core'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { open } from '@tauri-apps/plugin-dialog'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { InfoOptions } from '@/bindings/InfoOptions'
@@ -55,13 +55,18 @@ import {
   whitespace_nowrap,
 } from '@/styles/Classes'
 import Logger from '@/utils/Logger'
-import { localPath } from '@/utils/Path'
+import { localPath, repoPath } from '@/utils/Path'
 
 import { defaultOperationState, OperationState } from '../../Operation'
 import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
+import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
+import { writeText } from '@tauri-apps/plugin-clipboard-manager'
+import { NodePropertyName } from '@/bindings/NodePropertyName'
+import { PropertyGetOptions } from '@/bindings/PropertyGetOptions'
+import { PropertySetOptions } from '@/bindings/PropertySetOptions'
 
 const treeNode = css`
   display: flex;
@@ -115,6 +120,8 @@ interface ChangesTreeViewProps {
   optionBarContainer: HTMLElement | null
   onSelected?: (entry: string | null) => void
   onRefresh?: () => void
+  statusEntries?: StatusEntry[]
+  onStatusEntriesChanged?: (entries: StatusEntry[]) => void
 }
 
 interface TreeEntry extends StatusEntry {
@@ -201,6 +208,12 @@ function getOperationState(tree: TreeInstance<TreeEntry>, root: string): Operati
       length === 1 &&
       selectedEntries[0].nodeStatus !== 'unversioned' &&
       selectedEntries[0].nodeStatus !== 'added',
+    ignore: length === 1,
+    history:
+      length === 1 &&
+      selectedEntries[0].nodeKind === 'file' &&
+      selectedEntries[0].nodeStatus !== 'unversioned' &&
+      selectedEntries[0].nodeStatus !== 'added',
   }
 }
 
@@ -256,7 +269,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
 
   const doubleClickBehavior: FeatureImplementation = {
     itemInstance: {
-      getProps: ({ item, prev }) => ({
+      getProps: ({ item, prev, tree, itemId }) => ({
         ...prev?.(),
         // 双击时展开/折叠
         onDoubleClick: () => {
@@ -272,6 +285,20 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
         },
         onClick: () => {
           item.setFocused()
+        },
+        // 右键点击时先选中该项，再由 ContextMenu 打开右键菜单。
+        // 与 selectionFeature 的 onClick 保持一致：shift 范围选、ctrl/cmd 切换选、普通右键单选。
+        onContextMenu: (e: MouseEvent) => {
+          if (e.shiftKey) {
+            item.selectUpTo(e.ctrlKey || e.metaKey)
+          } else if (e.ctrlKey || e.metaKey) {
+            item.toggleSelect()
+          } else if (!item.isSelected()) {
+            // 已处于多选中时保留原选区，避免右键菜单的操作目标丢失
+            tree.setSelectedItems([itemId])
+          }
+          item.setFocused()
+          prev?.()?.onContextMenu?.(e)
         },
       }),
     },
@@ -336,7 +363,6 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     },
     dataLoader: {
       getChildrenWithData: async (itemId: string) => {
-        Logger.info('on get tree children', itemId)
         const options: StatusOptions =
           itemId === root
             ? {
@@ -606,7 +632,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   )
 
   const [showAll, setShowAll] = useState(false)
-  const [statusEntries, setStatusEntries] = useState<StatusEntry[]>([])
+  // const [statusEntries, setStatusEntries] = useState<StatusEntry[]>([])
   const refreshStatusEntries = async () => {
     await Subversion.callOnce({
       factory: subversion,
@@ -624,11 +650,15 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
           changelist: null,
         }
         const result = await context.status(options)
-        setStatusEntries(result.entries)
+        props.onStatusEntriesChanged?.(result.entries)
+        // setStatusEntries(result.entries)
       },
     })
   }
   useEffect(() => {
+    if (props.statusEntries !== undefined) {
+      return
+    }
     refreshStatusEntries()
   }, [])
 
@@ -646,7 +676,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   // 避免此前每个节点都对 statusEntries 做一次线性前缀扫描（O(n^2)）。
   const visiblePaths = useMemo(() => {
     const paths = new Set<string>()
-    for (const entry of statusEntries) {
+    for (const entry of props.statusEntries ?? []) {
       let path: string | null = entry.path
       while (path !== null && path !== '') {
         if (paths.has(path)) {
@@ -661,7 +691,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
       }
     }
     return paths
-  }, [statusEntries])
+  }, [props.statusEntries])
 
   const itemIsVisible = (path: string) => path === '' || visiblePaths.has(path)
 
@@ -734,6 +764,161 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     }
   }, [])
 
+  const ignoreItems: ContextMenuItemModel[] = []
+
+  const selection = tree.getSelectedItems()
+
+  let extension = null
+  if (state.ignore) {
+    extension = repoPath.getExtension(selection[0].getItemData().path)
+  }
+
+  const addIgnoreLine = async (path: string, pattern: string, recursively: boolean) => {
+    const parent = repoPath.getParent(path)
+    if (parent === null) {
+      return
+    }
+    path = parent
+    await Subversion.callOnce({
+      factory: subversion,
+      call: async (context: Subversion) => {
+        const name: NodePropertyName = recursively ? 'svn:global-ignores' : 'svn:ignore'
+        const options: PropertyGetOptions = {
+          propertyName: name,
+          target: path,
+          pegRevision: 'unspecified',
+          revision: 'unspecified',
+          depth: 'empty',
+          inherited: false,
+          actualRevision: false,
+          changelists: null,
+        }
+        const result = await context.propertyGet(options)
+        const entries = new Map(Object.entries(result.properties))
+        let value = entries.get(path)
+        if (value) {
+          value = [...value.split('\n').filter((i) => i !== ''), pattern].join('\n')
+        } else {
+          value = pattern
+        }
+        {
+          const options: PropertySetOptions = {
+            local: {
+              name,
+              value,
+              targets: [path],
+              depth: 'empty',
+              skipChecks: false,
+              changelists: null,
+            },
+          }
+          await context.propertySet(options)
+        }
+      },
+    })
+    await refresh()
+  }
+
+  if (extension) {
+    ignoreItems.push({
+      item: {
+        content: `Ignore *.${extension}`,
+        onSelect: () => {
+          if (selection.length === 0) {
+            return
+          }
+          addIgnoreLine(selection[0].getItemData().path, `*.${extension}`, false)
+        },
+      },
+    })
+    ignoreItems.push({
+      item: {
+        content: `Ignore *.${extension} recursively`,
+        onSelect: () => {
+          if (selection.length === 0) {
+            return
+          }
+          addIgnoreLine(selection[0].getItemData().path, `*.${extension}`, true)
+        },
+      },
+    })
+  }
+
+  if (state.ignore) {
+    const fileName = repoPath.getFileName(selection[0].getItemData().path)
+
+    if (fileName) {
+      ignoreItems.push({
+        item: {
+          content: `Ignore ${fileName}`,
+          onSelect: () => {
+            if (selection.length === 0) {
+              return
+            }
+            addIgnoreLine(selection[0].getItemData().path, fileName, false)
+          },
+        },
+      })
+      ignoreItems.push({
+        item: {
+          content: `Ignore ${fileName} recursively`,
+          onSelect: () => {
+            if (selection.length === 0) {
+              return
+            }
+            addIgnoreLine(selection[0].getItemData().path, fileName, true)
+          },
+        },
+      })
+    }
+  }
+
+  const menu: ContextMenuItemModel[] = [
+    {
+      item: {
+        content: 'File history',
+        disabled: !state.history,
+        onSelect: async () => {
+          Logger.info("Open file history: ", tree.getSelectedItems().map(e => e.getItemData()))
+          operationHandler.showFileHistoryDialog(tree.getSelectedItems()[0].getItemData())
+        },
+      },
+    },
+    {
+      item: {
+        content: "Copy absolute path",
+        disabled: tree.getSelectedItems().length !== 1,
+        onSelect: () => {
+          const selected = tree.getSelectedItems()[0].getItemData()
+          writeText(selected.path)
+        }
+      }
+    },
+    {
+      item: {
+        content: "Copy relative path",
+        disabled: tree.getSelectedItems().length !== 1,
+        onSelect: () => {
+          const selected = tree.getSelectedItems()[0].getItemData()
+          const path = repoPath.stripPrefix(selected.path, workingCopy.path)
+          if (path) {
+            writeText(path)
+          }
+        }
+      }
+    },
+    {
+      subitem: {
+        content: 'Ignore',
+        disabled:
+          !state.ignore &&
+          selection.length !== 0 &&
+          selection[0].getItemData().path !== workspace.path,
+        items: ignoreItems,
+      },
+    },
+  ]
+
   return (
     <div className={cx(flex_1, flex, !props.visible && hidden)}>
       <div className={cx(flex_1, overflow_y_auto)} ref={scrollRef}>
@@ -755,49 +940,47 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
             const model = fromStatusEntry(item.getItemData(), false)
 
             return (
-              <div
-                {...props}
-                key={virtualItem.key}
-                data-index={virtualItem.index}
-                ref={(r) => {
-                  virtualizer.measureElement(r)
-                  props.ref(r)
-                }}
-                className={cx(treeNode, isSelected && treeNodeSelected)}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  transform: `translateY(${virtualItem.start}px)`,
-                  paddingLeft: level * 20 + 8,
-                  borderRadius: 'var(--semi-border-radius-medium, 6px)',
-                }}
-              >
-                <span className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}>
-                  <IconTreeTriangleDown
-                    className={cx(!isFolder && visibility_hidden)}
-                    size="default"
-                    onClick={item.isExpanded() ? item.collapse : item.expand}
-                  />
-                </span>
-                <WorkingCopyItem
-                  {...model}
-                  className={cx(overflow_hidden, whitespace_nowrap, flex_1)}
-                ></WorkingCopyItem>
-              </div>
+              <ContextMenu menu={menu}>
+                <div
+                  {...props}
+                  key={virtualItem.key}
+                  data-index={virtualItem.index}
+                  ref={(r) => {
+                    virtualizer.measureElement(r)
+                    props.ref(r)
+                  }}
+                  className={cx(treeNode, isSelected && treeNodeSelected)}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualItem.start}px)`,
+                    paddingLeft: level * 20 + 8,
+                    borderRadius: 'var(--semi-border-radius-medium, 6px)',
+                  }}
+                >
+                  <span className={cx(expandIcon, isFolder && !isExpanded && expandIconCollapsed)}>
+                    <IconTreeTriangleDown
+                      className={cx(!isFolder && visibility_hidden)}
+                      size="default"
+                      onClick={item.isExpanded() ? item.collapse : item.expand}
+                    />
+                  </span>
+                  <WorkingCopyItem
+                    {...model}
+                    className={cx(overflow_hidden, whitespace_nowrap, flex_1)}
+                  ></WorkingCopyItem>
+                </div>
+              </ContextMenu>
             )
           })}
         </div>
       </div>
-      {props.optionBarContainer === null ? (
-        <></>
-      ) : (
+      {props.optionBarContainer !== null && (
         createPortal(optionBar, props.optionBarContainer)
       )}
-      {workingCopy.changesViewOperationContainer === null ? (
-        <></>
-      ) : (
+      {workingCopy.changesViewOperationContainer !== null && (
         createPortal(bar, workingCopy.changesViewOperationContainer)
       )}
     </div>

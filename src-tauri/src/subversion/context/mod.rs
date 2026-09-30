@@ -101,12 +101,13 @@ pub struct ClientCertificate {
     save: bool,
 }
 
+#[async_trait::async_trait]
 pub trait ContextNotifier: Send + Sync + 'static {
-    fn may_save_password_as_plain_text(&self, realm_string: String) -> Result<bool, FrontendError>;
+    fn may_save_password_as_plain_text(&self, realm_string: &str) -> Result<bool, FrontendError>;
     fn working_copy_notify(&self, notify: WorkingCopyNotify) -> Result<(), FrontendError>;
     fn ssl_server_trust_prompt(
         &self,
-        realm: String,
+        realm: &str,
         failures: u32,
         info: SslServerCertInfo,
         may_save: bool,
@@ -115,8 +116,8 @@ pub trait ContextNotifier: Send + Sync + 'static {
     fn progress_notify(&self, pos: i64, total: i64) -> Result<(), FrontendError>;
     fn authenticate(
         &self,
-        realm: String,
-        username: String,
+        realm: &str,
+        username: &str,
         may_save: bool,
         need_password: bool,
     ) -> Result<Option<Authentication>, FrontendError>;
@@ -126,10 +127,92 @@ pub trait ContextNotifier: Send + Sync + 'static {
     ) -> Result<WorkingCopyConflictResult, FrontendError>;
     fn ssl_client_certificate(
         &self,
-        realm: String,
+        realm: &str,
         may_save: bool,
     ) -> Result<Option<ClientCertificate>, FrontendError>;
+
+    fn ssh_verify_ip_changed(
+        &self,
+        host: &str,
+        ip: &str,
+        key_type: &str,
+        key_data: &[u8],
+        fingerprint: &str,
+    ) -> Result<bool, FrontendError> {
+        Ok(true)
+    }
+
+    fn ssh_verify_new_host_key(
+        &self,
+        host: &str,
+        ip: Option<&str>,
+        host_key_type: &str,
+        host_key: &[u8],
+        fingerprint: &str,
+    ) -> Result<bool, FrontendError> {
+        Ok(true)
+    }
+
+    async fn ssh_keyboard_interactive(
+        &self,
+        name: &str,
+        instruction: &str,
+        prompts: &[(&str, bool)],
+    ) -> Result<Vec<String>, FrontendError> {
+        Ok(vec![])
+    }
+
+    async fn ssh_authenticate(
+        &self,
+        password: bool,
+        public_key: bool,
+        keyboard_interactive: bool,
+        username: Option<&str>,
+    ) -> Result<SSHAuthetication, FrontendError> {
+        Ok(SSHAuthetication::KeyboardInteractive {
+            username: "".into(),
+        })
+    }
+
+    /// 弹窗询问 `path` 这把私钥的口令。
+    ///
+    /// `wrong` 为 true 表示上一次给的口令解不开，前端可以据此提示。
+    /// 返回 `None`（用户取消，或前端还没实现这个弹窗）时，按 OpenSSH 的
+    /// "no passphrase given, try next key" 跳过这把钥匙，而不是让整个
+    /// 连接失败。
+    async fn ssh_passphrase(
+        &self,
+        path: &str,
+        username: Option<&str>,
+        wrong: bool,
+    ) -> Result<Option<String>, FrontendError> {
+        let _ = (path, username, wrong);
+        Ok(None)
+    }
 }
+
+#[derive(Serialize, Deserialize, ts_rs::TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub enum SSHAuthetication {
+    Password {
+        password: String,
+        username: String,
+    },
+    PublicKey {
+        file: String,
+        username: String,
+        passphrase: Option<String>,
+    },
+    KeyboardInteractive {
+        username: String,
+    },
+}
+
+// struct VerifyHostKey {
+//     hash: bool,
+//     check_ip: bool,
+// }
 
 #[derive(new)]
 pub struct ContextInner {
@@ -410,9 +493,7 @@ pub struct Lock {
     owner: String,
     comment: Option<String>,
     is_dav_comment: bool,
-    #[ts(type = "number")]
     creation_date: i64,
-    #[ts(type = "number")]
     expiration_date: i64,
 }
 
@@ -767,7 +848,7 @@ unsafe extern "C" fn may_save_password_as_plain_text(
 
         let v = match ctx
             .context_notifier
-            .may_save_password_as_plain_text(realm_string.to_string())
+            .may_save_password_as_plain_text(realm_string)
         {
             Ok(v) => v,
             Err(e) => return e.native_error(),
@@ -785,13 +866,13 @@ unsafe extern "C" fn may_save_password_as_plain_text(
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
-pub struct SslServerCertInfo {
-    hostname: Option<String>,
-    fingerprint: String,
-    valid_from: String,
-    valid_until: String,
-    issuer: String,
-    ascii_cert: String,
+pub struct SslServerCertInfo<'a> {
+    hostname: Option<&'a str>,
+    fingerprint: &'a str,
+    valid_from: &'a str,
+    valid_until: &'a str,
+    issuer: &'a str,
+    ascii_cert: &'a str,
 }
 
 // #[derive(Debug, Clone, Copy)]
@@ -811,16 +892,16 @@ bitflags::bitflags! {
     }
 }
 
-impl SslServerCertInfo {
+impl<'a> SslServerCertInfo<'a> {
     unsafe fn from_raw(info: *const ffi::svn_auth_ssl_server_cert_info_t) -> Self {
         unsafe {
             let info = info.as_ref().expect("Failed to get reference to info");
-            let hostname = info.hostname.to_nullable_string();
-            let fingerprint = info.fingerprint.to_str().to_string();
-            let valid_from = info.valid_from.to_str().to_string();
-            let valid_until = info.valid_until.to_str().to_string();
-            let issuer = info.issuer_dname.to_str().to_string();
-            let ascii_cert = info.ascii_cert.to_str().to_string();
+            let hostname = info.hostname.to_nullable_str();
+            let fingerprint = info.fingerprint.to_str();
+            let valid_from = info.valid_from.to_str();
+            let valid_until = info.valid_until.to_str();
+            let issuer = info.issuer_dname.to_str();
+            let ascii_cert = info.ascii_cert.to_str();
 
             Self {
                 hostname,
@@ -878,7 +959,7 @@ unsafe extern "C" fn ssl_server_trust_prompt(
             .expect("Failed to cast baton to mutable reference");
 
         let trust = this.context_notifier.ssl_server_trust_prompt(
-            realm.to_string(),
+            realm,
             failures,
             // SslFailures::from_bits_retain(failures),
             info,
@@ -927,8 +1008,8 @@ unsafe extern "C" fn on_authenticate(
             .as_mut()
             .expect("Failed to cast baton to mutable reference");
         let v = match context.context_notifier.authenticate(
-            realm.to_nullable_str().unwrap_or_default().to_string(),
-            username.to_nullable_str().unwrap_or_default().to_string(),
+            realm.to_nullable_str().unwrap_or_default(),
+            username.to_nullable_str().unwrap_or_default(),
             may_save != 0,
             true,
         ) {
@@ -1362,240 +1443,225 @@ impl Context {
         }
     }
 
-    pub fn initialize_repository(
-        &mut self,
-        opts: InitializeRepositoryOptions,
-        notifier: Arc<dyn InitializeRepositoryNotifier>,
-    ) -> error::Result<()> {
-        struct Filter {
-            ignore: Gitignore,
-            file: std::fs::File,
-            folders: Vec<String>,
-            relate_to: String,
-        }
-
-        impl Filter {
-            fn create(
-                relate_to: String,
-                file: std::fs::File,
-                filters: Vec<String>,
-            ) -> error::Result<Filter> {
-                let mut builder = GitignoreBuilder::new(&relate_to);
-
-                for line in filters {
-                    builder.add_line(None, &line).context(builder::Glob)?;
-                }
-
-                let ignore = builder.build().context(builder::Glob)?;
-
-                Ok(Self {
-                    ignore,
-                    file,
-                    folders: Vec::new(),
-                    relate_to,
-                })
-            }
-
-            fn create_filter(
-                relate_to: String,
-                file: std::fs::File,
-                filters: Vec<String>,
-            ) -> error::Result<
-                Box<
-                    dyn FnMut(
-                        String,
-                        NodeKind,
-                        bool,
-                        Option<u64>,
-                        i64,
-                    ) -> error::Result<bool, error::FrontendError>,
-                >,
-            > {
-                let mut this = Self::create(relate_to, file, filters)?;
-
-                Ok(Box::new(move |path, kind, _, _, _| {
-                    let relative_path = path
-                        .trim_start_matches(&this.relate_to)
-                        .trim_start_matches("/");
-
-                    let matcher = this
-                        .ignore
-                        .matched(relative_path, matches!(kind, NodeKind::Directory));
-
-                    let ignore = matcher.is_ignore();
-
-                    if ignore {
-                        // if matches!(kind, NodeKind::Directory) {
-
-                        // }
-                        //
-                        let new = this.folders.iter().all(|i| !path.starts_with(i));
-
-                        if new {
-                            if let Err(e) = this
-                                .file
-                                .write_all(format!("{}\n", relative_path).as_bytes())
-                            {
-                                tracing::warn!("Failed to write ignore list to file: {}", e);
-                            }
-                        } else if matches!(kind, NodeKind::Directory) {
-                            this.folders.push(path);
-                        }
-                    }
-
-                    Ok(ignore)
-                }))
-            }
-        }
-
-        let (exclude_file, exclude_file_path) = NamedTempFile::new()?
-            .keep()
-            .with_any_context(|e| format!("Failed to create exclude file: {}", e))?;
-
-        let mut filter = opts
-            .filters
-            .clone()
-            .map(|f| Filter::create_filter(opts.local.clone(), exclude_file, f))
-            .transpose()?;
-
-        let filter = filter.as_mut();
-
-        let filter = filter.map(|v| v.as_mut());
-
-        if std::fs::read_dir(&opts.local)?.next().is_none() {
-            notifier.on_checkout_directly()?;
-            let options = CheckoutOptions {
-                url: opts.remote,
-                path: opts.local,
-                peg_revision: Revision::Head,
-                revision: Revision::Head,
-                depth: Depth::Infinity,
-                ignore_externals: false,
-                allow_unversioned_obstructions: true,
-                store_pristine: None,
-            };
-            self.checkout(options)?;
-            notifier.on_finished()?;
-        } else {
-            notifier.on_import()?;
-            let import_optios = ImportOptions {
-                path: opts.local.clone(),
-                url: opts.remote.clone(),
-                depth: Depth::Infinity,
-                no_ignore: opts.no_ignore,
-                no_autoprops: opts.no_autoprops,
-                ignore_unknown_node_types: opts.ignore_unknown_node_types,
-                revision_property_table: Default::default(),
-                commit_message: opts.commit_message,
-            };
-            self.import_filter(import_optios, filter)?;
-            self.cancelled()?;
-            if let Some(directory) = opts.backup_directory {
-                notifier.on_backup()?;
-                // let file = utils::backup(
-                //     &opts.local,
-                //     if directory.is_empty() {
-                //         None
-                //     } else {
-                //         Some(directory)
-                //     },
-                // )?;
-
-                let path = PathBuf::from(&opts.local);
-                if !path.exists() {
-                    std::fs::create_dir_all(&path)?;
-                } else if !path.is_dir() {
-                    return builder::General {
-                        detail: format!("{} must not be file", path.display()),
-                    }
-                    .fail();
-                }
-
-                // snafu::ensure!(
-                //     path.exists(),
-                //     builder::General {
-                //         detail: "Path does not exist"
-                //     }
-                // );
-                let file_name = path
-                    .canonicalize()?
-                    .file_name()
-                    .map(|v| v.to_os_string())
-                    .unwrap_or(OsString::from("backup"));
-
-                let output = if directory.is_empty() {
-                    tempfile::tempdir()?.keep()
-                } else {
-                    PathBuf::from(directory)
-                };
-
-                let mut index = 0;
-
-                let file = loop {
-                    let name = file_name.clone().also_apply(|f| {
-                        if index == 0 {
-                            f.push(".tar.gz")
-                        } else {
-                            f.push(format!(".{}.tar.gz", index));
-                        }
-                    });
-
-                    let file = output.join(name);
-
-                    if !file.exists() {
-                        break file;
-                    }
-                    index += 1;
-                };
-
-                let tar = platform::tar()?;
-
-                tracing::info!("execute tar in {}", opts.local);
-                let status = Command::new(tar)
-                    .current_dir(&opts.local)
-                    .arg(OsString::new().also_apply(|s| {
-                        s.push("--exclude-from=");
-                        s.push(exclude_file_path);
-                    }))
-                    .arg("-zcvf")
-                    .arg(&file)
-                    .arg(".")
-                    // .arg(format!("--exclude-from={}", ""))
-                    .status()?;
-
-                snafu::ensure!(
-                    status.success(),
-                    builder::General {
-                        detail: "Failed to backup"
-                    }
-                );
-
-                notifier
-                    .on_backup_finished(file.to_str().expect("Invalid UTF-8 string").to_string())?;
-            }
-            self.cancelled()?;
-            utils::clear_dir(&opts.local)?;
-
-            notifier.on_checkout()?;
-
-            self.cancelled()?;
-
-            let checkout_options = CheckoutOptions {
-                path: opts.local.clone(),
-                url: opts.remote,
-                revision: Revision::Head,
-                depth: Depth::Infinity,
-                ignore_externals: false,
-                allow_unversioned_obstructions: true,
-                store_pristine: None,
-                peg_revision: Revision::Head,
-            };
-            self.checkout(checkout_options)?;
-
-            notifier.on_finished()?;
-        }
-        Ok(())
-    }
+    //     pub fn initialize_repository(
+    //         &mut self,
+    //         opts: InitializeRepositoryOptions,
+    //         notifier: Arc<dyn InitializeRepositoryNotifier>,
+    //     ) -> error::Result<()> {
+    //         struct Filter {
+    //             ignore: Gitignore,
+    //             file: std::fs::File,
+    //             folders: Vec<String>,
+    //             relate_to: String,
+    //         }
+    //
+    //         impl Filter {
+    //             fn create(
+    //                 relate_to: String,
+    //                 file: std::fs::File,
+    //                 filters: Vec<String>,
+    //             ) -> error::Result<Filter> {
+    //                 let mut builder = GitignoreBuilder::new(&relate_to);
+    //
+    //                 for line in filters {
+    //                     builder.add_line(None, &line).context(builder::Glob)?;
+    //                 }
+    //
+    //                 let ignore = builder.build().context(builder::Glob)?;
+    //
+    //                 Ok(Self {
+    //                     ignore,
+    //                     file,
+    //                     folders: Vec::new(),
+    //                     relate_to,
+    //                 })
+    //             }
+    //
+    //             fn create_filter(
+    //                 relate_to: String,
+    //                 file: std::fs::File,
+    //                 filters: Vec<String>,
+    //             ) -> error::Result<
+    //                 Box<
+    //                     dyn FnMut(
+    //                         String,
+    //                         NodeKind,
+    //                         bool,
+    //                         Option<u64>,
+    //                         i64,
+    //                     ) -> error::Result<bool, error::FrontendError>,
+    //                 >,
+    //             > {
+    //                 let mut this = Self::create(relate_to, file, filters)?;
+    //
+    //                 Ok(Box::new(move |path, kind, _, _, _| {
+    //                     let relative_path = path
+    //                         .trim_start_matches(&this.relate_to)
+    //                         .trim_start_matches("/");
+    //
+    //                     let matcher = this
+    //                         .ignore
+    //                         .matched(relative_path, matches!(kind, NodeKind::Directory));
+    //
+    //                     let ignore = matcher.is_ignore();
+    //
+    //                     if ignore {
+    //                         // if matches!(kind, NodeKind::Directory) {
+    //
+    //                         // }
+    //                         //
+    //                         let new = this.folders.iter().all(|i| !path.starts_with(i));
+    //
+    //                         if new {
+    //                             if let Err(e) = this
+    //                                 .file
+    //                                 .write_all(format!("{}\n", relative_path).as_bytes())
+    //                             {
+    //                                 tracing::warn!("Failed to write ignore list to file: {}", e);
+    //                             }
+    //                         } else if matches!(kind, NodeKind::Directory) {
+    //                             this.folders.push(path);
+    //                         }
+    //                     }
+    //
+    //                     Ok(ignore)
+    //                 }))
+    //             }
+    //         }
+    //
+    //         let (exclude_file, exclude_file_path) = NamedTempFile::new()?
+    //             .keep()
+    //             .with_any_context(|e| format!("Failed to create exclude file: {}", e))?;
+    //
+    //         let mut filter = opts
+    //             .filters
+    //             .clone()
+    //             .map(|f| Filter::create_filter(opts.local.clone(), exclude_file, f))
+    //             .transpose()?;
+    //
+    //         let filter = filter.as_mut();
+    //
+    //         let filter = filter.map(|v| v.as_mut());
+    //
+    //         if std::fs::read_dir(&opts.local)?.next().is_none() {
+    //             notifier.on_checkout_directly()?;
+    //             let options = CheckoutOptions {
+    //                 url: opts.remote,
+    //                 path: opts.local,
+    //                 peg_revision: Revision::Head,
+    //                 revision: Revision::Head,
+    //                 depth: Depth::Infinity,
+    //                 ignore_externals: false,
+    //                 allow_unversioned_obstructions: true,
+    //                 store_pristine: None,
+    //             };
+    //             self.checkout(options)?;
+    //             notifier.on_finished()?;
+    //         } else {
+    //             notifier.on_import()?;
+    //             let import_optios = ImportOptions {
+    //                 path: opts.local.clone(),
+    //                 url: opts.remote.clone(),
+    //                 depth: Depth::Infinity,
+    //                 no_ignore: opts.no_ignore,
+    //                 no_autoprops: opts.no_autoprops,
+    //                 ignore_unknown_node_types: opts.ignore_unknown_node_types,
+    //                 revision_property_table: Default::default(),
+    //                 commit_message: opts.commit_message,
+    //             };
+    //             self.import_filter(import_optios, filter)?;
+    //             self.cancelled()?;
+    //             if let Some(directory) = opts.backup_directory {
+    //                 notifier.on_backup()?;
+    //
+    //                 let path = PathBuf::from(&opts.local);
+    //                 if !path.exists() {
+    //                     std::fs::create_dir_all(&path)?;
+    //                 } else if !path.is_dir() {
+    //                     return builder::General {
+    //                         detail: format!("{} must not be file", path.display()),
+    //                     }
+    //                     .fail();
+    //                 }
+    //
+    //                 let file_name = path
+    //                     .canonicalize()?
+    //                     .file_name()
+    //                     .map(|v| v.to_os_string())
+    //                     .unwrap_or(OsString::from("backup"));
+    //
+    //                 let output = if directory.is_empty() {
+    //                     tempfile::tempdir()?.keep()
+    //                 } else {
+    //                     PathBuf::from(directory)
+    //                 };
+    //
+    //                 let mut index = 0;
+    //
+    //                 let file = loop {
+    //                     let name = file_name.clone().also_apply(|f| {
+    //                         if index == 0 {
+    //                             f.push(".tar.gz")
+    //                         } else {
+    //                             f.push(format!(".{}.tar.gz", index));
+    //                         }
+    //                     });
+    //
+    //                     let file = output.join(name);
+    //
+    //                     if !file.exists() {
+    //                         break file;
+    //                     }
+    //                     index += 1;
+    //                 };
+    //
+    //                 let tar = platform::tar()?;
+    //
+    //                 tracing::info!("execute tar in {}", opts.local);
+    //                 let status = Command::new(tar)
+    //                     .current_dir(&opts.local)
+    //                     .arg(OsString::new().also_apply(|s| {
+    //                         s.push("--exclude-from=");
+    //                         s.push(exclude_file_path);
+    //                     }))
+    //                     .arg("-zcvf")
+    //                     .arg(&file)
+    //                     .arg(".")
+    //                     .status()?;
+    //
+    //                 snafu::ensure!(
+    //                     status.success(),
+    //                     builder::General {
+    //                         detail: "Failed to backup"
+    //                     }
+    //                 );
+    //
+    //                 notifier
+    //                     .on_backup_finished(file.to_str().expect("Invalid UTF-8 string").to_string())?;
+    //             }
+    //             self.cancelled()?;
+    //             utils::clear_dir(&opts.local)?;
+    //
+    //             notifier.on_checkout()?;
+    //
+    //             self.cancelled()?;
+    //
+    //             let checkout_options = CheckoutOptions {
+    //                 path: opts.local.clone(),
+    //                 url: opts.remote,
+    //                 revision: Revision::Head,
+    //                 depth: Depth::Infinity,
+    //                 ignore_externals: false,
+    //                 allow_unversioned_obstructions: true,
+    //                 store_pristine: None,
+    //                 peg_revision: Revision::Head,
+    //             };
+    //             self.checkout(checkout_options)?;
+    //
+    //             notifier.on_finished()?;
+    //         }
+    //         Ok(())
+    //     }
 
     fn take_commit_result(&mut self) -> CommitResult {
         let items = std::mem::take(&mut self.inner.commit_items);
@@ -1998,7 +2064,7 @@ impl Context {
                         .as_mut()
                         .expect("Failed to cast baton to mutable reference");
                     let v = match context.context_notifier.authenticate(
-                        realm.to_nullable_str().unwrap_or_default().to_string(),
+                        realm.to_nullable_str().unwrap_or_default(),
                         Default::default(),
                         may_save != 0,
                         false,
@@ -2050,7 +2116,7 @@ impl Context {
                         .as_ref()
                         .expect("Failed to cast baton to reference");
 
-                    let realm = realm.to_nullable_str().unwrap_or_default().to_string();
+                    let realm = realm.to_nullable_str().unwrap_or_default();
                     let may_save = may_save != 0;
 
                     let result = context

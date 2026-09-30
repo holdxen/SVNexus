@@ -10,7 +10,14 @@ import {
   type ColumnSizingState,
 } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { UIEventHandler, useEffect, useRef, useState, type MouseEvent } from 'react'
+import {
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type RefObject,
+} from 'react'
 
 import { absolute, flex, flex_1, min_h_0, relative } from '@/styles/Classes'
 
@@ -81,6 +88,12 @@ export type TableSelection =
 
 export type TableSelectionMode = 'cell' | 'row' | 'multi-row'
 
+export interface TableHandle {
+  // Scrolls the viewport by the given number of rows (delta may be negative).
+  scrollByRows: (delta: number) => void
+  getFirstVisibleIndex: () => number
+}
+
 export interface TableProps<TData> {
   data: TData[]
   columns: ColumnDef<TData, any>[]
@@ -89,7 +102,7 @@ export interface TableProps<TData> {
   estimateRowHeight?: number
   overscan?: number
   // onScroll?: (element: HTMLDivElement) => void | Promise<void>
-  onScroll?: UIEventHandler<HTMLDivElement>
+  // onScroll?: UIEventHandler<HTMLDivElement>
   selectionMode?: TableSelectionMode
   onSelectionChange?: (selection: TableSelection | null) => void
   onGetRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string
@@ -99,22 +112,23 @@ export interface TableProps<TData> {
   threshold?: number // 距首尾多少行时触发，默认 5
   rowContextMenu?: (row: Row<TData>) => ContextMenuItemModel[] | undefined
   globalFilter?: string
+  ref?: RefObject<TableHandle | null>
 }
 
 export function Table<TData>({
+  ref,
   data,
   columns,
   className,
   loading = false,
   estimateRowHeight = 48,
   overscan = 10,
-  onScroll,
+  // onScroll,
   selectionMode,
   onSelectionChange,
   onGetRowId,
   onBottomReached,
   onTopReached,
-  threshold,
   rowContextMenu,
   globalFilter,
 }: TableProps<TData>) {
@@ -172,31 +186,133 @@ export function Table<TData>({
   })
   const virtualRows = rowVirtualizer.getVirtualItems()
 
-  useEffect(() => {
-    if (virtualRows.length === 0) return
-    const firstIndex = virtualRows[0].index
-    const lastIndex = virtualRows[virtualRows.length - 1].index
-    const t = threshold ?? 5
+  // useEffect(() => {
+  //   if (virtualRows.length === 0) return
+  //   const firstIndex = virtualRows[0].index
+  //   const lastIndex = virtualRows[virtualRows.length - 1].index
+  //   const t = threshold ?? 5
 
-    if (firstIndex <= t) {
-      onTopReached?.()
-    }
-    if (lastIndex >= rows.length - 1 - t) {
-      onBottomReached?.()
-    }
-  }, [virtualRows])
+  //   if (firstIndex <= t) {
+  //     onTopReached?.()
+  //   }
+  //   if (lastIndex >= rows.length - 1 - t) {
+  //     onBottomReached?.()
+  //   }
+  // }, [virtualRows])
 
   // const handleScroll = (event: UIEvent<HTMLDivElement>) => {
   //   void onScroll?.(event.currentTarget)
   // }
+
+  const reachingBottom = useRef(false)
+  const reachingTop = useRef(false)
+  const delay = 300
+
+  const reachBottom = () => {
+    if (reachingBottom.current) {
+      return
+    }
+    reachingBottom.current = true
+    setTimeout(() => {
+      onBottomReached?.()
+      reachingBottom.current = false
+    }, delay)
+  }
+
+  const reachTop = () => {
+    if (reachingTop.current) {
+      return
+    }
+    reachingTop.current = true
+    setTimeout(() => {
+      onTopReached?.()
+      reachingTop.current = false
+    }, delay)
+  }
+
+  const lastScrollPercent = useRef<number>(null)
+  // Pending scroll compensation, in rows. Rows added/removed at the head of the
+  // data shift every existing row, so the viewport has to move by the same
+  // amount to keep the visible rows in place.
+  const pendingScrollRows = useRef(0)
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollByRows: (delta) => {
+        pendingScrollRows.current += delta
+      },
+      getFirstVisibleIndex: () =>
+        rowVirtualizer.getVirtualItemForOffset(rowVirtualizer.scrollOffset ?? 0)?.index ?? 0,
+    }),
+    [rowVirtualizer],
+  )
+
+  useLayoutEffect(() => {
+    const element = scrollContainerRef.current
+    const rows = pendingScrollRows.current
+    if (!element || !rows) {
+      return
+    }
+    pendingScrollRows.current = 0
+    // Programmatic scrolling must not be treated as a user scroll, otherwise it
+    // could immediately re-trigger onTopReached/onBottomReached.
+    lastScrollPercent.current = null
+    // Runs after the DOM has been updated, so the compensation is applied against
+    // the new (grown/shrunk) scroll height and never gets wrongly clamped.
+    element.scrollTop += rows * estimateRowHeight
+  }, [data, estimateRowHeight])
 
   return (
     <div className={cx(flex, relative, className)}>
       <div
         ref={scrollContainerRef}
         className={cx(flex_1, min_h_0)}
-        onScroll={onScroll}
-        style={{ overflow: 'auto', scrollbarGutter: 'stable' }}
+        onScroll={() => {
+          if (scrollContainerRef.current === null) {
+            return
+          }
+          const element = scrollContainerRef.current
+          const percent = element.scrollTop / (element.scrollHeight + element.clientHeight)
+          if (lastScrollPercent.current === null) {
+            lastScrollPercent.current = percent
+            return
+          }
+
+          if (
+            percent > lastScrollPercent.current &&
+            element.scrollHeight - element.clientHeight - element.scrollTop === 0
+          ) {
+            reachBottom()
+          } else if (percent < lastScrollPercent.current && element.scrollTop === 0) {
+            reachTop()
+          }
+          if (
+            element.scrollTop !== 0 &&
+            element.scrollHeight - element.clientHeight - element.scrollTop !== 0
+          ) {
+            lastScrollPercent.current = percent
+          }
+        }}
+        onWheel={(event) => {
+          // const d = scrollContainerRef.current!;
+          // console.log("Scroll params: ", d.scrollLeft, d.scrollTop, d.scrollWidth, d.scrollHeight, d.scrollHeight - d.clientHeight - d.scrollTop)
+          if (scrollContainerRef.current === null) {
+            return
+          }
+          const element = scrollContainerRef.current
+          if (event.deltaY > 0) {
+            // 向下滑动
+            if (element.scrollHeight - element.clientHeight - element.scrollTop === 0) {
+              reachBottom()
+            }
+          } else if (event.deltaY < 0) {
+            if (element.scrollTop === 0) {
+              reachTop()
+            }
+          }
+        }}
+        style={{ overflow: 'auto', scrollbarGutter: 'stable', overflowAnchor: 'none' }}
       >
         <table
           className={tableStyle}

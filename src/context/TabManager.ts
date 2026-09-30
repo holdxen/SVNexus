@@ -10,7 +10,7 @@ export interface TabViewModel extends TabModel {
 
 export interface TabManagerContext {
   add: (model: TabViewModel, jump: boolean) => void
-  goTo: (id: Identity) => void
+  goTo: (id: Identity, exclude?: Identity) => void
   goToLast: () => void
   setTitle: (id: Identity, title: string) => void
   setTooltip: (id: Identity, tooltip?: string) => void

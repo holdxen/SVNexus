@@ -447,7 +447,9 @@ impl Pool {
                 ffi::apr_hash_set(
                     table,
                     k as _,
-                    ffi::APR_HASH_KEY_STRING.try_into().expect("Failed to convert value"),
+                    ffi::APR_HASH_KEY_STRING
+                        .try_into()
+                        .expect("Failed to convert value"),
                     v as _,
                 )
             }
@@ -465,7 +467,9 @@ impl Pool {
             let array = ffi::apr_array_make(
                 self.as_mut_ptr(),
                 len.try_into().expect("Failed to convert size"),
-                std::mem::size_of::<T>().try_into().expect("Failed to convert size"),
+                std::mem::size_of::<T>()
+                    .try_into()
+                    .expect("Failed to convert size"),
             );
 
             for i in iter {
@@ -492,7 +496,9 @@ impl Pool {
             let array = ffi::apr_array_make(
                 self.as_mut_ptr(),
                 len.try_into().expect("Failed to convert size"),
-                size_of::<usize>().try_into().expect("Failed to convert size"),
+                size_of::<usize>()
+                    .try_into()
+                    .expect("Failed to convert size"),
             );
 
             for i in string_list {
@@ -588,22 +594,22 @@ pub impl *mut ffi::apr_pool_t {
         unsafe { ffi::apr_palloc(self, size.try_into().expect("Failed to convert size")) as *mut T }
     }
 
-    unsafe fn child(self) -> *mut ffi::apr_pool_t {
-        unsafe {
-            let mut child: *mut ffi::apr_pool_t = std::ptr::null_mut();
-            let status = ffi::apr_pool_create_ex(
-                &mut child as _,
-                self,
-                Some(on_pool_abort),
-                Default::default(),
-            );
-            assert!(
-                status == ffi::APR_SUCCESS as ffi::apr_status_t,
-                "Unexpected error"
-            );
-            child
-        }
-    }
+    // unsafe fn child(self) -> *mut ffi::apr_pool_t {
+    //     unsafe {
+    //         let mut child: *mut ffi::apr_pool_t = std::ptr::null_mut();
+    //         let status = ffi::apr_pool_create_ex(
+    //             &mut child as _,
+    //             self,
+    //             Some(on_pool_abort),
+    //             Default::default(),
+    //         );
+    //         assert!(
+    //             status == ffi::APR_SUCCESS as ffi::apr_status_t,
+    //             "Unexpected error"
+    //         );
+    //         child
+    //     }
+    // }
 
     unsafe fn boxed<T: Sized>(self, value: T) -> *mut T {
         unsafe extern "C" fn cleanup<T>(baton: *mut c_void) -> ffi::apr_status_t {
@@ -639,7 +645,13 @@ const POINTER_SIZE_BYTES: usize = std::mem::size_of::<usize>();
 #[easy_ext::ext(AprArray)]
 pub impl *const ffi::apr_array_header_t {
     fn len(self) -> usize {
-        unsafe { self.as_ref().expect("Failed to get reference").nelts.try_into().expect("Failed to convert size") }
+        unsafe {
+            self.as_ref()
+                .expect("Failed to get reference")
+                .nelts
+                .try_into()
+                .expect("Failed to convert size")
+        }
     }
     fn to_vec<T: Sized>(self, read: impl Fn(*const c_char) -> T) -> Vec<T> {
         let mut vec = Vec::with_capacity(self.len());

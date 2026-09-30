@@ -237,6 +237,12 @@ pub fn run() {
     std::env::set_var("GTK_OVERLAY_SCROLLING", "0"); // ← 加这行
     initialize();
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            let _ = app
+                .get_webview_window("main")
+                .expect("no main window")
+                .set_focus();
+        }))
         .setup(|app| {
             // Windows: JSON 的 /**/* 无法匹配盘符路径，需通过 Rust API 遍历盘符
             #[cfg(windows)]
@@ -259,6 +265,8 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .invoke_handler(tauri::generate_handler![
             backend::reload,
             backend::reply,
@@ -280,6 +288,7 @@ pub fn run() {
             backend::subversion_export,
             backend::subversion_get_wc_root,
             backend::subversion_import,
+            backend::subversion_import_filter,
             backend::subversion_info,
             backend::subversion_list,
             backend::subversion_lock,
@@ -335,8 +344,6 @@ pub fn run() {
             backend::database_workspace_items,
             backend::database_add_workspace_item,
             backend::database_delete_workspace_item,
-            // utils
-            backend::format_size,
             // utils base64
             backend::base64_decode,
             backend::base64_encode,

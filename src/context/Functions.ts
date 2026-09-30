@@ -30,10 +30,6 @@ export function fsReadLink(path: string): Promise<string> {
   return invokeMessagePack<string>('fs_read_link', { path })
 }
 
-export function formatSize(size: number): Promise<string> {
-  return invokeMessagePack<string>('format_size', { size })
-}
-
 export function databaseRevisionLocation(
   repository: string,
   path: string,

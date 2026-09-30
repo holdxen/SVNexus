@@ -53,20 +53,24 @@ import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
+import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import Logger from '@/utils/Logger'
+
 
 export interface ChangesListViewProps {
   visible: boolean
   onSelected?: (entry: string | null) => void
   onRefresh?: () => void
+  statusEntries?: StatusEntry[]
+  onStatusEntriesChanged?: (entries: StatusEntry[]) => void
 }
 
-export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListViewProps) {
+export function ChangesListView({ visible, onSelected, onRefresh, statusEntries, onStatusEntriesChanged }: ChangesListViewProps) {
   const workingCopy = useWorkingCopyContext()
   const workspace = useWorkspaceContext()
   const subversion = useSubversion()
 
-  const [entries, setEntries] = useState<StatusEntry[]>([])
+  // const [entries, setEntries] = useState<StatusEntry[]>([])
   const [selection, setSelection] = useState(itemSelection<StatusEntry>([]))
 
   useEffect(() => {
@@ -101,7 +105,8 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
       factory: subversion,
       call: async (context) => {
         const result = await context.status(options)
-        setEntries(result.entries)
+        onStatusEntriesChanged?.(result.entries)
+        // setEntries(result.entries)
         setSelection(itemSelection(result.entries))
       },
       onError: (error: any) => {
@@ -114,6 +119,9 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
     onRefresh?.()
   }
   useEffect(() => {
+    if (statusEntries !== undefined) {
+      return
+    }
     refresh()
   }, [])
 
@@ -179,6 +187,11 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
         selectedEntries[0].nodeStatus !== 'unversioned' &&
         selectedEntries[0].nodeStatus !== 'added',
       ignore: length === 1,
+      history:
+        length === 1 &&
+        selectedEntries[0].nodeKind === 'file' &&
+        selectedEntries[0].nodeStatus !== 'unversioned' &&
+        selectedEntries[0].nodeStatus !== 'added',
     }
   }
 
@@ -482,6 +495,37 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
       },
     },
     {
+      item: {
+        content: 'File history',
+        disabled: !state.history,
+        onSelect: async () => {
+          Logger.info("Open file history: ", selection.get())
+          operationHandler.showFileHistoryDialog(selection.get()[0])
+        },
+      },
+    },
+    {
+      item: {
+        content: "Copy absolute path",
+        disabled: selection.get().length !== 1,
+        onSelect: () => {
+          writeText(selection.get()[0].path)
+        }
+      }
+    },
+    {
+      item: {
+        content: "Copy relative path",
+        disabled: selection.get().length !== 1,
+        onSelect: () => {
+          const path = repoPath.stripPrefix(selection.get()[0].path, workingCopy.path)
+          if (path !== null) {
+            writeText(path)
+          }
+        }
+      }
+    },
+    {
       subitem: {
         content: 'Ignore',
         disabled:
@@ -520,14 +564,16 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
     <div className={cx(flex_1, flex, min_w_0, !visible && hidden)}>
       <VirtualList
         className={cx(flex_1)}
-        count={entries.length}
+        count={statusEntries?.length ?? 0}
         itemHeight={30}
-        getItemKey={(index) => entries[index].path}
+        getItemKey={(index) => statusEntries?.[index].path ?? ''}
         itemRender={(virtualRow) => {
           const index = virtualRow.index
-          const entry = entries[index]
+          const entry = statusEntries?.[index]
+          if (entry === undefined) {
+            return <></>
+          }
           const model = fromStatusEntry(entry, false, workingCopy.path)
-          Logger.info("Working copy status entry", workingCopy.path, entry)
           return (
             <ContextMenu menu={menu}>
               <WorkingCopyItem
@@ -550,9 +596,7 @@ export function ChangesListView({ visible, onSelected, onRefresh }: ChangesListV
           )
         }}
       />
-      {workingCopy.changesViewOperationContainer === null ? (
-        <></>
-      ) : (
+      {workingCopy.changesViewOperationContainer !== null && (
         createPortal(bar, workingCopy.changesViewOperationContainer)
       )}
     </div>

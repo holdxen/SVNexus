@@ -61,6 +61,7 @@ import { WorkingCopyRevisionStatusResult } from '@/bindings/WorkingCopyRevisionS
 import errorHumanString from '@/utils/Error'
 import Logger from '@/utils/Logger'
 import { MessagePackChannel, invokeMessagePack } from '@/utils/MessagePack'
+import { ImportFilterEvent } from '@/bindings/ImportFilterEvent'
 
 export type SubversionEventMap = {
   [K in SubversionEvent as keyof K]: K[keyof K]
@@ -238,8 +239,16 @@ export class Subversion {
   public import(options: ImportOptions, filters?: string[]): Promise<ImportResult> {
     return invokeMessagePack('subversion_import', {
       id: this.id,
-      options: options,
-      filters: filters,
+      options,
+      filters,
+    })
+  }
+
+  public importFilter(options: ImportOptions, filter: MessagePackChannel<ImportFilterEvent>): Promise<ImportResult> {
+    return invokeMessagePack('subversion_import_filter', {
+      id: this.id,
+      options,
+      filter,
     })
   }
 

@@ -4,6 +4,7 @@ use crate::subversion::SubversionErrorCode;
 use super::apr;
 use super::subversion;
 
+use serde::ser::SerializeStruct;
 use serde::Deserialize;
 use serde::Serialize;
 use snafu::Backtrace;
@@ -28,12 +29,22 @@ pub enum Error {
         source: apr::AprError,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
     #[snafu(display("Subversion error: {source}"))]
     SubversionError {
         source: subversion::SubversionError,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     // #[snafu(display("{}", source))]
@@ -44,11 +55,13 @@ pub enum Error {
     #[snafu(display("Invalid argument: {detail} at {location}"))]
     InvalidArgument {
         detail: String,
-        #[snafu(implicit)]
-        #[serde(skip)]
-        location: snafu::Location,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("System IO error: {source}"))]
@@ -58,6 +71,11 @@ pub enum Error {
         source: io::Error,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     // #[snafu(display("Invalid uuid: {source}"))]
@@ -73,6 +91,11 @@ pub enum Error {
         detail: String,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Rust tokio runtime error: {source}"))]
@@ -82,6 +105,11 @@ pub enum Error {
         source: tokio::task::JoinError,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(whatever, display("{message}"))]
@@ -92,6 +120,11 @@ pub enum Error {
         source: Option<Box<dyn std::error::Error + Sync + Send>>,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Json error: {source}"))]
@@ -101,6 +134,11 @@ pub enum Error {
         source: serde_json::Error,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Failed to parse enum: {source}, {detail}"))]
@@ -111,6 +149,11 @@ pub enum Error {
         detail: String,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Tauri exception: {source}"))]
@@ -118,6 +161,11 @@ pub enum Error {
         source: FrontendError,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Repository cache broken: {uuid}"))]
@@ -125,6 +173,11 @@ pub enum Error {
         uuid: String,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Failed to query database: {source}"))]
@@ -134,6 +187,11 @@ pub enum Error {
         source: surrealdb::Error,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Failed to find executable: {source}"))]
@@ -143,6 +201,11 @@ pub enum Error {
         source: which::Error,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Invalid glob: {source}"))]
@@ -152,6 +215,11 @@ pub enum Error {
         source: ignore::Error,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("Unexpected message: {detail}"))]
@@ -159,18 +227,62 @@ pub enum Error {
         detail: String,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
 
     #[snafu(display("MessagePack error: {source}"))]
     MessagePackError {
-        // detail: String,
-        //
         #[serde(serialize_with = "serialize_with_display")]
         #[ts(type = "string")]
         source: Box<dyn std::error::Error + Sync + Send>,
         #[serde(skip)]
         backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
     },
+
+    #[snafu(display("SSH error: {source}"))]
+    FlatlineError {
+        #[serde(serialize_with = "serialize_with_display")]
+        #[ts(type = "string")]
+        source: flatline::error::Error,
+        #[serde(skip)]
+        backtrace: Backtrace,
+
+        #[serde(serialize_with = "serialize_location")]
+        #[ts(type = "import('./Location').Location")]
+        #[snafu(implicit)]
+        location: snafu::Location,
+    },
+}
+
+#[cfg(test)]
+#[derive(Serialize, Debug, ts_rs::TS)]
+#[ts(export)]
+#[ts(rename = "Location")]
+#[serde(rename_all = "camelCase")]
+struct LocationMirror {
+    file: &'static str,
+    line: u32,
+    column: u32,
+}
+
+fn serialize_location<S: serde::Serializer>(
+    value: &snafu::Location,
+    serializer: S,
+) -> std::result::Result<S::Ok, S::Error> {
+    let mut location = serializer.serialize_struct("Location", 3usize)?;
+    location.serialize_field("file", value.file())?;
+    location.serialize_field("line", &value.line())?;
+    location.serialize_field("column", &value.column())?;
+    location.end()
 }
 
 fn serialize_with_display<S: serde::Serializer>(
@@ -185,6 +297,7 @@ pub fn ok<T>(value: T) -> Result<T, Error> {
 }
 
 impl From<io::Error> for Error {
+    #[track_caller]
     fn from(source: io::Error) -> Self {
         builder::IO {}.into_error(source)
     }
@@ -196,42 +309,56 @@ impl From<io::Error> for Error {
 //     }
 // }
 
+impl From<flatline::error::Error> for Error {
+    #[track_caller]
+    fn from(value: flatline::error::Error) -> Self {
+        builder::Flatline {}.into_error(value)
+    }
+}
+
 impl From<which::Error> for Error {
+    #[track_caller]
     fn from(value: which::Error) -> Self {
         builder::Which {}.into_error(value)
     }
 }
 
 impl From<serde_json::Error> for Error {
+    #[track_caller]
     fn from(value: serde_json::Error) -> Self {
         builder::Json {}.into_error(value)
     }
 }
 
 impl From<strum::ParseError> for Error {
+    #[track_caller]
     fn from(value: strum::ParseError) -> Self {
         builder::EnumParse { detail: "" }.into_error(value)
     }
 }
 
 impl From<FrontendError> for Error {
+    #[track_caller]
     fn from(value: FrontendError) -> Self {
         builder::Tauri {}.into_error(value)
     }
 }
 
 impl From<rmp_serde::decode::Error> for Error {
+    #[track_caller]
     fn from(value: rmp_serde::decode::Error) -> Self {
         builder::MessagePack {}.into_error(Box::new(value))
     }
 }
 
 impl From<rmp_serde::encode::Error> for Error {
+    #[track_caller]
     fn from(value: rmp_serde::encode::Error) -> Self {
         builder::MessagePack {}.into_error(Box::new(value))
     }
 }
 impl From<surrealdb::Error> for Error {
+    #[track_caller]
     fn from(value: surrealdb::Error) -> Self {
         builder::Database {}.into_error(value)
     }
@@ -250,6 +377,27 @@ pub enum FrontendError {
 
     #[snafu(display("{detail}"))]
     TauriError { detail: String },
+
+    #[snafu(display("{detail}"))]
+    FlatlineError { detail: String },
+}
+
+impl From<Error> for FrontendError {
+    #[track_caller]
+    fn from(value: Error) -> Self {
+        UnexpectedSnafu {
+            detail: value.to_string(),
+        }
+        .build()
+    }
+}
+
+impl From<flatline::error::Error> for FrontendError {
+    fn from(value: flatline::error::Error) -> Self {
+        Self::FlatlineError {
+            detail: value.to_string(),
+        }
+    }
 }
 
 impl From<tauri::Error> for FrontendError {
@@ -273,6 +421,9 @@ impl FrontendError {
                 SubversionErrorCode::CeaseInvocation.to_i32(),
                 detail.as_str(),
             ),
+            FrontendError::FlatlineError { detail } => {
+                (SubversionErrorCode::RaSvnIoError.to_i32(), detail.as_str())
+            }
         };
         unsafe {
             let mut pool = apr::Pool::create();

@@ -30,11 +30,11 @@ use crate::{
             CommitOptions, CommitResult, ConflictWalkOptions, ConflictWalkResult, ContextNotifier,
             CreateContextOptions, DeleteOptions, DeleteResult, ExportOptions, ImportOptions,
             ImportResult, InfoOptions, InfoResult, ListOptions, ListResult, LockOptions,
-            MkdirOptions, MkdirResult, PatchOptions, PropertyGetOptions, PropertyGetResult,
-            PropertyListOptions, PropertyListResult, PropertySetOptions, RelocateOptions, Revision,
-            RevisionNumber, RevisionPropertyListOptions, RevisionPropertyListResult, RevisionRange,
-            SslServerCertInfo, StatusOptions, StatusResult, TrustServer, UnlockOptions,
-            UpdateOptions,
+            MkdirOptions, MkdirResult, NodeKind, PatchOptions, PropertyGetOptions,
+            PropertyGetResult, PropertyListOptions, PropertyListResult, PropertySetOptions,
+            RelocateOptions, Revision, RevisionNumber, RevisionPropertyListOptions,
+            RevisionPropertyListResult, RevisionRange, SSHAuthetication, SslServerCertInfo,
+            StatusOptions, StatusResult, TrustServer, UnlockOptions, UpdateOptions,
         },
         export::AsyncContext,
         version::{self, Version},
@@ -239,74 +239,121 @@ pub async fn fs_read_link(path: String) -> error::Result<String> {
         })
 }
 
-#[derive(Serialize, Deserialize, ts_rs::TS)]
+#[derive(Serialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
-pub enum SubversionEvent {
+pub enum SubversionEvent<'a> {
     SavePasswordAsPlainText {
-        #[ts(type = "number")]
         id: u64,
-        realm: String,
+        realm: &'a str,
     },
     WorkingCopyNotify {
-        notify: WorkingCopyNotify,
+        notify: WorkingCopyNotify<'a>,
     },
     #[serde(rename_all = "camelCase")]
     SslServerTrustPrompt {
-        #[ts(type = "number")]
         id: u64,
-        realm: String,
-        #[ts(type = "number")]
+        realm: &'a str,
         failures: u32,
-        info: SslServerCertInfo,
+        info: SslServerCertInfo<'a>,
         may_save: bool,
     },
     ProgressNotify {
-        #[ts(type = "number")]
         pos: i64,
-        #[ts(type = "number")]
         total: i64,
     },
     #[serde(rename_all = "camelCase")]
     Authenticate {
-        #[ts(type = "number")]
         id: u64,
-        realm: String,
-        username: String,
+        realm: &'a str,
+        username: &'a str,
         may_save: bool,
         need_password: bool,
     },
+    #[serde(rename_all = "camelCase")]
     Conflict {
-        #[ts(type = "number")]
         id: u64,
         description: WorkingCopyConflictDescription,
     },
     #[serde(rename_all = "camelCase")]
     SslClientCertificate {
-        #[ts(type = "number")]
         id: u64,
-        realm: String,
+        realm: &'a str,
         may_save: bool,
+    },
+    #[serde(rename_all = "camelCase")]
+    Tunnel {
+        ssh: SubversionSSHEvent<'a>,
+    },
+}
+
+#[derive(Serialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub enum SubversionSSHEvent<'a> {
+    #[serde(rename_all = "camelCase")]
+    VerifyIpChanged {
+        id: u64,
+        host: &'a str,
+        ip: &'a str,
+        key_type: &'a str,
+        key_data: &'a [u8],
+        fingerprint: &'a str,
+    },
+    #[serde(rename_all = "camelCase")]
+    VerifyNewHostKey {
+        id: u64,
+        host: &'a str,
+        ip: Option<&'a str>,
+        key_type: &'a str,
+        key_data: &'a [u8],
+        fingerprint: &'a str,
+    },
+    #[serde(rename_all = "camelCase")]
+    KeyboardInteractive {
+        id: u64,
+        name: &'a str,
+        instruction: &'a str,
+        prompts: &'a [(&'a str, bool)],
+    },
+    #[serde(rename_all = "camelCase")]
+    Authenticate {
+        id: u64,
+        password: bool,
+        public_key: bool,
+        keyboard_interactive: bool,
+        username: Option<&'a str>,
+    },
+    /// 询问一把已发现的加密私钥的口令（`wrong` = 上一次给的口令不对）。
+    /// 回复 `null` 表示用户取消：跳过这把钥匙，而不是让连接失败。
+    #[serde(rename_all = "camelCase")]
+    Passphrase {
+        id: u64,
+        path: &'a str,
+        username: Option<&'a str>,
+        wrong: bool,
     },
 }
 
 #[derive(derive_more::Debug)]
 pub struct ContextNotifierImpl {
+    context: u64,
     channel: MessagePackChannel,
     cancel_msg: Mutex<Option<String>>,
 }
 
 impl ContextNotifierImpl {
-    fn request<T: DeserializeOwned, F: FnOnce(u64) -> SubversionEvent>(
-        &self,
-        f: F,
-    ) -> Result<T, FrontendError> {
+    fn request<'a, T, F>(&self, f: F) -> Result<T, FrontendError>
+    where
+        T: DeserializeOwned,
+        F: FnOnce(u64) -> SubversionEvent<'a>,
+    {
         let (sender, receiver) = oneshot::channel();
 
         let id = {
             let mut reply = Reply::instance().blocking_lock();
 
-            let id = reply.insert(sender);
+            let id = reply.insert(sender, Some(self.context));
 
             id
         };
@@ -332,7 +379,48 @@ impl ContextNotifierImpl {
             ReplyMessage::Failure(error) => return Err(error),
         };
 
-        tracing::info!("Reply value: {:?}", value);
+        let value = rmp_serde::from_slice(&value).map_err(|error| {
+            error::UnexpectedSnafu {
+                detail: format!("Unexpected value: {}", error),
+            }
+            .build()
+        })?;
+
+        Ok(value)
+    }
+
+    async fn request_async<'a, T, F>(&self, f: F) -> Result<T, FrontendError>
+    where
+        T: DeserializeOwned,
+        F: FnOnce(u64) -> SubversionEvent<'a>,
+    {
+        let (sender, receiver) = oneshot::channel();
+
+        let id = {
+            let mut reply = Reply::instance().lock().await;
+
+            let id = reply.insert(sender, Some(self.context));
+
+            id
+        };
+
+        let event = f(id);
+
+        self.channel
+            .send(&event)
+            .ok()
+            .context(error::UnexpectedSnafu {
+                detail: "Failed to send message from channel",
+            })?;
+
+        let value = receiver.await.ok().context(error::UnexpectedSnafu {
+            detail: "Failed to received message",
+        })?;
+
+        let value = match value {
+            ReplyMessage::Success(value) => value,
+            ReplyMessage::Failure(error) => return Err(error),
+        };
 
         let value = rmp_serde::from_slice(&value).map_err(|error| {
             error::UnexpectedSnafu {
@@ -345,30 +433,9 @@ impl ContextNotifierImpl {
     }
 }
 
+#[async_trait::async_trait]
 impl ContextNotifier for ContextNotifierImpl {
-    fn may_save_password_as_plain_text(&self, realm: String) -> Result<bool, FrontendError> {
-        // let (sender, receiver) = oneshot::channel();
-
-        // let mut reply = Reply::instance().blocking_lock();
-
-        // let id = reply.insert(sender);
-
-        // self.channel
-        //     .send(SubversionEvent::SavePasswordAsPlainText { id, realm })?;
-
-        // let value = receiver.blocking_recv().ok().context(error::UnexpectedSnafu {
-        // 	detail: "Failed to received message"
-        // })?;
-
-        // let value = match value {
-        // 	ReplyMessage::Success(value) => value,
-        // 	ReplyMessage::Failure(error) => return Err(error),
-        // };
-
-        // Ok(value.as_bool().context(error::UnexpectedSnafu {
-        // 	detail: "Unexpected value"
-        // })?)
-
+    fn may_save_password_as_plain_text(&self, realm: &str) -> Result<bool, FrontendError> {
         self.request(|id| SubversionEvent::SavePasswordAsPlainText { id, realm })
     }
 
@@ -386,7 +453,7 @@ impl ContextNotifier for ContextNotifierImpl {
 
     fn ssl_server_trust_prompt(
         &self,
-        realm: String,
+        realm: &str,
         failures: u32,
         info: SslServerCertInfo,
         may_save: bool,
@@ -419,8 +486,8 @@ impl ContextNotifier for ContextNotifierImpl {
 
     fn authenticate(
         &self,
-        realm: String,
-        username: String,
+        realm: &str,
+        username: &str,
         may_save: bool,
         need_password: bool,
     ) -> Result<Option<Authentication>, FrontendError> {
@@ -443,7 +510,7 @@ impl ContextNotifier for ContextNotifierImpl {
 
     fn ssl_client_certificate(
         &self,
-        realm: String,
+        realm: &str,
         may_save: bool,
     ) -> Result<Option<ClientCertificate>, FrontendError> {
         self.request(|id| SubversionEvent::SslClientCertificate {
@@ -451,6 +518,100 @@ impl ContextNotifier for ContextNotifierImpl {
             realm,
             may_save,
         })
+    }
+
+    fn ssh_verify_ip_changed(
+        &self,
+        host: &str,
+        ip: &str,
+        key_type: &str,
+        key_data: &[u8],
+        fingerprint: &str,
+    ) -> Result<bool, FrontendError> {
+        self.request(|id| SubversionEvent::Tunnel {
+            ssh: SubversionSSHEvent::VerifyIpChanged {
+                id,
+                host,
+                ip,
+                key_type,
+                key_data,
+                fingerprint,
+            },
+        })
+    }
+
+    #[tracing::instrument]
+    fn ssh_verify_new_host_key(
+        &self,
+        host: &str,
+        ip: Option<&str>,
+        key_type: &str,
+        key_data: &[u8],
+        fingerprint: &str,
+    ) -> Result<bool, FrontendError> {
+        self.request(|id| SubversionEvent::Tunnel {
+            ssh: SubversionSSHEvent::VerifyNewHostKey {
+                id,
+                host,
+                ip,
+                key_type,
+                key_data,
+                fingerprint,
+            },
+        })
+    }
+
+    async fn ssh_keyboard_interactive(
+        &self,
+        name: &str,
+        instruction: &str,
+        prompts: &[(&str, bool)],
+    ) -> Result<Vec<String>, FrontendError> {
+        self.request_async(|id| SubversionEvent::Tunnel {
+            ssh: SubversionSSHEvent::KeyboardInteractive {
+                id,
+                name,
+                instruction,
+                prompts,
+            },
+        })
+        .await
+    }
+
+    async fn ssh_authenticate(
+        &self,
+        password: bool,
+        public_key: bool,
+        keyboard_interactive: bool,
+        username: Option<&str>,
+    ) -> Result<SSHAuthetication, FrontendError> {
+        self.request_async(|id| SubversionEvent::Tunnel {
+            ssh: SubversionSSHEvent::Authenticate {
+                id,
+                password,
+                public_key,
+                keyboard_interactive,
+                username,
+            },
+        })
+        .await
+    }
+
+    async fn ssh_passphrase(
+        &self,
+        path: &str,
+        username: Option<&str>,
+        wrong: bool,
+    ) -> Result<Option<String>, FrontendError> {
+        self.request_async(|id| SubversionEvent::Tunnel {
+            ssh: SubversionSSHEvent::Passphrase {
+                id,
+                path,
+                username,
+                wrong,
+            },
+        })
+        .await
     }
 }
 
@@ -491,7 +652,10 @@ impl Subversion {
         channel: MessagePackChannel,
         config: subversion::context::Config,
     ) -> error::Result<u64> {
+        self.next = self.next.wrapping_add(1);
+
         let notifier = ContextNotifierImpl {
+            context: self.next,
             channel,
             cancel_msg: Default::default(),
         };
@@ -508,7 +672,6 @@ impl Subversion {
 
         let context = AsyncContext::create(options)?;
 
-        self.next = self.next.wrapping_add(1);
         self.context.insert(self.next, context);
         self.notifier.insert(self.next, notifier);
 
@@ -661,6 +824,87 @@ pub async fn subversion_import(
 ) -> error::Result<ImportResult> {
     let context = context!(id);
     context.import(options, filters).await
+}
+
+#[derive(Serialize, Deserialize, Debug, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ImportFilterEvent<'a> {
+    id: u64,
+    path: &'a str,
+    kind: NodeKind,
+    special: bool,
+    file_size: Option<u64>,
+    mtime: i64,
+}
+
+#[svnexus_macro::messagepack_command]
+pub async fn subversion_import_filter(
+    id: u64,
+    options: ImportOptions,
+    #[channel] filter: MessagePackChannel,
+) -> error::Result<ImportResult> {
+    let context = context!(id);
+    context
+        .call_async(move |mut context| {
+            //
+            context.import_filter(
+                options,
+                Some(
+                    move |path: &str,
+                          kind: NodeKind,
+                          special: bool,
+                          file_size: Option<u64>,
+                          mtime: i64| {
+                        let (sender, receiver) = oneshot::channel();
+
+                        let id = {
+                            let mut reply = Reply::instance().blocking_lock();
+
+                            let id = reply.insert(sender, Some(id));
+
+                            id
+                        };
+
+                        let event = ImportFilterEvent {
+                            id,
+                            path,
+                            kind,
+                            special,
+                            file_size,
+                            mtime,
+                        };
+
+                        filter.send(&event).ok().context(error::UnexpectedSnafu {
+                            detail: "Failed to send message from channel",
+                        })?;
+
+                        let value =
+                            receiver
+                                .blocking_recv()
+                                .ok()
+                                .context(error::UnexpectedSnafu {
+                                    detail: "Failed to received message",
+                                })?;
+
+                        let value = match value {
+                            ReplyMessage::Success(value) => value,
+                            ReplyMessage::Failure(error) => return Err(error),
+                        };
+
+                        let value = rmp_serde::from_slice(&value).map_err(|error| {
+                            error::UnexpectedSnafu {
+                                detail: format!("Unexpected value: {}", error),
+                            }
+                            .build()
+                        })?;
+
+                        Ok(value)
+                    },
+                ),
+            )
+        })
+        .await
 }
 
 #[svnexus_macro::messagepack_command]
@@ -852,9 +1096,12 @@ pub async fn subversion_create(
 #[svnexus_macro::messagepack_command]
 pub async fn subversion_destroy(id: u64) {
     tracing::info!("Destroy subversion: {}", id);
-    let mut subversion = Subversion::instance().lock().await;
-    subversion.take_context(id);
-    subversion.take_notifier(id);
+    {
+        let mut subversion = Subversion::instance().lock().await;
+        subversion.take_context(id);
+        subversion.take_notifier(id);
+    }
+    Reply::instance().lock().await.remove_by_context(id);
 }
 
 #[svnexus_macro::messagepack_command]
@@ -1115,10 +1362,15 @@ pub async fn subversion_time_from_string(time: &str) -> error::Result<i64> {
     subversion::time_from_string(time)
 }
 
+pub struct ReplyContext {
+    sender: oneshot::Sender<ReplyMessage>,
+    belong: Option<u64>,
+}
+
 #[derive(Default)]
 pub struct Reply {
     next: u64,
-    pending: HashMap<u64, oneshot::Sender<ReplyMessage>>,
+    pending: HashMap<u64, ReplyContext>,
 }
 
 #[derive(Debug, Deserialize, Serialize, ts_rs::TS)]
@@ -1140,23 +1392,29 @@ impl Reply {
         self.pending.clear();
     }
 
-    fn insert(&mut self, sender: oneshot::Sender<ReplyMessage>) -> u64 {
+    fn insert(&mut self, sender: oneshot::Sender<ReplyMessage>, belong: Option<u64>) -> u64 {
         self.next = self.next.wrapping_add(1);
 
-        self.pending.insert(self.next, sender);
+        self.pending
+            .insert(self.next, ReplyContext { sender, belong });
 
         self.next
     }
 
+    fn remove_by_context(&mut self, context: u64) {
+        self.pending
+            .retain(|_key, value| value.belong != Some(context));
+    }
+
     fn reply(&mut self, id: u64, value: ReplyMessage) -> error::Result<()> {
-        let Some(sender) = self.pending.remove(&id) else {
+        let Some(context) = self.pending.remove(&id) else {
             return builder::General {
                 detail: "Not found sender",
             }
             .fail();
         };
 
-        if sender.send(value).is_err() {
+        if context.sender.send(value).is_err() {
             return builder::General {
                 detail: "Failed to send",
             }
@@ -1182,11 +1440,11 @@ pub async fn reload() {
     instance.clear();
 }
 
-#[svnexus_macro::messagepack_command]
-pub fn format_size(size: u64) -> String {
-    humansize::format_size(size, humansize::DECIMAL)
-}
-
+// #[svnexus_macro::messagepack_command]
+// pub fn format_size(size: u64) -> String {
+//     humansize::format_size(size, humansize::DECIMAL)
+// }
+//
 #[svnexus_macro::messagepack_command]
 pub fn base64_encode(data: &[u8], break_lines: bool) -> error::Result<String> {
     crate::subversion::utils::base64_encode(data, break_lines)

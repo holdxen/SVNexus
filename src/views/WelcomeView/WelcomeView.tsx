@@ -73,8 +73,11 @@ function AddGroupDialog() {
   const modal = useCurrentModal()
   const workspaceGroups = useDatabase((state) => state.workspaceGroups)
 
+  const input = useRef(null)
+
   return (
     <Dialog
+      initialFocusRef={input}
       visible={modal.visible}
       title="Add group"
       afterClose={() => modal.remove()}
@@ -101,7 +104,7 @@ function AddGroupDialog() {
         modal.hide()
       }}
     >
-      <PureInput value={name} onChange={setName}></PureInput>
+      <PureInput ref={input} value={name} onChange={setName}></PureInput>
     </Dialog>
   )
 }

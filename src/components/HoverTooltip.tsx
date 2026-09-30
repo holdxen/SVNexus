@@ -1,3 +1,4 @@
+import { IconButton } from '@/icons/IconButton'
 import { Tooltip } from '@douyinfe/semi-ui'
 import { TooltipProps } from '@douyinfe/semi-ui/lib/es/tooltip'
 import { css, cx } from '@linaria/core'
@@ -35,6 +36,22 @@ export function useHoverTooltip() {
     handler,
     tooltip,
   }
+}
+
+export function IconTooltipButton(
+  props: React.HTMLAttributes<HTMLDivElement> & { tooltipConent: string },
+) {
+  const { hover, tooltip, handler } = useHoverTooltip()
+  const { className, tooltipConent, ...others } = props
+  return (
+    <Tooltip visible={hover} trigger="custom" content={tooltipConent}>
+      <IconButton
+        {...others}
+        onAnimationStart={handler}
+        className={cx(tooltip, className)}
+      ></IconButton>
+    </Tooltip>
+  )
 }
 
 export default function HoverTooltip(props: HoverTooltipProps) {

@@ -97,34 +97,34 @@ pub impl<T, E: std::error::Error + Send + Sync + 'static> Result<T, E> {
 
 #[easy_ext::ext(CommonExtension)]
 pub impl<T: Sized> T {
-    fn if_some<V>(self, option: Option<V>, f: impl FnOnce(Self, V) -> Self) -> Self {
-        if let Some(v) = option {
-            f(self, v)
-        } else {
-            self
-        }
-    }
-
-    fn if_or<R>(self, value: bool, i: impl FnOnce(Self) -> R, o: impl FnOnce(Self) -> R) -> R {
-        if value {
-            i(self)
-        } else {
-            o(self)
-        }
-    }
-
-    fn so_if_or<R>(
-        self,
-        b: impl FnOnce(&Self) -> bool,
-        i: impl FnOnce(Self) -> R,
-        o: impl FnOnce(Self) -> R,
-    ) -> R {
-        if b(&self) {
-            i(self)
-        } else {
-            o(self)
-        }
-    }
+    //     fn if_some<V>(self, option: Option<V>, f: impl FnOnce(Self, V) -> Self) -> Self {
+    //         if let Some(v) = option {
+    //             f(self, v)
+    //         } else {
+    //             self
+    //         }
+    //     }
+    //
+    //     fn if_or<R>(self, value: bool, i: impl FnOnce(Self) -> R, o: impl FnOnce(Self) -> R) -> R {
+    //         if value {
+    //             i(self)
+    //         } else {
+    //             o(self)
+    //         }
+    //     }
+    //
+    //     fn so_if_or<R>(
+    //         self,
+    //         b: impl FnOnce(&Self) -> bool,
+    //         i: impl FnOnce(Self) -> R,
+    //         o: impl FnOnce(Self) -> R,
+    //     ) -> R {
+    //         if b(&self) {
+    //             i(self)
+    //         } else {
+    //             o(self)
+    //         }
+    //     }
 
     #[cfg(false)]
     fn if_or_ref<R>(

@@ -28,6 +28,7 @@ import { Subversion, useSubversion } from '@/context/Subversion'
 import { ModalProvider } from '@/lib/multi-modal'
 import {
   absolute,
+  block_minimizable,
   border_box,
   flex,
   flex_1,
@@ -38,11 +39,12 @@ import {
   h_full,
   hidden,
   items_center,
-  min_h_0,
+  minimizable,
   overflow_hidden,
   px_2,
   py_1,
   relative,
+  text_center,
   w_full,
   whitespace_nowrap,
 } from '@/styles/Classes'
@@ -736,9 +738,24 @@ export default function FileHistoryView(props: FileHistoryViewProps) {
 
   const selectedRevision = selectedEntry?.revision
 
+  const getSelectedPath = () => {
+    if (typeof selectedRevision === 'number') {
+      const path = paths.get(selectedRevision);
+      if (typeof path === 'string') {
+        return path
+      }
+    }
+    return undefined
+  }
+
+  const selectedPath = getSelectedPath()
+
+
+  const title = selectedPath !== undefined ? `^${selectedPath}:r${selectedRevision}` : ' '
+
   return (
-    <div className={cx(flex, flex_col, gap_y_1, flex_1, min_h_0, props.className)}>
-      <Group orientation="horizontal" className={cx(flex_1, min_h_0)}>
+    <div className={cx(flex, flex_col, gap_y_1, flex_1, minimizable, props.className)}>
+      <Group orientation="horizontal" className={cx(flex_1, block_minimizable)}>
         <Panel className={cx(flex, relative)} defaultSize={'40%'}>
           <LazyVirtualList
             onLoadMoreTop={loadTop}
@@ -785,7 +802,10 @@ export default function FileHistoryView(props: FileHistoryViewProps) {
           ></Spin>
         </Panel>
         <Separator style={{ width: 4 }} />
-        <Panel className={cx(flex)}>
+        <Panel className={cx(flex, flex_col)}>
+          <span className={cx(text_center, overflow_hidden)}>
+            {title}
+          </span>
           <StrongDifferenceEditor
             ref={editor}
             currentKey={selectedEntry?.revision?.toString()}

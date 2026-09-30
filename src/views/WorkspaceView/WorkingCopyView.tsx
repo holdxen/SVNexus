@@ -17,6 +17,7 @@ import {
 } from '../../styles/Classes'
 import { ChangesView } from './ChangesView/ChangesView'
 import { HistoryView } from './HistoryView/HistoryView'
+import { RemoteView } from './RemoteView/RemoteView'
 
 export interface WorkingCopyContext {
   path: string
@@ -129,6 +130,11 @@ export function WorkingCopyView({ path }: WorkingCopyViewProps) {
             <HistoryView
               className={cx(flex_1, min_w_0, activeKey !== historyViewKey && hidden)}
             ></HistoryView>
+          </LazyComponent>
+          <LazyComponent visible={activeKey === remoteViewKey}>
+            <RemoteView
+              className={cx(flex_1, min_w_0, activeKey !== remoteViewKey && hidden)}
+            ></RemoteView>
           </LazyComponent>
         </div>
       </div>

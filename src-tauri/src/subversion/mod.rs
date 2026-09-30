@@ -1,5 +1,6 @@
 pub mod context;
 pub mod export;
+pub mod identity;
 mod property;
 pub mod ra;
 pub mod stream;
@@ -10,12 +11,9 @@ pub mod wc;
 #[cfg(test)]
 mod tests;
 
-use std::{ffi::CString, str::FromStr};
-
 use crate::{
     apr,
     error::{self, builder},
-    extensions::ResultExtension,
     utils::{CStringer, Pointer},
 };
 use serde::{Deserialize, Serialize};

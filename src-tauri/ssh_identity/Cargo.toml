@@ -1,0 +1,9 @@
+[package]
+name = "ssh_identity"
+version = "0.1.0"
+edition = "2021"
+description = "Discover SSH identity files the way OpenSSH does (defaults + ~/.ssh/config)"
+authors = ["holdxen"]
+license = "MIT"
+
+[dependencies]

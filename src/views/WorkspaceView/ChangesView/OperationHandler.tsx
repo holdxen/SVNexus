@@ -2,7 +2,6 @@ import { cx } from '@linaria/core'
 
 import { InfoEntry } from '@/bindings/InfoEntry'
 import { MergeSource } from '@/bindings/MergeSource'
-import { formatSize } from '@/context/Functions'
 import { useModal } from '@/lib/multi-modal'
 import { select_text } from '@/styles/Classes'
 import { NiceAddDialog } from '@/views/dialogs/AddDialog'
@@ -21,6 +20,12 @@ import { NiceUnlockDialog } from '@/views/dialogs/UnlockDialog'
 import { NiceUpdateDialog } from '@/views/dialogs/UpdateDialog'
 
 import { WorkingCopyPathItemModel } from '../WorkingCopyItem'
+import { filesize } from 'filesize'
+import { StatusEntry } from '@/bindings/StatusEntry'
+import { combineUrl } from '@/utils/Url'
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import * as uuid from 'uuid'
+import { base64Encode } from '@/context/Functions'
 
 export default class OperationHandler {
   private modal: ReturnType<typeof useModal>
@@ -49,6 +54,37 @@ export default class OperationHandler {
     if (result) {
       await this.refresh()
     }
+  }
+
+  public async showFileHistoryDialog(entry: StatusEntry) {
+    if (entry.revision === null) {
+      return
+    }
+    if (!entry.versioned) {
+      return
+    }
+    if (entry.repositoryRootUrl === null) {
+      return
+    }
+    if (entry.repositoryRelpath === null) {
+      return
+    }
+
+    const path = combineUrl(entry.repositoryRootUrl, entry.repositoryRelpath)
+    try {
+      const id = uuid.v4()
+      const url = `/FileHistoryView/${await base64Encode(new TextEncoder().encode(path), false)}/${entry.revision}`
+      const window = new WebviewWindow(id, {
+        url,
+        title: path,
+        width: 800,
+        height: 600,
+      })
+      await window.show()
+    } catch (e) {
+      console.error('Failed to create window', e)
+    }
+
   }
 
   public showDifferenceDialog(workingCopy: string, workspace: string, path: string) {
@@ -126,13 +162,13 @@ export default class OperationHandler {
   }
 
   public showExportDialog(defaultPath?: string) {
-    this.modal.show(NiceExportDialog, { defaultPath })
+    this.modal.show(NiceExportDialog, { defaultPath, defaultRevision: 'working' })
   }
 
   public async showInfoEntryDialog(info: InfoEntry) {
     const modal = this.modal
     const size = info.size ?? info.workingCopyInfo?.recordedSize
-    const sizeText = size ? await formatSize(size) : null
+    const sizeText = size ? filesize(size) : null
     await modal
       .show(NiceInfoDialog, {
         data: [

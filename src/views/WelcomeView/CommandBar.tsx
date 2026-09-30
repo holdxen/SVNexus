@@ -15,15 +15,19 @@ import { useTabManager } from '@/context/TabManager'
 import { useModal } from '@/lib/multi-modal'
 import Logger from '@/utils/Logger'
 
-import { IconButton } from '../../icons/IconButton'
 import LocateFixedIcon from '../../icons/LocateFixed.svg?react'
 import OperationCheckoutIcon from '../../icons/OperationCheckout.svg?react'
 import OperationExportIcon from '../../icons/OperationExport.svg?react'
+import OperationImportIcon from '../../icons/OperationImport.svg?react'
 import TerminalIcon from '../../icons/Terminal.svg?react'
 import { m_1, gap_x_2, flex, flex_1, items_center, border_radius_5 } from '../../styles/Classes'
 import { NiceCheckoutDialog } from '../dialogs/CheckoutDialog'
 import { NiceExportDialog } from '../dialogs/ExportDialog'
+import { NiceImportDialog } from '../dialogs/ImportDialog'
 import { OpenFromPathDialog } from '../dialogs/OpenFromPathDialog'
+import { IconTooltipButton } from '@/components/HoverTooltip'
+
+
 
 export function CommandBar() {
   const tabManager = useTabManager()
@@ -39,7 +43,7 @@ export function CommandBar() {
     }
 
     selected = selected.replace(/\\/g, '/')
-    Logger.info("replace selected path", selected)
+    Logger.info('replace selected path', selected)
     // const uuid = await uuidCreate()
     const identity = uuid.v4()
     const content: TabContentModel = {
@@ -79,6 +83,10 @@ export function CommandBar() {
 
   const onExport = () => {
     modal.show(NiceExportDialog, {})
+  }
+
+  const onImport = () => {
+    modal.show(NiceImportDialog, {})
   }
 
   const onOpenFromPath = () => {
@@ -158,24 +166,21 @@ export function CommandBar() {
 
   return (
     <div className={cx(m_1, flex, gap_x_2, items_center)}>
-      <IconButton onClick={onCheckout}>
+      <IconTooltipButton tooltipConent="Checkout" onClick={onCheckout}>
         <OperationCheckoutIcon></OperationCheckoutIcon>
-      </IconButton>
+      </IconTooltipButton>
       <ContextMenu asChild menu={folderContextMenu}>
-        <IconButton onClick={selectedFolder}>
+        <IconTooltipButton tooltipConent="Select working copy" onClick={selectedFolder}>
           <LocateFixedIcon></LocateFixedIcon>
-        </IconButton>
+        </IconTooltipButton>
       </ContextMenu>
-      <IconButton onClick={onExport}>
+      <IconTooltipButton tooltipConent="Export" onClick={onExport}>
         <OperationExportIcon />
-      </IconButton>
-      <div className={cx(flex_1)}>
-        {/*{checkoutDialogKey !== 0 ? (
-          <CheckoutDialog key={checkoutDialogKey}></CheckoutDialog>
-        ) : (
-          <></>
-        )}*/}
-      </div>
+      </IconTooltipButton>
+      <IconTooltipButton tooltipConent="Import" onClick={onImport}>
+        <OperationImportIcon />
+      </IconTooltipButton>
+      <div className={cx(flex_1)}></div>
       <IconSelect
         onSelect={onSelect}
         value={openValue}

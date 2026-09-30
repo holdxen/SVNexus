@@ -39,6 +39,9 @@ export default defineConfig(() => ({
         '$width-spin_small': '16px',
         '$spacing-input-paddingRight': '2px',
         '$spacing-input-paddingLeft': '2px',
+        '$spacing-collapse_header-marginY': '0px',
+        '$spacing-collapse_header-marginX': '0px',
+        '$spacing-collapse_header-padding': '8px 4px'
       },
     }),
     wyw({

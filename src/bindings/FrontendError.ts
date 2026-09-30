@@ -4,3 +4,4 @@ export type FrontendError =
   | { subversionError: { code: number; msg: string } }
   | { unexpectedError: { detail: string } }
   | { tauriError: { detail: string } }
+  | { flatlineError: { detail: string } }
