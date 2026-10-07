@@ -9,6 +9,7 @@ import { StatusOptions } from '@/bindings/StatusOptions'
 import { WorkingCopyStatus } from '@/bindings/WorkingCopyStatus'
 import OperationBar, { OperationIconProps } from '@/components/OperationBar'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useModal } from '@/lib/multi-modal'
 import Logger from '@/utils/Logger'
 import { localPath } from '@/utils/Path'
@@ -93,6 +94,7 @@ function Separator({
 }
 
 export function NavigationBar({ path, root, onSelected, className }: NavigationBarProps) {
+  const t = useT()
   const relocate = localPath.getParent(root) ?? ''
   const displayItems = localPath.intoParts(relocate)
   const routeItems = localPath.intoParts(localPath.stripPrefix(path, relocate) ?? '')
@@ -105,7 +107,9 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
 
   const dropDown = (
     <Dropdown.Menu>
-      <Dropdown.Title key={0}>{folders.length === 0 ? `${title}(empty)` : title}</Dropdown.Title>
+      <Dropdown.Title key={0}>
+        {folders.length === 0 ? t('changes.navigation.emptyFolder', { title }) : title}
+      </Dropdown.Title>
       {folders.map((e, index) => {
         return (
           <Dropdown.Item
@@ -170,7 +174,7 @@ export function NavigationBar({ path, root, onSelected, className }: NavigationB
   const icons: OperationIconProps[] = [
     {
       sync: false,
-      tooltip: 'Relocate',
+      tooltip: t('shared.action.relocate'),
       enable: true,
       children: <OperationRelocateIcon />,
       onClick: async () => {

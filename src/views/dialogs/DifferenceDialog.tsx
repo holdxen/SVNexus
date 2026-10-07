@@ -10,6 +10,7 @@ import { Depth } from '@/bindings/Depth'
 import { LazyEditor } from '@/components/monaco/LazyEditors'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -62,7 +63,20 @@ export function NiceDifferenceDialog(props: {
 type DisplayContent = 'Both' | 'ContentOnly' | 'PropertyOnly'
 type RelativePath = 'None' | 'Path' | 'Root'
 
+const displayContentKeys = {
+  Both: 'advancedDialogs.difference.display.both',
+  ContentOnly: 'advancedDialogs.difference.display.contentOnly',
+  PropertyOnly: 'advancedDialogs.difference.display.propertyOnly',
+} as const
+
+const relativePathKeys = {
+  None: 'advancedDialogs.difference.relate.none',
+  Path: 'advancedDialogs.difference.relate.path',
+  Root: 'advancedDialogs.difference.relate.root',
+} as const
+
 export default function DifferenceDialog(props: DifferenceDialogProps) {
+  const t = useT()
   const displayContentAll: DisplayContent[] = ['Both', 'ContentOnly', 'PropertyOnly']
   const [content, setContent] = useState('')
   const [ignoreAncestry, setIgnoreAncestry] = useState(false)
@@ -173,7 +187,7 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
 
   const exportTask = async () => {
     const filePath = await save({
-      title: '保存文件',
+      title: t('dialogs.saveFile'),
       defaultPath: 'export.patch',
     })
 
@@ -224,19 +238,23 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
       afterClose={props.afterClose}
       footerMargin="0px"
       fullScreen
-      title="Difference"
+      title={t('advancedDialogs.difference.title')}
       closable={false}
       visible={props.visible}
       footer={<></>}
     >
       <div className={cx(flex, flex_col, min_h_0, gap_y_2, flex_1, border_box, py_2)}>
-        <DialogFormItem title="Path:">
+        <DialogFormItem title={t('shared.field.path')}>
           <div className={cx(flex_1, flex_col, flex)}>
             <Typography.Text>{path1}</Typography.Text>
             <Typography.Text className={cx(path2 === null && hidden)}>{path2}</Typography.Text>
           </div>
         </DialogFormItem>
-        <DialogFormItem className={cx(flex_1, min_h_0)} wrapperClassName={min_h_0} title="Result:">
+        <DialogFormItem
+          className={cx(flex_1, min_h_0)}
+          wrapperClassName={min_h_0}
+          title={t('shared.field.result')}
+        >
           <div className={cx(flex, flex_1, min_h_0, gap_x_2)}>
             <div className={cx(flex_1, min_h_0, min_w_0)}>
               <LazyEditor
@@ -249,7 +267,7 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
             </div>
             <div className={cx(flex, flex_col, min_h_0)}>
               <div className={cx(flex_1, min_h_0)}></div>
-              <DialogFormItem title="Depth:">
+              <DialogFormItem title={t('shared.field.depth')}>
                 <DepthSelect
                   disable={isExporting}
                   value={depth}
@@ -257,7 +275,7 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
                   className={cx(flex_1)}
                 ></DepthSelect>
               </DialogFormItem>
-              <DialogFormItem title="Display:">
+              <DialogFormItem title={t('shared.field.display')}>
                 <Select
                   clickToHide
                   disabled={isExporting}
@@ -266,11 +284,15 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
                   onSelect={(value) => setDisplayContent(value as DisplayContent)}
                 >
                   {displayContentAll.map((e) => {
-                    return <Select.Option key={e} value={e}></Select.Option>
+                    return (
+                      <Select.Option key={e} value={e}>
+                        {t(displayContentKeys[e])}
+                      </Select.Option>
+                    )
                   })}
                 </Select>
               </DialogFormItem>
-              <DialogFormItem title="Relate:">
+              <DialogFormItem title={t('shared.field.relate')}>
                 <Select
                   clickToHide
                   className={cx(flex_1)}
@@ -279,61 +301,61 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
                     setRelateTo(e as RelativePath)
                   }}
                 >
-                  <Select.Option value={'None'}></Select.Option>
-                  <Select.Option value={'Path'}></Select.Option>
-                  <Select.Option value={'Root'}></Select.Option>
+                  <Select.Option value={'None'}>{t(relativePathKeys.None)}</Select.Option>
+                  <Select.Option value={'Path'}>{t(relativePathKeys.Path)}</Select.Option>
+                  <Select.Option value={'Root'}>{t(relativePathKeys.Root)}</Select.Option>
                 </Select>
               </DialogFormItem>
-              <DialogFormItem title="Settings:">
+              <DialogFormItem title={t('shared.field.settings')}>
                 <div className={cx(flex_1, flex, flex_col, min_w_0)}>
                   <Checkbox
                     disabled={isExporting}
                     checked={ignoreAncestry}
                     onChange={(e) => setIgnoreAncestry(e.target.checked ?? false)}
                   >
-                    Ignore ancestry
+                    {t('shared.option.ignoreAncestry')}
                   </Checkbox>
                   <Checkbox
                     disabled={isExporting}
                     checked={noAdded}
                     onChange={(e) => setNoAdded(e.target.checked ?? false)}
                   >
-                    No added
+                    {t('shared.option.noAdded')}
                   </Checkbox>
                   <Checkbox
                     disabled={isExporting}
                     checked={noDeleted}
                     onChange={(e) => setNoDeleted(e.target.checked ?? false)}
                   >
-                    No deleted
+                    {t('shared.option.noDeleted')}
                   </Checkbox>
                   <Checkbox
                     disabled={isExporting}
                     checked={showCopiesAsAdds}
                     onChange={(e) => setShowCopiesAsAdds(e.target.checked ?? false)}
                   >
-                    Show copies as adds
+                    {t('shared.option.showCopiesAsAdds')}
                   </Checkbox>
                   <Checkbox
                     disabled={isExporting}
                     checked={ignoreContentType}
                     onChange={(e) => setIgnoreContentType(e.target.checked ?? false)}
                   >
-                    Ignore content type
+                    {t('shared.option.ignoreContentType')}
                   </Checkbox>
                   <Checkbox
                     disabled={isExporting}
                     checked={gitFormat}
                     onChange={(e) => setGitFormat(e.target.checked ?? false)}
                   >
-                    Git format
+                    {t('shared.option.gitFormat')}
                   </Checkbox>
                   <Checkbox
                     disabled={isExporting}
                     checked={pretty}
                     onChange={(e) => setPretty(e.target.checked ?? false)}
                   >
-                    Pretty
+                    {t('shared.option.pretty')}
                   </Checkbox>
                   {/*<Checkbox
                     disabled={isExporting}
@@ -344,14 +366,14 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
                   </Checkbox>*/}
                 </div>
               </DialogFormItem>
-              <DialogFormItem title="Action:">
+              <DialogFormItem title={t('shared.field.actions')}>
                 <div className={cx(flex, flex_1, gap_x_2)}>
                   <div className={cx(flex_1)}></div>
                   <Button disabled={isExporting} onClick={props.onClose}>
-                    Close
+                    {t('shared.action.close')}
                   </Button>
                   <Button loading={isExporting} onClick={doExport} theme={'solid'} type={'primary'}>
-                    Export
+                    {t('shared.action.export')}
                   </Button>
                 </div>
               </DialogFormItem>

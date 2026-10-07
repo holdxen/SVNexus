@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { MkdirOptions } from '@/bindings/MkdirOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -55,6 +56,7 @@ export function NiceMkdirDialog(props: { parent: string; needCommitMessage: bool
 }
 
 export default function MkdirDialog(props: MkdirDialogProps) {
+  const t = useT()
   const [commitMessage, setCommitMessage] = useState('')
   const [makeParents, setMakeParents] = useState(false)
   const [name, setName] = useState('')
@@ -66,14 +68,14 @@ export default function MkdirDialog(props: MkdirDialogProps) {
       async call(context) {
         if (props.needCommitMessage && commitMessage === '') {
           Toast.error({
-            content: 'Commit message must not be empty',
+            content: t('shared.error.commitMessageRequired'),
             stack: true,
           })
           return
         }
         if (name === '') {
           Toast.error({
-            content: 'Name must not be empty',
+            content: t('shared.error.nameRequired'),
             stack: true,
           })
           return
@@ -95,32 +97,32 @@ export default function MkdirDialog(props: MkdirDialogProps) {
       afterClose={props.afterClose}
       onCancel={props.onCancel}
       onOk={onOk}
-      title="Mkdir"
+      title={t('shared.action.mkdir')}
       visible={props.visible}
     >
       <div className={cx(flex, flex_1, flex_col, min_h_0, gap_x_4, border_box, gap_y_2)}>
         {/*<span>{`Target: ${props.parent}`}</span>*/}
-        <DialogFormItem title="Target:">
+        <DialogFormItem title={t('shared.field.target')}>
           <span className={cx(break_all, break_word)}>{props.parent}</span>
         </DialogFormItem>
-        <DialogFormItem title="Name:">
+        <DialogFormItem title={t('shared.field.name')}>
           <Input className={cx(flex_1)} value={name} onChange={setName}></Input>
         </DialogFormItem>
         <div className={cx(flex, flex_col, min_h_0, gap_y_1)}>
           <div className={cx(flex_1, min_h_0)}></div>
           <DialogFormItem
             className={cx(!props.needCommitMessage && hidden)}
-            title="Commit message:"
+            title={t('shared.field.commitMessage')}
           >
             <TextArea value={commitMessage} onChange={(e) => setCommitMessage(e)}></TextArea>
           </DialogFormItem>
-          <DialogFormItem title="Options:">
+          <DialogFormItem title={t('shared.field.options')}>
             <div className={cx(flex_1, flex, flex_col)}>
               <Checkbox
                 checked={makeParents}
                 onChange={(e) => setMakeParents(e.target.checked ?? false)}
               >
-                Make parents
+                {t('shared.option.makeParents')}
               </Checkbox>
             </div>
           </DialogFormItem>

@@ -1,9 +1,15 @@
 import { cx } from '@linaria/core'
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { filesize } from 'filesize'
+import * as uuid from 'uuid'
 
 import { InfoEntry } from '@/bindings/InfoEntry'
 import { MergeSource } from '@/bindings/MergeSource'
+import { StatusEntry } from '@/bindings/StatusEntry'
+import { base64Encode } from '@/context/Functions'
 import { useModal } from '@/lib/multi-modal'
 import { select_text } from '@/styles/Classes'
+import { combineUrl } from '@/utils/Url'
 import { NiceAddDialog } from '@/views/dialogs/AddDialog'
 import { NiceCommitDialog } from '@/views/dialogs/CommitDialog'
 import { NiceDeleteDialog } from '@/views/dialogs/DeleteDialog'
@@ -20,12 +26,6 @@ import { NiceUnlockDialog } from '@/views/dialogs/UnlockDialog'
 import { NiceUpdateDialog } from '@/views/dialogs/UpdateDialog'
 
 import { WorkingCopyPathItemModel } from '../WorkingCopyItem'
-import { filesize } from 'filesize'
-import { StatusEntry } from '@/bindings/StatusEntry'
-import { combineUrl } from '@/utils/Url'
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
-import * as uuid from 'uuid'
-import { base64Encode } from '@/context/Functions'
 
 export default class OperationHandler {
   private modal: ReturnType<typeof useModal>
@@ -84,7 +84,6 @@ export default class OperationHandler {
     } catch (e) {
       console.error('Failed to create window', e)
     }
-
   }
 
   public showDifferenceDialog(workingCopy: string, workspace: string, path: string) {

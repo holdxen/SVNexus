@@ -7,6 +7,7 @@ import { SubversionSSHEvent } from '@/bindings/SubversionSSHEvent'
 import PathInput from '@/components/PathInput'
 import PureInput from '@/components/PureInput'
 import { replyFailure, replySuccess } from '@/context/Functions'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { flex, flex_1, flex_col, hidden } from '@/styles/Classes'
 
@@ -44,17 +45,21 @@ export interface SSHAuthenticateDialogProps extends Authenticate {
 type AuthenticateType = 'password' | 'publicKey' | 'keyboardInteractive'
 
 export default function SSHAuthenticateDialog(props: SSHAuthenticateDialogProps) {
-  let t: AuthenticateType | undefined = undefined
+  const t = useT()
+
+  let initialType: AuthenticateType | undefined = undefined
 
   if (props.password) {
-    t = 'password'
+    initialType = 'password'
   } else if (props.publicKey) {
-    t = 'publicKey'
+    initialType = 'publicKey'
   } else if (props.keyboardInteractive) {
-    t = 'keyboardInteractive'
+    initialType = 'keyboardInteractive'
   }
 
-  const [authenticateType, setAuthenticateType] = useState<AuthenticateType | undefined>(t)
+  const [authenticateType, setAuthenticateType] = useState<AuthenticateType | undefined>(
+    initialType,
+  )
   const [username, setUsername] = useState(props.username ?? '')
   const [password, setPassword] = useState('')
   const [passphrase, setPassphrase] = useState('')
@@ -73,7 +78,7 @@ export default function SSHAuthenticateDialog(props: SSHAuthenticateDialogProps)
   const onOk = async () => {
     if (username === '') {
       Toast.error({
-        content: 'Username must not be empty',
+        content: t('shared.error.usernameRequired'),
         stack: true,
       })
       return
@@ -112,7 +117,7 @@ export default function SSHAuthenticateDialog(props: SSHAuthenticateDialogProps)
     <Dialog
       onOk={onOk}
       onCancel={onCancel}
-      title="Authenticate"
+      title={t('advancedDialogs.authenticate.title')}
       afterClose={props.afterClose}
       visible={props.visible}
     >
@@ -123,29 +128,33 @@ export default function SSHAuthenticateDialog(props: SSHAuthenticateDialogProps)
             onChange={(e) => setAuthenticateType(e.target.value)}
             type="button"
           >
-            {props.password && <Radio value={'password'}>Password</Radio>}
-            {props.publicKey && <Radio value={'publicKey'}>Key</Radio>}
+            {props.password && (
+              <Radio value={'password'}>{t('advancedDialogs.authenticate.passwordMethod')}</Radio>
+            )}
+            {props.publicKey && (
+              <Radio value={'publicKey'}>{t('advancedDialogs.authenticate.keyMethod')}</Radio>
+            )}
             {props.keyboardInteractive && (
-              <Radio value={'keyboardInteractive'}>Keyboard Interactive</Radio>
+              <Radio value={'keyboardInteractive'}>{t('shared.option.keyboardInteractive')}</Radio>
             )}
           </RadioGroup>
         </div>
         <div className={cx(flex_1, flex, flex_col, authenticateType !== 'password' && hidden)}>
-          <DialogFormItem title="Username:">
+          <DialogFormItem title={t('shared.field.username')}>
             <PureInput value={username} onChange={setUsername}></PureInput>
           </DialogFormItem>
-          <DialogFormItem title="Password:">
+          <DialogFormItem title={t('shared.field.password')}>
             <PureInput mode="password" value={password} onChange={setPassword}></PureInput>
           </DialogFormItem>
         </div>
         <div className={cx(flex_1, flex, flex_col, authenticateType !== 'publicKey' && hidden)}>
-          <DialogFormItem title="Username:">
+          <DialogFormItem title={t('shared.field.username')}>
             <PureInput value={username} onChange={setUsername}></PureInput>
           </DialogFormItem>
-          <DialogFormItem title="Key:">
+          <DialogFormItem title={t('shared.field.key')}>
             <PathInput onSelected={setKey} value={key} onChange={setKey}></PathInput>
           </DialogFormItem>
-          <DialogFormItem title="Passphrase:">
+          <DialogFormItem title={t('shared.field.passphrase')}>
             <PureInput mode="password" value={passphrase} onChange={setPassphrase}></PureInput>
           </DialogFormItem>
         </div>
@@ -157,7 +166,7 @@ export default function SSHAuthenticateDialog(props: SSHAuthenticateDialogProps)
             authenticateType !== 'keyboardInteractive' && hidden,
           )}
         >
-          <DialogFormItem title="Username:">
+          <DialogFormItem title={t('shared.field.username')}>
             <PureInput value={username} onChange={setUsername}></PureInput>
           </DialogFormItem>
         </div>

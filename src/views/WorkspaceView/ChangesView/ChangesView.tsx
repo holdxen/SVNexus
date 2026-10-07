@@ -25,6 +25,7 @@ import StrongDifferenceEditor, {
 } from '@/components/StrongDifferenceEditor'
 import { fsReadLink } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import { localPath } from '@/utils/Path'
 import ConfirmDialog from '@/views/dialogs/ConfirmDialog'
@@ -68,6 +69,7 @@ export interface ChangesViewProps {
 function DeletePropertyDialog(props: { target: string; name: string }) {
   const modal = useCurrentModal()
   const subversion = useSubversion()
+  const t = useT()
   const onOk = async () => {
     const options: PropertySetOptions = {
       local: {
@@ -99,11 +101,11 @@ function DeletePropertyDialog(props: { target: string; name: string }) {
       visible={modal.visible}
     >
       <div className={cx(flex_1)}>
-        <span>{`Are yout sure to delete property`}</span>
+        <span>{t('changes.property.confirmDeletePrefix')}</span>
         <Typography.Text style={{ display: 'inline-block' }} code>
           {props.name}
         </Typography.Text>
-        <span>{` on ${props.target} ?`}</span>
+        <span>{t('changes.property.confirmDeleteSuffix', { target: props.target })}</span>
       </div>
     </Dialog>
   )
@@ -118,12 +120,13 @@ function EditPropertyDialog(props: {
 }) {
   const modal = useCurrentModal()
   const subversion = useSubversion()
+  const t = useT()
   const [name, setName] = useState(props.name ?? '')
   const [value, setValue] = useState(props.value ?? '')
   const onOk = async () => {
     if (name === '') {
       Toast.error({
-        content: 'Property name must not be empty',
+        content: t('shared.error.propertyNameRequired'),
         stack: true,
       })
       return
@@ -163,7 +166,7 @@ function EditPropertyDialog(props: {
       visible={modal.visible}
     >
       <div className={cx(flex_1, flex, flex_col, gap_y_3)}>
-        <DialogFormItem title="Name:" wrapperClassName={cx(flex)}>
+        <DialogFormItem title={t('shared.field.name')} wrapperClassName={cx(flex)}>
           <PureAutoComplete
             data={names}
             onSearch={onNameSearch}
@@ -177,7 +180,7 @@ function EditPropertyDialog(props: {
             }}
           ></PureAutoComplete>
         </DialogFormItem>
-        <DialogFormItem wrapperClassName={cx(flex)} title="Value:">
+        <DialogFormItem wrapperClassName={cx(flex)} title={t('shared.field.value')}>
           <PureTextArea
             className={cx(flex_1)}
             value={value}
@@ -194,6 +197,7 @@ function EditPropertyDialog(props: {
 }
 
 export function ChangesView({ className }: ChangesViewProps) {
+  const t = useT()
   const [isListView, setIsListView] = useState(true)
   const [currentEditor, setCurrentEditor] = useState<string | null>(null)
   const [optionBarContainer, setOptionBarContainer] = useState<HTMLDivElement | null>(null)
@@ -227,7 +231,7 @@ export function ChangesView({ className }: ChangesViewProps) {
           }
           const result = (await context.status(options)).entries[0]
           if (result === undefined) {
-            throw new Error(`'${path}' is not under version control`)
+            throw new Error(t('changes.error.notUnderVersionControl', { path }))
           }
           return {
             entry: result,
@@ -328,6 +332,11 @@ export function ChangesView({ className }: ChangesViewProps) {
         const entry = result.entry
 
         if (entry.nodeStatus === 'unversioned' || entry.nodeStatus === 'added') {
+          return null
+        }
+
+        // add then rm
+        if (entry.revision === null) {
           return null
         }
 
@@ -530,7 +539,7 @@ export function ChangesView({ className }: ChangesViewProps) {
           const items: ContextMenuItemModel[] = []
           items.push({
             item: {
-              content: 'Copy property name',
+              content: t('changes.property.copyName'),
               onSelect: () => {
                 writeText(row.original.name)
               },
@@ -538,7 +547,7 @@ export function ChangesView({ className }: ChangesViewProps) {
           })
           items.push({
             item: {
-              content: 'Copy orignal property value',
+              content: t('changes.property.copyOriginalValue'),
               onSelect: () => {
                 if (row.original.oldValue) {
                   writeText(row.original.oldValue)
@@ -548,7 +557,7 @@ export function ChangesView({ className }: ChangesViewProps) {
           })
           items.push({
             item: {
-              content: 'Copy modified property value',
+              content: t('changes.property.copyModifiedValue'),
               onSelect: () => {
                 if (row.original.newValue) {
                   writeText(row.original.newValue)
@@ -561,12 +570,12 @@ export function ChangesView({ className }: ChangesViewProps) {
           })
           items.push({
             item: {
-              content: 'Edit',
+              content: t('shared.action.edit'),
               onSelect: async () => {
                 const data = await updateEntry()
                 if ('error' in data) {
                   Toast.error({
-                    content: `Unexpected error ${data.error}`,
+                    content: t('changes.error.unexpected', { error: data.error }),
                     stack: true,
                   })
                   return
@@ -588,12 +597,12 @@ export function ChangesView({ className }: ChangesViewProps) {
           if (row.original.status !== 'deleted') {
             items.push({
               item: {
-                content: 'Delete',
+                content: t('shared.action.delete'),
                 onSelect: async () => {
                   const data = await updateEntry()
                   if ('error' in data) {
                     Toast.error({
-                      content: `Unexpected error ${data.error}`,
+                      content: t('changes.error.unexpected', { error: data.error }),
                       stack: true,
                     })
                     return
@@ -614,12 +623,12 @@ export function ChangesView({ className }: ChangesViewProps) {
           if (row.original.status !== 'unchanged') {
             items.push({
               item: {
-                content: 'Revert',
+                content: t('shared.action.revert'),
                 onSelect: async () => {
                   const data = await updateEntry()
                   if ('error' in data) {
                     Toast.error({
-                      content: `Unexpected error ${data.error}`,
+                      content: t('changes.error.unexpected', { error: data.error }),
                       stack: true,
                     })
                     return
@@ -628,7 +637,9 @@ export function ChangesView({ className }: ChangesViewProps) {
                   const result = await modal
                     .show(ConfirmDialog, {
                       title: '',
-                      children: `Are you sure to revert property ${row.original.name}`,
+                      children: t('changes.property.confirmRevert', {
+                        name: row.original.name,
+                      }),
                     })
                     .as<boolean>()
 
@@ -680,7 +691,7 @@ export function ChangesView({ className }: ChangesViewProps) {
           const data = await updateEntry()
           if ('error' in data) {
             Toast.error({
-              content: `Unexpected error ${data.error}`,
+              content: t('changes.error.unexpected', { error: data.error }),
               stack: true,
             })
             return
@@ -689,7 +700,7 @@ export function ChangesView({ className }: ChangesViewProps) {
             .show(EditPropertyDialog, {
               target: data.entry.path,
               allowEditName: true,
-              title: 'Add property',
+              title: t('shared.action.addProperty'),
             })
             .as<boolean>()
           if (result) {

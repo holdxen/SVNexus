@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { PatchOptions } from '@/bindings/PatchOptions'
 import { LazyEditor } from '@/components/monaco/LazyEditors'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -48,6 +49,7 @@ export function NicePatchDialog(props: { patchFile: string; workingCopyPath: str
 }
 
 export default function PatchDialog(props: PatchDialogProps) {
+  const t = useT()
   const [content, setContent] = useState('')
   const [isRunning, setIsRunning] = useState(false)
 
@@ -96,7 +98,7 @@ export default function PatchDialog(props: PatchDialogProps) {
       afterClose={props.afterClose}
       footerMargin="0px"
       fullScreen
-      title="Patch"
+      title={t('shared.action.patch')}
       closable={false}
       visible={props.visible}
       footer={<></>}
@@ -105,10 +107,14 @@ export default function PatchDialog(props: PatchDialogProps) {
       closeOnEsc={!isRunning}
     >
       <div className={cx(flex, flex_col, min_h_0, gap_y_2, flex_1, border_box, py_2)}>
-        <DialogFormItem title="Path:">
+        <DialogFormItem title={t('shared.field.path')}>
           <Typography.Text>{props.patchFile}</Typography.Text>
         </DialogFormItem>
-        <DialogFormItem className={cx(flex_1, min_h_0)} wrapperClassName={min_h_0} title="Result:">
+        <DialogFormItem
+          className={cx(flex_1, min_h_0)}
+          wrapperClassName={min_h_0}
+          title={t('shared.field.result')}
+        >
           <div className={cx(flex, flex_1, min_h_0, gap_x_2)}>
             <div className={cx(flex_1, min_h_0, min_w_0)}>
               <LazyEditor
@@ -120,7 +126,7 @@ export default function PatchDialog(props: PatchDialogProps) {
             </div>
             <div className={cx(flex, flex_col, min_h_0)}>
               <div className={cx(flex_1, min_h_0)}></div>
-              <DialogFormItem title="Strip count:">
+              <DialogFormItem title={t('shared.field.stripCount')}>
                 <InputNumber
                   value={stripCount}
                   onChange={(v) => {
@@ -133,46 +139,46 @@ export default function PatchDialog(props: PatchDialogProps) {
                   formatter={(value) => `${value}`.replace(/[^\d]/g, '')}
                 ></InputNumber>
               </DialogFormItem>
-              <DialogFormItem title="Settings:">
+              <DialogFormItem title={t('shared.field.settings')}>
                 <div className={cx(flex_1, flex, flex_col, min_w_0)}>
                   <Checkbox
                     disabled={isRunning}
                     checked={dryRun}
                     onChange={(e) => setDryRun(e.target.checked ?? false)}
                   >
-                    Dry run
+                    {t('shared.option.dryRun')}
                   </Checkbox>
                   <Checkbox
                     disabled={isRunning}
                     checked={reverse}
                     onChange={(e) => setReverse(e.target.checked ?? false)}
                   >
-                    Reverse
+                    {t('shared.option.reverse')}
                   </Checkbox>
                   <Checkbox
                     disabled={isRunning}
                     checked={ignoreWhitespace}
                     onChange={(e) => setIgnoreWhitespace(e.target.checked ?? false)}
                   >
-                    Ignore whitespace
+                    {t('shared.option.ignoreWhitespace')}
                   </Checkbox>
                   <Checkbox
                     disabled={isRunning}
                     checked={removeTempfiles}
                     onChange={(e) => setRemoveTempfiles(e.target.checked ?? false)}
                   >
-                    Remove temp files
+                    {t('shared.option.removeTempFiles')}
                   </Checkbox>
                 </div>
               </DialogFormItem>
-              <DialogFormItem title="Action:">
+              <DialogFormItem title={t('shared.field.actions')}>
                 <div className={cx(flex, flex_1, gap_x_2)}>
                   <div className={cx(flex_1)}></div>
                   <Button disabled={isRunning} onClick={props.onClose}>
-                    Close
+                    {t('shared.action.close')}
                   </Button>
                   <Button loading={isRunning} onClick={execute} theme={'solid'} type={'primary'}>
-                    Apply
+                    {t('shared.action.apply')}
                   </Button>
                 </div>
               </DialogFormItem>

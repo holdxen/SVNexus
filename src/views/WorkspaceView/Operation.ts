@@ -20,6 +20,8 @@ export interface OperationState {
   export: boolean
   ignore: boolean
   history: boolean
+  paste: boolean
+  rename: boolean
 }
 
 export const defaultOperationState: OperationState = {
@@ -43,5 +45,7 @@ export const defaultOperationState: OperationState = {
   move: false,
   export: false,
   ignore: false,
-  history: false
+  history: false,
+  paste: false,
+  rename: false,
 }

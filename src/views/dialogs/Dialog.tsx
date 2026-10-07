@@ -15,6 +15,7 @@ import { RefObject, useContext, useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { Modal } from 'react-responsive-modal'
 
+import { useT } from '@/i18n'
 import {
   break_all,
   break_word,
@@ -68,11 +69,14 @@ const ModalFooter: React.FC<ModalFooterProps> = ({
   onOk,
   cancelButtonProps,
   okButtonProps,
-  locale = { cancel: '取消', confirm: '确定' },
+  locale,
   footerMargin,
   footerButtons,
 }) => {
+  const t = useT()
   const margin = footerMargin ?? '5px 0px'
+  const cancelLabel = cancelText || locale?.cancel || t('common.cancel')
+  const okLabel = okText || locale?.confirm || t('common.ok')
   const getCancelButton = () => {
     if (!hasCancel) {
       return null
@@ -92,7 +96,7 @@ const ModalFooter: React.FC<ModalFooterProps> = ({
         x-semi-children-alias="cancelText"
         disabled={cancelDisable}
       >
-        {cancelText || locale.cancel}
+        {cancelLabel}
       </Button>
     )
   }
@@ -109,7 +113,7 @@ const ModalFooter: React.FC<ModalFooterProps> = ({
         {...okButtonProps}
         x-semi-children-alias="okText"
       >
-        {okText || locale.confirm}
+        {okLabel}
       </Button>
     )
     const cancel = getCancelButton()
@@ -135,7 +139,7 @@ const ModalFooter: React.FC<ModalFooterProps> = ({
           x-semi-children-alias="okText"
           disabled={confirmDisable}
         >
-          {okText || locale.confirm}
+          {okLabel}
         </Button>
       </div>
     )
@@ -415,6 +419,8 @@ export function Dialog(props: DialogProps) {
           position: 'relative',
           top: `${position.y}px`,
           left: `${position.x}px`,
+          // react-responsive-modal 的默认样式把弹窗底色写死成 #fff，这里改回 Semi 的主题变量
+          backgroundColor: 'var(--semi-color-bg-2)',
         },
         root: {
           position: 'absolute',

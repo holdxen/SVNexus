@@ -8,6 +8,7 @@ import { useRef, useState } from 'react'
 import PureInput from '@/components/PureInput'
 import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { cursor_pointer, flex, flex_col, gap_y_3 } from '@/styles/Classes'
 
@@ -31,6 +32,7 @@ const inputIcon = css`
 `
 
 export function OpenFromPathDialog() {
+  const t = useT()
   const modal = useCurrentModal()
   const tabManager = useTabManager()
   const [path, setPath] = useState('')
@@ -50,7 +52,7 @@ export function OpenFromPathDialog() {
       }
     }
     let selected = await open({
-      title: 'Select working copy',
+      title: t('shared.action.selectWorkingCopy'),
       multiple: false,
       directory: true,
       defaultPath,
@@ -65,7 +67,7 @@ export function OpenFromPathDialog() {
   const onOk = () => {
     if (path === '') {
       Toast.error({
-        content: 'Path must not be empty',
+        content: t('shared.error.pathRequired'),
         stack: true,
       })
       return
@@ -87,13 +89,13 @@ export function OpenFromPathDialog() {
       initialFocusRef={focusElement}
       afterClose={modal.remove}
       size="small"
-      title={'从路径打开'}
+      title={t('dialogs.openFromPath')}
       visible={modal.visible}
       onCancel={onCancel}
       onOk={onOk}
     >
       <div className={cx(flex, flex_col, gap_y_3)}>
-        <DialogFormItem title={'Path:'}>
+        <DialogFormItem title={t('shared.field.path')}>
           <PureInput
             ref={focusElement}
             className={inputIcon}

@@ -2,6 +2,7 @@ import { IconFolderStroked } from '@douyinfe/semi-icons'
 import { css, cx } from '@linaria/core'
 import { open } from '@tauri-apps/plugin-dialog'
 
+import { useT } from '@/i18n'
 import { cursor_pointer } from '@/styles/Classes'
 
 import PureInput, { PureInputProps } from './PureInput'
@@ -27,10 +28,11 @@ const button = css`
 `
 
 export default function PathInput(props: PathInputProps) {
+  const t = useT()
   const { className, addonAfter, onSelected, ...others } = props
   const selectPath = async () => {
     const selected = await open({
-      title: 'Select folder',
+      title: t('shared.action.selectFolder'),
       multiple: false,
       directory: true,
     })

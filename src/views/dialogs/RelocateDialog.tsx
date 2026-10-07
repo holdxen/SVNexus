@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { RelocateOptions } from '@/bindings/RelocateOptions'
 import PureInput from '@/components/PureInput'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 
 import { Dialog } from './Dialog'
@@ -39,6 +40,7 @@ export interface RelocateDialogProps {
 }
 
 export default function RelocateDialog(props: RelocateDialogProps) {
+  const t = useT()
   const [from, setFrom] = useState(props.from)
   const [to, setTo] = useState('')
   const [ignoreExternals, setIgnoreExternals] = useState(false)
@@ -65,27 +67,27 @@ export default function RelocateDialog(props: RelocateDialogProps) {
   return (
     <Dialog
       initialFocusRef={focusRef}
-      title="Relocate"
+      title={t('shared.action.relocate')}
       onOk={onOk}
       onCancel={props.onCancel}
       visible={props.visible}
       afterClose={props.afterClose}
     >
-      <DialogFormItem title="Working copy:">
+      <DialogFormItem title={t('shared.field.workingCopy')}>
         <PureInput disabled value={props.workingCopy} />
       </DialogFormItem>
-      <DialogFormItem title="From(prefix):">
+      <DialogFormItem title={t('shared.field.fromPrefix')}>
         <PureInput value={from} onChange={(e) => setFrom(e)} />
       </DialogFormItem>
-      <DialogFormItem title="To(prefix):">
+      <DialogFormItem title={t('shared.field.toPrefix')}>
         <PureInput ref={focusRef} value={to} onChange={(e) => setTo(e)} />
       </DialogFormItem>
-      <DialogFormItem title="Options:">
+      <DialogFormItem title={t('shared.field.options')}>
         <Checkbox
           checked={ignoreExternals}
           onChange={(e) => setIgnoreExternals(e.target.checked ?? false)}
         >
-          Ignore externals
+          {t('shared.option.ignoreExternals')}
         </Checkbox>
       </DialogFormItem>
     </Dialog>

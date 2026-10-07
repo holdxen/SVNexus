@@ -61,18 +61,18 @@ pub impl<T> Option<T> {
         self.whatever_context::<_, Error>(context)
     }
 
-    #[track_caller]
-    fn with_any_context<F, S>(self, context: F) -> Result<T, Error>
-    where
-        F: FnOnce() -> S,
-        S: Into<String>,
-    {
-        self.with_whatever_context::<_, _, Error>(context)
-    }
-
-    fn inner_into<V: From<T>>(self) -> Option<V> {
-        self.map(|v| V::from(v))
-    }
+    //     #[track_caller]
+    //     fn with_any_context<F, S>(self, context: F) -> Result<T, Error>
+    //     where
+    //         F: FnOnce() -> S,
+    //         S: Into<String>,
+    //     {
+    //         self.with_whatever_context::<_, _, Error>(context)
+    //     }
+    //
+    //     fn inner_into<V: From<T>>(self) -> Option<V> {
+    //         self.map(|v| V::from(v))
+    //     }
 }
 
 #[easy_ext::ext(ResultExtension)]
@@ -85,14 +85,14 @@ pub impl<T, E: std::error::Error + Send + Sync + 'static> Result<T, E> {
         self.whatever_context::<_, Error>(context)
     }
 
-    #[track_caller]
-    fn with_any_context<F, S>(self, context: F) -> Result<T, Error>
-    where
-        F: FnOnce(&mut E) -> S,
-        S: Into<String>,
-    {
-        self.with_whatever_context::<_, _, Error>(context)
-    }
+    // #[track_caller]
+    // fn with_any_context<F, S>(self, context: F) -> Result<T, Error>
+    // where
+    //     F: FnOnce(&mut E) -> S,
+    //     S: Into<String>,
+    // {
+    //     self.with_whatever_context::<_, _, Error>(context)
+    // }
 }
 
 #[easy_ext::ext(CommonExtension)]

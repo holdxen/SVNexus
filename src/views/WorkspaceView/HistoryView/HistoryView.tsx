@@ -23,6 +23,7 @@ import PureInput from '@/components/PureInput'
 import { Table, TableHandle, TableSelection } from '@/components/Table'
 import { databaseRevisionLocation, databaseUpdateRevisionLocation } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -61,6 +62,7 @@ interface RevisionLogViewProps {
 }
 
 function RevisionLogView(props: RevisionLogViewProps) {
+  const t = useT()
   const maxLogSize = 500
   type Data = {
     revision?: number
@@ -85,12 +87,12 @@ function RevisionLogView(props: RevisionLogViewProps) {
   // Column Definitions: Defines the columns to be displayed.
   const columnDefinitions = useMemo<ColumnDef<Data>[]>(() => {
     return [
-      { accessorKey: 'message', header: 'Message', size: 400 },
-      { accessorKey: 'author', header: 'Author', size: 100 },
-      { accessorKey: 'revision', header: 'Revision', size: 100 },
-      { accessorKey: 'date', header: 'Date', size: 200 },
+      { accessorKey: 'message', header: t('shared.column.message'), size: 400 },
+      { accessorKey: 'author', header: t('shared.column.author'), size: 100 },
+      { accessorKey: 'revision', header: t('shared.column.revision'), size: 100 },
+      { accessorKey: 'date', header: t('shared.column.date'), size: 200 },
     ]
-  }, [])
+  }, [t])
 
   const workingCopy = useWorkingCopyContext()
   const subversion = useSubversion()
@@ -119,7 +121,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
           const entries = Object.entries(result.entries)
           if (entries.length !== 1) {
             Toast.error({
-              content: `Failed to query repository of ${workingCopy.path}`,
+              content: t('changes.history.failedToQueryRepository', { path: workingCopy.path }),
               stack: true,
             })
             return
@@ -194,7 +196,6 @@ function RevisionLogView(props: RevisionLogViewProps) {
         }
 
         setReachBottom(count === 0)
-
       },
     })
     setTimeout(() => {
@@ -376,7 +377,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
 
   const icons: OperationIconProps[] = [
     {
-      tooltip: 'Load more',
+      tooltip: t('shared.action.loadMore'),
       sync: false,
       enable: true,
       children: <LoadMoreIcon></LoadMoreIcon>,
@@ -385,7 +386,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
       },
     },
     {
-      tooltip: 'Search',
+      tooltip: t('shared.action.search'),
       enable: true,
       children: (
         <SearchIcon
@@ -442,7 +443,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
             return [
               {
                 item: {
-                  content: 'Copy message',
+                  content: t('changes.history.copyMessage'),
                   onSelect: () => {
                     if (row.original.message) {
                       writeText(row.original.message)
@@ -452,7 +453,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
               },
               {
                 item: {
-                  content: 'Copy author',
+                  content: t('changes.history.copyAuthor'),
                   onSelect: () => {
                     if (row.original.author) {
                       writeText(row.original.author)
@@ -462,7 +463,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
               },
               {
                 item: {
-                  content: 'Copy revision',
+                  content: t('changes.history.copyRevision'),
                   onSelect: () => {
                     if (row.original.revision) {
                       writeText(String(row.original.revision))
@@ -472,7 +473,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
               },
               {
                 item: {
-                  content: 'Copy date',
+                  content: t('changes.history.copyDate'),
                   onSelect: () => {
                     if (row.original.date) {
                       writeText(row.original.date)
@@ -482,7 +483,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
               },
               {
                 item: {
-                  content: 'Merge(reset)',
+                  content: t('changes.history.mergeReset'),
                   onSelect: () => {
                     if (row.original.revision === undefined) {
                       return
@@ -526,6 +527,7 @@ const contentPadding = css`
 `
 
 export function HistoryView(props: HistoryViewProps) {
+  const t = useT()
   const detailKey = 'detailKey'
   const changesKey = 'changesKey'
   const snapshotKey = 'snapshotKey'
@@ -631,9 +633,9 @@ export function HistoryView(props: HistoryViewProps) {
               activeKey={activeView}
               onChange={(e) => setActiveView(e)}
             >
-              <TabPane tab="Detail" itemKey={detailKey}></TabPane>
-              <TabPane tab="Chagnes" itemKey={changesKey}></TabPane>
-              <TabPane tab="Snapshot" itemKey={snapshotKey}></TabPane>
+              <TabPane tab={t('changes.history.tabDetail')} itemKey={detailKey}></TabPane>
+              <TabPane tab={t('changes.history.tabChanges')} itemKey={changesKey}></TabPane>
+              <TabPane tab={t('changes.history.tabSnapshot')} itemKey={snapshotKey}></TabPane>
             </Tabs>
             <Spin
               childStyle={{ flex: 1, display: 'flex', minHeight: 0, minWidth: 0 }}

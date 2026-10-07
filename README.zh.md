@@ -6,7 +6,8 @@
 
 **[English](./README.md)**
 
-![SVNexus 截图](./screenshots/mac.png)
+![SVNexus Screenshot](./screenshots/light.png)
+![SVNexus Screenshot](./screenshots/dark.png)
 
 ## 功能特性
 
@@ -21,15 +22,15 @@
 ## TODO
 
 - [ ] 支持 SSH 协议，兼容 OpenSSH 行为
-- [ ] 支持文件历史版本浏览
+- [x] 支持文件历史版本浏览
 - [ ] 支持远程仓库独立浏览
-- [ ] 支持一键反馈 Bug
+- [x] 支持一键反馈 Bug
 - [ ] 支持按文件块（hunk）粒度 Revert 工作副本变更
 - [ ] History 界面显示当前工作副本对应的 Revision
 - [ ] 错误 Toast 支持跨标签页跳转定位
 - [ ] 支持 copy 和 move 操作
 - [ ] 完善 merge 操作
-- [ ] Rust 代码优化，通过 cargo clippy 和 fmt 检查
+- [x] Rust 代码优化，通过 cargo clippy 和 fmt 检查
 
 ## 安装
 

@@ -52,15 +52,33 @@ add_platform() {
 
 # CLI 2.11.4 + createUpdaterArtifacts:true 的实际产物：
 #   macOS   -> .app.tar.gz（唯一走 updater_bundle 打包的平台）
-#   Linux   -> 裸 .AppImage + .sig（插件按内容嗅探，gz/裸文件都接受）
+#   Linux   -> 裸 .AppImage/.deb/.rpm + .sig（插件按内容嗅探，gz/裸文件都接受）
 #   Windows -> 裸 -setup.exe / .msi + .sig（同上，zip/exe/msi 内容嗅探）
-# 每个平台优先列压缩包形态，命中不了再回退裸安装包。
+#
+# 插件查找 manifest 的顺序（updater.rs）：{os}-{arch}-{bundle_type} → {os}-{arch} 回退。
+# bundle_type 在打包时烙进二进制（deb 安装的客户端只会先找 linux-x86_64-deb），
+# 安装时又按本地 bundle_type 校验下载内容的格式，所以必须为每种安装包类型
+# 生成专属 key，plain key 仅作为 AppImage/未知安装类型的回退。
 echo "Generating latest.json for ${TAG}"
-add_platform "darwin-aarch64"  "*.app.tar.gz"
-add_platform "linux-x86_64"    "*amd64*.AppImage.tar.gz" "*amd64*.AppImage"
-add_platform "linux-aarch64"   "*aarch64*.AppImage.tar.gz" "*aarch64*.AppImage" "*arm64*.AppImage"
-add_platform "windows-x86_64"  "*x64*.nsis.zip" "*x64*-setup.exe" "*x64*.msi.zip" "*x64*.msi"
-add_platform "windows-aarch64" "*arm64*.nsis.zip" "*arm64*-setup.exe" "*arm64*.msi.zip" "*arm64*.msi"
+add_platform "darwin-aarch64"     "*.app.tar.gz"
+
+add_platform "linux-x86_64-appimage" "*amd64*.AppImage.tar.gz" "*amd64*.AppImage"
+add_platform "linux-x86_64-deb"      "*amd64*.deb"
+add_platform "linux-x86_64-rpm"      "*x86_64*.rpm"
+add_platform "linux-x86_64"          "*amd64*.AppImage.tar.gz" "*amd64*.AppImage"
+
+add_platform "linux-aarch64-appimage" "*aarch64*.AppImage.tar.gz" "*aarch64*.AppImage"
+add_platform "linux-aarch64-deb"      "*arm64*.deb"
+add_platform "linux-aarch64-rpm"      "*aarch64*.rpm"
+add_platform "linux-aarch64"          "*aarch64*.AppImage.tar.gz" "*aarch64*.AppImage"
+
+add_platform "windows-x86_64-nsis" "*x64*.nsis.zip" "*x64*-setup.exe"
+add_platform "windows-x86_64-msi"  "*x64*.msi.zip" "*x64*.msi"
+add_platform "windows-x86_64"      "*x64*.nsis.zip" "*x64*-setup.exe"
+
+add_platform "windows-aarch64-nsis" "*arm64*.nsis.zip" "*arm64*-setup.exe"
+add_platform "windows-aarch64-msi"  "*arm64*.msi.zip" "*arm64*.msi"
+add_platform "windows-aarch64"      "*arm64*.nsis.zip" "*arm64*-setup.exe"
 
 jq -n \
   --arg version "$VERSION" \

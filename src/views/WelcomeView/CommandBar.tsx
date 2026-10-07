@@ -8,10 +8,12 @@ import * as uuid from 'uuid'
 
 import { TabContentModel } from '@/App'
 import { ContextMenu } from '@/components/ContextMenu'
+import { IconTooltipButton } from '@/components/HoverTooltip'
 import IconSelect from '@/components/IconSelect'
 import { OpenInExternalApplication } from '@/context/Functions'
 import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
+import { useT } from '@/i18n'
 import { useModal } from '@/lib/multi-modal'
 import Logger from '@/utils/Logger'
 
@@ -25,16 +27,14 @@ import { NiceCheckoutDialog } from '../dialogs/CheckoutDialog'
 import { NiceExportDialog } from '../dialogs/ExportDialog'
 import { NiceImportDialog } from '../dialogs/ImportDialog'
 import { OpenFromPathDialog } from '../dialogs/OpenFromPathDialog'
-import { IconTooltipButton } from '@/components/HoverTooltip'
-
-
 
 export function CommandBar() {
+  const t = useT()
   const tabManager = useTabManager()
   const tabContent = useTabContent()
   const selectedFolder = async () => {
     let selected = await open({
-      title: 'Select folder',
+      title: t('shared.action.selectFolder'),
       multiple: false,
       directory: true,
     })
@@ -55,7 +55,7 @@ export function CommandBar() {
     tabManager.add(
       {
         content,
-        title: 'Workspace',
+        title: t('app.tab.workspace'),
         identity,
       },
       true,
@@ -96,7 +96,7 @@ export function CommandBar() {
   const folderContextMenu = [
     {
       item: {
-        content: '从路径打开',
+        content: t('welcome.commandBar.openFromPath'),
         onSelect: () => onOpenFromPath(),
       },
     },
@@ -166,18 +166,21 @@ export function CommandBar() {
 
   return (
     <div className={cx(m_1, flex, gap_x_2, items_center)}>
-      <IconTooltipButton tooltipConent="Checkout" onClick={onCheckout}>
+      <IconTooltipButton tooltipConent={t('shared.action.checkout')} onClick={onCheckout}>
         <OperationCheckoutIcon></OperationCheckoutIcon>
       </IconTooltipButton>
       <ContextMenu asChild menu={folderContextMenu}>
-        <IconTooltipButton tooltipConent="Select working copy" onClick={selectedFolder}>
+        <IconTooltipButton
+          tooltipConent={t('shared.action.selectWorkingCopy')}
+          onClick={selectedFolder}
+        >
           <LocateFixedIcon></LocateFixedIcon>
         </IconTooltipButton>
       </ContextMenu>
-      <IconTooltipButton tooltipConent="Export" onClick={onExport}>
+      <IconTooltipButton tooltipConent={t('shared.action.export')} onClick={onExport}>
         <OperationExportIcon />
       </IconTooltipButton>
-      <IconTooltipButton tooltipConent="Import" onClick={onImport}>
+      <IconTooltipButton tooltipConent={t('shared.action.import')} onClick={onImport}>
         <OperationImportIcon />
       </IconTooltipButton>
       <div className={cx(flex_1)}></div>

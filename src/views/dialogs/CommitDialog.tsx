@@ -9,6 +9,7 @@ import PureTextArea from '@/components/PureTextArea'
 import { ScrollArea } from '@/components/ScrollArea'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -76,6 +77,7 @@ export interface CommitDialogProps {
 }
 
 export default function CommitDialog(props: CommitDialogProps) {
+  const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [depth, setDepth] = useState<Depth>('infinity')
   const [commitMessage, setCommitMessage] = useState('')
@@ -96,7 +98,7 @@ export default function CommitDialog(props: CommitDialogProps) {
   const onOk = async () => {
     if (commitMessage === '') {
       Toast.error({
-        content: 'Commit message is empty',
+        content: t('shared.error.commitMessageEmpty'),
         stack: true,
       })
       return
@@ -120,9 +122,9 @@ export default function CommitDialog(props: CommitDialogProps) {
       factory: subversion,
       async call(context) {
         const revision = await context.commit(options)
-        let message = 'Commit successfully'
+        let message = t('shared.success.commit')
         if (revision.info) {
-          message = `Commit successfully at (revision ${revision.info.revision})`
+          message = t('svnDialogs.commit.successAt', { revision: revision.info.revision })
         }
         Toast.success({
           content: message,
@@ -182,7 +184,7 @@ export default function CommitDialog(props: CommitDialogProps) {
       afterClose={props.afterClose}
       onCancel={props.onCancel}
       footer={<></>}
-      title="Commit"
+      title={t('shared.action.commit')}
       visible={props.visible}
       closeIconDisabled={isRunning}
       maskClosable={!isRunning}
@@ -192,8 +194,8 @@ export default function CommitDialog(props: CommitDialogProps) {
         <div className={cx(flex, flex_col, gap_y_2, min_h_0, flex_1)}>
           <div>
             <RadioGroup value={display} onChange={(e) => setDisplay(e.target.value)} type="button">
-              <Radio value={selectView}>Select</Radio>
-              <Radio value={actualView}>Actual</Radio>
+              <Radio value={selectView}>{t('svnDialogs.commit.select')}</Radio>
+              <Radio value={actualView}>{t('svnDialogs.commit.actual')}</Radio>
             </RadioGroup>
           </div>
           <Card
@@ -250,49 +252,49 @@ export default function CommitDialog(props: CommitDialogProps) {
         </div>
         <div className={cx(flex, flex_col, min_h_0, gap_y_1)}>
           <div className={cx(flex_1, min_h_0)}></div>
-          <DialogFormItem title="Depth:">
+          <DialogFormItem title={t('shared.field.depth')}>
             <DepthSelect
               className={cx(flex_1)}
               value={depth}
               onChange={(e) => setDepth(e)}
             ></DepthSelect>
           </DialogFormItem>
-          <DialogFormItem title="Options:">
+          <DialogFormItem title={t('shared.field.options')}>
             <div className={cx(flex_1, flex, flex_col)}>
               <Checkbox
                 checked={keepLocks}
                 onChange={(e) => setKeepLocks(e.target.checked ?? false)}
               >
-                Keep locks
+                {t('shared.option.keepLocks')}
               </Checkbox>
               <Checkbox
                 checked={includeExternals}
                 onChange={(e) => setIncludeExternals(e.target.checked ?? false)}
               >
-                Include externals
+                {t('shared.option.includeExternals')}
               </Checkbox>
               <Checkbox
                 checked={commitAsOperations}
                 onChange={(e) => setCommitAsdOperations(e.target.checked ?? false)}
               >
-                Commit as operations
+                {t('shared.option.commitAsOperations')}
               </Checkbox>
             </div>
           </DialogFormItem>
-          <DialogFormItem title="Commit message:">
+          <DialogFormItem title={t('shared.field.commitMessage')}>
             <PureTextArea
               autoFocus
               value={commitMessage}
               onChange={(e) => setCommitMessage(e)}
             ></PureTextArea>
           </DialogFormItem>
-          <DialogFormItem title="Actions:">
+          <DialogFormItem title={t('shared.field.actions')}>
             <div className={cx(flex, flex_1, flex_row_reverse, gap_x_2)}>
               <Button loading={isRunning} onClick={onOk} theme="solid" type="primary">
-                Commit
+                {t('shared.action.commit')}
               </Button>
               <Button disabled={isRunning} onClick={props.onCancel}>
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </DialogFormItem>

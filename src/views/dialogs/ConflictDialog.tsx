@@ -9,6 +9,7 @@ import { WorkingCopyConflictVersion } from '@/bindings/WorkingCopyConflictVersio
 import { ScrollArea } from '@/components/ScrollArea'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
 import { replySuccess } from '@/context/Functions'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -51,19 +52,20 @@ const badge = css`
   flex-shrink: 0;
 `
 
+// 文字取色阶 6、底色取色阶 0：Semi 在暗色下会整体翻转色阶，两级都能保住对比度
 const badge_text = css`
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  background: rgba(var(--semi-light-blue-0), 1);
+  color: rgba(var(--semi-light-blue-6), 1);
 `
 
 const badge_property = css`
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
+  background: rgba(var(--semi-orange-0), 1);
+  color: rgba(var(--semi-orange-6), 1);
 `
 
 const badge_tree = css`
-  background: rgba(192, 132, 252, 0.15);
-  color: #c084fc;
+  background: rgba(var(--semi-purple-0), 1);
+  color: rgba(var(--semi-purple-6), 1);
 `
 
 const summary_row = css`
@@ -311,6 +313,8 @@ const mono = css`
 
 // ==================== Helpers ====================
 
+type Translate = ReturnType<typeof useT>
+
 function kindBadge(kind: string) {
   switch (kind) {
     case 'text':
@@ -324,54 +328,54 @@ function kindBadge(kind: string) {
   }
 }
 
-function actionLabel(action: string): string {
+function actionLabel(action: string, t: Translate): string {
   switch (action) {
     case 'edit':
-      return '修改'
+      return t('conflict.action.edit')
     case 'add':
-      return '添加'
+      return t('conflict.action.add')
     case 'delete':
-      return '删除'
+      return t('conflict.action.delete')
     case 'replace':
-      return '替换'
+      return t('conflict.action.replace')
     default:
       return action
   }
 }
 
-function reasonLabel(reason: string): string {
+function reasonLabel(reason: string, t: Translate): string {
   switch (reason) {
     case 'edited':
-      return '已编辑'
+      return t('conflict.reason.edited')
     case 'obstructed':
-      return '被阻挡'
+      return t('conflict.reason.obstructed')
     case 'deleted':
-      return '已删除'
+      return t('conflict.reason.deleted')
     case 'missing':
-      return '缺失'
+      return t('conflict.reason.missing')
     case 'unversioned':
-      return '未版本化'
+      return t('conflict.reason.unversioned')
     case 'added':
-      return '已添加'
+      return t('conflict.reason.added')
     case 'replaced':
-      return '已替换'
+      return t('conflict.reason.replaced')
     case 'movedAway':
-      return '已移走'
+      return t('conflict.reason.movedAway')
     case 'movedHere':
-      return '移入此处'
+      return t('conflict.reason.movedHere')
     default:
       return reason
   }
 }
 
-function operationLabel(op: string): string {
+function operationLabel(op: string, t: Translate): string {
   switch (op) {
     case 'update':
-      return 'update 时'
+      return t('conflict.operation.update')
     case 'switch':
-      return 'switch 时'
+      return t('conflict.operation.switch')
     case 'merge':
-      return 'merge 时'
+      return t('conflict.operation.merge')
     case 'none':
       return ''
     default:
@@ -379,39 +383,43 @@ function operationLabel(op: string): string {
   }
 }
 
-function nodeKindLabel(nk: string): string {
+function nodeKindLabel(nk: string, t: Translate): string {
   switch (nk) {
     case 'file':
-      return '文件'
+      return t('conflict.nodeKind.file')
     case 'directory':
-      return '目录'
+      return t('conflict.nodeKind.directory')
     case 'symlink':
-      return '符号链接'
+      return t('conflict.nodeKind.symlink')
     case 'none':
-      return '不存在'
+      return t('conflict.nodeKind.none')
     default:
       return nk
   }
 }
 
-function versionSummary(v: WorkingCopyConflictVersion | null): string {
-  if (!v) return '(不可用)'
+function versionSummary(v: WorkingCopyConflictVersion | null, t: Translate): string {
+  if (!v) return t('conflict.value.unavailable')
   const rev = v.pegRevision
   const path = v.pathInRepository
-  return `${path}@${rev} (${nodeKindLabel(v.nodeKind)})`
+  return `${path}@${rev} (${nodeKindLabel(v.nodeKind, t)})`
 }
 
-function displayValue(val: string | null): string {
-  if (val === null || val === undefined) return '(未设置)'
-  if (val === '') return '(空)'
+function displayValue(val: string | null, t: Translate): string {
+  if (val === null || val === undefined) return t('conflict.value.unset')
+  if (val === '') return t('conflict.value.empty')
   return `"${val}"`
 }
 
 // ==================== Sub-components ====================
 
 function Header({ description }: { description: WorkingCopyConflictDescription }) {
-  const op = operationLabel(description.operation)
-  const summary = `对方${actionLabel(description.action)} × 本地${reasonLabel(description.reason)}`
+  const t = useT()
+  const op = operationLabel(description.operation, t)
+  const summary = t('conflict.summary.pair', {
+    action: actionLabel(description.action, t),
+    reason: reasonLabel(description.reason, t),
+  })
 
   return (
     <div className={cx(flex_col, gap_y_1)}>
@@ -436,15 +444,20 @@ function Header({ description }: { description: WorkingCopyConflictDescription }
 }
 
 function TextBody({ description }: { description: WorkingCopyConflictDescription }) {
+  const t = useT()
   const files: { label: string; path: string | null; colorClass: string }[] = [
-    { label: 'BASE · 本地基线', path: description.baseAbsolutePath, colorClass: val_base },
-    { label: 'MINE · 我的修改', path: description.myAbsolutePath, colorClass: val_working },
+    { label: t('conflict.role.base'), path: description.baseAbsolutePath, colorClass: val_base },
+    { label: t('conflict.role.mine'), path: description.myAbsolutePath, colorClass: val_working },
     {
-      label: 'THEIR · 对方版本',
+      label: t('conflict.role.theirs'),
       path: description.theirAbsolutePath,
       colorClass: val_incoming_new,
     },
-    { label: 'MERGED · 合并结果', path: description.mergedFile, colorClass: val_incoming_old },
+    {
+      label: t('conflict.role.merged'),
+      path: description.mergedFile,
+      colorClass: val_incoming_old,
+    },
   ]
 
   return (
@@ -453,17 +466,18 @@ function TextBody({ description }: { description: WorkingCopyConflictDescription
         <div className={binary_banner}>
           <span>⚠</span>
           <span>
-            此文件为二进制文件 (MIME: <code className={mono}>{description.mimeType ?? '未知'}</code>
-            )，文本 diff 不可用。
+            {t('conflict.text.binaryPrefix')}
+            <code className={mono}>{description.mimeType ?? t('conflict.text.mimeUnknown')}</code>
+            {t('conflict.text.binarySuffix')}
           </span>
         </div>
       )}
-      <h3 className={section_title}>冲突文件</h3>
+      <h3 className={section_title}>{t('conflict.text.filesTitle')}</h3>
       <div className={cx(flex, flex_col, gap_x_2, gap_y_2)}>
         {files.map((f) => (
           <div key={f.label} className={cx(file_card, f.colorClass)}>
             <span className={file_card_label}>{f.label}</span>
-            <span className={file_card_path}>{f.path ?? '(不可用)'}</span>
+            <span className={file_card_path}>{f.path ?? t('conflict.value.unavailable')}</span>
           </div>
         ))}
       </div>
@@ -472,7 +486,8 @@ function TextBody({ description }: { description: WorkingCopyConflictDescription
 }
 
 function PropertyBody({ description }: { description: WorkingCopyConflictDescription }) {
-  const propName = description.propertyName ?? '(unknown)'
+  const t = useT()
+  const propName = description.propertyName ?? t('components.conflict.unknownProperty')
 
   // Action summary
   const incomingOld = description.propertyValueIncomingOld
@@ -481,77 +496,91 @@ function PropertyBody({ description }: { description: WorkingCopyConflictDescrip
 
   const incomingSummary =
     description.action === 'edit'
-      ? `修改属性 "${propName}"：${displayValue(incomingOld)} → ${displayValue(incomingNew)}`
+      ? t('conflict.property.summaryEdit', {
+          name: propName,
+          old: displayValue(incomingOld, t),
+          new: displayValue(incomingNew, t),
+        })
       : description.action === 'add'
-        ? `添加属性 "${propName}" = ${displayValue(incomingNew)}`
+        ? t('conflict.property.summaryAdd', {
+            name: propName,
+            value: displayValue(incomingNew, t),
+          })
         : description.action === 'delete'
-          ? `删除属性 "${propName}"（原值 ${displayValue(incomingOld)}）`
-          : `${description.action} 属性 "${propName}"`
+          ? t('conflict.property.summaryDelete', {
+              name: propName,
+              value: displayValue(incomingOld, t),
+            })
+          : t('conflict.property.summaryOther', { action: description.action, name: propName })
 
   const localSummary =
     description.reason === 'edited'
-      ? `已修改为 ${displayValue(working)}`
+      ? t('conflict.property.localEdited', { value: displayValue(working, t) })
       : description.reason === 'added'
-        ? `已添加（当前值 ${displayValue(working)}）`
-        : `${reasonLabel(description.reason)}`
+        ? t('conflict.property.localAdded', { value: displayValue(working, t) })
+        : reasonLabel(description.reason, t)
 
   const values = [
     {
-      role: 'BASE · 本地基线',
+      role: t('conflict.role.base'),
       field: 'propertyValueBase',
       value: description.propertyValueBase,
       cls: val_base,
       note:
         description.operation === 'merge'
-          ? '工作副本 BASE 版本（WC pristine）的值。我的血统起点。'
-          : '在 update/switch 中，此值可能不是共同祖先；选择 base 时实际落地 incoming old。',
+          ? t('conflict.property.noteBaseMerge')
+          : t('conflict.property.noteBaseUpdate'),
     },
     {
-      role: 'WORKING · 我的修改',
+      role: t('conflict.role.working'),
       field: 'propertyValueWorking',
       value: description.propertyValueWorking,
       cls: val_working,
-      note: '我在本地改成的值（未提交）。',
+      note: t('conflict.property.noteWorking'),
     },
     {
-      role: 'INCOMING OLD · 对方起点',
+      role: t('conflict.role.incomingOld'),
       field: 'propertyValueIncomingOld',
       value: description.propertyValueIncomingOld,
       cls: val_incoming_old,
-      note: '合并源 merge-left 的值。对方血统起点 / 补丁锚点。',
+      note: t('conflict.property.noteIncomingOld'),
     },
     {
-      role: 'INCOMING NEW · 对方新值',
+      role: t('conflict.role.incomingNew'),
       field: 'propertyValueIncomingNew',
       value: description.propertyValueIncomingNew,
       cls: val_incoming_new,
-      note: '合并源 merge-right 的值。对方变更的终点。',
+      note: t('conflict.property.noteIncomingNew'),
     },
   ]
 
   return (
     <div className={cx(flex_col, gap_y_2)}>
       <h3 className={section_title}>
-        属性 <code className={mono}>"{propName}"</code>
+        {t('conflict.property.title')} <code className={mono}>"{propName}"</code>
       </h3>
       <div className={cx(flex_col, gap_y_1, p_1)}>
         <div className={text_12px}>
-          <span style={{ color: 'rgba(var(--semi-blue-5), 1)', fontWeight: 600 }}>对方: </span>
+          <span style={{ color: 'rgba(var(--semi-blue-5), 1)', fontWeight: 600 }}>
+            {t('conflict.property.incomingLabel')}
+          </span>
           {incomingSummary}
           <span className={opt_flag} style={{ marginLeft: 6 }}>
-            (action={description.action})
+            {t('components.conflict.actionFlag', { action: description.action })}
           </span>
         </div>
         <div className={text_12px}>
-          <span style={{ color: 'rgba(var(--semi-green-5), 1)', fontWeight: 600 }}>我方: </span>
+          <span style={{ color: 'rgba(var(--semi-green-5), 1)', fontWeight: 600 }}>
+            {t('conflict.property.localLabel')}
+          </span>
           {localSummary}
           <span className={opt_flag} style={{ marginLeft: 6 }}>
-            (reason={description.reason})
+            {t('components.conflict.reasonFlag', { reason: description.reason })}
           </span>
         </div>
       </div>
 
-      <h3 className={section_title}>冲突中的四个值</h3>
+      <h3 className={section_title}>{t('conflict.property.valuesTitle')}</h3>
       <div className={cx(grid_cols_1fr_1fr, gap_x_2, gap_y_2)}>
         {values.map((v) => (
           <div key={v.field} className={cx(val_card, v.cls)}>
@@ -559,57 +588,71 @@ function PropertyBody({ description }: { description: WorkingCopyConflictDescrip
               <span>{v.role}</span>
               <span className={val_card_field}>{v.field}</span>
             </div>
-            <code className={val_card_code}>{displayValue(v.value)}</code>
+            <code className={val_card_code}>{displayValue(v.value, t)}</code>
             <div className={val_card_note}>{v.note}</div>
           </div>
         ))}
       </div>
 
       <div className={trap_box}>
-        <b>⚠ 语义陷阱：</b>在 merge 场景下，<code className={mono}>propertyValueBase</code> 显示的是
-        本地 pristine 的值，但若选择 <b>base</b>，实际落地的是{' '}
-        <code className={mono}>propertyValueIncomingOld</code>（对方的起点值）。两者不一致。
+        <b>{t('conflict.property.trapTitle')}</b>
+        {t('conflict.property.trapIntro')}
+        <code className={mono}>propertyValueBase</code>
+        {t('conflict.property.trapBaseShown')}
+        <b>base</b>
+        {t('conflict.property.trapBaseApplies')}{' '}
+        <code className={mono}>propertyValueIncomingOld</code>
+        {t('conflict.property.trapEnd')}
       </div>
     </div>
   )
 }
 
 function TreeBody({ description }: { description: WorkingCopyConflictDescription }) {
-  const localText = `本地 ${nodeKindLabel(description.nodeKind)} ${reasonLabel(description.reason)}`
+  const t = useT()
+  const localText = t('conflict.tree.localSummary', {
+    kind: nodeKindLabel(description.nodeKind, t),
+    reason: reasonLabel(description.reason, t),
+  })
   const incomingNodeKind =
     description.action === 'edit' || description.action === 'delete'
       ? (description.sourceLeftVersion?.nodeKind ?? 'unknown')
       : (description.sourceRightVersion?.nodeKind ?? 'unknown')
-  const incomingText = `传入 ${nodeKindLabel(incomingNodeKind)} ${actionLabel(description.action)}`
+  const incomingText = t('conflict.tree.incomingSummary', {
+    kind: nodeKindLabel(incomingNodeKind, t),
+    action: actionLabel(description.action, t),
+  })
 
   return (
     <div className={cx(flex_col, gap_y_2)}>
-      <h3 className={section_title}>冲突概述</h3>
+      <h3 className={section_title}>{t('conflict.tree.summaryTitle')}</h3>
       <div className={tree_summary}>
         <div className={tree_row}>
-          <span className={tree_row_label}>本地:</span>
+          <span className={tree_row_label}>{t('conflict.tree.localLabel')}</span>
           <span>{localText}</span>
         </div>
         <div className={tree_row}>
-          <span className={tree_row_label}>传入:</span>
+          <span className={tree_row_label}>{t('conflict.tree.incomingLabel')}</span>
           <span>{incomingText}</span>
         </div>
         <div className={tree_row}>
-          <span className={tree_row_label}>操作:</span>
+          <span className={tree_row_label}>{t('conflict.tree.operationLabel')}</span>
           <span>
-            {description.operation !== 'none' ? `upon ${description.operation}` : '无特定操作'}
+            {description.operation !== 'none'
+              ? t('components.conflict.uponOperation', { operation: description.operation })
+              : t('conflict.tree.noOperation')}
           </span>
         </div>
       </div>
 
-      <h3 className={section_title}>版本信息</h3>
+      <h3 className={section_title}>{t('conflict.tree.versionTitle')}</h3>
       <div className={cx(flex, flex_col, gap_x_2, gap_y_1)}>
         <div className={version_card}>
           <span className={version_card_label}>merge-left (src_left_version)</span>
           <span className={version_card_detail}>
             {description.sourceLeftVersion
-              ? versionSummary(description.sourceLeftVersion)
-              : '(不可用 — 老式冲突记录)'}
+              ? versionSummary(description.sourceLeftVersion, t)
+              : t('conflict.value.legacyUnavailable')}
           </span>
           {description.sourceLeftVersion && (
             <span className={cx(text_12px)} style={{ color: 'rgba(var(--semi-grey-7), 1)' }}>
@@ -621,8 +664,8 @@ function TreeBody({ description }: { description: WorkingCopyConflictDescription
           <span className={version_card_label}>merge-right (src_right_version)</span>
           <span className={version_card_detail}>
             {description.sourceRightVersion
-              ? versionSummary(description.sourceRightVersion)
-              : '(不可用 — 老式冲突记录)'}
+              ? versionSummary(description.sourceRightVersion, t)
+              : t('conflict.value.legacyUnavailable')}
           </span>
           {description.sourceRightVersion && (
             <span className={cx(text_12px)} style={{ color: 'rgba(var(--semi-grey-7), 1)' }}>
@@ -646,7 +689,10 @@ interface ChoiceOption {
   resultColor: string
 }
 
-function getChoiceOptions(description: WorkingCopyConflictDescription): ChoiceOption[] {
+function getChoiceOptions(
+  description: WorkingCopyConflictDescription,
+  t: Translate,
+): ChoiceOption[] {
   const options: ChoiceOption[] = []
 
   if (description.kind === 'property') {
@@ -663,45 +709,45 @@ function getChoiceOptions(description: WorkingCopyConflictDescription): ChoiceOp
     //   the default case (1357) and silently act as postpone, so don't offer
     options.push({
       choice: 'postpone',
-      name: '推迟解决',
+      name: t('conflict.choice.postpone'),
       flag: 'postpone',
-      desc: '暂不处理，稍后手动解决。',
-      resultValue: '保持冲突状态',
+      desc: t('conflict.choice.postponeDesc'),
+      resultValue: t('conflict.choice.resultConflict'),
       resultColor: 'var(--semi-color-tertiary)',
     })
     options.push({
       choice: 'mineFull',
-      name: '保留我的',
+      name: t('conflict.choice.mineFull'),
       flag: 'mine-full',
-      desc: '保留我的本地修改，拒绝传入变更。',
-      resultValue: displayValue(description.propertyValueWorking),
+      desc: t('conflict.choice.mineFullDesc'),
+      resultValue: displayValue(description.propertyValueWorking, t),
       resultColor: 'var(--semi-color-success)',
     })
     options.push({
       choice: 'theirsFull',
-      name: '采用对方',
+      name: t('conflict.choice.theirsFull'),
       flag: 'theirs-full',
-      desc: '整体采用对方新值，放弃我的修改。',
-      resultValue: displayValue(description.propertyValueIncomingNew),
+      desc: t('conflict.choice.theirsFullDesc'),
+      resultValue: displayValue(description.propertyValueIncomingNew, t),
       resultColor: 'var(--semi-color-primary)',
     })
     options.push({
       choice: 'base',
-      name: '回到变更前',
+      name: t('conflict.choice.base'),
       flag: 'base',
       desc:
         description.operation === 'merge'
-          ? '回到变更发生前的状态（实际落地 BASE 版本的属性值）。'
-          : '回到变更发生前的状态（实际落地 incoming old 值）。',
-      resultValue: displayValue(description.propertyValueIncomingOld),
+          ? t('conflict.choice.baseDescMerge')
+          : t('conflict.choice.baseDescUpdate'),
+      resultValue: displayValue(description.propertyValueIncomingOld, t),
       resultColor: 'var(--semi-color-purple)',
     })
     options.push({
       choice: 'merged',
-      name: '自定义值…',
+      name: t('conflict.choice.merged'),
       flag: 'merged',
-      desc: '输入任意值（通过 merged_value 返回）。',
-      resultValue: '自定义',
+      desc: t('conflict.choice.mergedDesc'),
+      resultValue: t('conflict.choice.resultCustom'),
       resultColor: 'var(--semi-color-warning)',
     })
   } else if (description.kind === 'text') {
@@ -720,51 +766,51 @@ function getChoiceOptions(description: WorkingCopyConflictDescription): ChoiceOp
     //   handling for text conflicts is still undecided
     options.push({
       choice: 'postpone',
-      name: '推迟解决',
+      name: t('conflict.choice.postpone'),
       flag: 'postpone',
-      desc: '暂不处理，稍后手动解决。',
-      resultValue: '保持冲突状态',
+      desc: t('conflict.choice.postponeDesc'),
+      resultValue: t('conflict.choice.resultConflict'),
       resultColor: 'var(--semi-color-tertiary)',
     })
     options.push({
       choice: 'base',
-      name: '回到基线',
+      name: t('conflict.choice.baseText'),
       flag: 'base',
-      desc: '使用 BASE 版本（共同祖先）的文件。',
-      resultValue: 'BASE 文件',
+      desc: t('conflict.choice.baseTextDesc'),
+      resultValue: t('conflict.choice.resultBaseFile'),
       resultColor: 'var(--semi-color-purple)',
     })
     options.push({
       choice: 'mineFull',
-      name: '保留我的',
+      name: t('conflict.choice.mineFull'),
       flag: 'mine-full',
-      desc: '保留我的工作副本文件，拒绝传入变更。',
-      resultValue: '我的工作副本',
+      desc: t('conflict.choice.mineFullDescText'),
+      resultValue: t('conflict.choice.resultMineWorking'),
       resultColor: 'var(--semi-color-success)',
     })
     options.push({
       choice: 'theirsFull',
-      name: '采用对方',
+      name: t('conflict.choice.theirsFull'),
       flag: 'theirs-full',
-      desc: '整体采用对方的文件版本。',
-      resultValue: '对方版本',
+      desc: t('conflict.choice.theirsFullDescText'),
+      resultValue: t('conflict.choice.resultTheirs'),
       resultColor: 'var(--semi-color-primary)',
     })
     if (description.myAbsolutePath) {
       options.push({
         choice: 'mineConflict',
-        name: '只应用我的改动',
+        name: t('conflict.choice.mineConflict'),
         flag: 'mine-conflict',
-        desc: '重新执行三方合并，仅保留我这边的改动，丢弃对方的改动。',
-        resultValue: '合并结果（仅我的改动）',
+        desc: t('conflict.choice.mineConflictDesc'),
+        resultValue: t('conflict.choice.resultMineConflict'),
         resultColor: 'var(--semi-color-success)',
       })
       options.push({
         choice: 'theirsConflict',
-        name: '只应用对方的改动',
+        name: t('conflict.choice.theirsConflict'),
         flag: 'theirs-conflict',
-        desc: '重新执行三方合并，仅保留对方那边的改动，丢弃我的改动。',
-        resultValue: '合并结果（仅对方改动）',
+        desc: t('conflict.choice.theirsConflictDesc'),
+        resultValue: t('conflict.choice.resultTheirsConflict'),
         resultColor: 'var(--semi-color-primary)',
       })
     }
@@ -784,10 +830,10 @@ function getChoiceOptions(description: WorkingCopyConflictDescription): ChoiceOp
 
     options.push({
       choice: 'postpone',
-      name: '推迟解决',
+      name: t('conflict.choice.postpone'),
       flag: 'postpone',
-      desc: '暂不处理，稍后手动解决。',
-      resultValue: '保持冲突状态',
+      desc: t('conflict.choice.postponeDesc'),
+      resultValue: t('conflict.choice.resultConflict'),
       resultColor: 'var(--semi-color-tertiary)',
     })
 
@@ -801,12 +847,14 @@ function getChoiceOptions(description: WorkingCopyConflictDescription): ChoiceOp
     ) {
       options.push({
         choice: 'mineConflict',
-        name: '保留本地状态',
+        name: t('conflict.choice.keepLocalState'),
         flag: 'mine-conflict',
         desc: isMovedAwayEdit
-          ? '更新被移走的节点以应用传入变更。'
-          : '保留本地目录状态，并对从其中移出的子节点产生新的 moved-away 冲突。',
-        resultValue: isMovedAwayEdit ? '更新后的移走节点' : '本地状态',
+          ? t('conflict.choice.keepLocalStateMovedDesc')
+          : t('conflict.choice.keepLocalStateDesc'),
+        resultValue: isMovedAwayEdit
+          ? t('conflict.choice.resultMovedUpdated')
+          : t('conflict.choice.resultLocalState'),
         resultColor: 'var(--semi-color-success)',
       })
     }
@@ -819,12 +867,12 @@ function getChoiceOptions(description: WorkingCopyConflictDescription): ChoiceOp
 
     options.push({
       choice: 'merged',
-      name: '接受当前状态',
+      name: t('conflict.choice.acceptCurrent'),
       flag: 'merged',
       desc: involvesMove
-        ? '接受当前工作副本状态（如有需要会断开移动记录）。'
-        : '接受当前工作副本状态，仅清除冲突标记。',
-      resultValue: '当前状态',
+        ? t('conflict.choice.acceptCurrentMovedDesc')
+        : t('conflict.choice.acceptCurrentDesc'),
+      resultValue: t('conflict.choice.resultCurrentState'),
       resultColor: 'var(--semi-color-warning)',
     })
   }
@@ -841,11 +889,12 @@ function ChoiceButtons({
   selectedChoice: WorkingCopyConflictChoice
   onSelect: (c: WorkingCopyConflictChoice) => void
 }) {
-  const options = getChoiceOptions(description)
+  const t = useT()
+  const options = getChoiceOptions(description, t)
 
   return (
     <div className={cx(flex_col, gap_y_2)}>
-      <h3 className={section_title}>选择一个解决方式</h3>
+      <h3 className={section_title}>{t('conflict.choice.title')}</h3>
       <div className={options_grid}>
         {options.map((opt) => (
           <button
@@ -859,7 +908,7 @@ function ChoiceButtons({
             </div>
             <div className={opt_desc}>{opt.desc}</div>
             <div className={opt_result}>
-              结果 →{' '}
+              {t('conflict.choice.resultLabel')}{' '}
               <code
                 style={{ color: opt.resultColor, background: 'rgba(var(--semi-grey-8), 0.06)' }}
               >
@@ -899,6 +948,7 @@ export function NiceConflictDialog(props: {
 }
 
 export default function ConflictDialog(props: ConflictDialogProps) {
+  const t = useT()
   const [choice, setChoice] = useState<WorkingCopyConflictChoice>('postpone')
   const [propertyValue, setPropertyValue] = useState<string>('')
   const description = props.description
@@ -949,7 +999,7 @@ export default function ConflictDialog(props: ConflictDialogProps) {
 
   return (
     <Dialog
-      title="解决冲突"
+      title={t('conflict.title')}
       onOk={onOk}
       onCancel={onCancel}
       afterClose={props.afterClose}
@@ -969,7 +1019,7 @@ export default function ConflictDialog(props: ConflictDialogProps) {
 
           {/* 自定义值输入（仅属性冲突 + merged 选项时显示） */}
           {description.kind === 'property' && choice === 'merged' && (
-            <DialogFormItem title="自定义属性值:">
+            <DialogFormItem title={t('conflict.property.customValueLabel')}>
               <AutoComplete
                 value={propertyValue}
                 onChange={(e) => {
@@ -985,7 +1035,7 @@ export default function ConflictDialog(props: ConflictDialogProps) {
                 ]
                   .filter((v): v is string => v !== null && v !== undefined)
                   .map((v) => ({ value: v, label: v }))}
-                placeholder="输入自定义值…"
+                placeholder={t('conflict.property.customValuePlaceholder')}
                 className={cx(flex_1)}
               />
             </DialogFormItem>

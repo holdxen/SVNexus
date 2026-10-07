@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom'
 import { InfoOptions } from '@/bindings/InfoOptions'
 import OperationBar, { OperationIconProps } from '@/components/OperationBar'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { t as translate, useT } from '@/i18n'
 import {
   flex,
   flex_1,
@@ -38,6 +39,7 @@ interface RemoteTarget {
 }
 
 export function RemoteView(props: RemoteViewProps) {
+  const t = useT()
   const workingCopy = useWorkingCopyContext()
   const subversion = useSubversion()
   const [target, setTarget] = useState<RemoteTarget | null>(null)
@@ -65,7 +67,9 @@ export function RemoteView(props: RemoteViewProps) {
         }
         const entry = entries[0][1]
         if (entry.url === null || entry.repositoryRootUrl === null) {
-          throw new Error(`${workingCopy.path} is not a working copy of a repository`)
+          throw new Error(
+            translate('changes.remote.notWorkingCopyOfRepository', { path: workingCopy.path }),
+          )
         }
         const revision = await context.raGetLatestRevisionNumber(entry.url)
         return {
@@ -89,7 +93,7 @@ export function RemoteView(props: RemoteViewProps) {
   const icons: OperationIconProps[] = [
     {
       sync: false,
-      tooltip: 'Refresh',
+      tooltip: t('shared.action.refresh'),
       enable: !isLoading,
       children: <RefreshIcon></RefreshIcon>,
       onClick: async () => {
@@ -114,9 +118,7 @@ export function RemoteView(props: RemoteViewProps) {
   )
 
   return (
-    <div
-      className={cx(props.className, flex, flex_col, min_w_0, min_h_0, overflow_hidden)}
-    >
+    <div className={cx(props.className, flex, flex_col, min_w_0, min_h_0, overflow_hidden)}>
       {workingCopy.remoteViewOperationContainer !== null &&
         createPortal(bar, workingCopy.remoteViewOperationContainer)}
       <Spin

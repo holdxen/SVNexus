@@ -35,7 +35,6 @@ pub use commit::{CommitItem, CommitOptions, CommitResult};
 pub use conflict::{Conflict, ConflictWalkOptions, ConflictWalkResult};
 pub use delete::{DeleteOptions, DeleteResult};
 pub use export::ExportOptions;
-use ignore::gitignore::{Gitignore, GitignoreBuilder};
 pub use import::{ImportOptions, ImportResult};
 pub use info::{InfoEntry, InfoOptions, InfoResult};
 pub use list::{ListOptions, ListResult};
@@ -44,9 +43,8 @@ pub use mkdir::{MkdirOptions, MkdirResult};
 pub use patch::PatchOptions;
 pub use property::*;
 pub use relocate::RelocateOptions;
-pub use status::{StatusEntry, StatusOptions, StatusReceiver, StatusResult};
+pub use status::{StatusEntry, StatusOptions, StatusResult};
 use surrealdb::types::SurrealValue;
-use tempfile::NamedTempFile;
 pub use update::UpdateOptions;
 
 use super::ffi;
@@ -54,10 +52,8 @@ use super::stream::Stream;
 use super::wc::*;
 use super::{svn_no_error, SubversionError};
 use crate::apr::{self, AprArray, AprPool};
-use crate::error::{self, builder, FrontendError, FrontendErrorExtension};
-use crate::extensions::{Canonicalization, CommonExtension, OptionExtension, ResultExtension};
-use crate::platform;
-use crate::subversion::utils;
+use crate::error::{self, builder, FrontendError};
+use crate::extensions::{Canonicalization, CommonExtension, OptionExtension};
 use crate::subversion::version::Version;
 use crate::utils::PointerMutMapper;
 use crate::utils::{Boxed, CStringer};
@@ -66,18 +62,15 @@ use derive_new::new;
 use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
 use std::collections::HashMap;
-use std::ffi::{c_char, c_void, OsString};
-use std::io::Write;
+use std::ffi::{c_char, c_void};
 use std::mem::ManuallyDrop;
-use std::path::PathBuf;
-use std::process::Command;
 use std::sync::{Arc, OnceLock};
 use strum::EnumString;
 
 #[derive(Debug)]
 pub struct CancelToken {
-    code: i32,
-    msg: String,
+    pub code: i32,
+    pub msg: String,
 }
 
 pub static GLOBAL_CANCEL_TOKEN: OnceLock<CancelToken> = OnceLock::new();
@@ -138,9 +131,7 @@ pub trait ContextNotifier: Send + Sync + 'static {
         key_type: &str,
         key_data: &[u8],
         fingerprint: &str,
-    ) -> Result<bool, FrontendError> {
-        Ok(true)
-    }
+    ) -> Result<bool, FrontendError>;
 
     fn ssh_verify_new_host_key(
         &self,
@@ -149,31 +140,20 @@ pub trait ContextNotifier: Send + Sync + 'static {
         host_key_type: &str,
         host_key: &[u8],
         fingerprint: &str,
-    ) -> Result<bool, FrontendError> {
-        Ok(true)
-    }
-
+    ) -> Result<bool, FrontendError>;
     async fn ssh_keyboard_interactive(
         &self,
         name: &str,
         instruction: &str,
         prompts: &[(&str, bool)],
-    ) -> Result<Vec<String>, FrontendError> {
-        Ok(vec![])
-    }
-
+    ) -> Result<Vec<String>, FrontendError>;
     async fn ssh_authenticate(
         &self,
         password: bool,
         public_key: bool,
         keyboard_interactive: bool,
         username: Option<&str>,
-    ) -> Result<SSHAuthetication, FrontendError> {
-        Ok(SSHAuthetication::KeyboardInteractive {
-            username: "".into(),
-        })
-    }
-
+    ) -> Result<SSHAuthetication, FrontendError>;
     /// 弹窗询问 `path` 这把私钥的口令。
     ///
     /// `wrong` 为 true 表示上一次给的口令解不开，前端可以据此提示。
@@ -185,10 +165,7 @@ pub trait ContextNotifier: Send + Sync + 'static {
         path: &str,
         username: Option<&str>,
         wrong: bool,
-    ) -> Result<Option<String>, FrontendError> {
-        let _ = (path, username, wrong);
-        Ok(None)
-    }
+    ) -> Result<Option<String>, FrontendError>;
 }
 
 #[derive(Serialize, Deserialize, ts_rs::TS)]
@@ -224,9 +201,8 @@ pub struct ContextInner {
     commit_info: Option<CommitInfo>,
     // #[new(default)]
     // cancel: Arc<Mutex<Option<String>>>,
-    #[new(default)]
-    status_receiver: Option<Arc<dyn StatusReceiver>>,
-
+    // #[new(default)]
+    // status_receiver: Option<Arc<dyn StatusReceiver>>,
     #[new(default)]
     status_entries: Vec<StatusEntry>,
     context_notifier: Arc<dyn ContextNotifier>,
@@ -285,45 +261,47 @@ impl Drop for Context {
 //         self.ra_sessions.remove(&key);
 //     }
 // }
-
+#[derive(derive_more::Debug)]
 pub struct CreateContextOptions {
     pub name: Option<String>,
     pub default_username: Option<String>,
+    #[debug(skip)]
     pub default_password: Option<String>,
+    #[debug(skip)]
     pub context_notifier: Arc<dyn ContextNotifier>,
     pub config: Config,
 }
 
-#[derive(Serialize, Deserialize, ts_rs::TS)]
+#[derive(Serialize, Deserialize, Debug, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct Config {
     pub proxies: Option<Proxies>,
 }
 
-impl Config {
-    pub unsafe fn apply(
-        &self,
-        config: *mut apr::ffi::apr_hash_t,
-        pool: &mut apr::Pool,
-    ) -> error::Result<()> {
-        let servers_config = unsafe {
-            apr::ffi::apr_hash_get(
-                config,
-                ffi::SVN_CONFIG_CATEGORY_SERVERS.as_ptr() as *const i8 as *const c_void,
-                ffi::APR_HASH_KEY_STRING
-                    .try_into()
-                    .expect("Failed to convert value"),
-            )
-        };
-        if let Some(proxies) = self.proxies.as_ref() {
-            unsafe { proxies.apply(servers_config as *mut _, pool)? };
-        }
-        Ok(())
-    }
-}
+// impl Config {
+//     pub unsafe fn apply(
+//         &self,
+//         config: *mut apr::ffi::apr_hash_t,
+//         pool: &mut apr::Pool,
+//     ) -> error::Result<()> {
+//         let servers_config = unsafe {
+//             apr::ffi::apr_hash_get(
+//                 config,
+//                 ffi::SVN_CONFIG_CATEGORY_SERVERS.as_ptr() as *const i8 as *const c_void,
+//                 ffi::APR_HASH_KEY_STRING
+//                     .try_into()
+//                     .expect("Failed to convert value"),
+//             )
+//         };
+//         if let Some(proxies) = self.proxies.as_ref() {
+//             unsafe { proxies.apply(servers_config as *mut _, pool)? };
+//         }
+//         Ok(())
+//     }
+// }
 
-#[derive(new, Serialize, Deserialize, ts_rs::TS)]
+#[derive(new, Serialize, Deserialize, Debug, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Proxies {
     pub http: Option<Proxy>,
@@ -331,59 +309,59 @@ pub struct Proxies {
     pub socks: Option<Proxy>,
 }
 
-impl Proxies {
-    pub unsafe fn apply(
-        &self,
-        config: *mut ffi::svn_config_t,
-        pool: &mut apr::Pool,
-    ) -> error::Result<()> {
-        // Implementation details
-        //
-        if let Some(http) = self.http.as_ref() {
-            // Apply HTTP proxy settings
-            tracing::info!("set http proxy: {:#?}", http);
-            unsafe {
-                ffi::svn_config_set(
-                    config,
-                    ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
-                    ffi::SVN_CONFIG_OPTION_HTTP_PROXY_HOST.as_ptr() as _,
-                    pool.string(http.host.as_str())?,
-                );
-
-                ffi::svn_config_set(
-                    config,
-                    ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
-                    ffi::SVN_CONFIG_OPTION_HTTP_PROXY_PORT.as_ptr() as _,
-                    pool.string(http.port.to_string())?,
-                );
-                if let Some(username) = http.username.as_ref() {
-                    ffi::svn_config_set(
-                        config,
-                        ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
-                        ffi::SVN_CONFIG_OPTION_HTTP_PROXY_USERNAME.as_ptr() as _,
-                        pool.string(username.as_str())?,
-                    );
-                }
-                if let Some(password) = http.password.as_ref() {
-                    ffi::svn_config_set(
-                        config,
-                        ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
-                        ffi::SVN_CONFIG_OPTION_HTTP_PROXY_PASSWORD.as_ptr() as _,
-                        pool.string(password.as_str())?,
-                    );
-                }
-            };
-        } else if let Some(https) = self.https.as_ref() {
-            // Apply HTTPS proxy settings
-            tracing::info!("unsupported https proxy now");
-        } else if let Some(socks) = self.socks.as_ref() {
-            tracing::info!("unsuppored socks proxy now");
-        } else {
-            tracing::info!("No proxy settings applied")
-        }
-        Ok(())
-    }
-}
+// impl Proxies {
+//     pub unsafe fn apply(
+//         &self,
+//         config: *mut ffi::svn_config_t,
+//         pool: &mut apr::Pool,
+//     ) -> error::Result<()> {
+//         // Implementation details
+//         //
+//         if let Some(http) = self.http.as_ref() {
+//             // Apply HTTP proxy settings
+//             tracing::info!("set http proxy: {:#?}", http);
+//             unsafe {
+//                 ffi::svn_config_set(
+//                     config,
+//                     ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+//                     ffi::SVN_CONFIG_OPTION_HTTP_PROXY_HOST.as_ptr() as _,
+//                     pool.string(http.host.as_str())?,
+//                 );
+//
+//                 ffi::svn_config_set(
+//                     config,
+//                     ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+//                     ffi::SVN_CONFIG_OPTION_HTTP_PROXY_PORT.as_ptr() as _,
+//                     pool.string(http.port.to_string())?,
+//                 );
+//                 if let Some(username) = http.username.as_ref() {
+//                     ffi::svn_config_set(
+//                         config,
+//                         ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+//                         ffi::SVN_CONFIG_OPTION_HTTP_PROXY_USERNAME.as_ptr() as _,
+//                         pool.string(username.as_str())?,
+//                     );
+//                 }
+//                 if let Some(password) = http.password.as_ref() {
+//                     ffi::svn_config_set(
+//                         config,
+//                         ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+//                         ffi::SVN_CONFIG_OPTION_HTTP_PROXY_PASSWORD.as_ptr() as _,
+//                         pool.string(password.as_str())?,
+//                     );
+//                 }
+//             };
+//         } else if let Some(https) = self.https.as_ref() {
+//             // Apply HTTPS proxy settings
+//             tracing::info!("unsupported https proxy now");
+//         } else if let Some(socks) = self.socks.as_ref() {
+//             tracing::info!("unsuppored socks proxy now");
+//         } else {
+//             tracing::info!("No proxy settings applied")
+//         }
+//         Ok(())
+//     }
+// }
 
 #[derive(new, Debug, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -1156,292 +1134,292 @@ impl DifferenceFileOptions {
 //         }
 //     }
 // }
+//
+// #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct DifferenceOptions {
+//     pub original: Vec<u8>,
+//     pub modified: Vec<u8>,
+//     pub options: Option<DifferenceFileOptions>,
+// }
+//
+// impl DifferenceOptions {
+//     pub fn exec(self) -> error::Result<DifferenceResult> {
+//         unsafe {
+//             let mut pool = apr::Pool::create();
+//
+//             let original = ffi::svn_string_ncreate(
+//                 self.original.as_ptr() as _,
+//                 self.original
+//                     .len()
+//                     .try_into()
+//                     .expect("Failed to convert size"),
+//                 pool.as_mut_ptr(),
+//             );
+//
+//             let modified = ffi::svn_string_ncreate(
+//                 self.modified.as_ptr() as _,
+//                 self.modified
+//                     .len()
+//                     .try_into()
+//                     .expect("Failed to convert size"),
+//                 pool.as_mut_ptr(),
+//             );
+//
+//             let mut diff = std::ptr::null_mut::<ffi::svn_diff_t>();
+//
+//             let file_options = if let Some(options) = self.options {
+//                 let file_options = ffi::svn_diff_file_options_create(pool.as_mut_ptr());
+//
+//                 options.setup(
+//                     file_options
+//                         .as_mut()
+//                         .expect("Failed to get mutable reference to file"),
+//                 );
+//                 file_options
+//             } else {
+//                 std::ptr::null_mut()
+//             };
+//
+//             // let options: ffi::svn_diff_file_options_t = options.options.into();
+//
+//             tracing::info!("{}:{}", file!(), line!());
+//             let error = ffi::svn_diff_mem_string_diff(
+//                 diff.pointer_mut(),
+//                 original,
+//                 modified,
+//                 file_options,
+//                 pool.as_mut_ptr(),
+//             );
+//             tracing::info!("{}:{}", file!(), line!());
+//
+//             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+//
+//             let mut functions = ffi::svn_diff_output_fns_t::default();
+//
+//             let mut modified: Vec<TextChange> = Vec::with_capacity(128);
+//
+//             unsafe extern "C" fn output_common(
+//                 output_baton: *mut ::std::os::raw::c_void,
+//                 original_start: ffi::apr_off_t,
+//                 original_length: ffi::apr_off_t,
+//                 modified_start: ffi::apr_off_t,
+//                 modified_length: ffi::apr_off_t,
+//                 latest_start: ffi::apr_off_t,
+//                 latest_length: ffi::apr_off_t,
+//             ) -> *mut ffi::svn_error_t {
+//                 // tracing::info!("output_common");
+//                 // tracing::info!("+==============");
+//                 // tracing::info!("original_start: {}", original_start);
+//                 // tracing::info!("original_length: {}", original_length);
+//                 // tracing::info!("modified_start: {}", modified_start);
+//                 // tracing::info!("modified_length: {}", modified_length);
+//                 // tracing::info!("latest_start: {}", latest_start);
+//                 // tracing::info!("latest_length: {}", latest_length);
+//                 // tracing::info!("-==============");
+//
+//                 svn_no_error()
+//             }
+//
+//             unsafe extern "C" fn output_diff_modified(
+//                 output_baton: *mut c_void,
+//                 original_start: ffi::apr_off_t,
+//                 original_length: ffi::apr_off_t,
+//                 modified_start: ffi::apr_off_t,
+//                 modified_length: ffi::apr_off_t,
+//                 latest_start: ffi::apr_off_t,
+//                 latest_length: ffi::apr_off_t,
+//             ) -> *mut ffi::svn_error_t {
+//                 // tracing::info!("output_diff_modified");
+//                 // tracing::info!("*==============");
+//                 // tracing::info!("original_start: {}", original_start);
+//                 // tracing::info!("original_length: {}", original_length);
+//                 // tracing::info!("modified_start: {}", modified_start);
+//                 // tracing::info!("modified_length: {}", modified_length);
+//                 // tracing::info!("latest_start: {}", latest_start);
+//                 // tracing::info!("latest_length: {}", latest_length);
+//                 // tracing::info!("/==============");
+//
+//                 unsafe {
+//                     let changes = output_baton as *mut Vec<TextChange>;
+//                     let changes = changes
+//                         .as_mut()
+//                         .expect("Failed to get mutable reference to changes");
+//
+//                     let original = TextPosition {
+//                         pos: original_start.try_into().unwrap_or_default(),
+//                         len: original_length.try_into().unwrap_or_default(),
+//                     };
+//
+//                     let modified = TextPosition {
+//                         pos: modified_start.try_into().unwrap_or_default(),
+//                         len: modified_length.try_into().unwrap_or_default(),
+//                     };
+//
+//                     let change = TextChange { original, modified };
+//
+//                     // let mut change = TextChange::default();
+//
+//                     // if original_length > 0 {
+//                     //     change.original = Some(TextPosition {
+//                     //         pos: original_start.try_into().unwrap(),
+//                     //         len: original_length.try_into().unwrap(),
+//                     //     });
+//                     // }
+//
+//                     // if modified_length > 0 {
+//                     //     change.modified = Some(TextPosition {
+//                     //         pos: modified_start.try_into().unwrap(),
+//                     //         len: modified_length.try_into().unwrap(),
+//                     //     });
+//                     // }
+//
+//                     changes.push(change);
+//                 }
+//
+//                 std::ptr::null_mut()
+//             }
+//
+//             unsafe extern "C" fn output_diff_common(
+//                 output_baton: *mut ::std::os::raw::c_void,
+//                 original_start: ffi::apr_off_t,
+//                 original_length: ffi::apr_off_t,
+//                 modified_start: ffi::apr_off_t,
+//                 modified_length: ffi::apr_off_t,
+//                 latest_start: ffi::apr_off_t,
+//                 latest_length: ffi::apr_off_t,
+//             ) -> *mut ffi::svn_error_t {
+//                 // tracing::info!("output_diff_common");
+//                 // tracing::info!("(==============");
+//                 // tracing::info!("original_start: {}", original_start);
+//                 // tracing::info!("original_length: {}", original_length);
+//                 // tracing::info!("modified_start: {}", modified_start);
+//                 // tracing::info!("modified_length: {}", modified_length);
+//                 // tracing::info!("latest_start: {}", latest_start);
+//                 // tracing::info!("latest_length: {}", latest_length);
+//                 // tracing::info!(")==============");
+//
+//                 svn_no_error()
+//             }
+//
+//             unsafe extern "C" fn output_diff_latest(
+//                 output_baton: *mut ::std::os::raw::c_void,
+//                 original_start: ffi::apr_off_t,
+//                 original_length: ffi::apr_off_t,
+//                 modified_start: ffi::apr_off_t,
+//                 modified_length: ffi::apr_off_t,
+//                 latest_start: ffi::apr_off_t,
+//                 latest_length: ffi::apr_off_t,
+//             ) -> *mut ffi::svn_error_t {
+//                 // tracing::info!("output_diff_latest");
+//                 // tracing::info!("[==============");
+//                 // tracing::info!("original_start: {}", original_start);
+//                 // tracing::info!("original_length: {}", original_length);
+//                 // tracing::info!("modified_start: {}", modified_start);
+//                 // tracing::info!("modified_length: {}", modified_length);
+//                 // tracing::info!("latest_start: {}", latest_start);
+//                 // tracing::info!("latest_length: {}", latest_length);
+//                 // tracing::info!("]==============");
+//
+//                 svn_no_error()
+//             }
+//
+//             functions.output_diff_common = Some(output_diff_common);
+//             functions.output_diff_modified = Some(output_diff_modified);
+//             functions.output_common = Some(output_common);
+//             functions.output_diff_latest = Some(output_diff_latest);
+//
+//             ffi::svn_diff_output2(
+//                 diff,
+//                 modified.pointer_mut() as *mut c_void,
+//                 functions.pointer(),
+//                 None,
+//                 std::ptr::null_mut::<std::ffi::c_void>(),
+//             );
+//
+//             Ok(DifferenceResult { modified })
+//         }
+//     }
+// }
+//
+// #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct TextPosition {
+//     #[ts(type = "number")]
+//     pub pos: u64,
+//     #[ts(type = "number")]
+//     pub len: u64,
+// }
+//
+// #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct TextChange {
+//     pub original: TextPosition,
+//     pub modified: TextPosition,
+// }
+//
+// #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct DifferenceResult {
+//     pub modified: Vec<TextChange>,
+// }
 
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct DifferenceOptions {
-    pub original: Vec<u8>,
-    pub modified: Vec<u8>,
-    pub options: Option<DifferenceFileOptions>,
-}
-
-impl DifferenceOptions {
-    pub fn exec(self) -> error::Result<DifferenceResult> {
-        unsafe {
-            let mut pool = apr::Pool::create();
-
-            let original = ffi::svn_string_ncreate(
-                self.original.as_ptr() as _,
-                self.original
-                    .len()
-                    .try_into()
-                    .expect("Failed to convert size"),
-                pool.as_mut_ptr(),
-            );
-
-            let modified = ffi::svn_string_ncreate(
-                self.modified.as_ptr() as _,
-                self.modified
-                    .len()
-                    .try_into()
-                    .expect("Failed to convert size"),
-                pool.as_mut_ptr(),
-            );
-
-            let mut diff = std::ptr::null_mut::<ffi::svn_diff_t>();
-
-            let file_options = if let Some(options) = self.options {
-                let file_options = ffi::svn_diff_file_options_create(pool.as_mut_ptr());
-
-                options.setup(
-                    file_options
-                        .as_mut()
-                        .expect("Failed to get mutable reference to file"),
-                );
-                file_options
-            } else {
-                std::ptr::null_mut()
-            };
-
-            // let options: ffi::svn_diff_file_options_t = options.options.into();
-
-            tracing::info!("{}:{}", file!(), line!());
-            let error = ffi::svn_diff_mem_string_diff(
-                diff.pointer_mut(),
-                original,
-                modified,
-                file_options,
-                pool.as_mut_ptr(),
-            );
-            tracing::info!("{}:{}", file!(), line!());
-
-            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
-
-            let mut functions = ffi::svn_diff_output_fns_t::default();
-
-            let mut modified: Vec<TextChange> = Vec::with_capacity(128);
-
-            unsafe extern "C" fn output_common(
-                output_baton: *mut ::std::os::raw::c_void,
-                original_start: ffi::apr_off_t,
-                original_length: ffi::apr_off_t,
-                modified_start: ffi::apr_off_t,
-                modified_length: ffi::apr_off_t,
-                latest_start: ffi::apr_off_t,
-                latest_length: ffi::apr_off_t,
-            ) -> *mut ffi::svn_error_t {
-                // tracing::info!("output_common");
-                // tracing::info!("+==============");
-                // tracing::info!("original_start: {}", original_start);
-                // tracing::info!("original_length: {}", original_length);
-                // tracing::info!("modified_start: {}", modified_start);
-                // tracing::info!("modified_length: {}", modified_length);
-                // tracing::info!("latest_start: {}", latest_start);
-                // tracing::info!("latest_length: {}", latest_length);
-                // tracing::info!("-==============");
-
-                svn_no_error()
-            }
-
-            unsafe extern "C" fn output_diff_modified(
-                output_baton: *mut c_void,
-                original_start: ffi::apr_off_t,
-                original_length: ffi::apr_off_t,
-                modified_start: ffi::apr_off_t,
-                modified_length: ffi::apr_off_t,
-                latest_start: ffi::apr_off_t,
-                latest_length: ffi::apr_off_t,
-            ) -> *mut ffi::svn_error_t {
-                // tracing::info!("output_diff_modified");
-                // tracing::info!("*==============");
-                // tracing::info!("original_start: {}", original_start);
-                // tracing::info!("original_length: {}", original_length);
-                // tracing::info!("modified_start: {}", modified_start);
-                // tracing::info!("modified_length: {}", modified_length);
-                // tracing::info!("latest_start: {}", latest_start);
-                // tracing::info!("latest_length: {}", latest_length);
-                // tracing::info!("/==============");
-
-                unsafe {
-                    let changes = output_baton as *mut Vec<TextChange>;
-                    let changes = changes
-                        .as_mut()
-                        .expect("Failed to get mutable reference to changes");
-
-                    let original = TextPosition {
-                        pos: original_start.try_into().unwrap_or_default(),
-                        len: original_length.try_into().unwrap_or_default(),
-                    };
-
-                    let modified = TextPosition {
-                        pos: modified_start.try_into().unwrap_or_default(),
-                        len: modified_length.try_into().unwrap_or_default(),
-                    };
-
-                    let change = TextChange { original, modified };
-
-                    // let mut change = TextChange::default();
-
-                    // if original_length > 0 {
-                    //     change.original = Some(TextPosition {
-                    //         pos: original_start.try_into().unwrap(),
-                    //         len: original_length.try_into().unwrap(),
-                    //     });
-                    // }
-
-                    // if modified_length > 0 {
-                    //     change.modified = Some(TextPosition {
-                    //         pos: modified_start.try_into().unwrap(),
-                    //         len: modified_length.try_into().unwrap(),
-                    //     });
-                    // }
-
-                    changes.push(change);
-                }
-
-                std::ptr::null_mut()
-            }
-
-            unsafe extern "C" fn output_diff_common(
-                output_baton: *mut ::std::os::raw::c_void,
-                original_start: ffi::apr_off_t,
-                original_length: ffi::apr_off_t,
-                modified_start: ffi::apr_off_t,
-                modified_length: ffi::apr_off_t,
-                latest_start: ffi::apr_off_t,
-                latest_length: ffi::apr_off_t,
-            ) -> *mut ffi::svn_error_t {
-                // tracing::info!("output_diff_common");
-                // tracing::info!("(==============");
-                // tracing::info!("original_start: {}", original_start);
-                // tracing::info!("original_length: {}", original_length);
-                // tracing::info!("modified_start: {}", modified_start);
-                // tracing::info!("modified_length: {}", modified_length);
-                // tracing::info!("latest_start: {}", latest_start);
-                // tracing::info!("latest_length: {}", latest_length);
-                // tracing::info!(")==============");
-
-                svn_no_error()
-            }
-
-            unsafe extern "C" fn output_diff_latest(
-                output_baton: *mut ::std::os::raw::c_void,
-                original_start: ffi::apr_off_t,
-                original_length: ffi::apr_off_t,
-                modified_start: ffi::apr_off_t,
-                modified_length: ffi::apr_off_t,
-                latest_start: ffi::apr_off_t,
-                latest_length: ffi::apr_off_t,
-            ) -> *mut ffi::svn_error_t {
-                // tracing::info!("output_diff_latest");
-                // tracing::info!("[==============");
-                // tracing::info!("original_start: {}", original_start);
-                // tracing::info!("original_length: {}", original_length);
-                // tracing::info!("modified_start: {}", modified_start);
-                // tracing::info!("modified_length: {}", modified_length);
-                // tracing::info!("latest_start: {}", latest_start);
-                // tracing::info!("latest_length: {}", latest_length);
-                // tracing::info!("]==============");
-
-                svn_no_error()
-            }
-
-            functions.output_diff_common = Some(output_diff_common);
-            functions.output_diff_modified = Some(output_diff_modified);
-            functions.output_common = Some(output_common);
-            functions.output_diff_latest = Some(output_diff_latest);
-
-            ffi::svn_diff_output2(
-                diff,
-                modified.pointer_mut() as *mut c_void,
-                functions.pointer(),
-                None,
-                std::ptr::null_mut::<std::ffi::c_void>(),
-            );
-
-            Ok(DifferenceResult { modified })
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct TextPosition {
-    #[ts(type = "number")]
-    pub pos: u64,
-    #[ts(type = "number")]
-    pub len: u64,
-}
-
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct TextChange {
-    pub original: TextPosition,
-    pub modified: TextPosition,
-}
-
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct DifferenceResult {
-    pub modified: Vec<TextChange>,
-}
-
-#[derive(Debug, new, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct GetRepositoryRootResult {
-    pub root_url: String,
-    pub uuid: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct InitializeRepositoryOptions {
-    pub local: String,
-    pub remote: String,
-    pub backup_directory: Option<String>,
-    pub commit_message: String,
-    pub ignore_unknown_node_types: bool,
-    pub no_ignore: bool,
-    pub no_autoprops: bool,
-    pub filters: Option<Vec<String>>,
-}
-
-pub trait InitializeRepositoryNotifier: Send + Sync + 'static {
-    fn on_checkout_directly(&self) -> error::Result<()>;
-    fn on_import(&self) -> error::Result<()>;
-    fn on_backup(&self) -> error::Result<()>;
-    fn on_backup_finished(&self, path: String) -> error::Result<()>;
-    fn on_checkout(&self) -> error::Result<()>;
-    fn on_finished(&self) -> error::Result<()>;
-}
+// #[derive(Debug, new, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct GetRepositoryRootResult {
+//     pub root_url: String,
+//     pub uuid: String,
+// }
+//
+// #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct InitializeRepositoryOptions {
+//     pub local: String,
+//     pub remote: String,
+//     pub backup_directory: Option<String>,
+//     pub commit_message: String,
+//     pub ignore_unknown_node_types: bool,
+//     pub no_ignore: bool,
+//     pub no_autoprops: bool,
+//     pub filters: Option<Vec<String>>,
+// }
+//
+// pub trait InitializeRepositoryNotifier: Send + Sync + 'static {
+//     fn on_checkout_directly(&self) -> error::Result<()>;
+//     fn on_import(&self) -> error::Result<()>;
+//     fn on_backup(&self) -> error::Result<()>;
+//     fn on_backup_finished(&self, path: String) -> error::Result<()>;
+//     fn on_checkout(&self) -> error::Result<()>;
+//     fn on_finished(&self) -> error::Result<()>;
+// }
 
 impl Context {
     pub fn ctx(&mut self) -> *mut ffi::svn_client_ctx_t {
         self.ptr
     }
 
-    fn cancelled(&mut self) -> error::Result<()> {
-        let msg = self.inner.context_notifier.cancel().map_err(|e| {
-            builder::General {
-                detail: format!("Unexpected error: {}", e),
-            }
-            .build()
-        })?;
-        if let Some(msg) = msg {
-            builder::General {
-                detail: format!("Cancelled: {}", msg),
-            }
-            .fail()
-        } else {
-            Ok(())
-        }
-    }
+    // fn cancelled(&mut self) -> error::Result<()> {
+    //     let msg = self.inner.context_notifier.cancel().map_err(|e| {
+    //         builder::General {
+    //             detail: format!("Unexpected error: {}", e),
+    //         }
+    //         .build()
+    //     })?;
+    //     if let Some(msg) = msg {
+    //         builder::General {
+    //             detail: format!("Cancelled: {}", msg),
+    //         }
+    //         .fail()
+    //     } else {
+    //         Ok(())
+    //     }
+    // }
 
     //     pub fn initialize_repository(
     //         &mut self,
@@ -1785,44 +1763,44 @@ impl Context {
         }
     }
 
-    pub fn get_repository_root(
-        &mut self,
-        target: String,
-    ) -> error::Result<GetRepositoryRootResult> {
-        unsafe {
-            let mut pool = apr::Pool::create();
-            let target = pool.canonicalize_target(&target)?;
-
-            let mut absolute_path: *const c_char = std::ptr::null();
-
-            let error = ffi::svn_dirent_get_absolute(
-                absolute_path.pointer_mut(),
-                target,
-                pool.as_mut_ptr(),
-            );
-            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
-
-            let mut root_url: *const c_char = std::ptr::null_mut();
-            let mut uuid: *const c_char = std::ptr::null_mut();
-
-            let error = ffi::svn_client_get_repos_root(
-                root_url.pointer_mut(),
-                uuid.pointer_mut(),
-                absolute_path,
-                self.ctx(),
-                pool.as_mut_ptr(),
-                pool.as_mut_ptr(),
-            );
-
-            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
-
-            let root_url = root_url.to_str().to_string();
-
-            let uuid = uuid.to_str().to_string();
-
-            Ok(GetRepositoryRootResult { root_url, uuid })
-        }
-    }
+    //     pub fn get_repository_root(
+    //         &mut self,
+    //         target: String,
+    //     ) -> error::Result<GetRepositoryRootResult> {
+    //         unsafe {
+    //             let mut pool = apr::Pool::create();
+    //             let target = pool.canonicalize_target(&target)?;
+    //
+    //             let mut absolute_path: *const c_char = std::ptr::null();
+    //
+    //             let error = ffi::svn_dirent_get_absolute(
+    //                 absolute_path.pointer_mut(),
+    //                 target,
+    //                 pool.as_mut_ptr(),
+    //             );
+    //             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+    //
+    //             let mut root_url: *const c_char = std::ptr::null_mut();
+    //             let mut uuid: *const c_char = std::ptr::null_mut();
+    //
+    //             let error = ffi::svn_client_get_repos_root(
+    //                 root_url.pointer_mut(),
+    //                 uuid.pointer_mut(),
+    //                 absolute_path,
+    //                 self.ctx(),
+    //                 pool.as_mut_ptr(),
+    //                 pool.as_mut_ptr(),
+    //             );
+    //
+    //             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+    //
+    //             let root_url = root_url.to_str().to_string();
+    //
+    //             let uuid = uuid.to_str().to_string();
+    //
+    //             Ok(GetRepositoryRootResult { root_url, uuid })
+    //         }
+    //     }
 
     pub fn open_repository_access_session(
         &mut self,
@@ -1874,6 +1852,7 @@ impl Context {
         }
     }
 
+    #[tracing::instrument]
     fn create(opts: CreateContextOptions) -> error::Result<Self> {
         unsafe extern "C" fn conflict(
             result: *mut *mut ffi::svn_wc_conflict_result_t,
@@ -2005,6 +1984,51 @@ impl Context {
             );
 
             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+
+            // set proxy
+
+            if let Some(proxies) = opts.config.proxies {
+                if let Some(http) = proxies.http {
+                    let config = apr::ffi::apr_hash_get(
+                        hash,
+                        ffi::SVN_CONFIG_CATEGORY_SERVERS.as_ptr() as *const i8 as *const c_void,
+                        ffi::APR_HASH_KEY_STRING
+                            .try_into()
+                            .expect("Failed to convert value"),
+                    ) as *mut ffi::svn_config_t;
+
+                    ffi::svn_config_set(
+                        config,
+                        ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+                        ffi::SVN_CONFIG_OPTION_HTTP_PROXY_HOST.as_ptr() as _,
+                        pool.string(http.host)?,
+                    );
+
+                    ffi::svn_config_set(
+                        config,
+                        ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+                        ffi::SVN_CONFIG_OPTION_HTTP_PROXY_PORT.as_ptr() as _,
+                        pool.string(http.port.to_string())?,
+                    );
+
+                    if let Some(username) = http.username {
+                        ffi::svn_config_set(
+                            config,
+                            ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+                            ffi::SVN_CONFIG_OPTION_HTTP_PROXY_USERNAME.as_ptr() as _,
+                            pool.string(username)?,
+                        );
+                    }
+                    if let Some(password) = http.password {
+                        ffi::svn_config_set(
+                            config,
+                            ffi::SVN_CONFIG_SECTION_GLOBAL.as_ptr() as _,
+                            ffi::SVN_CONFIG_OPTION_HTTP_PROXY_PASSWORD.as_ptr() as _,
+                            pool.string(password)?,
+                        );
+                    }
+                }
+            }
 
             ffi::svn_auth_get_simple_provider2(
                 &mut provider as *mut _,
@@ -2223,6 +2247,12 @@ impl Context {
 
             if let Some(ref name) = opts.name {
                 ctx.client_name = pool.string(name)?;
+            } else {
+                ctx.client_name = pool.string(format!(
+                    "{}_{}",
+                    env!("CARGO_PKG_NAME"),
+                    env!("CARGO_PKG_VERSION")
+                ))?;
             }
             Ok(Self {
                 ptr: context,

@@ -12,6 +12,7 @@ import { ClientDifferenceOptions } from '@/bindings/ClientDifferenceOptions'
 import { ClientDifferenceResult } from '@/bindings/ClientDifferenceResult'
 import { CommitOptions } from '@/bindings/CommitOptions'
 import { CommitResult } from '@/bindings/CommitResult'
+import { Config } from '@/bindings/Config'
 import { ConflictWalkOptions } from '@/bindings/ConflictWalkOptions'
 import { ConflictWalkResult } from '@/bindings/ConflictWalkResult'
 import { CopyOptions } from '@/bindings/CopyOptions'
@@ -19,6 +20,7 @@ import { CopyResult } from '@/bindings/CopyResult'
 import { DeleteOptions } from '@/bindings/DeleteOptions'
 import { DeleteResult } from '@/bindings/DeleteResult'
 import { ExportOptions } from '@/bindings/ExportOptions'
+import { ImportFilterEvent } from '@/bindings/ImportFilterEvent'
 import { ImportOptions } from '@/bindings/ImportOptions'
 import { ImportResult } from '@/bindings/ImportResult'
 import { InfoOptions } from '@/bindings/InfoOptions'
@@ -40,11 +42,13 @@ import { PropertyGetResult } from '@/bindings/PropertyGetResult'
 import { PropertyListOptions } from '@/bindings/PropertyListOptions'
 import { PropertyListResult } from '@/bindings/PropertyListResult'
 import { PropertySetOptions } from '@/bindings/PropertySetOptions'
+import { Proxies } from '@/bindings/Proxies'
 import { RelocateOptions } from '@/bindings/RelocateOptions'
 import { RevertOptions } from '@/bindings/RevertOptions'
 import { Revision } from '@/bindings/Revision'
 import { RevisionPropertyListOptions } from '@/bindings/RevisionPropertyListOptions'
 import { RevisionPropertyListResult } from '@/bindings/RevisionPropertyListResult'
+import { Settings } from '@/bindings/Settings'
 import { StatusOptions } from '@/bindings/StatusOptions'
 import { StatusResult } from '@/bindings/StatusResult'
 import { SubversionEvent } from '@/bindings/SubversionEvent'
@@ -61,7 +65,6 @@ import { WorkingCopyRevisionStatusResult } from '@/bindings/WorkingCopyRevisionS
 import errorHumanString from '@/utils/Error'
 import Logger from '@/utils/Logger'
 import { MessagePackChannel, invokeMessagePack } from '@/utils/MessagePack'
-import { ImportFilterEvent } from '@/bindings/ImportFilterEvent'
 
 export type SubversionEventMap = {
   [K in SubversionEvent as keyof K]: K[keyof K]
@@ -85,11 +88,19 @@ export class Subversion {
     return this._id
   }
 
-  static async create(): Promise<Subversion> {
+  static async create(
+    name?: string,
+    defaultUsername?: string,
+    defaultPassword?: string,
+    config?: Config,
+  ): Promise<Subversion> {
     const channel = new MessagePackChannel<SubversionEvent>()
     const id = await invokeMessagePack<number>('subversion_create', {
+      name,
+      defaultUsername,
+      defaultPassword,
       channel: channel,
-      config: {},
+      config: config ?? {},
     })
     return new Subversion(id, channel)
   }
@@ -244,7 +255,10 @@ export class Subversion {
     })
   }
 
-  public importFilter(options: ImportOptions, filter: MessagePackChannel<ImportFilterEvent>): Promise<ImportResult> {
+  public importFilter(
+    options: ImportOptions,
+    filter: MessagePackChannel<ImportFilterEvent>,
+  ): Promise<ImportResult> {
     return invokeMessagePack('subversion_import_filter', {
       id: this.id,
       options,
@@ -486,13 +500,74 @@ export class Subversion {
   // }
 }
 
+/** 建 context 时会把默认账号和代理一起烤进后端，这些字段一变就得重建 context */
+function settingsSignature(settings: Settings): string {
+  return JSON.stringify([
+    settings.defaultUsername,
+    settings.defaultPassword,
+    settings.proxyEnabled,
+    settings.proxyType,
+    settings.proxyHost,
+    settings.proxyPort,
+    settings.proxyUsername,
+    settings.proxyPassword,
+  ])
+}
+
 export function createTransientSubversion(
   onCreated?: (subversion: Subversion) => void,
+  onCreating?: () => Settings,
 ): SubversionFactory {
   let created: Subversion[] = []
   return {
     async context() {
-      const subversion = await Subversion.create()
+      let subversion
+      if (onCreating) {
+        const settings = onCreating()
+        const defaultUsername =
+          settings.defaultUsername === '' ? undefined : settings.defaultUsername
+        const defaultPassword =
+          settings.defaultPassword === '' ? undefined : settings.defaultPassword
+        let proxies: Proxies = {
+          http: null,
+          https: null,
+          socks: null,
+        }
+
+        if (settings.proxyEnabled) {
+          switch (settings.proxyType) {
+            case 'http':
+              proxies.http = {
+                host: settings.proxyHost,
+                port: settings.proxyPort ?? 80,
+                username: settings.proxyUsername,
+                password: settings.proxyPassword,
+              }
+              break
+            case 'https':
+              proxies.https = {
+                host: settings.proxyHost,
+                port: settings.proxyPort ?? 443,
+                username: settings.proxyUsername,
+                password: settings.proxyPassword,
+              }
+              break
+            case 'socks':
+              proxies.socks = {
+                host: settings.proxyHost,
+                port: settings.proxyPort ?? 1080,
+                username: settings.proxyUsername,
+                password: settings.proxyPassword,
+              }
+              break
+          }
+        }
+        subversion = await Subversion.create(undefined, defaultUsername, defaultPassword, {
+          proxies,
+        })
+      } else {
+        subversion = await Subversion.create()
+      }
       created.push(subversion)
       onCreated?.(subversion)
       return subversion
@@ -512,12 +587,82 @@ export function createTransientSubversion(
 
 export function createSingletonSubversion(
   onCreated?: (subversion: Subversion) => void,
+  onCreating?: () => Settings,
 ): SubversionFactory {
   let subversion: null | Promise<Subversion> | Subversion = null
+  // 建当前这个 context 时用的凭据签名；设置里的账号或代理一变就要重建，否则会一直用旧的
+  let signature: string | null = null
+
+  const discard = () => {
+    if (subversion instanceof Promise) {
+      subversion
+        .then((s) => s.destroy())
+        .catch((err) => {
+          console.warn('Failed to release singleton subversion:', err)
+        })
+    } else if (subversion instanceof Subversion) {
+      subversion.destroy()
+    }
+    subversion = null
+    signature = null
+  }
+
   return {
     async context() {
+      if (onCreating && subversion !== null && signature !== settingsSignature(onCreating())) {
+        // 凭据或代理变了：先丢掉旧 context（连后端缓存的认证信息一起），下面按新设置重建
+        discard()
+      }
+
       if (subversion === null) {
-        subversion = Subversion.create()
+        if (onCreating) {
+          const settings = onCreating()
+          signature = settingsSignature(settings)
+          const defaultUsername =
+            settings.defaultUsername === '' ? undefined : settings.defaultUsername
+          const defaultPassword =
+            settings.defaultPassword === '' ? undefined : settings.defaultPassword
+          let proxies: Proxies = {
+            http: null,
+            https: null,
+            socks: null,
+          }
+
+          if (settings.proxyEnabled) {
+            switch (settings.proxyType) {
+              case 'http':
+                proxies.http = {
+                  host: settings.proxyHost,
+                  port: settings.proxyPort ?? 80,
+                  username: settings.proxyUsername,
+                  password: settings.proxyPassword,
+                }
+                break
+              case 'https':
+                proxies.https = {
+                  host: settings.proxyHost,
+                  port: settings.proxyPort ?? 443,
+                  username: settings.proxyUsername,
+                  password: settings.proxyPassword,
+                }
+                break
+              case 'socks':
+                proxies.socks = {
+                  host: settings.proxyHost,
+                  port: settings.proxyPort ?? 1080,
+                  username: settings.proxyUsername,
+                  password: settings.proxyPassword,
+                }
+                break
+            }
+          }
+          subversion = Subversion.create(undefined, defaultUsername, defaultPassword, {
+            proxies,
+          })
+        } else {
+          subversion = Subversion.create()
+        }
+
         subversion = await subversion
         onCreated?.(subversion)
         return subversion
@@ -537,23 +682,7 @@ export function createSingletonSubversion(
     },
     release() {},
     releaseAll() {
-      if (subversion === null) {
-        return
-      }
-      if (subversion instanceof Promise) {
-        subversion
-          .then((s) => {
-            s.destroy()
-            subversion = null
-          })
-          .catch((err) => {
-            console.warn('Failed to release singleton subversion:', err)
-            subversion = null
-          })
-      } else {
-        subversion.destroy()
-        subversion = null
-      }
+      discard()
     },
   }
 }

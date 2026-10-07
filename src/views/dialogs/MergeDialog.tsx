@@ -23,6 +23,7 @@ import { ScrollArea } from '@/components/ScrollArea'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import RevisionSelect from '@/components/subversion/RevisionSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -150,6 +151,7 @@ function mergeSourcePeg<T>(
 }
 
 export default function MergeDialog(props: MergeDialogProps) {
+  const t = useT()
   const [target, setTarget] = useState(props.defaultTarget ?? '')
   const [depth, setDepth] = useState<Depth>('infinity')
   const [ignoreMergeInfo, setIgnoreMergeInfo] = useState(false)
@@ -236,7 +238,7 @@ export default function MergeDialog(props: MergeDialogProps) {
   const onOk = () => {
     if (target === '') {
       Toast.error({
-        content: 'Target must not be empty',
+        content: t('shared.error.targetRequired'),
         stack: false,
       })
       return
@@ -280,7 +282,7 @@ export default function MergeDialog(props: MergeDialogProps) {
           async call(context) {
             await context.merge(options)
             Toast.success({
-              content: 'Merge successfully',
+              content: t('shared.success.merge'),
               stack: true,
             })
             loadingDialog.current?.close()
@@ -299,7 +301,7 @@ export default function MergeDialog(props: MergeDialogProps) {
 
   return (
     <Dialog
-      title="Merge"
+      title={t('shared.action.merge')}
       size="medium"
       afterClose={props.afterClose}
       onOk={onOk}
@@ -319,12 +321,10 @@ export default function MergeDialog(props: MergeDialogProps) {
           `,
         )}
       >
-        <Typography.Text type="tertiary">
-          将仓库中的变更应用到目标工作副本：先选择合并方式，再指定变更来源与合并目标。
-        </Typography.Text>
+        <Typography.Text type="tertiary">{t('merge.description')}</Typography.Text>
 
         <div className={cx(flex, flex_col, gap_y_1)}>
-          <span className={section_title}>合并方式</span>
+          <span className={section_title}>{t('merge.mode.title')}</span>
           <RadioGroup
             value={sourceKind}
             onChange={(e) => setSourceKind(e.target.value as SourceKind)}
@@ -332,40 +332,33 @@ export default function MergeDialog(props: MergeDialogProps) {
           >
             <Radio value="range" className={mode_radio}>
               <span className={cx(flex, flex_col, gap_y_1)}>
-                <span>Merge a range of revisions</span>
-                <span className={hint}>
-                  将来源分支在指定版本范围内的变更应用到目标，是最常用的合并方式。
-                </span>
+                <span>{t('advancedDialogs.merge.modeRange')}</span>
+                <span className={hint}>{t('merge.mode.rangeHint')}</span>
               </span>
             </Radio>
             <Radio value="trees" className={mode_radio}>
               <span className={cx(flex, flex_col, gap_y_1)}>
-                <span>Merge two different trees</span>
-                <span className={hint}>
-                  比较两个来源的差异，并把差异应用到目标，常用于分支同步或反向合并。
-                </span>
+                <span>{t('advancedDialogs.merge.modeTrees')}</span>
+                <span className={hint}>{t('merge.mode.treesHint')}</span>
               </span>
             </Radio>
           </RadioGroup>
         </div>
 
         <div className={cx(flex, flex_col, gap_y_2)}>
-          <span className={section_title}>合并来源</span>
+          <span className={section_title}>{t('merge.source.title')}</span>
           {sourceKind === 'range' ? (
             <div className={cx(flex, flex_col, gap_y_2)}>
-              <DialogFormItem title="Source:">
+              <DialogFormItem title={t('shared.field.source')}>
                 <PureInput
                   autoFocus
                   value={source}
                   onChange={setSource}
-                  placeholder="仓库 URL 或本地路径"
+                  placeholder={t('merge.source.placeholder')}
                 />
               </DialogFormItem>
               <div className={cx(flex, flex_col, box_shadow, p_2, border_box, border_radius_5)}>
-                <DialogFormItem
-                  title="Peg (可选，来源路径曾改名时才需要):"
-                  wrapperClassName={cx(flex)}
-                >
+                <DialogFormItem title={t('merge.source.pegTitle')} wrapperClassName={cx(flex)}>
                   <RevisionSelect
                     className={cx(flex_1)}
                     disableLayout
@@ -380,7 +373,7 @@ export default function MergeDialog(props: MergeDialogProps) {
                     return (
                       <div key={index} className={cx(flex, gap_x_2)}>
                         <DialogFormItem
-                          title="Start:"
+                          title={t('shared.field.start')}
                           className={cx(flex_1)}
                           wrapperClassName={cx(flex)}
                         >
@@ -396,7 +389,7 @@ export default function MergeDialog(props: MergeDialogProps) {
                           />
                         </DialogFormItem>
                         <DialogFormItem
-                          title="End:"
+                          title={t('shared.field.end')}
                           className={cx(flex_1)}
                           wrapperClassName={cx(flex)}
                         >
@@ -432,25 +425,25 @@ export default function MergeDialog(props: MergeDialogProps) {
                     }}
                     icon={<IconPlus />}
                   >
-                    Add range
+                    {t('shared.option.addRange')}
                   </Button>
                 </div>
               </div>
-              <span className={hint}>起始版本之后、直到结束版本的变更将被合并到目标。</span>
+              <span className={hint}>{t('merge.source.rangeHint')}</span>
             </div>
           ) : (
             <div className={cx(flex, flex_col, gap_y_2)}>
               <div className={cx(flex, gap_x_2)}>
                 <div className={cx(flex_1, flex, flex_col, gap_y_1)}>
-                  <DialogFormItem title="Source 1 (比较基准):">
+                  <DialogFormItem title={t('merge.source.source1Title')}>
                     <PureInput
                       autoFocus
                       value={source1}
                       onChange={setSource1}
-                      placeholder="较旧树的 URL 或路径"
+                      placeholder={t('merge.source.olderTreePlaceholder')}
                     />
                   </DialogFormItem>
-                  <DialogFormItem title="Revision 1:" wrapperClassName={cx(flex)}>
+                  <DialogFormItem title={t('shared.field.revision1')} wrapperClassName={cx(flex)}>
                     <RevisionSelect
                       className={cx(flex_1)}
                       kinds={['head', 'number', 'date']}
@@ -460,14 +453,14 @@ export default function MergeDialog(props: MergeDialogProps) {
                   </DialogFormItem>
                 </div>
                 <div className={cx(flex_1, flex, flex_col, gap_y_1)}>
-                  <DialogFormItem title="Source 2 (比较目标):">
+                  <DialogFormItem title={t('merge.source.source2Title')}>
                     <PureInput
                       value={source2}
                       onChange={setSource2}
-                      placeholder="较新树的 URL 或路径"
+                      placeholder={t('merge.source.newerTreePlaceholder')}
                     />
                   </DialogFormItem>
-                  <DialogFormItem title="Revision 2:" wrapperClassName={cx(flex)}>
+                  <DialogFormItem title={t('shared.field.revision2')} wrapperClassName={cx(flex)}>
                     <RevisionSelect
                       className={cx(flex_1)}
                       kinds={['head', 'number', 'date']}
@@ -477,57 +470,57 @@ export default function MergeDialog(props: MergeDialogProps) {
                   </DialogFormItem>
                 </div>
               </div>
-              <span className={hint}>Source 1 到 Source 2 之间的差异将被应用到目标。</span>
+              <span className={hint}>{t('merge.source.treesHint')}</span>
             </div>
           )}
         </div>
 
         <div className={cx(flex, flex_col, gap_y_2)}>
-          <span className={section_title}>合并目标</span>
-          <DialogFormItem title="Target (接受合并的工作副本):">
+          <span className={section_title}>{t('merge.target.title')}</span>
+          <DialogFormItem title={t('merge.target.pathTitle')}>
             <PathInput value={target} onSelected={setTarget} onChange={setTarget} />
           </DialogFormItem>
-          <DialogFormItem title="Depth:" wrapperClassName={cx(flex)}>
+          <DialogFormItem title={t('shared.field.depth')} wrapperClassName={cx(flex)}>
             <DepthSelect className={cx(flex_1)} onChange={setDepth} value={depth} />
           </DialogFormItem>
         </div>
 
         <Collapse>
-          <Collapse.Panel header="高级选项" itemKey="advanced">
+          <Collapse.Panel header={t('merge.advanced.title')} itemKey="advanced">
             <div className={cx(grid, grid_cols_1fr_1fr, gap_x_2, gap_y_2)}>
               <OptionCheckbox
-                label="Ignore Merge Info"
-                description="忽略已合并记录，允许重复合并相同变更"
+                label={t('shared.option.ignoreMergeInfo')}
+                description={t('merge.advanced.ignoreMergeInfoHint')}
                 checked={ignoreMergeInfo}
                 onChange={setIgnoreMergeInfo}
               />
               <OptionCheckbox
-                label="Ignore Ancestry"
-                description="忽略血缘关系，仅按内容差异比较"
+                label={t('shared.option.ignoreAncestry')}
+                description={t('merge.advanced.ignoreAncestryHint')}
                 checked={ignoreAncestry}
                 onChange={setIgnoreAncestry}
               />
               <OptionCheckbox
-                label="Force Delete"
-                description="合并时强制删除存在本地修改的文件"
+                label={t('shared.option.forceDelete')}
+                description={t('merge.advanced.forceDeleteHint')}
                 checked={forceDelete}
                 onChange={setForceDelete}
               />
               <OptionCheckbox
-                label="Record Only"
-                description="仅记录合并信息，不修改工作副本内容"
+                label={t('shared.option.recordOnly')}
+                description={t('merge.advanced.recordOnlyHint')}
                 checked={recordOnly}
                 onChange={setRecordOnly}
               />
               <OptionCheckbox
-                label="Dry Run"
-                description="试运行，只预览将产生的变更而不实际修改"
+                label={t('shared.option.dryRun')}
+                description={t('merge.advanced.dryRunHint')}
                 checked={dryRun}
                 onChange={setDryRun}
               />
               <OptionCheckbox
-                label="Allow Mixed Revision"
-                description="允许工作副本处于混合版本时操作"
+                label={t('shared.option.allowMixedRevision')}
+                description={t('merge.advanced.allowMixedRevisionHint')}
                 checked={allowMixedRevision}
                 onChange={setAllowMixedRevision}
               />

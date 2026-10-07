@@ -28,6 +28,7 @@ import StrongEditor, { StrongEditorRef } from '@/components/StrongEditor'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
 import { base64Encode } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import {
   flex_1,
   min_w_0,
@@ -137,6 +138,7 @@ const svg = css`
 
 export function SnapshotView(props: SnapshotViewProps) {
   // Logger.info("Snap shot view:", props.url)
+  const t = useT()
   const subversion = useSubversion()
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const editor = useRef<StrongEditorRef | null>(null)
@@ -405,10 +407,10 @@ export function SnapshotView(props: SnapshotViewProps) {
                   if (item.getItemData().kind === 'file') {
                     menu.push({
                       item: {
-                        content: 'Save',
+                        content: t('shared.action.save'),
                         onSelect: async () => {
                           const result = await save({
-                            title: '保存文件',
+                            title: t('workspace.snapshot.saveFileTitle'),
                             defaultPath: item.getItemData().path,
                             canCreateDirectories: true,
                           })
@@ -428,13 +430,16 @@ export function SnapshotView(props: SnapshotViewProps) {
 
                                 await writeFile(result, content.content)
                                 Toast.success({
-                                  content: `Save ${result} successfully`,
+                                  content: t('changes.snapshot.saveSuccess', { path: result }),
                                   stack: true,
                                 })
                               },
                               onError: (e) => {
                                 Toast.error({
-                                  content: `Save ${result} failed: ${e}`,
+                                  content: t('changes.snapshot.saveFailed', {
+                                    path: result,
+                                    error: String(e),
+                                  }),
                                   stack: true,
                                 })
                               },
@@ -446,7 +451,7 @@ export function SnapshotView(props: SnapshotViewProps) {
                     })
                     menu.push({
                       item: {
-                        content: 'File history',
+                        content: t('shared.action.fileHistory'),
                         onSelect: async () => {
                           Logger.info('open file history: ', props.revision)
                           try {

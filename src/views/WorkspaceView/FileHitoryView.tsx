@@ -740,7 +740,7 @@ export default function FileHistoryView(props: FileHistoryViewProps) {
 
   const getSelectedPath = () => {
     if (typeof selectedRevision === 'number') {
-      const path = paths.get(selectedRevision);
+      const path = paths.get(selectedRevision)
       if (typeof path === 'string') {
         return path
       }
@@ -749,7 +749,6 @@ export default function FileHistoryView(props: FileHistoryViewProps) {
   }
 
   const selectedPath = getSelectedPath()
-
 
   const title = selectedPath !== undefined ? `^${selectedPath}:r${selectedRevision}` : ' '
 
@@ -803,9 +802,7 @@ export default function FileHistoryView(props: FileHistoryViewProps) {
         </Panel>
         <Separator style={{ width: 4 }} />
         <Panel className={cx(flex, flex_col)}>
-          <span className={cx(text_center, overflow_hidden)}>
-            {title}
-          </span>
+          <span className={cx(text_center, overflow_hidden)}>{title}</span>
           <StrongDifferenceEditor
             ref={editor}
             currentKey={selectedEntry?.revision?.toString()}

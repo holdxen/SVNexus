@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Depth } from '@/bindings/Depth'
 import { RevertOptions } from '@/bindings/RevertOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   flex,
@@ -50,6 +51,7 @@ export interface RevertDialogProps {
 }
 
 export default function RevertDialog(props: RevertDialogProps) {
+  const t = useT()
   const [addedKeepLocal, setAddedKeepLocal] = useState(true)
   const [clearChangelists, setCleaChangelists] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
@@ -98,7 +100,7 @@ export default function RevertDialog(props: RevertDialogProps) {
   return (
     <Dialog
       afterClose={props.afterClose}
-      title={'Revert'}
+      title={t('shared.action.revert')}
       visible={props.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -131,25 +133,25 @@ export default function RevertDialog(props: RevertDialogProps) {
           </div>
         </Card>
         {/*<Text strong style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>Items:</Text>*/}
-        <div style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>Depth:</div>
+        <div style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>{t('shared.field.depth')}</div>
         <DepthSelect value={depth} onChange={(value) => setDepth(value)}></DepthSelect>
         <Checkbox
           checked={clearChangelists}
           onChange={(e) => setCleaChangelists(e.target.checked ?? false)}
         >
-          Clear Change lists
+          {t('shared.option.clearChangelists')}
         </Checkbox>
         <Checkbox
           checked={metadataOnly}
           onChange={(e) => setMetadataOnly(e.target.checked ?? false)}
         >
-          No ignore
+          {t('shared.option.noIgnore')}
         </Checkbox>
         <Checkbox
           checked={addedKeepLocal}
           onChange={(e) => setAddedKeepLocal(e.target.checked ?? false)}
         >
-          Keep local
+          {t('shared.option.keepLocal')}
         </Checkbox>
       </div>
     </Dialog>

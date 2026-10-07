@@ -1,6 +1,8 @@
 import type { DiffEditorProps, EditorProps } from '@monaco-editor/react'
 import { Suspense, lazy } from 'react'
 
+import { useTheme } from '@/context/Theme'
+
 import { setupMonaco } from './setup'
 
 /**
@@ -28,17 +30,19 @@ function EditorFallback({ className }: { className?: string }) {
 }
 
 export function LazyEditor(props: EditorProps) {
+  const resolved = useTheme((state) => state.resolved)
   return (
     <Suspense fallback={<EditorFallback className={props.className} />}>
-      <Editor {...props} />
+      <Editor {...props} theme={resolved === 'dark' ? 'vs-dark' : 'vs'} />
     </Suspense>
   )
 }
 
 export function LazyDiffEditor(props: DiffEditorProps) {
+  const resolved = useTheme((state) => state.resolved)
   return (
     <Suspense fallback={<EditorFallback className={props.className} />}>
-      <DiffEditor {...props} />
+      <DiffEditor {...props} theme={resolved === 'dark' ? 'vs-dark' : 'vs'} />
     </Suspense>
   )
 }

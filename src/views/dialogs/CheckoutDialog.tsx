@@ -15,6 +15,7 @@ import RevisionSelect, { RevisionKind } from '@/components/subversion/RevisionSe
 import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subversion'
 import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
+import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import { cursor_pointer, flex, flex_1, flex_col, gap_y_3, min_h_0 } from '@/styles/Classes'
 import { disable_move } from '@/styles/Components'
@@ -63,6 +64,7 @@ const button = css`
 // `
 
 function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
+  const t = useT()
   const subversion = useSubversion()
   const modal = useCurrentModal()
 
@@ -111,7 +113,7 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
         },
         onError: (error) => {
           Toast.error({
-            content: `Failed to checkout: ${errorHumanString(error)}`,
+            content: t('svnDialogs.checkout.failed', { error: errorHumanString(error) }),
             stack: true,
           })
           setHasError(true)
@@ -178,9 +180,12 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
   // }))
 
   const descriptions = [
-    { key: 'Url', value: options.url },
-    { key: 'Path', value: options.path },
-    { key: 'Revision', value: revision?.toString() ?? null },
+    { key: t('svnDialogs.checkout.descriptionUrl'), value: options.url },
+    { key: t('svnDialogs.checkout.descriptionPath'), value: options.path },
+    {
+      key: t('svnDialogs.checkout.descriptionRevision'),
+      value: revision?.toString() ?? null,
+    },
   ]
 
   // const close = () => {
@@ -221,7 +226,7 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
           modal.hide()
         }}
       >
-        打开
+        {t('shared.action.open')}
       </Button>
     ) : (
       <></>
@@ -247,7 +252,7 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
       maskClosable={false}
       closable={false}
       size="medium"
-      title={'Checkout...'}
+      title={t('svnDialogs.checkout.progressTitle')}
       visible={modal.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -256,13 +261,13 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
         <Card>
           <Descriptions size="medium" data={descriptions}></Descriptions>
         </Card>
-        <DialogFormItem title={'Progress:'}>
+        <DialogFormItem title={t('shared.field.progress')}>
           <div className={cx(flex_1, flex_col)}>
-            <div>{`Current: ${current}`}</div>
+            <div>{t('svnDialogs.checkout.current', { name: current })}</div>
             <div className={cx(flex)}>
-              <div>{`Percentage:${percent}%`}</div>
+              <div>{t('svnDialogs.checkout.percentage', { percent })}</div>
               <div className={cx(flex_1)}></div>
-              <div>{`${pos < 0 ? 'unknown' : String(pos)}/${total < 0 ? 'unknown' : String(total)}`}</div>
+              <div>{`${pos < 0 ? t('svnDialogs.checkout.unknown') : String(pos)}/${total < 0 ? t('svnDialogs.checkout.unknown') : String(total)}`}</div>
             </div>
             <Progress indeterminate={isIndeterminate} percent={percent} size="large" />
           </div>
@@ -304,6 +309,7 @@ export interface CheckoutDialogProps {
 }
 
 export default function CheckoutDialog(props: CheckoutDialogProps) {
+  const t = useT()
   const revisionKinds: RevisionKind[] = ['head', 'number', 'date']
 
   const [pegRevision, setPegRevision] = useState<Revision>('unspecified')
@@ -319,7 +325,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
 
   const selectPath = async () => {
     const selected = await open({
-      title: 'Select folder',
+      title: t('shared.action.selectFolder'),
       multiple: false,
       directory: true,
     })
@@ -339,14 +345,14 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
   const onOk = async () => {
     if (url === '') {
       Toast.error({
-        content: 'Url must not be empty',
+        content: t('shared.error.urlRequired'),
         stack: true,
       })
       return
     }
     if (path === '') {
       Toast.error({
-        content: 'Path must not be empty',
+        content: t('shared.error.pathRequired'),
         stack: true,
       })
       return
@@ -391,7 +397,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
     <Dialog
       afterClose={props.afterClose}
       size="medium"
-      title={'Checkout'}
+      title={t('shared.action.checkout')}
       visible={props.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -399,7 +405,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
     >
       <ScrollArea className={cx(flex_1, min_h_0)} contentClassName={cx(flex)}>
         <div className={cx(flex_1, flex, gap_y_3, flex_col)}>
-          <DialogFormItem title={'Url:'}>
+          <DialogFormItem title={t('shared.field.url')}>
             <PureInput
               ref={focusElement}
               autoFocus
@@ -407,7 +413,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
               onChange={(value) => setUrl(value)}
             ></PureInput>
           </DialogFormItem>
-          <DialogFormItem title={'Path:'}>
+          <DialogFormItem title={t('shared.field.path')}>
             <PureInput
               className={inputIcon}
               value={path}
@@ -417,7 +423,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
               }
             ></PureInput>
           </DialogFormItem>
-          <DialogFormItem title={'Peg revision:'}>
+          <DialogFormItem title={t('shared.field.pegRevision')}>
             <RevisionSelect
               disableLayout={true}
               className={cx(flex_1)}
@@ -426,7 +432,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
               onChange={setPegRevision}
             ></RevisionSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Revision:'}>
+          <DialogFormItem title={t('shared.field.revision')}>
             <RevisionSelect
               disableLayout={true}
               className={cx(flex_1)}
@@ -435,19 +441,19 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
               onChange={setRevision}
             ></RevisionSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Depth:'}>
+          <DialogFormItem title={t('shared.field.depth')}>
             <DepthSelect
               value={depth}
               onChange={(value) => setDepth(value)}
               className={flex_1}
             ></DepthSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Options:'}>
+          <DialogFormItem title={t('shared.field.options')}>
             <Checkbox
               checked={ignoreExternals}
               onChange={(e) => setIgnoreExternals(e.target.checked ?? false)}
             >
-              Ignore externals
+              {t('shared.option.ignoreExternals')}
             </Checkbox>
           </DialogFormItem>
         </div>

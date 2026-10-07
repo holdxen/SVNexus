@@ -3,6 +3,7 @@ import { Button, Spin, Typography } from '@douyinfe/semi-ui'
 import { css, cx } from '@linaria/core'
 import React from 'react'
 
+import { useT } from '@/i18n'
 import { flex, flex_1, flex_col, gap_y_1, select_none } from '@/styles/Classes'
 
 export type LoadingState = 'none' | 'loading' | 'error'
@@ -28,6 +29,7 @@ export default function LoadingLayer({
   children,
   contentClassName,
 }: LoadingLayerProps) {
+  const t = useT()
   const loading = state === 'loading'
   const error = state === 'error'
   const layer = loading || error
@@ -40,7 +42,7 @@ export default function LoadingLayer({
       <div className={cx(flex)}>
         <div className={cx(flex_1)}></div>
         <Button icon={<IconRefresh></IconRefresh>} onClick={retry}>
-          Retry
+          {t('shared.action.retry')}
         </Button>
         <div className={cx(flex_1)}></div>
       </div>

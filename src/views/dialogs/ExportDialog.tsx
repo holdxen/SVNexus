@@ -14,6 +14,7 @@ import PureInput from '@/components/PureInput'
 import { ScrollArea } from '@/components/ScrollArea'
 import RevisionSelect, { RevisionKind } from '@/components/subversion/RevisionSelect'
 import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import { cursor_pointer, flex, flex_1, flex_col, gap_y_2, gap_y_3, min_h_0 } from '@/styles/Classes'
 import { disable_move } from '@/styles/Components'
@@ -54,6 +55,7 @@ const button = css`
 
 // Export 进度对话框：执行期间显示进度，支持取消
 function ExportingDialog({ options }: { options: ExportOptions }) {
+  const t = useT()
   const subversion = useSubversion()
   const modal = useCurrentModal()
 
@@ -99,7 +101,7 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
         },
         onError: (error) => {
           Toast.error({
-            content: `Failed to export: ${errorHumanString(error)}`,
+            content: t('advancedDialogs.export.failed', { error: errorHumanString(error) }),
             stack: true,
           })
           setHasError(true)
@@ -155,9 +157,9 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
   }, [])
 
   const descriptions = [
-    { key: 'From', value: options.fromPathOrUrl },
-    { key: 'To', value: options.toPath },
-    { key: 'Revision', value: revision?.toString() ?? null },
+    { key: t('advancedDialogs.progress.from'), value: options.fromPathOrUrl },
+    { key: t('advancedDialogs.progress.to'), value: options.toPath },
+    { key: t('shared.column.revision'), value: revision?.toString() ?? null },
   ]
 
   const onCancel = async () => {
@@ -187,7 +189,7 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
       maskClosable={false}
       closable={false}
       size="medium"
-      title={'Export...'}
+      title={t('advancedDialogs.export.progressTitle')}
       visible={modal.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -196,13 +198,13 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
         <Card>
           <Descriptions size="medium" data={descriptions}></Descriptions>
         </Card>
-        <DialogFormItem title={'Progress:'}>
+        <DialogFormItem title={t('shared.field.progress')}>
           <div className={cx(flex_1, flex_col)}>
-            <div>{`Current: ${current}`}</div>
+            <div>{t('advancedDialogs.progress.current', { name: current })}</div>
             <div className={cx(flex)}>
-              <div>{`Percentage:${percent}%`}</div>
+              <div>{t('advancedDialogs.progress.percentage', { percent })}</div>
               <div className={cx(flex_1)}></div>
-              <div>{`${pos < 0 ? 'unknown' : String(pos)}/${total < 0 ? 'unknown' : String(total)}`}</div>
+              <div>{`${pos < 0 ? t('advancedDialogs.progress.unknown') : String(pos)}/${total < 0 ? t('advancedDialogs.progress.unknown') : String(total)}`}</div>
             </div>
             <Progress indeterminate={isIndeterminate} percent={percent} size="large" />
           </div>
@@ -218,7 +220,7 @@ const inputIcon = css`
   }
 `
 
-export function NiceExportDialog(props: { defaultPath?: string, defaultRevision?: Revision }) {
+export function NiceExportDialog(props: { defaultPath?: string; defaultRevision?: Revision }) {
   const modal = useCurrentModal()
   return (
     <ExportDialog
@@ -248,6 +250,7 @@ export interface ExportDialogProps {
 }
 
 export default function ExportDialog(props: ExportDialogProps) {
+  const t = useT()
   const revisionKinds: RevisionKind[] = ['head', 'number', 'date', 'base', 'working']
 
   const [pegRevision, setPegRevision] = useState<Revision>('unspecified')
@@ -264,7 +267,7 @@ export default function ExportDialog(props: ExportDialogProps) {
 
   const selectFrom = async () => {
     const selected = await open({
-      title: 'Select working copy',
+      title: t('shared.action.selectWorkingCopy'),
       multiple: false,
       directory: true,
     })
@@ -276,7 +279,7 @@ export default function ExportDialog(props: ExportDialogProps) {
 
   const selectToPath = async () => {
     const selected = await open({
-      title: 'Select folder',
+      title: t('shared.action.selectFolder'),
       multiple: false,
       directory: true,
     })
@@ -295,14 +298,14 @@ export default function ExportDialog(props: ExportDialogProps) {
   const onOk = async () => {
     if (fromPathOrUrl === '') {
       Toast.error({
-        content: 'From path or url must not be empty',
+        content: t('shared.error.fromPathOrUrlRequired'),
         stack: true,
       })
       return
     }
     if (toPath === '') {
       Toast.error({
-        content: 'To path must not be empty',
+        content: t('shared.error.toPathRequired'),
         stack: true,
       })
       return
@@ -333,7 +336,7 @@ export default function ExportDialog(props: ExportDialogProps) {
     <Dialog
       afterClose={props.afterClose}
       size="medium"
-      title={'Export'}
+      title={t('shared.action.export')}
       visible={props.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -341,7 +344,7 @@ export default function ExportDialog(props: ExportDialogProps) {
     >
       <ScrollArea className={cx(flex_1, min_h_0)} contentClassName={cx(flex)}>
         <div className={cx(flex_1, flex, gap_y_3, flex_col)} style={{ paddingRight: 2 }}>
-          <DialogFormItem title={'From (path or url):'}>
+          <DialogFormItem title={t('shared.field.fromPathOrUrl')}>
             <PureInput
               ref={focusElement}
               className={inputIcon}
@@ -353,7 +356,7 @@ export default function ExportDialog(props: ExportDialogProps) {
               }
             ></PureInput>
           </DialogFormItem>
-          <DialogFormItem title={'To:'}>
+          <DialogFormItem title={t('shared.field.to')}>
             <PureInput
               className={inputIcon}
               value={toPath}
@@ -363,7 +366,7 @@ export default function ExportDialog(props: ExportDialogProps) {
               }
             ></PureInput>
           </DialogFormItem>
-          <DialogFormItem title={'Peg revision:'}>
+          <DialogFormItem title={t('shared.field.pegRevision')}>
             <RevisionSelect
               disableLayout={true}
               className={cx(flex_1)}
@@ -372,7 +375,7 @@ export default function ExportDialog(props: ExportDialogProps) {
               onChange={setPegRevision}
             ></RevisionSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Revision:'}>
+          <DialogFormItem title={t('shared.field.revision')}>
             <RevisionSelect
               disableLayout={true}
               className={cx(flex_1)}
@@ -381,42 +384,42 @@ export default function ExportDialog(props: ExportDialogProps) {
               onChange={setRevision}
             ></RevisionSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Depth:'}>
+          <DialogFormItem title={t('shared.field.depth')}>
             <DepthSelect
               value={depth}
               onChange={(value) => setDepth(value)}
               className={flex_1}
             ></DepthSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Line ending (native EOL):'}>
+          <DialogFormItem title={t('shared.field.lineEnding')}>
             <Select
               value={nativeEol}
               onChange={(value) => setNativeEol(value as NativeEOL)}
               clickToHide
               className={cx(flex_1)}
             >
-              <Select.Option value={'none'}>Platform default</Select.Option>
-              <Select.Option value={'lF'}>LF (Unix/macOS)</Select.Option>
-              <Select.Option value={'cRLF'}>CRLF (Windows)</Select.Option>
+              <Select.Option value={'none'}>{t('shared.option.platformDefault')}</Select.Option>
+              <Select.Option value={'lF'}>{t('advancedDialogs.export.eolLf')}</Select.Option>
+              <Select.Option value={'cRLF'}>{t('advancedDialogs.export.eolCrlf')}</Select.Option>
               <Select.Option value={'cR'}>CR</Select.Option>
             </Select>
           </DialogFormItem>
-          <DialogFormItem title={'Options:'}>
+          <DialogFormItem title={t('shared.field.options')}>
             <div className={cx(flex, flex_col, gap_y_2)}>
               <Checkbox checked={override} onChange={(e) => setOverride(e.target.checked ?? false)}>
-                Overwrite existing files
+                {t('shared.option.overwriteExisting')}
               </Checkbox>
               <Checkbox
                 checked={ignoreExternals}
                 onChange={(e) => setIgnoreExternals(e.target.checked ?? false)}
               >
-                Ignore externals
+                {t('shared.option.ignoreExternals')}
               </Checkbox>
               <Checkbox
                 checked={ignoreKeywords}
                 onChange={(e) => setIgnoreKeywords(e.target.checked ?? false)}
               >
-                Ignore keywords
+                {t('shared.option.ignoreKeywords')}
               </Checkbox>
             </div>
           </DialogFormItem>

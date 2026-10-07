@@ -1,10 +1,11 @@
 import { Button, Progress, Typography } from '@douyinfe/semi-ui'
 import { css, cx } from '@linaria/core'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { relaunch } from '@tauri-apps/plugin-process'
 import type { Update } from '@tauri-apps/plugin-updater'
-import { openUrl } from '@tauri-apps/plugin-opener'
 import { useState } from 'react'
 
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { flex, flex_col, flex_1, gap_y_1, gap_y_2 } from '@/styles/Classes'
 import Logger from '@/utils/Logger'
@@ -35,6 +36,7 @@ interface UpdateDialogProps {
 }
 
 export function AppUpdateDialog(props: UpdateDialogProps) {
+  const t = useT()
   const [installing, setInstalling] = useState(false)
   const [percent, setPercent] = useState(0)
   const [indeterminate, setIndeterminate] = useState(false)
@@ -83,8 +85,7 @@ export function AppUpdateDialog(props: UpdateDialogProps) {
 
   return (
     <Dialog
-      size="medium"
-      title={`发现新版本 v${props.update.version}`}
+      title={t('dialogs.update.found', { version: props.update.version })}
       visible={props.visible}
       afterClose={props.afterClose}
       onCancel={handleCancel}
@@ -98,17 +99,20 @@ export function AppUpdateDialog(props: UpdateDialogProps) {
             onClick={handleCancel}
             style={{ marginRight: 8 }}
           >
-            取消
+            {t('common.cancel')}
           </Button>
           <Button type="primary" theme="solid" loading={installing} onClick={startUpdate}>
-            立即更新
+            {t('dialogs.update.updateNow')}
           </Button>
         </div>
       }
     >
       <div className={cx(flex, flex_col, gap_y_2)}>
         <Typography.Text>
-          {`当前版本 v${props.update.currentVersion}，发现新版本 v${props.update.version}，更新将在下载完成后自动安装并重启应用。`}
+          {t('dialogs.update.description', {
+            current: props.update.currentVersion,
+            version: props.update.version,
+          })}
         </Typography.Text>
         {props.update.body ? <div className={notesStyle}>{props.update.body}</div> : null}
         <a
@@ -119,12 +123,12 @@ export function AppUpdateDialog(props: UpdateDialogProps) {
           }}
           style={{ fontSize: 13, color: 'var(--semi-color-primary)' }}
         >
-          在 GitHub 查看更新说明
+          {t('dialogs.update.releaseNotes')}
         </a>
         {installing ? (
-          <DialogFormItem title="下载进度:">
-            <div className={cx(flex, flex_col, gap_y_1)}>
-              <div>{indeterminate ? '下载中…' : `${percent}%`}</div>
+          <DialogFormItem title={t('dialogs.update.downloadProgress')}>
+            <div className={cx(flex, flex_col, gap_y_1, flex_1)}>
+              <div>{indeterminate ? t('dialogs.update.downloading') : `${percent}%`}</div>
               <Progress
                 indeterminate={indeterminate}
                 percent={indeterminate ? 0 : percent}

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { SubversionSSHEvent } from '@/bindings/SubversionSSHEvent'
 import PureInput from '@/components/PureInput'
 import { replySuccess } from '@/context/Functions'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 
 import { Dialog } from './Dialog'
@@ -37,6 +38,7 @@ export interface SSHPassphraseDialogProps extends Passphrase {
 }
 
 export default function SSHPassphraseDialog(props: SSHPassphraseDialogProps) {
+  const t = useT()
   const [passphrase, setPassphrase] = useState('')
 
   // 空口令与取消都回复 null：后端按 OpenSSH 的
@@ -53,7 +55,7 @@ export default function SSHPassphraseDialog(props: SSHPassphraseDialogProps) {
 
   return (
     <Dialog
-      title="Passphrase"
+      title={t('advancedDialogs.sshPassphrase.title')}
       afterClose={props.afterClose}
       onCancel={onCancel}
       onOk={onOk}
@@ -61,12 +63,14 @@ export default function SSHPassphraseDialog(props: SSHPassphraseDialogProps) {
     >
       <div>
         {props.wrong
-          ? 'Incorrect passphrase, please try again'
-          : 'This key is protected by a passphrase.'}
+          ? t('advancedDialogs.sshPassphrase.incorrect')
+          : t('advancedDialogs.sshPassphrase.protected')}
       </div>
-      {props.username != null && props.username !== '' && <div>Username: {props.username}</div>}
+      {props.username != null && props.username !== '' && (
+        <div>{t('advancedDialogs.sshPassphrase.usernameLine', { username: props.username })}</div>
+      )}
       <div>{props.path}</div>
-      <DialogFormItem title="Passphrase:">
+      <DialogFormItem title={t('shared.field.passphrase')}>
         <PureInput mode="password" value={passphrase} onChange={setPassphrase}></PureInput>
       </DialogFormItem>
     </Dialog>

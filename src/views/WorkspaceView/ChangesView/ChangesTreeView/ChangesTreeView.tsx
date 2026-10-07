@@ -14,7 +14,6 @@ import {
 import { useTree } from '@headless-tree/react'
 import OperationAddIcon from '@icons/OperationAdd.svg?react'
 import OperationCommitIcon from '@icons/OperationCommit.svg?react'
-import OperationCopyIcon from '@icons/OperationCopy.svg?react'
 import OperationDeleteIcon from '@icons/OperationDelete.svg?react'
 import OperationDiffIcon from '@icons/OperationDiff.svg?react'
 import OperationExportIcon from '@icons/OperationExport.svg?react'
@@ -22,7 +21,6 @@ import OperationInfoIcon from '@icons/OperationInfo.svg?react'
 import OperationLockIcon from '@icons/OperationLock.svg?react'
 import OperationMergeIcon from '@icons/OperationMerge.svg?react'
 import OperationMkdirIcon from '@icons/OperationMkdir.svg?react'
-import OperationMoveIcon from '@icons/OperationMove.svg?react'
 import OperationPatchIcon from '@icons/OperationPatch.svg?react'
 import OperationRevertIcon from '@icons/OperationRevert.svg?react'
 import OperationSwitchIcon from '@icons/OperationSwitch.svg?react'
@@ -31,15 +29,22 @@ import OperationUpdateIcon from '@icons/OperationUpdate.svg?react'
 import RefreshIcon from '@icons/Refresh.svg?react'
 import { cx, css } from '@linaria/core'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { open } from '@tauri-apps/plugin-dialog'
+import { revealItemInDir } from '@tauri-apps/plugin-opener'
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import { InfoOptions } from '@/bindings/InfoOptions'
+import { NodePropertyName } from '@/bindings/NodePropertyName'
+import { PropertyGetOptions } from '@/bindings/PropertyGetOptions'
+import { PropertySetOptions } from '@/bindings/PropertySetOptions'
 import { StatusEntry } from '@/bindings/StatusEntry'
 import { StatusOptions } from '@/bindings/StatusOptions'
+import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
 import OperationBar, { OperationIconProps } from '@/components/OperationBar'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import TreeCollapseIcon from '@/icons/TreeCollapse.svg?react'
 import TreeExpandIcon from '@/icons/TreeExpand.svg?react'
 import { useModal } from '@/lib/multi-modal'
@@ -56,17 +61,16 @@ import {
 } from '@/styles/Classes'
 import Logger from '@/utils/Logger'
 import { localPath, repoPath } from '@/utils/Path'
+import { NiceCopyDialog } from '@/views/dialogs/CopyDialog'
+import { NiceMoveDialog } from '@/views/dialogs/MoveDialog'
+import { NiceMoveRenameDialog } from '@/views/dialogs/MoveRenameDialog'
 
+import { canPatse, useCopyMoveItems } from '../../CopyMoveContext'
 import { defaultOperationState, OperationState } from '../../Operation'
 import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
 import { useWorkspaceContext } from '../../WorkspaceView'
 import OperationHandler from '../OperationHandler'
-import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
-import { writeText } from '@tauri-apps/plugin-clipboard-manager'
-import { NodePropertyName } from '@/bindings/NodePropertyName'
-import { PropertyGetOptions } from '@/bindings/PropertyGetOptions'
-import { PropertySetOptions } from '@/bindings/PropertySetOptions'
 
 const treeNode = css`
   display: flex;
@@ -214,20 +218,39 @@ function getOperationState(tree: TreeInstance<TreeEntry>, root: string): Operati
       selectedEntries[0].nodeKind === 'file' &&
       selectedEntries[0].nodeStatus !== 'unversioned' &&
       selectedEntries[0].nodeStatus !== 'added',
+    copy:
+      length > 0 &&
+      selectedEntries.every((e) => e.nodeStatus !== 'added' && e.nodeStatus !== 'unversioned'),
+    move:
+      length > 0 &&
+      selectedEntries.every((e) => e.nodeStatus !== 'added' && e.nodeStatus !== 'unversioned'),
+    paste:
+      length === 1 &&
+      selectedEntries[0].nodeKind === 'directory' &&
+      selectedEntries[0].nodeStatus !== 'unversioned' &&
+      selectedEntries[0].nodeStatus !== 'added',
+    rename:
+      length === 1 &&
+      selectedEntries[0].nodeStatus !== 'unversioned' &&
+      selectedEntries[0].nodeStatus !== 'missing' &&
+      selectedEntries[0].nodeStatus !== 'deleted' &&
+      selectedEntries[0].nodeStatus !== 'added',
   }
 }
 
 export function ChangesTreeView(props: ChangesTreeViewProps) {
+  const t = useT()
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [loadingItemData, setLoadingItemData] = useState<string[]>([])
   const [loadingItemChildrens, setLoadingItemChildrens] = useState<string[]>([])
 
   const workingCopy = useWorkingCopyContext()
   const subversion = useSubversion()
+  const copyMove = useCopyMoveItems()
 
   const loadingItem: TreeEntry = {
     path: '',
-    name: '加载中 > ...',
+    name: t('workspace.changesTree.loading'),
     nodeKind: 'directory',
     localAbsolutePath: '',
     fileSize: null,
@@ -328,7 +351,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
       call: async (context) => {
         const result = await context.status(options)
         if (result.entries.length !== 1) {
-          throw new Error('Empty working copy')
+          throw new Error(t('changes.error.emptyWorkingCopy'))
         }
         const entry = result.entries[0]
         const name = localPath.getFileName(entry.path) ?? ''
@@ -467,10 +490,45 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
 
   const operationHandler = new OperationHandler(modal, refresh)
 
+  const showInfo = async () => {
+    await Subversion.callOnce({
+      factory: subversion,
+      async call(context) {
+        const options: InfoOptions = {
+          path: tree.getSelectedItems()[0].getItemData().path,
+          pegRevision: 'unspecified',
+          revision: 'unspecified',
+          depth: 'empty',
+          fetchExcluded: true,
+          fetchActualOnly: true,
+          includeExternals: true,
+          changelists: null,
+        }
+        const result = await context.info(options)
+        const entries = Object.entries(result.entries)
+        if (entries.length === 1) {
+          operationHandler.showInfoEntryDialog(entries[0][1])
+        }
+      },
+    })
+  }
+
+  const applyPatch = async () => {
+    const file = await open({
+      multiple: false,
+      directory: false,
+    })
+    if (file === null) {
+      return
+    }
+
+    operationHandler.showPatchDialog(file, tree.getSelectedItems()[0].getItemData().path)
+  }
+
   const icons: OperationIconProps[] = [
     {
       sync: false,
-      tooltip: 'Refresh',
+      tooltip: t('shared.action.refresh'),
       // onClick: refresh,
       enable: state.refresh,
       children: <RefreshIcon></RefreshIcon>,
@@ -479,7 +537,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
       },
     },
     {
-      tooltip: 'Add',
+      tooltip: t('shared.action.add'),
       // onClick: () => setAddDialogKey((i) => i + 1),
       enable: state.add,
       children: <OperationAddIcon></OperationAddIcon>,
@@ -488,19 +546,19 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
       },
     },
     {
-      tooltip: 'Update',
+      tooltip: t('shared.action.update'),
       enable: state.update,
       children: <OperationUpdateIcon></OperationUpdateIcon>,
       onClick: () => operationHandler.showUpdateDialog(displayItems()),
     },
     {
-      tooltip: 'Revert',
+      tooltip: t('shared.action.revert'),
       enable: state.revert,
       children: <OperationRevertIcon></OperationRevertIcon>,
       onClick: () => operationHandler.showRevertDialog(displayItems()),
     },
     {
-      tooltip: 'Diff',
+      tooltip: t('shared.action.diff'),
       enable: state.diff,
       children: <OperationDiffIcon></OperationDiffIcon>,
       onClick: () => {
@@ -516,88 +574,57 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     },
     {
       sync: false,
-      tooltip: 'Patch',
+      tooltip: t('shared.action.patch'),
       enable: state.patch,
       children: <OperationPatchIcon></OperationPatchIcon>,
-      async onClick() {
-        const file = await open({
-          multiple: false,
-          directory: false,
-        })
-        if (file === null) {
-          return
-        }
-
-        operationHandler.showPatchDialog(file, selectedItems[0])
-      },
+      onClick: applyPatch,
     },
     {
-      tooltip: 'Lock',
+      tooltip: t('shared.action.lock'),
       enable: state.lock,
       children: <OperationLockIcon />,
       onClick: () => operationHandler.showLockDialog(displayItems()),
     },
     {
-      tooltip: 'Unlock',
+      tooltip: t('shared.action.unlock'),
       enable: state.unlock,
       children: <OperationUnlockIcon />,
       onClick: () => operationHandler.showUnlockDialog(displayItems()),
     },
     {
-      tooltip: 'Commit',
+      tooltip: t('shared.action.commit'),
       enable: state.commit,
       children: <OperationCommitIcon />,
       onClick: () => operationHandler.showCommitDialog(displayItems(), workingCopy.path),
     },
     {
-      tooltip: 'Delete',
+      tooltip: t('shared.action.delete'),
       enable: state.delete,
       children: <OperationDeleteIcon />,
       onClick: () => operationHandler.showDeleteDialog(displayItems()),
     },
     {
-      tooltip: 'Mkdir',
+      tooltip: t('shared.action.mkdir'),
       enable: state.mkdir,
       children: <OperationMkdirIcon />,
       onClick: () => operationHandler.showMkdirDialog(selectedItems[0]),
     },
     {
       sync: false,
-      tooltip: 'Info',
+      tooltip: t('shared.action.info'),
       enable: state.info,
       children: <OperationInfoIcon />,
-      onClick: async () => {
-        await Subversion.callOnce({
-          factory: subversion,
-          async call(context) {
-            const options: InfoOptions = {
-              path: selectedItems[0],
-              pegRevision: 'unspecified',
-              revision: 'unspecified',
-              depth: 'empty',
-              fetchExcluded: true,
-              fetchActualOnly: true,
-              includeExternals: true,
-              changelists: null,
-            }
-            const result = await context.info(options)
-            const entries = Object.entries(result.entries)
-            if (entries.length === 1) {
-              operationHandler.showInfoEntryDialog(entries[0][1])
-            }
-          },
-        })
-      },
+      onClick: showInfo,
     },
     {
-      tooltip: 'Switch',
+      tooltip: t('shared.action.switch'),
       enable: state.switch,
       children: <OperationSwitchIcon />,
       onClick: () =>
         operationHandler.showSwitchDialog(tree.getSelectedItems()[0].getItemData().path),
     },
     {
-      tooltip: 'Merge',
+      tooltip: t('shared.action.merge'),
       enable: state.merge,
       children: <OperationMergeIcon />,
       onClick: () =>
@@ -606,19 +633,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
         }),
     },
     {
-      tooltip: 'Copy',
-      enable: state.copy,
-      children: <OperationCopyIcon />,
-      onClick: () => {},
-    },
-    {
-      tooltip: 'Move',
-      enable: state.move,
-      children: <OperationMoveIcon />,
-      onClick: () => {},
-    },
-    {
-      tooltip: 'Export',
+      tooltip: t('shared.action.export'),
       enable: state.export,
       children: <OperationExportIcon />,
       onClick: () =>
@@ -698,14 +713,14 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   const optionBar = (
     <div className={cx(!props.visible && hidden, flex_1, flex, items_center)}>
       <Checkbox checked={showAll} onChange={(e) => setShowAll(e.target.checked ?? false)}>
-        All
+        {t('changes.tree.all')}
       </Checkbox>
       <div className={cx(flex_1)}></div>
       <OperationBar
         className={cx(gap_x_1)}
         icons={[
           {
-            tooltip: 'Expand',
+            tooltip: t('shared.action.expand'),
             async onClick() {
               await tree.expandAll()
             },
@@ -714,7 +729,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
             sync: false,
           },
           {
-            tooltip: 'Collapse',
+            tooltip: t('shared.action.collapse'),
             onClick() {
               tree.collapseAll()
             },
@@ -822,7 +837,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   if (extension) {
     ignoreItems.push({
       item: {
-        content: `Ignore *.${extension}`,
+        content: t('changes.ignore.extension', { extension }),
         onSelect: () => {
           if (selection.length === 0) {
             return
@@ -833,7 +848,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     })
     ignoreItems.push({
       item: {
-        content: `Ignore *.${extension} recursively`,
+        content: t('changes.ignore.extensionRecursively', { extension }),
         onSelect: () => {
           if (selection.length === 0) {
             return
@@ -850,7 +865,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
     if (fileName) {
       ignoreItems.push({
         item: {
-          content: `Ignore ${fileName}`,
+          content: t('changes.ignore.name', { name: fileName }),
           onSelect: () => {
             if (selection.length === 0) {
               return
@@ -861,7 +876,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
       })
       ignoreItems.push({
         item: {
-          content: `Ignore ${fileName} recursively`,
+          content: t('changes.ignore.nameRecursively', { name: fileName }),
           onSelect: () => {
             if (selection.length === 0) {
               return
@@ -876,27 +891,219 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
   const menu: ContextMenuItemModel[] = [
     {
       item: {
-        content: 'File history',
+        content: t('shared.action.add'),
+        disabled: !state.add,
+        onSelect: () => operationHandler.showAddDialog(displayItems()),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.update'),
+        disabled: !state.update,
+        onSelect: () => operationHandler.showUpdateDialog(displayItems()),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.commit'),
+        disabled: !state.commit,
+        onSelect: () => operationHandler.showCommitDialog(displayItems(), workingCopy.path),
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.diff'),
+        disabled: !state.diff,
+        onSelect: () => {
+          operationHandler.showDifferenceDialog(
+            workingCopy.path,
+            workspace.path,
+            tree.getSelectedItems()[0].getItemData().path,
+          )
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.revert'),
+        disabled: !state.revert,
+        onSelect: () => operationHandler.showRevertDialog(displayItems()),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.patch'),
+        disabled: !state.patch,
+        onSelect: applyPatch,
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.delete'),
+        disabled: !state.delete,
+        onSelect: () => operationHandler.showDeleteDialog(displayItems()),
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.lock'),
+        disabled: !state.lock,
+        onSelect: () => operationHandler.showLockDialog(displayItems()),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.unlock'),
+        disabled: !state.unlock,
+        onSelect: () => operationHandler.showUnlockDialog(displayItems()),
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.mkdir'),
+        disabled: !state.mkdir,
+        onSelect: () =>
+          operationHandler.showMkdirDialog(tree.getSelectedItems()[0].getItemData().path),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.export'),
+        disabled: !state.export,
+        onSelect: () =>
+          operationHandler.showExportDialog(tree.getSelectedItems()[0].getItemData().path),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.switch'),
+        disabled: !state.switch,
+        onSelect: () =>
+          operationHandler.showSwitchDialog(tree.getSelectedItems()[0].getItemData().path),
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.merge'),
+        disabled: !state.merge,
+        onSelect: () =>
+          operationHandler.showMergeDialog(tree.getSelectedItems()[0].getItemData().path, {
+            peg: { source: '', pegRevision: 'working', rangesToMerge: null },
+          }),
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.copy'),
+        disabled: !state.copy,
+        onSelect: () => {
+          const selection = tree.getSelectedItems()
+          copyMove.setSource({
+            copy: selection.map((e) => ({
+              path: e.getItemData().path,
+              pegRevision: 'working',
+              revision: 'working',
+              nodeKind: e.getItemData().nodeKind,
+            })),
+          })
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.cut'),
+        disabled: !state.move,
+        onSelect: () => {
+          const selection = tree.getSelectedItems()
+          copyMove.setSource({
+            isLocal: true,
+            move: selection.map((e) => ({
+              path: e.getItemData().path,
+              nodeKind: e.getItemData().nodeKind,
+            })),
+          })
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.rename'),
+        disabled: !state.rename,
+        onSelect: () => {
+          const item = tree.getSelectedItems()[0].getItemData()
+
+          modal.show(NiceMoveRenameDialog, {
+            path: item.path,
+          })
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.paste'),
+        disabled:
+          !state.paste ||
+          !canPatse(copyMove.source) ||
+          (copyMove.source !== undefined &&
+            'move' in copyMove.source &&
+            copyMove.source.isLocal === false),
+        onSelect: () => {
+          if (copyMove.source !== undefined) {
+            if ('copy' in copyMove.source) {
+              modal.show(NiceCopyDialog, {
+                needCommitMessage: false,
+                sources: copyMove.source.copy,
+                defaultDestination: tree.getSelectedItems()[0].getItemData().path,
+              })
+            } else if ('move' in copyMove.source) {
+              modal.show(NiceMoveDialog, {
+                sources: copyMove.source.move,
+                needCommitMessage: false,
+              })
+            }
+          }
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.fileHistory'),
         disabled: !state.history,
         onSelect: async () => {
-          Logger.info("Open file history: ", tree.getSelectedItems().map(e => e.getItemData()))
+          Logger.info(
+            'Open file history: ',
+            tree.getSelectedItems().map((e) => e.getItemData()),
+          )
           operationHandler.showFileHistoryDialog(tree.getSelectedItems()[0].getItemData())
         },
       },
     },
     {
       item: {
-        content: "Copy absolute path",
+        content: t('shared.action.info'),
+        disabled: !state.info,
+        onSelect: showInfo,
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.copyAbsolutePath'),
         disabled: tree.getSelectedItems().length !== 1,
         onSelect: () => {
           const selected = tree.getSelectedItems()[0].getItemData()
           writeText(selected.path)
-        }
-      }
+        },
+      },
     },
     {
       item: {
-        content: "Copy relative path",
+        content: t('shared.action.copyRelativePath'),
         disabled: tree.getSelectedItems().length !== 1,
         onSelect: () => {
           const selected = tree.getSelectedItems()[0].getItemData()
@@ -904,17 +1111,50 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
           if (path) {
             writeText(path)
           }
-        }
-      }
+        },
+      },
+    },
+    {
+      item: {
+        content: t('workspace.changes.revealInFolder'),
+        disabled: selection.length === 0,
+        onSelect: async () => {
+          const paths = selection.map((e) => e.getItemData().path).filter((p) => p !== '')
+          if (paths.length === 0) {
+            return
+          }
+          try {
+            await revealItemInDir(paths)
+          } catch {
+            // 已删除等不存在的路径无法解析，退回打开其所在文件夹
+            const parents = paths
+              .map((p) => repoPath.getParent(p))
+              .filter((p): p is string => p !== null && p !== '')
+            if (parents.length > 0) {
+              await revealItemInDir(parents).catch((error) => {
+                Logger.info('revealItemInDir failed: ', error)
+              })
+            }
+          }
+        },
+      },
     },
     {
       subitem: {
-        content: 'Ignore',
+        content: t('shared.action.ignore'),
         disabled:
           !state.ignore &&
           selection.length !== 0 &&
           selection[0].getItemData().path !== workspace.path,
         items: ignoreItems,
+      },
+    },
+    { separator: {} },
+    {
+      item: {
+        content: t('shared.action.refresh'),
+        disabled: !state.refresh,
+        onSelect: refresh,
       },
     },
   ]
@@ -977,12 +1217,9 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
           })}
         </div>
       </div>
-      {props.optionBarContainer !== null && (
-        createPortal(optionBar, props.optionBarContainer)
-      )}
-      {workingCopy.changesViewOperationContainer !== null && (
-        createPortal(bar, workingCopy.changesViewOperationContainer)
-      )}
+      {props.optionBarContainer !== null && createPortal(optionBar, props.optionBarContainer)}
+      {workingCopy.changesViewOperationContainer !== null &&
+        createPortal(bar, workingCopy.changesViewOperationContainer)}
     </div>
   )
 }

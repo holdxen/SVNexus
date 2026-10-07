@@ -6,6 +6,7 @@ import { useRef, useState } from 'react'
 
 import PureInput from '@/components/PureInput'
 import { useDatabase } from '@/context/Database'
+import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import {
   font_normal,
@@ -38,6 +39,7 @@ export interface WorkspaceGroupViewProps {
 }
 
 function RenameWorkspaceGroupDialog(props: { identity: string }) {
+  const t = useT()
   const modal = useCurrentModal()
 
   const updateWorkspaceGroup = useDatabase((status) => status.updateWorkspaceGroup)
@@ -51,7 +53,7 @@ function RenameWorkspaceGroupDialog(props: { identity: string }) {
   const onOk = async () => {
     if (item === undefined) {
       Toast.error({
-        content: 'Group not exists',
+        content: t('shared.error.groupNotExists'),
         stack: true,
       })
       return
@@ -59,7 +61,7 @@ function RenameWorkspaceGroupDialog(props: { identity: string }) {
 
     if (workspaceGroups.findIndex((i) => i.identity != props.identity && i.name === name) >= 0) {
       Toast.error({
-        content: 'Name already exists',
+        content: t('shared.error.nameExists'),
         stack: true,
       })
       return
@@ -81,7 +83,7 @@ function RenameWorkspaceGroupDialog(props: { identity: string }) {
   return (
     <Dialog
       initialFocusRef={input}
-      title="Rename group"
+      title={t('shared.action.renameGroup')}
       visible={modal.visible}
       onOk={onOk}
       onCancel={() => {
@@ -89,7 +91,7 @@ function RenameWorkspaceGroupDialog(props: { identity: string }) {
         modal.hide()
       }}
     >
-      <DialogFormItem title="Name:">
+      <DialogFormItem title={t('shared.field.name')}>
         <PureInput ref={input} value={name} onChange={setName} />
       </DialogFormItem>
     </Dialog>
@@ -102,6 +104,7 @@ export function WorkspaceGroupView({
   onDelete,
   className,
 }: WorkspaceGroupViewProps) {
+  const t = useT()
   const modal = useModal()
   const dialogOpenedFromMenu = useRef(false)
   return (
@@ -138,7 +141,7 @@ export function WorkspaceGroupView({
               }}
               className={context_menu_item}
             >
-              Copy name
+              {t('shared.action.copyName')}
             </ContextMenu.Item>
 
             <ContextMenu.Item
@@ -150,7 +153,7 @@ export function WorkspaceGroupView({
               }}
               className={context_menu_item}
             >
-              Rename
+              {t('shared.action.rename')}
             </ContextMenu.Item>
 
             <ContextMenu.Separator className={context_menu_separator} />
@@ -163,7 +166,7 @@ export function WorkspaceGroupView({
                 }
               }}
             >
-              Delete
+              {t('shared.action.delete')}
             </ContextMenu.Item>
           </ContextMenu.Content>
         </ContextMenu.Portal>

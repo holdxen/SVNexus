@@ -41,7 +41,7 @@ export default defineConfig(() => ({
         '$spacing-input-paddingLeft': '2px',
         '$spacing-collapse_header-marginY': '0px',
         '$spacing-collapse_header-marginX': '0px',
-        '$spacing-collapse_header-padding': '8px 4px'
+        '$spacing-collapse_header-padding': '8px 4px',
       },
     }),
     wyw({

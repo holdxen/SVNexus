@@ -69,13 +69,13 @@ impl AsyncContext {
         .await
     }
 
-    pub async fn get_repository_root(
-        &self,
-        target: String,
-    ) -> error::Result<GetRepositoryRootResult> {
-        self.call_async(|mut context| context.get_repository_root(target))
-            .await
-    }
+    // pub async fn get_repository_root(
+    //     &self,
+    //     target: String,
+    // ) -> error::Result<GetRepositoryRootResult> {
+    //     self.call_async(|mut context| context.get_repository_root(target))
+    //         .await
+    // }
 
     #[tracing::instrument(skip(self), ret, err)]
     pub async fn lock(&self, opts: LockOptions) -> error::Result<()> {
@@ -166,14 +166,14 @@ impl AsyncContext {
         self.call_async(|mut context| context.checkout(opts)).await
     }
 
-    pub async fn status_next(
-        &self,
-        opts: StatusOptions,
-        receiver: Arc<dyn StatusReceiver>,
-    ) -> error::Result<()> {
-        self.call_async(|mut context| context.status_next(opts, receiver))
-            .await
-    }
+    // pub async fn status_next(
+    //     &self,
+    //     opts: StatusOptions,
+    //     receiver: Arc<dyn StatusReceiver>,
+    // ) -> error::Result<()> {
+    //     self.call_async(|mut context| context.status_next(opts, receiver))
+    //         .await
+    // }
 
     pub async fn status(&self, opts: StatusOptions) -> error::Result<StatusResult> {
         self.call_async(|mut context| context.status(opts)).await

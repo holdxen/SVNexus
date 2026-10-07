@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { ClientCertificate } from '@/bindings/ClientCertificate'
 import PureInput from '@/components/PureInput'
 import { replySuccess } from '@/context/Functions'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { cursor_pointer, hidden } from '@/styles/Classes'
 
@@ -63,6 +64,7 @@ const button = css`
 `
 
 export default function SslClientCertificateDialog(props: SslClientCertificateProps) {
+  const t = useT()
   const [file, setFile] = useState('')
   const [save, setSave] = useState(false)
 
@@ -103,10 +105,10 @@ export default function SslClientCertificateDialog(props: SslClientCertificatePr
       onCancel={onCancel}
       afterClose={props.afterClose}
       visible={props.visible}
-      title="Client certificate"
+      title={t('shared.option.clientCertificate')}
     >
-      <DialogFormItem title="Realm:">{props.realm}</DialogFormItem>
-      <DialogFormItem title="Certificate:">
+      <DialogFormItem title={t('shared.field.realm')}>{props.realm}</DialogFormItem>
+      <DialogFormItem title={t('shared.field.certificate')}>
         <PureInput
           className={inputIcon}
           value={file}
@@ -121,7 +123,7 @@ export default function SslClientCertificateDialog(props: SslClientCertificatePr
         checked={save}
         onChange={(e) => setSave(e.target.checked ?? false)}
       >
-        Save
+        {t('shared.action.save')}
       </Checkbox>
     </Dialog>
   )

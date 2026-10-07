@@ -15,6 +15,7 @@ import { useDatabase } from '@/context/Database'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
+import { useT } from '@/i18n'
 import { ModalProvider, useCurrentModal, useModal } from '@/lib/multi-modal'
 import { list_item, list_item_selected } from '@/styles/Components'
 import { workspaceItemIdentity, workspaceItemStar } from '@/utils/WorkspaceItem'
@@ -69,6 +70,7 @@ function HeaderTitle({ children }: { children?: React.ReactNode }) {
 }
 
 function AddGroupDialog() {
+  const t = useT()
   const [name, setName] = useState('')
   const modal = useCurrentModal()
   const workspaceGroups = useDatabase((state) => state.workspaceGroups)
@@ -79,19 +81,19 @@ function AddGroupDialog() {
     <Dialog
       initialFocusRef={input}
       visible={modal.visible}
-      title="Add group"
+      title={t('shared.action.addGroup')}
       afterClose={() => modal.remove()}
       onOk={() => {
         if (name === '') {
           Toast.error({
-            content: 'Empty name is not allowed',
+            content: t('shared.error.emptyNameNotAllowed'),
             stack: true,
           })
           return
         }
         if (workspaceGroups.findIndex((e) => e.name === name) >= 0) {
           Toast.error({
-            content: 'Group already exists',
+            content: t('shared.error.groupExists'),
             stack: true,
           })
           return
@@ -111,6 +113,23 @@ function AddGroupDialog() {
 
 type NavigationKind = 'All' | 'Star' | 'Modified' | 'Conflicted' | 'Invalid'
 
+type Translate = ReturnType<typeof useT>
+
+function navigationKindLabel(kind: NavigationKind, t: Translate): string {
+  switch (kind) {
+    case 'All':
+      return t('welcomeUi.nav.all')
+    case 'Star':
+      return t('welcomeUi.nav.star')
+    case 'Modified':
+      return t('shared.status.modified')
+    case 'Conflicted':
+      return t('shared.status.conflicted')
+    case 'Invalid':
+      return t('shared.status.invalid')
+  }
+}
+
 type WorkspaceItemFilter = (item: WorkspaceItem) => boolean
 
 function WorkspaceGroupListItem({
@@ -126,6 +145,7 @@ function WorkspaceGroupListItem({
   setSelected: (value: { kind: NavigationKind } | { group: string }) => void
   deleteWorkspaceGroup: (identity: string) => Promise<void>
 }) {
+  const t = useT()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver } =
     useSortable({
       id: item.identity,
@@ -160,8 +180,8 @@ function WorkspaceGroupListItem({
             const result = await modal
               .show(ConfirmDialog, {
                 icon: 'warning',
-                children: "This operation can't be undone",
-                title: `Whether to delete ${item.name}`,
+                children: t('welcomeUi.group.deleteConfirm'),
+                title: t('welcomeUi.group.deleteTitle', { name: item.name }),
               })
               .as<boolean>()
             if (result) {
@@ -180,6 +200,7 @@ function WorkspaceGroupListItem({
 }
 
 function Navigation(props: { onFilterChange?: (filter: WorkspaceItemFilter) => void }) {
+  const t = useT()
   const kinds: NavigationKind[] = ['All', 'Star', 'Modified', 'Conflicted', 'Invalid']
 
   const load = useDatabase((status) => status.load)
@@ -284,7 +305,7 @@ function Navigation(props: { onFilterChange?: (filter: WorkspaceItemFilter) => v
         <div className={cx(flex, flex_col, flex_1, min_h_0)}>
           <div className={cx(flex, flex_col)}>
             <Text className={cx(mx_1, my_2)} type="tertiary" size="small">
-              Navigation
+              {t('welcomeUi.nav.title')}
             </Text>
             <List
               className={cx(min_h_0, overflow_y_auto, flex_1)}
@@ -322,7 +343,7 @@ function Navigation(props: { onFilterChange?: (filter: WorkspaceItemFilter) => v
                     }}
                     className={cx(list_item, isKindSelected(item) && list_item_selected, flex)}
                   >
-                    <div>{item}</div>
+                    <div>{navigationKindLabel(item, t)}</div>
                     <div className={cx(flex_1)}></div>
                     <Tag color="indigo" shape="circle">
                       {count}
@@ -336,7 +357,7 @@ function Navigation(props: { onFilterChange?: (filter: WorkspaceItemFilter) => v
           <div className={cx(flex, flex_col, min_h_0, flex_1)}>
             <div className={cx(m_1, flex, items_center)}>
               <Text type="tertiary" className={py_1} size="small">
-                Group
+                {t('welcomeUi.nav.group')}
               </Text>
               <div className={cx(flex_1)}></div>
               <IconButton
@@ -401,6 +422,7 @@ function WorkspaceItemModelView(props: { model: WorkspaceItem; className?: strin
   const setWorkspaceItemState = useDatabase((state) => state.setWorkspaceItemState)
   const identity = workspaceItemIdentity(props.model)
 
+  const t = useT()
   const subversion = useSubversion()
 
   // const tags: React.ReactNode[] = []
@@ -428,7 +450,7 @@ function WorkspaceItemModelView(props: { model: WorkspaceItem; className?: strin
     if (itemState.isInvalid === true) {
       const tag = (
         <Tag type="solid" shape="circle" color="purple">
-          Invalid
+          {t('shared.status.invalid')}
         </Tag>
       )
       tags.push(tag)
@@ -436,7 +458,7 @@ function WorkspaceItemModelView(props: { model: WorkspaceItem; className?: strin
     if (itemState.isConflicted === true) {
       const tag = (
         <Tag type="solid" shape="circle" color="violet">
-          Conflicted
+          {t('shared.status.conflicted')}
         </Tag>
       )
       tags.push(tag)
@@ -444,7 +466,7 @@ function WorkspaceItemModelView(props: { model: WorkspaceItem; className?: strin
     if (itemState.isModified) {
       const tag = (
         <Tag type="solid" shape="circle" color="amber">
-          Modified
+          {t('shared.status.modified')}
         </Tag>
       )
       tags.push(tag)
@@ -452,7 +474,7 @@ function WorkspaceItemModelView(props: { model: WorkspaceItem; className?: strin
     if (itemState.isLocked === true) {
       const tag = (
         <Tag type="solid" shape="circle" color="red">
-          Locked
+          {t('shared.status.locked')}
         </Tag>
       )
       tags.push(tag)
@@ -460,7 +482,7 @@ function WorkspaceItemModelView(props: { model: WorkspaceItem; className?: strin
     if (itemState.isClean === true) {
       const tag = (
         <Tag type="solid" shape="circle" color="green">
-          Clean
+          {t('shared.status.clean')}
         </Tag>
       )
       tags.push(tag)
@@ -622,6 +644,7 @@ function WorkspaceItems(props: {
   selected: string | null
   onSelect: (identity: string | null) => void
 }) {
+  const t = useT()
   const workspaceItems = useDatabase((state) => state.workspaceItems)
   const deleteWorkspaceItem = useDatabase((state) => state.deleteWorkspaceItem)
   const [searchText, setSearchText] = useState('')
@@ -658,7 +681,7 @@ function WorkspaceItems(props: {
         minWidth: 0,
       }}
     >
-      <HeaderTitle>History</HeaderTitle>
+      <HeaderTitle>{t('welcomeUi.history.title')}</HeaderTitle>
       <Divider></Divider>
       <PureInput value={searchText} onChange={setSearchText}></PureInput>
       <ScrollArea
@@ -685,7 +708,7 @@ function WorkspaceItems(props: {
               menu={[
                 {
                   item: {
-                    content: 'Open',
+                    content: t('shared.action.open'),
                     onSelect: () => {
                       open(e)
                     },
@@ -693,7 +716,7 @@ function WorkspaceItems(props: {
                 },
                 {
                   item: {
-                    content: 'Delete',
+                    content: t('shared.action.delete'),
                     onSelect: () => {
                       tryTodelete(e)
                     },
@@ -728,7 +751,11 @@ export function WelcomeView() {
   }
 
   return (
-    <SubversionProvider className={h_full} singleton={false}>
+    <SubversionProvider
+      className={h_full}
+      singleton={false}
+      notifyLogIdentity={tabContent.identity}
+    >
       <ModalProvider>
         <div className={cx(grid, min_h_0, grid_rows_auto_auto_1fr, flex_1)}>
           <CommandBar></CommandBar>

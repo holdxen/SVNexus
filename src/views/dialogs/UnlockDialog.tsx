@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { UnlockOptions } from '@/bindings/UnlockOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   flex,
@@ -50,6 +51,7 @@ export interface UnlockDialogProps {
 }
 
 export default function UnlockDialog(props: UnlockDialogProps) {
+  const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [breakLock, setBreakLock] = useState(false)
 
@@ -73,7 +75,7 @@ export default function UnlockDialog(props: UnlockDialogProps) {
     <Dialog
       onOk={onOk}
       onCancel={props.onCancel}
-      title="Lock"
+      title={t('shared.action.unlock')}
       afterClose={props.afterClose}
       visible={props.visible}
     >
@@ -81,7 +83,7 @@ export default function UnlockDialog(props: UnlockDialogProps) {
         <DialogFormItem
           className={cx(flex_1, min_h_0)}
           wrapperClassName={cx(min_h_0)}
-          title="Targets:"
+          title={t('shared.field.targets')}
         >
           <Card
             className={cx(min_h_0, flex_1, flex)}
@@ -110,9 +112,9 @@ export default function UnlockDialog(props: UnlockDialogProps) {
             </div>
           </Card>
         </DialogFormItem>
-        <DialogFormItem title="Options:">
+        <DialogFormItem title={t('shared.field.options')}>
           <Checkbox checked={breakLock} onChange={(e) => setBreakLock(e.target.checked ?? false)}>
-            Break lock
+            {t('shared.option.breakLock')}
           </Checkbox>
         </DialogFormItem>
       </div>

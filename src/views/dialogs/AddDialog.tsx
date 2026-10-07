@@ -6,6 +6,7 @@ import { AddOptions } from '@/bindings/AddOptions'
 import { Depth } from '@/bindings/Depth'
 import { ScrollArea } from '@/components/ScrollArea'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   flex,
@@ -54,6 +55,7 @@ export interface AddDialogProps {
 }
 
 export default function AddDialog(props: AddDialogProps) {
+  const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [depth, setDepth] = useState<Depth>('infinity')
   // const [visible, setVisible] = useState(true)
@@ -94,7 +96,10 @@ export default function AddDialog(props: AddDialogProps) {
       },
       onError(error) {
         Toast.error({
-          content: `Failed to add file(${currentItem}): ${errorHumanString(error)}`,
+          content: t('svnDialogs.add.failed', {
+            path: currentItem,
+            error: errorHumanString(error),
+          }),
           stack: true,
         })
       },
@@ -127,7 +132,7 @@ export default function AddDialog(props: AddDialogProps) {
   return (
     <Dialog
       afterClose={props.afterClose}
-      title={'Add'}
+      title={t('shared.action.add')}
       visible={props.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -169,26 +174,26 @@ export default function AddDialog(props: AddDialogProps) {
           </ScrollArea>
         </Card>
         {/*<Text strong style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>Items:</Text>*/}
-        <div style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>Depth:</div>
+        <div style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>{t('shared.field.depth')}</div>
         <DepthSelect
           className={cx(overflow_visible)}
           value={depth}
           onChange={(value) => setDepth(value)}
         ></DepthSelect>
         <Checkbox checked={force} onChange={(e) => setForce(e.target.checked ?? false)}>
-          Force
+          {t('shared.option.force')}
         </Checkbox>
         <Checkbox checked={noIgnore} onChange={(e) => setNoIgnore(e.target.checked ?? false)}>
-          No ignore
+          {t('shared.option.noIgnore')}
         </Checkbox>
         <Checkbox
           checked={noAutoProperties}
           onChange={(e) => setNoAutoProperties(e.target.checked ?? false)}
         >
-          No auto properties
+          {t('shared.option.noAutoProperties')}
         </Checkbox>
         <Checkbox checked={addParents} onChange={(e) => setAddParents(e.target.checked ?? false)}>
-          Add parent
+          {t('shared.option.addParent')}
         </Checkbox>
       </div>
     </Dialog>

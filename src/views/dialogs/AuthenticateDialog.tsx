@@ -7,6 +7,7 @@ import { Authentication } from '@/bindings/Authentication'
 import { SubversionEvent } from '@/bindings/SubversionEvent'
 import PureInput from '@/components/PureInput'
 import { replySuccess } from '@/context/Functions'
+import { useT } from '@/i18n'
 import { flex, flex_col, gap_y_1, hidden } from '@/styles/Classes'
 
 import { Dialog } from './Dialog'
@@ -24,6 +25,7 @@ export interface AuthenticateDialogProps extends Authenticate {
 }
 
 export default function AuthenticateDialog(props: AuthenticateDialogProps) {
+  const t = useT()
   const [username, setUsername] = useState(props.username)
   const [password, setPassword] = useState('')
   const [save, setSave] = useState(false)
@@ -45,7 +47,7 @@ export default function AuthenticateDialog(props: AuthenticateDialogProps) {
   const onOk = async () => {
     if (username === '') {
       Toast.error({
-        content: 'Username must not be empty',
+        content: t('shared.error.usernameRequired'),
         stack: true,
       })
       return
@@ -76,13 +78,16 @@ export default function AuthenticateDialog(props: AuthenticateDialogProps) {
   return (
     <Dialog afterClose={props.afterClose} visible={visible} onOk={onOk} onCancel={onCancel}>
       <div className={cx(flex, flex_col, gap_y_1)}>
-        <DialogFormItem title={'Realm:'}>
+        <DialogFormItem title={t('shared.field.realm')}>
           <Text>{props.realm}</Text>
         </DialogFormItem>
-        <DialogFormItem title={'Username:'}>
+        <DialogFormItem title={t('shared.field.username')}>
           <PureInput value={username} onChange={setUsername}></PureInput>
         </DialogFormItem>
-        <DialogFormItem className={cx(!props.needPassword && hidden)} title={'Password:'}>
+        <DialogFormItem
+          className={cx(!props.needPassword && hidden)}
+          title={t('shared.field.password')}
+        >
           <PureInput mode="password" value={password} onChange={setPassword}></PureInput>
         </DialogFormItem>
         <Checkbox
@@ -90,7 +95,7 @@ export default function AuthenticateDialog(props: AuthenticateDialogProps) {
           checked={save}
           onChange={(e) => setSave(e.target.checked ?? false)}
         >
-          Save
+          {t('shared.action.save')}
         </Checkbox>
       </div>
     </Dialog>

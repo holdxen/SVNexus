@@ -30,6 +30,16 @@ export function fsReadLink(path: string): Promise<string> {
   return invokeMessagePack<string>('fs_read_link', { path })
 }
 
+/// 让后端把日志目录打包成 zip，返回归档的绝对路径；调用方读完自行清理。
+export function logsPackage(): Promise<string> {
+  return invokeMessagePack<string>('logs_package', {})
+}
+
+/// 让后端把日志目录下所有文件完整打包成 zip，直接写到指定路径。
+export function logsExport(path: string): Promise<void> {
+  return invokeMessagePack<void>('logs_export', { path })
+}
+
 export function databaseRevisionLocation(
   repository: string,
   path: string,

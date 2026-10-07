@@ -5,6 +5,7 @@ import { Ref, useImperativeHandle, useRef, useState } from 'react'
 import { WorkspaceGroup } from '@/bindings/WorkspaceGroup'
 import { ScrollArea } from '@/components/ScrollArea'
 import { useDatabase } from '@/context/Database'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { border_box, flex, flex_1, flex_col, min_h_0, p_1, px_1 } from '@/styles/Classes'
 import { workspaceItemIdentity } from '@/utils/WorkspaceItem'
@@ -80,6 +81,7 @@ export interface EditWorkspaceItemDialogProps {
 }
 
 export default function EditWorkspaceItemDialog(props: EditWorkspaceItemDialogProps) {
+  const t = useT()
   const workspaceItems = useDatabase((state) => state.workspaceItems)
   const workspaceGroups = useDatabase((state) => state.workspaceGroups)
 
@@ -109,12 +111,12 @@ export default function EditWorkspaceItemDialog(props: EditWorkspaceItemDialogPr
       afterClose={props.afterClose}
       onOk={onOk}
       onCancel={props.onCancel}
-      title="Edit"
+      title={t('shared.action.edit')}
       visible={props.visible}
     >
       <div className={cx(flex, flex_1, min_h_0)}>
         <DialogFormItem
-          title="Groups:"
+          title={t('shared.field.groups')}
           titleClassName={cx(px_1)}
           className={cx(min_h_0, flex_1)}
           wrapperClassName={cx(flex, min_h_0)}

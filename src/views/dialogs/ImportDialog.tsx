@@ -1,32 +1,43 @@
 import { IconFolderStroked } from '@douyinfe/semi-icons'
 import { Card, Checkbox, Descriptions, Progress, Select, Toast } from '@douyinfe/semi-ui'
+import { Data } from '@douyinfe/semi-ui/lib/es/descriptions'
 import { css, cx } from '@linaria/core'
 import { open } from '@tauri-apps/plugin-dialog'
 import { useMemoizedFn } from 'ahooks'
+import dayjs from 'dayjs'
+import { filesize } from 'filesize'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { filesize } from 'filesize';
 
 import { Depth } from '@/bindings/Depth'
+import { ImportFilterEvent } from '@/bindings/ImportFilterEvent'
 import { ImportOptions } from '@/bindings/ImportOptions'
 import PureInput from '@/components/PureInput'
 import PureTextArea from '@/components/PureTextArea'
 import { ScrollArea } from '@/components/ScrollArea'
+import { replySuccess } from '@/context/Functions'
 import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
-import { cursor_pointer, flex, flex_1, flex_col, gap_y_1, gap_y_2, gap_y_3, hidden, min_h_0 } from '@/styles/Classes'
+import {
+  cursor_pointer,
+  flex,
+  flex_1,
+  flex_col,
+  gap_y_1,
+  gap_y_2,
+  gap_y_3,
+  hidden,
+  min_h_0,
+} from '@/styles/Classes'
 import { disable_move } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
+import { MessagePackChannel } from '@/utils/MessagePack'
 import { localPath } from '@/utils/Path'
 
 import DepthSelect from '../../components/subversion/DepthSelect'
+import ConfirmDialog from './ConfirmDialog'
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'
-import { MessagePackChannel } from '@/utils/MessagePack'
-import { ImportFilterEvent } from '@/bindings/ImportFilterEvent'
-import { Data } from '@douyinfe/semi-ui/lib/es/descriptions'
-import ConfirmDialog from './ConfirmDialog'
-import dayjs from 'dayjs'
-import { replySuccess } from '@/context/Functions'
 
 const button = css`
   color: var(--semi-color-primary);
@@ -38,9 +49,17 @@ const button = css`
   }
 `
 
-
 // Import 进度对话框：执行期间显示进度，支持取消
-function ImportingDialog({ options, filterType, filters }: { options: ImportOptions, filterType: FilterType, filters: string }) {
+function ImportingDialog({
+  options,
+  filterType,
+  filters,
+}: {
+  options: ImportOptions
+  filterType: FilterType
+  filters: string
+}) {
+  const t = useT()
   const subversion = useSubversion()
   const modal = useCurrentModal()
 
@@ -68,7 +87,6 @@ function ImportingDialog({ options, filterType, filters }: { options: ImportOpti
 
   const dialogModal = useModal()
 
-
   useEffect(() => {
     if (finished) {
       return
@@ -85,31 +103,35 @@ function ImportingDialog({ options, filterType, filters }: { options: ImportOpti
             channel.onmessage = (event) => {
               const data: Data[] = [
                 {
-                  key: 'Path:',
-                  value: event.path
+                  key: t('shared.field.path'),
+                  value: event.path,
                 },
                 {
-                  key: 'Kind:',
-                  value: event.kind
+                  key: t('advancedDialogs.import.kind'),
+                  value: event.kind,
                 },
                 {
-                  key: 'Size:',
+                  key: t('advancedDialogs.import.size'),
                   value: event.fileSize === null ? '' : filesize(event.fileSize),
-                  hidden: event.fileSize === null
+                  hidden: event.fileSize === null,
                 },
                 {
-                  key: "Modify time:",
-                  value: dayjs(event.mtime).format()
-                }
+                  key: t('advancedDialogs.import.modifyTime'),
+                  value: dayjs(event.mtime).format(),
+                },
               ]
               const exec = async () => {
-                const result = await dialogModal.show(ConfirmDialog, {
-                  title: "Import or not",
-                  children: <div>
-                    <Descriptions data={data}></Descriptions>
-                  </div>,
-                }).as<boolean>()
-                await replySuccess(event.id, result);
+                const result = await dialogModal
+                  .show(ConfirmDialog, {
+                    title: t('advancedDialogs.import.confirmTitle'),
+                    children: (
+                      <div>
+                        <Descriptions data={data}></Descriptions>
+                      </div>
+                    ),
+                  })
+                  .as<boolean>()
+                await replySuccess(event.id, result)
               }
               exec()
             }
@@ -133,7 +155,7 @@ function ImportingDialog({ options, filterType, filters }: { options: ImportOpti
         },
         onError: (error) => {
           Toast.error({
-            content: `Failed to import: ${errorHumanString(error)}`,
+            content: t('advancedDialogs.import.failed', { error: errorHumanString(error) }),
             stack: true,
           })
           setHasError(true)
@@ -152,9 +174,9 @@ function ImportingDialog({ options, filterType, filters }: { options: ImportOpti
   }, [])
 
   const descriptions = [
-    { key: 'Path', value: options.path },
-    { key: 'URL', value: options.url },
-    { key: 'Revision', value: revision?.toString() ?? null },
+    { key: t('advancedDialogs.progress.path'), value: options.path },
+    { key: t('advancedDialogs.progress.url'), value: options.url },
+    { key: t('shared.column.revision'), value: revision?.toString() ?? null },
   ]
 
   const onCancel = async () => {
@@ -184,7 +206,7 @@ function ImportingDialog({ options, filterType, filters }: { options: ImportOpti
       maskClosable={false}
       closable={false}
       size="medium"
-      title={'Import...'}
+      title={t('advancedDialogs.import.progressTitle')}
       visible={modal.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -193,13 +215,13 @@ function ImportingDialog({ options, filterType, filters }: { options: ImportOpti
         <Card>
           <Descriptions size="medium" data={descriptions}></Descriptions>
         </Card>
-        <DialogFormItem title={'Progress:'}>
+        <DialogFormItem title={t('shared.field.progress')}>
           <div className={cx(flex_1, flex_col)}>
-            <div>{`Current: ${current}`}</div>
+            <div>{t('advancedDialogs.progress.current', { name: current })}</div>
             <div className={cx(flex)}>
-              <div>{`Percentage:${percent}%`}</div>
+              <div>{t('advancedDialogs.progress.percentage', { percent })}</div>
               <div className={cx(flex_1)}></div>
-              <div>{`${pos < 0 ? 'unknown' : String(pos)}/${total < 0 ? 'unknown' : String(total)}`}</div>
+              <div>{`${pos < 0 ? t('advancedDialogs.progress.unknown') : String(pos)}/${total < 0 ? t('advancedDialogs.progress.unknown') : String(total)}`}</div>
             </div>
             <Progress indeterminate={isIndeterminate} percent={percent} size="large" />
           </div>
@@ -245,6 +267,7 @@ export interface ImportDialogProps {
 type FilterType = 'none' | 'oneByOne' | 'lines'
 
 export default function ImportDialog(props: ImportDialogProps) {
+  const t = useT()
   const [path, setPath] = useState(props.defaultPath ?? '')
   const [url, setUrl] = useState('')
   const [depth, setDepth] = useState<Depth>('infinity')
@@ -257,7 +280,7 @@ export default function ImportDialog(props: ImportDialogProps) {
 
   const selectPath = async () => {
     const selected = await open({
-      title: 'Select folder to import',
+      title: t('shared.action.selectFolderToImport'),
       multiple: false,
       directory: true,
     })
@@ -276,21 +299,21 @@ export default function ImportDialog(props: ImportDialogProps) {
   const onOk = async () => {
     if (path === '') {
       Toast.error({
-        content: 'Path must not be empty',
+        content: t('shared.error.pathRequired'),
         stack: true,
       })
       return
     }
     if (url === '') {
       Toast.error({
-        content: 'URL must not be empty',
+        content: t('shared.error.urlRequired'),
         stack: true,
       })
       return
     }
     if (commitMessage === '') {
       Toast.error({
-        content: 'Commit message is empty',
+        content: t('shared.error.commitMessageEmpty'),
         stack: true,
       })
       return
@@ -326,7 +349,7 @@ export default function ImportDialog(props: ImportDialogProps) {
     <Dialog
       afterClose={props.afterClose}
       size="medium"
-      title={'Import'}
+      title={t('shared.action.import')}
       visible={props.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -334,7 +357,7 @@ export default function ImportDialog(props: ImportDialogProps) {
     >
       <ScrollArea className={cx(flex_1, min_h_0)} contentClassName={cx(flex)}>
         <div className={cx(flex_1, flex, gap_y_3, flex_col)}>
-          <DialogFormItem title={'Path (local folder):'}>
+          <DialogFormItem title={t('shared.field.pathLocalFolder')}>
             <PureInput
               ref={focusElement}
               className={inputIcon}
@@ -346,7 +369,7 @@ export default function ImportDialog(props: ImportDialogProps) {
               }
             ></PureInput>
           </DialogFormItem>
-          <DialogFormItem title={'URL:'}>
+          <DialogFormItem title={t('shared.field.url')}>
             <PureInput
               className={inputIcon}
               value={url}
@@ -354,49 +377,60 @@ export default function ImportDialog(props: ImportDialogProps) {
               placeholder={'https://example.com/repository/trunk'}
             ></PureInput>
           </DialogFormItem>
-          <DialogFormItem title={'Depth:'}>
+          <DialogFormItem title={t('shared.field.depth')}>
             <DepthSelect
               value={depth}
               onChange={(value) => setDepth(value)}
               className={flex_1}
             ></DepthSelect>
           </DialogFormItem>
-          <DialogFormItem title={'Commit message:'}>
+          <DialogFormItem title={t('shared.field.commitMessage')}>
             <PureTextArea
               value={commitMessage}
               onChange={(e) => setCommitMessage(e)}
             ></PureTextArea>
           </DialogFormItem>
-          <DialogFormItem title={'Options:'}>
+          <DialogFormItem title={t('shared.field.options')}>
             <div className={cx(flex, flex_col, gap_y_2)}>
               <Checkbox checked={noIgnore} onChange={(e) => setNoIgnore(e.target.checked ?? false)}>
-                Include ignored files
+                {t('shared.option.includeIgnored')}
               </Checkbox>
               <Checkbox
                 checked={noAutoprops}
                 onChange={(e) => setNoAutoprops(e.target.checked ?? false)}
               >
-                Don&apos;t apply automatic properties
+                {t('shared.option.noAutoProps')}
               </Checkbox>
               <Checkbox
                 checked={ignoreUnknownNodeTypes}
                 onChange={(e) => setIgnoreUnknownNodeTypes(e.target.checked ?? false)}
               >
-                Ignore unknown node types
+                {t('shared.option.ignoreUnknownNodeTypes')}
               </Checkbox>
             </div>
           </DialogFormItem>
-          <DialogFormItem title={'Filter:'} wrapperClassName={cx(flex_col, gap_y_1)}>
-            <Select value={filterType} onChange={(e) => {
-              if (typeof e === 'string') {
-                setFilterType(e)
-              }
-            }}>
-              <Select.Option value={'none'}>none</Select.Option>
-              <Select.Option value={'oneByOne'}>one by one</Select.Option>
-              <Select.Option value={'lines'}>lines</Select.Option>
+          <DialogFormItem title={t('shared.field.filter')} wrapperClassName={cx(flex_col, gap_y_1)}>
+            <Select
+              value={filterType}
+              onChange={(e) => {
+                if (typeof e === 'string') {
+                  setFilterType(e)
+                }
+              }}
+            >
+              <Select.Option value={'none'}>{t('advancedDialogs.import.filterNone')}</Select.Option>
+              <Select.Option value={'oneByOne'}>
+                {t('advancedDialogs.import.filterOneByOne')}
+              </Select.Option>
+              <Select.Option value={'lines'}>
+                {t('advancedDialogs.import.filterLines')}
+              </Select.Option>
             </Select>
-            <PureTextArea className={cx(filterType !== 'lines' && hidden)} value={filters} onChange={setFilters}></PureTextArea>
+            <PureTextArea
+              className={cx(filterType !== 'lines' && hidden)}
+              value={filters}
+              onChange={setFilters}
+            ></PureTextArea>
           </DialogFormItem>
         </div>
       </ScrollArea>

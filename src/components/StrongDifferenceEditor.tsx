@@ -6,9 +6,9 @@ import FullscreenEnterIcon from '@icons/FullscreenEnter.svg?react'
 import FullscreenExitIcon from '@icons/FullscreenExit.svg?react'
 import PropertyViewIcon from '@icons/PropertyView.svg?react'
 import SideBySideIcon from '@icons/SideBySide.svg?react'
-import TextViewIcon from '@icons/TextView.svg?react'
-import TextChangePreviousIcon from '@icons/TextChangePrevious.svg?react'
 import TextChangeNextIcon from '@icons/TextChangeNext.svg?react'
+import TextChangePreviousIcon from '@icons/TextChangePrevious.svg?react'
+import TextViewIcon from '@icons/TextView.svg?react'
 import { css, cx } from '@linaria/core'
 import { Row, type ColumnDef } from '@tanstack/react-table'
 import { useMemoizedFn, useUpdateLayoutEffect } from 'ahooks'
@@ -17,6 +17,7 @@ import { createPortal } from 'react-dom'
 import { createHtmlPortalNode, InPortal, OutPortal } from 'react-reverse-portal'
 
 import { PropertyListEntry } from '@/bindings/PropertyListEntry'
+import { useT } from '@/i18n'
 import { IconButton } from '@/icons/IconButton'
 import {
   flex_1,
@@ -107,58 +108,62 @@ function propertyStatusOf(
   return oldValue === newValue ? 'unchanged' : 'modified'
 }
 
-function propertyStatusTag(status: PropertyStatus) {
+type Translate = ReturnType<typeof useT>
+
+function propertyStatusTag(status: PropertyStatus, t: Translate) {
   switch (status) {
     case 'added':
       return (
         <Tag size="small" color="green">
-          Added
+          {t('shared.status.added')}
         </Tag>
       )
     case 'deleted':
       return (
         <Tag size="small" color="red">
-          Deleted
+          {t('shared.status.deleted')}
         </Tag>
       )
     case 'modified':
       return (
         <Tag size="small" color="amber">
-          Modified
+          {t('shared.status.modified')}
         </Tag>
       )
     case 'unchanged':
       return (
         <Tag size="small" color="grey">
-          Unchanged
+          {t('shared.status.unchanged')}
         </Tag>
       )
   }
 }
 
-const propertyColumns: ColumnDef<PropertyRow, any>[] = [
-  { accessorKey: 'name', header: 'Name', size: 200 },
-  {
-    accessorKey: 'oldValue',
-    header: 'Orignal Value',
-    size: 200,
-    cell: (info) => {
-      return info.getValue() === undefined ? '' : info.getValue()
+function propertyColumns(t: Translate): ColumnDef<PropertyRow, any>[] {
+  return [
+    { accessorKey: 'name', header: t('shared.column.name'), size: 200 },
+    {
+      accessorKey: 'oldValue',
+      header: t('shared.column.originalValue'),
+      size: 200,
+      cell: (info) => {
+        return info.getValue() === undefined ? '' : info.getValue()
+      },
     },
-  },
-  {
-    accessorKey: 'newValue',
-    header: 'Modified Value',
-    size: 200,
-    cell: (info) => (info.getValue() === undefined ? '' : info.getValue()),
-  },
-  {
-    id: 'status',
-    header: 'Status',
-    size: 100,
-    cell: (info) => propertyStatusTag(info.row.original.status),
-  },
-]
+    {
+      accessorKey: 'newValue',
+      header: t('shared.column.modifiedValue'),
+      size: 200,
+      cell: (info) => (info.getValue() === undefined ? '' : info.getValue()),
+    },
+    {
+      id: 'status',
+      header: t('shared.column.status'),
+      size: 100,
+      cell: (info) => propertyStatusTag(info.row.original.status, t),
+    },
+  ]
+}
 
 // export interface StrongDiferenceModel {
 //   content?: DifferenceModel | ErrorModel | null | Promise<DifferenceModel | ErrorModel>
@@ -215,6 +220,7 @@ export interface PropertyModalContext {
 }
 
 function DifferenceContent(props: DifferenceContentProps) {
+  const t = useT()
   const [content, setContent] = useState<State<DifferenceModel>>()
   const [property, setProperty] = useState<State<PropertyModel>>()
 
@@ -403,7 +409,7 @@ function DifferenceContent(props: DifferenceContentProps) {
 
   const [diffMethod, setDiffMethod] = useState(0)
   const addPropertyIcon = (
-    <Tooltip content="Add property">
+    <Tooltip content={t('shared.action.addProperty')}>
       <IconButton
         data-status={
           !props.visible || props.target?.addProperty === undefined || props.viewType !== 'property'
@@ -425,15 +431,11 @@ function DifferenceContent(props: DifferenceContentProps) {
   )
 
   const textChangeNextIcon = (
-    <Tooltip content="Next change">
+    <Tooltip content={t('shared.action.nextChange')}>
       <IconButton
-        data-status={
-          !props.visible || props.viewType !== 'text'
-            ? 'none'
-            : undefined
-        }
+        data-status={!props.visible || props.viewType !== 'text' ? 'none' : undefined}
         onClick={() => {
-          setDiffMethod(v => (v ?? 0) + 1)
+          setDiffMethod((v) => (v ?? 0) + 1)
         }}
       >
         <TextChangeNextIcon />
@@ -442,22 +444,17 @@ function DifferenceContent(props: DifferenceContentProps) {
   )
 
   const textChangePreviousIcon = (
-    <Tooltip content="Previous change">
+    <Tooltip content={t('shared.action.previousChange')}>
       <IconButton
-        data-status={
-          !props.visible || props.viewType !== 'text'
-            ? 'none'
-            : undefined
-        }
+        data-status={!props.visible || props.viewType !== 'text' ? 'none' : undefined}
         onClick={() => {
-          setDiffMethod(v => (v ?? 0) - 1)
+          setDiffMethod((v) => (v ?? 0) - 1)
         }}
       >
-        <TextChangePreviousIcon/>
+        <TextChangePreviousIcon />
       </IconButton>
     </Tooltip>
   )
-
 
   // Logger.info(
   //   'Add property icon visible: ',
@@ -499,7 +496,7 @@ function DifferenceContent(props: DifferenceContentProps) {
         <Table
           selectionMode="row"
           data={propertyRows}
-          columns={propertyColumns}
+          columns={propertyColumns(t)}
           className={cx(flex_1, block_minimizable)}
           onGetRowId={(row) => row.name}
           rowContextMenu={props.target?.propertyRowContextMenu?.({
@@ -512,6 +509,7 @@ function DifferenceContent(props: DifferenceContentProps) {
 }
 
 export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferenceEditorProps) {
+  const t = useT()
   const [sideBySide, setSideBySide] = useState(false)
   const [currentViewType, setCurrentViewType] = useState<'text' | 'property'>('text')
   const [hideUnchanged, setHideUnchanged] = useState(false)
@@ -651,7 +649,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
               icons={[
                 {
                   icon: <TextViewIcon></TextViewIcon>,
-                  tooltip: 'Text',
+                  tooltip: t('shared.column.text'),
                   identity: 'text',
                   onClick() {
                     setCurrentViewType('text')
@@ -660,7 +658,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
                 {
                   icon: <PropertyViewIcon></PropertyViewIcon>,
                   identity: 'property',
-                  tooltip: 'Property',
+                  tooltip: t('shared.column.property'),
                   onClick() {
                     setCurrentViewType('property')
                   },
@@ -669,7 +667,13 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
             ></RadioIconGroup>
             <div className={cx(flex_1)}></div>
             <div className={cx(flex)} ref={setIconContainer}></div>
-            <HoverTooltip content={maximized ? 'Exit Fullscreen' : 'Enter Fullscreen'}>
+            <HoverTooltip
+              content={
+                maximized
+                  ? t('components.difference.exitFullscreen')
+                  : t('components.difference.enterFullscreen')
+              }
+            >
               <IconButton onClick={() => setMaximized((v) => !v)}>
                 {maximized ? (
                   <FullscreenExitIcon></FullscreenExitIcon>
@@ -678,7 +682,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
                 )}
               </IconButton>
             </HoverTooltip>
-            <Tooltip content="Expand Keywords">
+            <Tooltip content={t('shared.action.expandKeywords')}>
               <IconButton
                 color={expandKeywords ? 'var(--semi-color-primary)' : undefined}
                 onClick={() => setExpandKeywords((value) => !value)}
@@ -686,7 +690,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
                 <ExpandKeywardsIcon></ExpandKeywardsIcon>
               </IconButton>
             </Tooltip>
-            <Tooltip content="Hide unchanged">
+            <Tooltip content={t('shared.action.hideUnchanged')}>
               <IconButton
                 color={hideUnchanged ? 'var(--semi-color-primary)' : undefined}
                 onClick={() => setHideUnchanged((value) => !value)}
@@ -694,7 +698,7 @@ export default function StrongDifferenceEditor({ ref, ...props }: StrongDifferen
                 <ChangeOnlyIcon></ChangeOnlyIcon>
               </IconButton>
             </Tooltip>
-            <Tooltip content="Side by Side">
+            <Tooltip content={t('shared.action.sideBySide')}>
               <IconButton
                 color={sideBySide ? 'var(--semi-color-primary)' : undefined}
                 onClick={() => setSideBySide((v) => !v)}

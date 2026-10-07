@@ -92,14 +92,14 @@ pub enum ConflictOptionId {
         ffi::svn_client_conflict_option_id_t_svn_client_conflict_option_both_moved_dir_move_merge,
 }
 
-#[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub struct ConflictOption {
-    id: ConflictOptionId,
-    label: String,
-    description: String,
-}
+// #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+// #[serde(rename_all = "camelCase")]
+// #[ts(export)]
+// pub struct ConflictOption {
+//     id: ConflictOptionId,
+//     label: String,
+//     description: String,
+// }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]

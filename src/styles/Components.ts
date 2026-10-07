@@ -49,10 +49,16 @@ export const disable_move = css`
 export const context_menu_content = css`
   position: relative;
   z-index: 1050;
+  /* 让下面的 max-height 含住 padding，否则会比可用高度多出上下各 4px 的 padding */
+  box-sizing: border-box;
   min-width: 150px;
   max-width: 380px;
+  /* radix 只会把菜单挪到能放下为止，放不下就任由它超出视口被裁掉；
+     这个变量是它算好的可用高度，拿来做上限才能让菜单自己滚动。 */
+  max-height: var(--radix-context-menu-content-available-height);
   padding: 4px 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border-radius: var(--semi-border-radius-medium, 6px);
   background: var(--semi-color-bg-3);
   box-shadow: var(--semi-shadow-elevated);

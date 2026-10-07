@@ -17,6 +17,7 @@ import { useDatabase } from '@/context/Database'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { Identity, useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
+import { useT } from '@/i18n'
 import { ModalProvider, useCurrentModal, useModal } from '@/lib/multi-modal'
 import errorHumanString, { isSubversionError } from '@/utils/Error'
 import Logger from '@/utils/Logger'
@@ -43,11 +44,12 @@ import { useWorkingspaceViewStore } from './WorkspaceView.Store'
 
 const GoToDialog = (props: { children?: React.ReactNode }) => {
   const modal = useCurrentModal()
+  const t = useT()
 
   return (
     <Dialog
       visible={modal.visible}
-      title="Question"
+      title={t('changes.workspace.questionTitle')}
       onOk={() => {
         modal.resolve(true)
         modal.hide()
@@ -90,8 +92,13 @@ interface WorkspaceViewProps {
 }
 
 export function WorkspaceView(props: WorkspaceViewProps) {
+  const tabContent = useTabContent()
   return (
-    <SubversionProvider className={cx(h_full)} singleton={true}>
+    <SubversionProvider
+      className={cx(h_full)}
+      singleton={true}
+      notifyLogIdentity={tabContent.identity}
+    >
       <ModalProvider>
         <WorkspaceViewInner {...props}></WorkspaceViewInner>
       </ModalProvider>
@@ -106,6 +113,7 @@ export interface WorkspaceViewRef {
 }
 
 function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
+  const t = useT()
   const subversion = useSubversion()
   const [root, setRoot] = useState<string | null>(null)
 
@@ -128,11 +136,11 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
         const target = root !== null ? root : path
         await modal
           .show(ConfirmDialog, {
-            title: 'Error',
+            title: t('changes.workspace.errorTitle'),
             children: (
-              <div
-                className={cx(break_all, break_word)}
-              >{`${target} is not a working copy folder`}</div>
+              <div className={cx(break_all, break_word)}>
+                {t('shared.error.notWorkingCopy', { target })}
+              </div>
             ),
             icon: 'error',
           })
@@ -143,9 +151,11 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
         const target = root !== null ? root : path
         const result = await modal
           .show(ConfirmDialog, {
-            title: 'Upgrade',
+            title: t('changes.workspace.upgradeTitle'),
             children: (
-              <div className={cx(break_all, break_word)}>{`${target} upgrade required`}</div>
+              <div className={cx(break_all, break_word)}>
+                {t('shared.error.upgradeRequired', { target })}
+              </div>
             ),
             icon: 'error',
           })
@@ -202,9 +212,9 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
             const result = await modal
               .show(GoToDialog, {
                 children: (
-                  <div
-                    className={cx(break_all, break_word)}
-                  >{`${path} has already been opened\nWhether go to the view`}</div>
+                  <div className={cx(break_all, break_word)}>
+                    {t('changes.workspace.alreadyOpened', { path })}
+                  </div>
                 ),
               })
               .as<boolean>()
@@ -238,7 +248,7 @@ function WorkspaceViewInner({ from, path }: WorkspaceViewProps) {
           }
           Logger.info('ready to update workspace item')
 
-          const name = item?.name ?? localPath.getFileName(root) ?? 'Untitled'
+          const name = item?.name ?? localPath.getFileName(root) ?? t('changes.workspace.untitled')
           currentWorkspaceItem.current = await addWorkspaceItem(async (order) => {
             return {
               workingCopy: {

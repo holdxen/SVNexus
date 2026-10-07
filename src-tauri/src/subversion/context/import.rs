@@ -18,16 +18,16 @@ pub struct ImportResult {
     pub info: CommitInfo,
 }
 
-pub trait ImportFilter: Send + Sync + 'static {
-    fn filter(
-        &self,
-        path: String,
-        kind: NodeKind,
-        special: bool,
-        file_size: Option<u64>,
-        mtime: i64,
-    ) -> error::Result<bool, error::FrontendError>;
-}
+// pub trait ImportFilter: Send + Sync + 'static {
+//     fn filter(
+//         &self,
+//         path: String,
+//         kind: NodeKind,
+//         special: bool,
+//         file_size: Option<u64>,
+//         mtime: i64,
+//     ) -> error::Result<bool, error::FrontendError>;
+// }
 
 #[derive(new, Debug, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]

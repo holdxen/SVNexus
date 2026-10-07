@@ -227,6 +227,22 @@ pub fn path_start_with(path: String, prefix: String) -> bool {
     path.starts_with(prefix)
 }
 
+/// 把日志目录下的日志打包成一个 zip，返回归档路径。前端读出来作为附件上传；
+/// 打包在 Rust 侧做，既不用给前端加压缩库，也不用手动把几十兆日志读进 JS。
+#[svnexus_macro::messagepack_command]
+pub fn logs_package() -> error::Result<String> {
+    let archive = crate::logs::package()?;
+    Ok(archive.to_string())
+}
+
+/// 用户手动导出：把日志目录下所有文件完整打包成 zip，直接写到指定路径。
+#[svnexus_macro::messagepack_command]
+pub async fn logs_export(path: String) -> error::Result<()> {
+    tokio::task::spawn_blocking(move || crate::logs::export(&Utf8PathBuf::from(path)))
+        .await
+        .context(builder::Runtime)?
+}
+
 #[svnexus_macro::messagepack_command]
 pub async fn fs_read_link(path: String) -> error::Result<String> {
     let target = tokio::fs::read_link(&path).await?;

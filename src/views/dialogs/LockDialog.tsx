@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { LockOptions } from '@/bindings/LockOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -55,6 +56,7 @@ export interface LockDialogProps {
 }
 
 export default function LockDialog(props: LockDialogProps) {
+  const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [hasComment, setHasComment] = useState(false)
   const [comment, setComment] = useState('')
@@ -83,7 +85,7 @@ export default function LockDialog(props: LockDialogProps) {
     <Dialog
       size="medium"
       onCancel={props.onCancel}
-      title="Lock"
+      title={t('shared.action.lock')}
       afterClose={props.afterClose}
       visible={props.visible}
       footer={<></>}
@@ -95,7 +97,7 @@ export default function LockDialog(props: LockDialogProps) {
         <DialogFormItem
           className={cx(flex_1, min_h_0)}
           wrapperClassName={cx(min_h_0)}
-          title="Targets:"
+          title={t('shared.field.targets')}
         >
           <Card
             className={cx(min_h_0, flex_1, flex)}
@@ -126,9 +128,9 @@ export default function LockDialog(props: LockDialogProps) {
         </DialogFormItem>
         <div className={cx(flex, flex_col, min_h_0, gap_y_2, min_w_0)}>
           <div className={cx(flex_1, min_h_0)}></div>
-          <DialogFormItem title="Options:">
+          <DialogFormItem title={t('shared.field.options')}>
             <Checkbox checked={stealLock} onChange={(e) => setStealLock(e.target.checked ?? false)}>
-              Steal lock
+              {t('shared.option.stealLock')}
             </Checkbox>
           </DialogFormItem>
           <DialogFormItem
@@ -138,18 +140,21 @@ export default function LockDialog(props: LockDialogProps) {
                 checked={hasComment}
                 onChange={(e) => setHasComment(e.target.checked ?? false)}
               >
-                Comment:
+                {t('shared.field.comment')}
               </Checkbox>
             }
           >
             <TextArea onChange={(e) => setComment(e)} disabled={!hasComment}></TextArea>
           </DialogFormItem>
-          <DialogFormItem wrapperClassName={cx(flex_row_reverse, gap_x_2)} title="Action:">
+          <DialogFormItem
+            wrapperClassName={cx(flex_row_reverse, gap_x_2)}
+            title={t('svnDialogs.lock.action')}
+          >
             <Button loading={isRunning} onClick={onOk} type="primary" theme="solid">
-              确定
+              {t('common.ok')}
             </Button>
             <Button disabled={isRunning} onClick={props.onCancel}>
-              取消
+              {t('common.cancel')}
             </Button>
           </DialogFormItem>
         </div>

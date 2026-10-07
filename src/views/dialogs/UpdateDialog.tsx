@@ -8,6 +8,7 @@ import { UpdateOptions } from '@/bindings/UpdateOptions'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import RevisionSelect from '@/components/subversion/RevisionSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   flex,
@@ -56,6 +57,7 @@ export interface UpdateDialogProps {
 }
 
 export default function UpdateDialog(props: UpdateDialogProps) {
+  const t = useT()
   const [depth, setDepth] = useState<Depth>('infinity')
   const [depthIsSticky, setDepthIsSticky] = useState(false)
   const [ignoreExternals, setIgnoreExternals] = useState(false)
@@ -92,12 +94,12 @@ export default function UpdateDialog(props: UpdateDialogProps) {
             const path = props.items[i].path
             if (number === null) {
               Toast.success({
-                content: `Update ${path} successfully`,
+                content: t('svnDialogs.update.success', { path }),
                 stack: true,
               })
             } else {
               Toast.success({
-                content: `Update ${path} successfully at r${number}`,
+                content: t('svnDialogs.update.successAt', { path, revision: number }),
                 stack: true,
               })
             }
@@ -108,7 +110,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
       },
       onError: (error) => {
         Toast.error({
-          content: `Failed to update: ${errorHumanString(error)}`,
+          content: t('svnDialogs.update.failed', { error: errorHumanString(error) }),
           stack: true,
         })
       },
@@ -159,7 +161,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
     <Dialog
       size="medium"
       afterClose={props.afterClose}
-      title={'Update'}
+      title={t('shared.action.update')}
       visible={props.visible}
       onCancel={onCancel}
       onOk={onOk}
@@ -192,7 +194,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
           </div>
         </Card>
         {/*<Text strong style={{ color: 'rgba(var(--semi-grey-9), 1)' }}>Items:</Text>*/}
-        <DialogFormItem title="Revision:">
+        <DialogFormItem title={t('shared.field.revision')}>
           <RevisionSelect
             className={flex_1}
             disableLayout={true}
@@ -201,7 +203,7 @@ export default function UpdateDialog(props: UpdateDialogProps) {
             onChange={setRevision}
           ></RevisionSelect>
         </DialogFormItem>
-        <DialogFormItem title="Depth:">
+        <DialogFormItem title={t('shared.field.depth')}>
           <DepthSelect
             className={flex_1}
             value={depth}
@@ -212,28 +214,28 @@ export default function UpdateDialog(props: UpdateDialogProps) {
           checked={depthIsSticky}
           onChange={(e) => setDepthIsSticky(e.target.checked ?? false)}
         >
-          Depth is sticky
+          {t('shared.option.depthIsSticky')}
         </Checkbox>
         <Checkbox
           checked={ignoreExternals}
           onChange={(e) => setIgnoreExternals(e.target.checked ?? false)}
         >
-          Ignore externals
+          {t('shared.option.ignoreExternals')}
         </Checkbox>
         <Checkbox
           checked={allowUnverObstructions}
           onChange={(e) => setAllowUnverObstructions(e.target.checked ?? false)}
         >
-          AllowUnverObstructions
+          {t('shared.option.allowUnversionedObstructions')}
         </Checkbox>
         <Checkbox
           checked={addsAsModification}
           onChange={(e) => setAddsAsModification(e.target.checked ?? false)}
         >
-          Add as modification
+          {t('shared.option.addAsModification')}
         </Checkbox>
         <Checkbox checked={makeParents} onChange={(e) => setMakeParents(e.target.checked ?? false)}>
-          Make parents
+          {t('shared.option.makeParents')}
         </Checkbox>
       </div>
     </Dialog>

@@ -7,6 +7,7 @@ import { TrustServer } from '@/bindings/TrustServer'
 import { ScrollArea } from '@/components/ScrollArea'
 import { replySuccess } from '@/context/Functions'
 import { SubversionEventMap } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import {
   border_box,
   break_all,
@@ -34,6 +35,7 @@ type SslServerTrustPromptDialogProps = SubversionEventMap['sslServerTrustPrompt'
 }
 
 export default function SslServerTrustPromptDialog(props: SslServerTrustPromptDialogProps) {
+  const t = useT()
   const [visible, setVisible] = useState(true)
   const [save, setSave] = useState(false)
   const [certExpanded, setCertExpanded] = useState(false)
@@ -47,13 +49,13 @@ export default function SslServerTrustPromptDialog(props: SslServerTrustPromptDi
   expandIcon = <div className={cx(flex, items_center)}>{expandIcon}</div>
 
   const descriptions = [
-    { key: 'Realm:', value: props.realm },
-    { key: 'Hostname:', value: props.info.hostname },
-    { key: 'Fingerprint:', value: props.info.fingerprint },
-    { key: 'ValidFrom:', value: props.info.validFrom },
-    { key: 'ValidUntil:', value: props.info.validUntil },
-    { key: 'Issuer:', value: props.info.issuer },
-    { key: 'AsciiCert:', value: expandIcon },
+    { key: t('shared.field.realm'), value: props.realm },
+    { key: t('advancedDialogs.sslTrust.hostname'), value: props.info.hostname },
+    { key: t('advancedDialogs.sslTrust.fingerprint'), value: props.info.fingerprint },
+    { key: t('advancedDialogs.sslTrust.validFrom'), value: props.info.validFrom },
+    { key: t('advancedDialogs.sslTrust.validUntil'), value: props.info.validUntil },
+    { key: t('advancedDialogs.sslTrust.issuer'), value: props.info.issuer },
+    { key: t('advancedDialogs.sslTrust.asciiCert'), value: expandIcon },
   ]
 
   const close = () => {
@@ -121,7 +123,7 @@ export default function SslServerTrustPromptDialog(props: SslServerTrustPromptDi
           onChange={(e) => setSave(e.target.checked ?? false)}
           className={cx(!props.maySave && hidden)}
         >
-          Save
+          {t('shared.action.save')}
         </Checkbox>
       </ScrollArea>
     </Dialog>

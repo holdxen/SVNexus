@@ -4,6 +4,7 @@ import { css, cx } from '@linaria/core'
 
 import HoverTooltip from '@/components/HoverTooltip'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
+import { useT } from '@/i18n'
 import {
   flex,
   items_center,
@@ -152,6 +153,7 @@ export const WorkingCopyIconStyle = css`
 `
 
 export function WorkingCopyItem(props: WorkingCopyItemProps) {
+  const t = useT()
   // grid grid-cols-[auto_auto_minmax(0,1fr)_auto_auto_auto]
   // grid grid-cols-[auto_minmax(0,1fr)]
 
@@ -192,7 +194,7 @@ export function WorkingCopyItem(props: WorkingCopyItemProps) {
       </div>
       <HoverTooltip
         wrapperClassName={cx(flex, items_center, !props.copied && hidden)}
-        content="Copied"
+        content={t('shared.status.copied')}
       >
         <CopyFromIcon></CopyFromIcon>
       </HoverTooltip>
@@ -205,7 +207,7 @@ export function WorkingCopyItem(props: WorkingCopyItemProps) {
       <StarIcon className={hidden}></StarIcon>
       <HoverTooltip
         wrapperClassName={cx(flex, items_center, !props.switched && hidden)}
-        content={'Switched'}
+        content={t('shared.status.switched')}
       >
         <ExchangeIcon></ExchangeIcon>
       </HoverTooltip>

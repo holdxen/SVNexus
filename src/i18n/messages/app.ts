@@ -1,0 +1,38 @@
+import { defineMessages } from '../define'
+
+export const app = defineMessages({
+  zh: {
+    'app.menu.settings': '设置',
+    'app.menu.checkUpdate': '检查更新',
+    'app.menu.exportLogs': '导出日志',
+    'app.menu.feedback': '反馈',
+    'app.menu.about': '关于',
+    'app.exportLogs.success': '日志已导出',
+    'app.exportLogs.failed': '导出日志失败',
+    'app.tab.welcome': '欢迎',
+    'app.tab.workspace': '工作副本',
+    'app.update.upToDate': '当前已是最新版本',
+    'app.update.checkFailed': '检查更新失败，请稍后重试',
+    'app.notifyLog.title': '操作记录',
+    'app.notifyLog.entries': '共 {count} 条',
+    'app.notifyLog.clear': '清除',
+    'app.notifyLog.empty': '当前标签页还没有操作记录',
+  },
+  en: {
+    'app.menu.settings': 'Settings',
+    'app.menu.checkUpdate': 'Check for updates',
+    'app.menu.exportLogs': 'Export logs',
+    'app.menu.feedback': 'Feedback',
+    'app.menu.about': 'About',
+    'app.exportLogs.success': 'Logs exported',
+    'app.exportLogs.failed': 'Failed to export logs',
+    'app.tab.welcome': 'Welcome',
+    'app.tab.workspace': 'Workspace',
+    'app.update.upToDate': 'You are already on the latest version',
+    'app.update.checkFailed': 'Update check failed. Please try again later.',
+    'app.notifyLog.title': 'Activity log',
+    'app.notifyLog.entries': '{count} entries',
+    'app.notifyLog.clear': 'Clear',
+    'app.notifyLog.empty': 'No activity recorded in this tab yet',
+  },
+})

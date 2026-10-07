@@ -3,6 +3,7 @@ import { cx } from '@linaria/core'
 import { RefObject, useEffect, useImperativeHandle } from 'react'
 import { RotatingLines } from 'react-loader-spinner'
 
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { flex, flex_1, flex_col, gap_y_2, items_center } from '@/styles/Classes'
 
@@ -54,6 +55,7 @@ export interface LoadingDialogProps {
 }
 
 export default function LoadingDialog(props: LoadingDialogProps) {
+  const t = useT()
   const onCancel = async () => {
     if (props.onCancel) {
       const result = await props.onCancel()
@@ -88,7 +90,7 @@ export default function LoadingDialog(props: LoadingDialogProps) {
           wrapperStyle={{}}
           wrapperClass=""
         />
-        {props.cancelable && <Button onClick={onCancel}>Cancel</Button>}
+        {props.cancelable && <Button onClick={onCancel}>{t('common.cancel')}</Button>}
       </div>
     </Dialog>
   )

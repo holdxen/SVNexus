@@ -16,9 +16,9 @@ pub struct StatusOptions {
     changelist: Option<Vec<String>>,
 }
 
-pub trait StatusReceiver: Send + Sync + 'static {
-    fn on_status_entry(&self, entry: StatusEntry) -> Result<(), error::FrontendError>;
-}
+// pub trait StatusReceiver: Send + Sync + 'static {
+//     fn on_status_entry(&self, entry: StatusEntry) -> Result<(), error::FrontendError>;
+// }
 
 #[derive(Debug, Serialize, Deserialize, new, ts_rs::TS)]
 #[serde(rename_all = "camelCase")]
@@ -224,81 +224,81 @@ impl StatusEntry {
 }
 
 impl Context {
-    pub fn status_next(
-        &mut self,
-        opts: StatusOptions,
-        receiver: Arc<dyn StatusReceiver>,
-    ) -> error::Result<()> {
-        unsafe extern "C" fn status_receiver(
-            baton: *mut c_void,
-            path: *const c_char,
-            status: *const ffi::svn_client_status_t,
-            _pool: *mut ffi::apr_pool_t,
-        ) -> *mut ffi::svn_error_t {
-            unsafe {
-                let this = (baton as *mut ContextInner)
-                    .as_mut()
-                    .expect("Failed to cast baton to mutable reference");
-
-                let mut entry = StatusEntry::from_path_and_ptr(path, status);
-
-                let result = entry.fix_node_kind();
-                if let Err(err) = result {
-                    tracing::warn!("Failed to detect node kind of {}:{}", entry.path, err);
-                }
-
-                this.status_receiver
-                    .as_ref()
-                    .expect("status receiver must be set")
-                    .on_status_entry(entry)
-                    .native_error()
-            }
-        }
-
-        let mut result_revision: ffi::svn_revnum_t = 0;
-
-        let revision = opts.revision.to_opt_revision();
-
-        // tracing::info!("status options={:#?}", opts);
-
-        unsafe {
-            let mut pool = apr::Pool::create();
-            let path = pool.canonicalize_dirent(opts.path.as_str())?;
-            let changelist = opts
-                .changelist
-                .as_ref()
-                .map(|e| pool.string_array(e.len(), e.iter()))
-                .transpose()?
-                .unwrap_or_default();
-
-            self.inner.status_receiver = Some(receiver);
-
-            let error = ffi::svn_client_status6(
-                &mut result_revision as *mut _,
-                self.ptr,
-                path,
-                &revision as *const _,
-                opts.depth.into(),
-                opts.get_all.into(),
-                opts.check_out_of_date.into(),
-                opts.check_working_copy.into(),
-                opts.no_ignore.into(),
-                opts.ignore_externals.into(),
-                opts.depth_as_sticky.into(),
-                changelist,
-                Some(status_receiver),
-                &mut *self.inner as *mut ContextInner as *mut c_void,
-                pool.as_mut_ptr(),
-            );
-
-            self.inner.status_receiver.take();
-
-            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
-        };
-
-        Ok(())
-    }
-
+    //     pub fn status_next(
+    //         &mut self,
+    //         opts: StatusOptions,
+    //         receiver: Arc<dyn StatusReceiver>,
+    //     ) -> error::Result<()> {
+    //         unsafe extern "C" fn status_receiver(
+    //             baton: *mut c_void,
+    //             path: *const c_char,
+    //             status: *const ffi::svn_client_status_t,
+    //             _pool: *mut ffi::apr_pool_t,
+    //         ) -> *mut ffi::svn_error_t {
+    //             unsafe {
+    //                 let this = (baton as *mut ContextInner)
+    //                     .as_mut()
+    //                     .expect("Failed to cast baton to mutable reference");
+    //
+    //                 let mut entry = StatusEntry::from_path_and_ptr(path, status);
+    //
+    //                 let result = entry.fix_node_kind();
+    //                 if let Err(err) = result {
+    //                     tracing::warn!("Failed to detect node kind of {}:{}", entry.path, err);
+    //                 }
+    //
+    //                 this.status_receiver
+    //                     .as_ref()
+    //                     .expect("status receiver must be set")
+    //                     .on_status_entry(entry)
+    //                     .native_error()
+    //             }
+    //         }
+    //
+    //         let mut result_revision: ffi::svn_revnum_t = 0;
+    //
+    //         let revision = opts.revision.to_opt_revision();
+    //
+    //         // tracing::info!("status options={:#?}", opts);
+    //
+    //         unsafe {
+    //             let mut pool = apr::Pool::create();
+    //             let path = pool.canonicalize_dirent(opts.path.as_str())?;
+    //             let changelist = opts
+    //                 .changelist
+    //                 .as_ref()
+    //                 .map(|e| pool.string_array(e.len(), e.iter()))
+    //                 .transpose()?
+    //                 .unwrap_or_default();
+    //
+    //             self.inner.status_receiver = Some(receiver);
+    //
+    //             let error = ffi::svn_client_status6(
+    //                 &mut result_revision as *mut _,
+    //                 self.ptr,
+    //                 path,
+    //                 &revision as *const _,
+    //                 opts.depth.into(),
+    //                 opts.get_all.into(),
+    //                 opts.check_out_of_date.into(),
+    //                 opts.check_working_copy.into(),
+    //                 opts.no_ignore.into(),
+    //                 opts.ignore_externals.into(),
+    //                 opts.depth_as_sticky.into(),
+    //                 changelist,
+    //                 Some(status_receiver),
+    //                 &mut *self.inner as *mut ContextInner as *mut c_void,
+    //                 pool.as_mut_ptr(),
+    //             );
+    //
+    //             self.inner.status_receiver.take();
+    //
+    //             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+    //         };
+    //
+    //         Ok(())
+    //     }
+    //
     pub fn status(&mut self, opts: StatusOptions) -> error::Result<StatusResult> {
         unsafe extern "C" fn status_receiver(
             baton: *mut c_void,

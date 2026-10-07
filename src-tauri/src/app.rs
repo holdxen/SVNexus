@@ -144,6 +144,10 @@ impl dyn ProjectDirectory {
     pub fn log_directory(&self) -> PathBuf {
         self.cache_directory().join("logs")
     }
+
+    pub fn settings_file(&self) -> PathBuf {
+        self.config_directory().join("settings.toml")
+    }
 }
 
 // pub struct GlobalConfig {

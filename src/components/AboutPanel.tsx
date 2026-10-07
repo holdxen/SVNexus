@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { ExtendedVersion } from '@/bindings/ExtendedVersion'
 import { extendedVersion } from '@/context/Functions'
+import { useT } from '@/i18n'
 import { flex, flex_col, items_center, min_h_0 } from '@/styles/Classes'
 
 import { ScrollArea } from './ScrollArea'
@@ -35,6 +36,7 @@ interface AboutPanelProps {
 }
 
 export function AboutPanel({ className }: AboutPanelProps) {
+  const t = useT()
   const [appVersion, setAppVersion] = useState('')
   const [tauriVersion, setTauriVersion] = useState('')
   const [extVersion, setExtVersion] = useState<ExtendedVersion | null>(null)
@@ -80,10 +82,10 @@ export function AboutPanel({ className }: AboutPanelProps) {
         <Typography.Title heading={4} style={{ marginTop: 12 }}>
           SVNexus
         </Typography.Title>
-        <Typography.Text type="tertiary">Version {appVersion}</Typography.Text>
-        <Typography.Text style={{ marginTop: 12 }}>
-          A modern Subversion client built with Tauri
+        <Typography.Text type="tertiary">
+          {t('components.about.version', { appVersion })}
         </Typography.Text>
+        <Typography.Text style={{ marginTop: 12 }}>{t('components.about.tagline')}</Typography.Text>
       </div>
 
       <Divider style={{ margin: '16px 0' }} />
@@ -111,7 +113,7 @@ export function AboutPanel({ className }: AboutPanelProps) {
             <>
               <Divider style={{ width: '100%', margin: '12px 0' }} />
               <Typography.Text type="tertiary" size="small">
-                Linked Libraries
+                {t('components.about.linkedLibraries')}
               </Typography.Text>
               <Descriptions data={libraryData} style={{ marginTop: 8 }} />
             </>
@@ -121,7 +123,7 @@ export function AboutPanel({ className }: AboutPanelProps) {
             <>
               <Divider style={{ width: '100%', margin: '12px 0' }} />
               <Typography.Text type="tertiary" size="small">
-                Loaded Libraries
+                {t('components.about.loadedLibraries')}
               </Typography.Text>
               <Descriptions data={loadedLibraryData} style={{ marginTop: 8 }} />
             </>

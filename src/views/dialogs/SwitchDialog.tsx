@@ -10,6 +10,7 @@ import { ScrollArea } from '@/components/ScrollArea'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import RevisionSelect from '@/components/subversion/RevisionSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import { flex, flex_1, flex_col, gap_y_2 } from '@/styles/Classes'
 import errorHumanString from '@/utils/Error'
@@ -47,6 +48,7 @@ export interface SwitchDialogProps {
 }
 
 export default function SwitchDialog(props: SwitchDialogProps) {
+  const t = useT()
   const [url, setUrl] = useState(props.url)
   const [revision, setRevision] = useState<Revision>('unspecified')
   const [pegRevision, setPegRevision] = useState<Revision>('unspecified')
@@ -76,14 +78,14 @@ export default function SwitchDialog(props: SwitchDialogProps) {
         }
         const rev = await context.switch(options)
         Toast.success({
-          content: `Switched to r${rev}`,
+          content: t('svnDialogs.switch.success', { revision: rev }),
           stack: true,
         })
         props.onOk?.()
       },
       onError: (error) => {
         Toast.error({
-          content: `Failed to switch: ${errorHumanString(error)}`,
+          content: t('svnDialogs.switch.failed', { error: errorHumanString(error) }),
           stack: true,
         })
       },
@@ -94,7 +96,7 @@ export default function SwitchDialog(props: SwitchDialogProps) {
     <Dialog
       size={'medium'}
       initialFocusRef={focusRef}
-      title="Switch"
+      title={t('shared.action.switch')}
       onOk={onOk}
       onCancel={props.onCancel}
       visible={props.visible}
@@ -102,13 +104,13 @@ export default function SwitchDialog(props: SwitchDialogProps) {
     >
       <ScrollArea className={cx(flex_1)}>
         <div className={cx(flex, flex_col, gap_y_2)}>
-          <DialogFormItem title="Working copy:">
+          <DialogFormItem title={t('shared.field.workingCopy')}>
             <PureInput disabled value={props.path} />
           </DialogFormItem>
-          <DialogFormItem title="URL:">
+          <DialogFormItem title={t('shared.field.url')}>
             <PureInput ref={focusRef} value={url} onChange={(e) => setUrl(e)} />
           </DialogFormItem>
-          <DialogFormItem title="Revision:">
+          <DialogFormItem title={t('shared.field.revision')}>
             <RevisionSelect
               className={flex_1}
               disableLayout={true}
@@ -117,7 +119,7 @@ export default function SwitchDialog(props: SwitchDialogProps) {
               onChange={setRevision}
             ></RevisionSelect>
           </DialogFormItem>
-          <DialogFormItem title="Peg revision:">
+          <DialogFormItem title={t('shared.field.pegRevision')}>
             <RevisionSelect
               className={flex_1}
               disableLayout={true}
@@ -126,7 +128,7 @@ export default function SwitchDialog(props: SwitchDialogProps) {
               onChange={setPegRevision}
             ></RevisionSelect>
           </DialogFormItem>
-          <DialogFormItem title="Depth:">
+          <DialogFormItem title={t('shared.field.depth')}>
             <DepthSelect
               className={flex_1}
               value={depth}
@@ -137,25 +139,25 @@ export default function SwitchDialog(props: SwitchDialogProps) {
             checked={depthIsSticky}
             onChange={(e) => setDepthIsSticky(e.target.checked ?? false)}
           >
-            Depth is sticky
+            {t('shared.option.depthIsSticky')}
           </Checkbox>
           <Checkbox
             checked={ignoreExternals}
             onChange={(e) => setIgnoreExternals(e.target.checked ?? false)}
           >
-            Ignore externals
+            {t('shared.option.ignoreExternals')}
           </Checkbox>
           <Checkbox
             checked={allowUnversionedObstructions}
             onChange={(e) => setAllowUnversionedObstructions(e.target.checked ?? false)}
           >
-            Allow unversioned obstructions
+            {t('shared.option.allowUnversionedObstructions')}
           </Checkbox>
           <Checkbox
             checked={ignoreAncestry}
             onChange={(e) => setIgnoreAncestry(e.target.checked ?? false)}
           >
-            Ignore ancestry
+            {t('shared.option.ignoreAncestry')}
           </Checkbox>
         </div>
       </ScrollArea>

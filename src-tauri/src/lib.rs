@@ -1,11 +1,39 @@
 use std::backtrace::Backtrace;
+use std::path::PathBuf;
 
 use std::panic;
-use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
-use tauri::{Manager, WebviewWindowBuilder};
+use tauri::{Emitter, Manager};
 use tracing_appender::non_blocking::WorkerGuard;
 
 use crate::extensions::CommonExtension;
+use crate::subversion::context::CancelToken;
+
+use clap::Parser;
+
+/// CLI argument definition, similar to VSCode's `code` command.
+///
+/// Supports passing a path to open on startup:
+///
+/// ```bash
+/// svnexus /path/to/workspace
+/// ```
+///
+/// When the application is already running (single-instance), the path is
+/// forwarded to the existing instance via an IPC event (`cli-open-path`).
+#[derive(Parser, Debug)]
+#[command(name = "svnexus", about = "A modern Subversion client")]
+pub struct Cli {
+    /// Path to open (workspace directory or file)
+    #[arg(value_name = "PATH")]
+    pub path: Option<PathBuf>,
+}
+
+/// Managed state that holds the path passed at initial startup.
+///
+/// The frontend can retrieve this value by invoking the `cli_initial_path`
+/// command once it is ready.
+#[derive(Clone, Default)]
+pub struct CliInitialPath(pub Option<String>);
 
 mod app;
 mod apr;
@@ -13,9 +41,11 @@ mod backend;
 mod db;
 // mod entities;
 mod error;
+mod logs;
 mod extensions;
 pub mod messagepack_command;
 mod platform;
+mod settings;
 mod subversion;
 mod tests;
 mod utils;
@@ -90,7 +120,13 @@ fn initialize() {
 
     let project = app::project().expect("Failed to detect project directory");
 
-    let file_appender = tracing_appender::rolling::daily(project.log_directory(), "svnexus.log");
+    let file_appender = tracing_appender::rolling::RollingFileAppender::builder()
+        .rotation(tracing_appender::rolling::Rotation::DAILY)
+        .filename_prefix("svnexus.log")
+        // 文档建议:要稳定保留 m 个就填 m+1,实际保留数可能略低于上限
+        .max_log_files(15)
+        .build(project.log_directory())
+        .expect("failed to create rolling file appender");
 
     let (file_writer, guard) = tracing_appender::non_blocking(file_appender);
 
@@ -127,6 +163,8 @@ fn initialize() {
 #[easy_ext::ext]
 impl tauri::App {
     fn setup_menu(&self) -> Result<(), Box<dyn std::error::Error>> {
+        use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
+        use tauri::WebviewWindowBuilder;
         let handle = self.handle().clone();
 
         let about_item = MenuItem::with_id(&handle, "about", "About SVNexus", true, None::<&str>)?;
@@ -232,17 +270,39 @@ impl tauri::App {
     }
 }
 
+/// Tauri command for the frontend to retrieve the path that was passed when
+/// the application was first launched (e.g. `svnexus /path`).
+///
+/// Returns `None` if no path was provided at startup.
+#[tauri::command]
+fn cli_initial_path(state: tauri::State<CliInitialPath>) -> Option<String> {
+    state.0.clone()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run(initial_path: Option<PathBuf>) {
     std::env::set_var("GTK_OVERLAY_SCROLLING", "0"); // ← 加这行
     initialize();
+
+    let initial_path_str = initial_path.map(|p| p.to_string_lossy().into_owned());
+
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            // When a second instance is launched (e.g. `svnexus /path`),
+            // parse its arguments and forward the path to the running instance.
+            if let Ok(cli) = Cli::try_parse_from(&argv) {
+                if let Some(path) = cli.path {
+                    let path_str = path.to_string_lossy().into_owned();
+                    tracing::info!("Single-instance: received open-path from CLI: {}", path_str);
+                    let _ = app.emit("cli-open-path", &path_str);
+                }
+            }
             let _ = app
                 .get_webview_window("main")
                 .expect("no main window")
                 .set_focus();
         }))
+        .manage(CliInitialPath(initial_path_str))
         .setup(|app| {
             // Windows: JSON 的 /**/* 无法匹配盘符路径，需通过 Rust API 遍历盘符
             #[cfg(windows)]
@@ -258,6 +318,8 @@ pub fn run() {
             {
                 app.setup_menu()?;
             }
+
+            let _ = app;
 
             Ok(())
         })
@@ -334,6 +396,8 @@ pub fn run() {
             backend::path_into_parts,
             // fs
             backend::fs_read_link,
+            backend::logs_package,
+            backend::logs_export,
             // workspace group
             backend::database_add_workspace_group,
             backend::database_delete_workspace_group,
@@ -356,8 +420,19 @@ pub fn run() {
             // version
             backend::extended_version,
             // open in app
-            backend::open_in_external_application
+            backend::open_in_external_application,
+            // settings
+            settings::load_settings,
+            settings::save_settings,
+            // cli
+            cli_initial_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    subversion::context::set_global_cancel_token(CancelToken {
+        code: 0,
+        msg: "App exited".into(),
+    })
+    .expect("Failed to cancel context");
 }

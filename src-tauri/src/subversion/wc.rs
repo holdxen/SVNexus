@@ -5,7 +5,7 @@ use snafu::ResultExt;
 
 use super::context;
 use super::ffi;
-use super::version::Version;
+// use super::version::Version;
 use super::SubversionError;
 use crate::apr;
 use crate::apr::AprPool;
@@ -19,24 +19,24 @@ use std::ffi::c_char;
 use std::ffi::c_void;
 use std::sync::Arc;
 
-pub struct WorkingCopyContext {
-    ptr: *mut ffi::svn_wc_context_t,
-    pool: apr::Pool,
-}
-impl Drop for WorkingCopyContext {
-    fn drop(&mut self) {
-        unsafe {
-            let error = ffi::svn_wc_context_destroy(self.ptr);
-            if !error.is_null() {
-                tracing::info!(
-                    "Failed to destroy wc context: {:?}",
-                    SubversionError::from_nullable_ptr(error)
-                )
-            }
-        }
-    }
-}
-unsafe impl Send for WorkingCopyContext {}
+// pub struct WorkingCopyContext {
+//     ptr: *mut ffi::svn_wc_context_t,
+//     pool: apr::Pool,
+// }
+// impl Drop for WorkingCopyContext {
+//     fn drop(&mut self) {
+//         unsafe {
+//             let error = ffi::svn_wc_context_destroy(self.ptr);
+//             if !error.is_null() {
+//                 tracing::info!(
+//                     "Failed to destroy wc context: {:?}",
+//                     SubversionError::from_nullable_ptr(error)
+//                 )
+//             }
+//         }
+//     }
+// }
+// unsafe impl Send for WorkingCopyContext {}
 
 // #[derive(Debug)]
 // pub struct WorkingCopyCreateContextOptions {}
@@ -62,26 +62,26 @@ unsafe impl Send for WorkingCopyContext {}
 //     }
 // }
 
-#[derive(Debug)]
-pub struct CheckRootResult {
-    is_wc_root: bool,
-    is_switched: bool,
-    kind: context::NodeKind,
-}
-
-#[derive(Debug)]
-pub struct WorkingCopyWalkStatusOptions {
-    local_absolute_path: String,
-    depth: context::Depth,
-    get_all: bool,
-    no_ignore: bool,
-    ignore_text_modified: bool,
-}
+// #[derive(Debug)]
+// pub struct CheckRootResult {
+//     is_wc_root: bool,
+//     is_switched: bool,
+//     kind: context::NodeKind,
+// }
+//
+// #[derive(Debug)]
+// pub struct WorkingCopyWalkStatusOptions {
+//     local_absolute_path: String,
+//     depth: context::Depth,
+//     get_all: bool,
+//     no_ignore: bool,
+//     ignore_text_modified: bool,
+// }
 
 #[derive(Clone)]
 pub enum AsyncWorkingCopyContext {
     Context(Arc<parking_lot::FairMutex<context::Context>>),
-    Raw(Arc<parking_lot::FairMutex<WorkingCopyContext>>),
+    // Raw(Arc<parking_lot::FairMutex<WorkingCopyContext>>),
 }
 
 #[cfg(false)]
@@ -189,64 +189,64 @@ impl AsyncWorkingCopyContext {
         .await
     }
 
-    pub async fn check_root(&self, absolute_path: String) -> error::Result<CheckRootResult> {
-        self.call_async(move |ctx| unsafe {
-            let mut pool = apr::Pool::create();
-            let path = pool.string(&absolute_path)?;
-
-            if ffi::svn_dirent_is_absolute(path) == 0 {
-                return builder::InvalidArgument {
-                    detail: format!("{} must be an absolute path", absolute_path),
-                }
-                .fail();
-            }
-
-            let mut is_wc_root: ffi::svn_boolean_t = 0;
-            let mut is_switched: ffi::svn_boolean_t = 0;
-            let mut kind: ffi::svn_node_kind_t = ffi::svn_node_kind_t_svn_node_unknown;
-            let error = ffi::svn_wc_check_root(
-                is_wc_root.pointer_mut(),
-                is_switched.pointer_mut(),
-                kind.pointer_mut(),
-                ctx,
-                path,
-                pool.as_mut_ptr(),
-            );
-            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
-
-            let is_wc_root = is_wc_root != 0;
-            let is_switched = is_switched != 0;
-            let kind = context::NodeKind::try_from(kind).expect("Unexpected failure");
-            Ok(CheckRootResult {
-                is_wc_root,
-                is_switched,
-                kind,
-            })
-        })
-        .await
-    }
-
-    pub async fn wc_version(&self, path: String) -> error::Result<Option<Version>> {
-        self.call_async(move |ctx| unsafe {
-            let mut pool = apr::Pool::create();
-            let path = pool.string(path)?;
-
-            let mut format: std::ffi::c_int = 0;
-
-            let error = ffi::svn_wc_check_wc2(format.pointer_mut(), ctx, path, pool.as_mut_ptr());
-
-            SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
-
-            let version = ffi::svn_client_wc_version_from_format(format, pool.as_mut_ptr());
-
-            let v = version.map(|v| Version::from(v));
-
-            Ok(v)
-
-            // Ok(version)
-        })
-        .await
-    }
+    //     pub async fn check_root(&self, absolute_path: String) -> error::Result<CheckRootResult> {
+    //         self.call_async(move |ctx| unsafe {
+    //             let mut pool = apr::Pool::create();
+    //             let path = pool.string(&absolute_path)?;
+    //
+    //             if ffi::svn_dirent_is_absolute(path) == 0 {
+    //                 return builder::InvalidArgument {
+    //                     detail: format!("{} must be an absolute path", absolute_path),
+    //                 }
+    //                 .fail();
+    //             }
+    //
+    //             let mut is_wc_root: ffi::svn_boolean_t = 0;
+    //             let mut is_switched: ffi::svn_boolean_t = 0;
+    //             let mut kind: ffi::svn_node_kind_t = ffi::svn_node_kind_t_svn_node_unknown;
+    //             let error = ffi::svn_wc_check_root(
+    //                 is_wc_root.pointer_mut(),
+    //                 is_switched.pointer_mut(),
+    //                 kind.pointer_mut(),
+    //                 ctx,
+    //                 path,
+    //                 pool.as_mut_ptr(),
+    //             );
+    //             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+    //
+    //             let is_wc_root = is_wc_root != 0;
+    //             let is_switched = is_switched != 0;
+    //             let kind = context::NodeKind::try_from(kind).expect("Unexpected failure");
+    //             Ok(CheckRootResult {
+    //                 is_wc_root,
+    //                 is_switched,
+    //                 kind,
+    //             })
+    //         })
+    //         .await
+    //     }
+    //
+    //     pub async fn wc_version(&self, path: String) -> error::Result<Option<Version>> {
+    //         self.call_async(move |ctx| unsafe {
+    //             let mut pool = apr::Pool::create();
+    //             let path = pool.string(path)?;
+    //
+    //             let mut format: std::ffi::c_int = 0;
+    //
+    //             let error = ffi::svn_wc_check_wc2(format.pointer_mut(), ctx, path, pool.as_mut_ptr());
+    //
+    //             SubversionError::from_nullable_ptr(error).context(builder::Subversion)?;
+    //
+    //             let version = ffi::svn_client_wc_version_from_format(format, pool.as_mut_ptr());
+    //
+    //             let v = version.map(|v| Version::from(v));
+    //
+    //             Ok(v)
+    //
+    //             // Ok(version)
+    //         })
+    //         .await
+    //     }
 
     pub async fn get_replaced_file(&self, path: String) -> error::Result<Option<WcReplacedNode>> {
         use ffi::*;
@@ -467,11 +467,10 @@ impl AsyncWorkingCopyContext {
                         .wc_ctx
                 };
                 f(ctx)
-            }
-            AsyncWorkingCopyContext::Raw(mutex) => {
-                let lock = mutex.lock();
-                f(lock.ptr)
-            }
+            } // AsyncWorkingCopyContext::Raw(mutex) => {
+              //     let lock = mutex.lock();
+              //     f(lock.ptr)
+              // }
         }
     }
 

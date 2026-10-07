@@ -2,6 +2,8 @@ import BinaryFileIconRaw from '@icons/BinaryFile.svg?raw'
 import { css, cx } from '@linaria/core'
 import type { DiffOnMount, MonacoDiffEditor } from '@monaco-editor/react'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
+import { usePrevious } from 'ahooks'
+import { filesize } from 'filesize'
 import type * as monaco from 'monaco-editor'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import * as uuid from 'uuid'
@@ -19,8 +21,6 @@ import {
   text_center,
   select_none,
 } from '@/styles/Classes'
-import { filesize } from 'filesize'
-import { usePrevious } from 'ahooks'
 
 export interface BinaryFile {
   name: string
@@ -199,8 +199,7 @@ export default function DifferenceEditor(props: DifferenceEditorProps) {
   const isSideBySide = props.sideBySide || isNewBinary || isOldBinary
 
   useEffect(() => {
-
-    const offset = (props.diffMethod ?? 0) - (previousDiffMethod ?? 0);
+    const offset = (props.diffMethod ?? 0) - (previousDiffMethod ?? 0)
     if (offset > 0) {
       editorRef.current?.goToDiff('next')
     } else if (offset < 0) {

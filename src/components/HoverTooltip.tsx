@@ -1,8 +1,9 @@
-import { IconButton } from '@/icons/IconButton'
 import { Tooltip } from '@douyinfe/semi-ui'
 import { TooltipProps } from '@douyinfe/semi-ui/lib/es/tooltip'
 import { css, cx } from '@linaria/core'
 import { useState } from 'react'
+
+import { IconButton } from '@/icons/IconButton'
 
 const tooltip = css`
   &:hover {

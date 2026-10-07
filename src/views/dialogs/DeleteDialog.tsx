@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { DeleteOptions } from '@/bindings/DeleteOptions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
   border_box,
@@ -63,6 +64,7 @@ export function NiceDeleteDialog(props: {
 }
 
 export default function DeleteDialog(props: DeleteDialogProps) {
+  const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [commitMessage, setCommitMessage] = useState('')
   const [keepLocal, setKeepLocal] = useState(false)
@@ -77,7 +79,7 @@ export default function DeleteDialog(props: DeleteDialogProps) {
       async call(context) {
         if (props.needCommitMessage && commitMessage === '') {
           Toast.error({
-            content: 'Commit message must not be empty',
+            content: t('shared.error.commitMessageRequired'),
             stack: true,
           })
           return
@@ -103,7 +105,7 @@ export default function DeleteDialog(props: DeleteDialogProps) {
       afterClose={props.afterClose}
       onCancel={props.onCancel}
       footer={<></>}
-      title="Delete"
+      title={t('shared.action.delete')}
       visible={props.visible}
       closeIconDisabled={isRunning}
       maskClosable={!isRunning}
@@ -141,32 +143,32 @@ export default function DeleteDialog(props: DeleteDialogProps) {
         </div>
         <div className={cx(flex, flex_col, min_h_0, gap_y_1)}>
           <div className={cx(flex_1, min_h_0)}></div>
-          <DialogFormItem title="Options:">
+          <DialogFormItem title={t('shared.field.options')}>
             <div className={cx(flex_1, flex, flex_col)}>
               <Checkbox
                 checked={keepLocal}
                 onChange={(e) => setKeepLocal(e.target.checked ?? false)}
               >
-                Keep local
+                {t('shared.option.keepLocal')}
               </Checkbox>
               <Checkbox checked={force} onChange={(e) => setForce(e.target.checked ?? false)}>
-                Force
+                {t('shared.option.force')}
               </Checkbox>
             </div>
           </DialogFormItem>
           <DialogFormItem
             className={cx(!props.needCommitMessage && hidden)}
-            title="Commit message:"
+            title={t('shared.field.commitMessage')}
           >
             <TextArea value={commitMessage} onChange={(e) => setCommitMessage(e)}></TextArea>
           </DialogFormItem>
-          <DialogFormItem title="Actions:">
+          <DialogFormItem title={t('shared.field.actions')}>
             <div className={cx(flex, flex_1, flex_row_reverse, gap_x_2)}>
               <Button loading={isRunning} onClick={onOk} theme="solid" type="primary">
-                Delete
+                {t('shared.action.delete')}
               </Button>
               <Button disabled={isRunning} onClick={props.onCancel}>
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </DialogFormItem>

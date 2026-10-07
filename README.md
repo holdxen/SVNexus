@@ -6,7 +6,8 @@ Cross-platform Subversion desktop client built on Tauri 2.
 
 **[中文](./README.zh.md)**
 
-![SVNexus Screenshot](./screenshots/mac.png)
+![SVNexus Screenshot](./screenshots/light.png)
+![SVNexus Screenshot](./screenshots/dark.png)
 
 ## Features
 
@@ -21,15 +22,15 @@ Cross-platform Subversion desktop client built on Tauri 2.
 ## TODO
 
 - [ ] SSH protocol support with OpenSSH compatibility
-- [ ] File history version browsing
+- [x] File history version browsing
 - [ ] Standalone remote repository browsing
-- [ ] One-click bug reporting
+- [x] One-click bug reporting
 - [ ] Hunk-level revert for working copy changes
 - [ ] Display current working copy revision in History view
 - [ ] Cross-tab navigation from error toasts
 - [ ] Support copy and move operations
 - [ ] Improve merge operations
-- [ ] Rust code optimization, pass cargo clippy and fmt checks
+- [x] Rust code optimization, pass cargo clippy and fmt checks
 
 ## Installation
 

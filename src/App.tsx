@@ -1,20 +1,30 @@
 import '@douyinfe/semi-ui/react19-adapter'
-import { ConfigProvider, Divider, Dropdown, Toast } from '@douyinfe/semi-ui'
+import { ConfigProvider, Divider, Dropdown, Popover, Toast } from '@douyinfe/semi-ui'
+import semiEnUS from '@douyinfe/semi-ui/lib/es/locale/source/en_US'
+import semiZhCN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN'
 import MoreMenuIcon from '@icons/MoreMenu.svg?react'
 import RecordsIcon from '@icons/Records.svg?react'
 import UpgradeIcon from '@icons/Upgrade.svg?react'
 import { css, cx } from '@linaria/core'
+import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 // import {
 //   writeText as tauriWriteText,
 //   readText as tauriReadText,
 // } from '@tauri-apps/plugin-clipboard-manager'
+import { save } from '@tauri-apps/plugin-dialog'
 import { check, Update } from '@tauri-apps/plugin-updater'
 import { useMemoizedFn } from 'ahooks'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import * as uuid from 'uuid'
 
+import { useLocale, useT, type MessageKey } from '@/i18n'
+
 import { AboutPanel } from './components/AboutPanel'
+import WorkingCopyNotifyPanel from './components/subversion/WorkingCopyNotifyPanel'
+import { logsExport } from './context/Functions'
+import { useNotifyLogUnread } from './context/NotifyLog'
 import { Identity, TabContentContextProvider } from './context/TabContent'
 import { TabManager, TabManagerContext, TabViewModel } from './context/TabManager'
 import { IconButton } from './icons/IconButton'
@@ -38,6 +48,8 @@ import { TabContent, Tab } from './tab/Tab'
 import Logger from './utils/Logger'
 import { NiceAboutDialog } from './views/dialogs/AboutDialog'
 import { NiceAppUpdateDialog } from './views/dialogs/AppUpdateDialog'
+import { NiceFeedbackDialog } from './views/dialogs/FeedbackDialog'
+import { NiceSettingsDialog } from './views/dialogs/SettingsDialog'
 import { WelcomeView } from './views/WelcomeView/WelcomeView'
 import { RouteFileHistoryView } from './views/WorkspaceView/FileHitoryView'
 import { WorkspaceView } from './views/WorkspaceView/WorkspaceView'
@@ -78,6 +90,22 @@ export type TabContentModel =
       }
     }
 
+/** 占位标题存成元素而不是字符串：语言切换时才会按当前语言重新渲染 */
+function TabTitle({ messageKey }: { messageKey: MessageKey }) {
+  const t = useT()
+  return <>{t(messageKey)}</>
+}
+
+const unreadDot = css`
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--semi-color-danger);
+`
+
 function TabContentView({ content }: { content: TabContentModel }) {
   if ('welcomeView' in content) {
     return <WelcomeView></WelcomeView>
@@ -110,13 +138,35 @@ function App() {
 }
 
 function Home() {
+  const t = useT()
+  const locale = useLocale((state) => state.locale)
   const [activeIdentity, setActiveIdentity] = useState<string | number>('')
   const [tabs, setTabs] = useState<TabViewModel[]>([])
   const [update, setUpdate] = useState<Update | null>(null)
+  const [notifyLogVisible, setNotifyLogVisible] = useState(false)
   const modal = useModal()
+
+  // 通知日志跟着 tab 走。欢迎页和工作副本页都挂了 SubversionProvider，
+  // 所以两种 tab 都会有记录（包括欢迎页那些后台状态轮询产生的）
+  const activeTab = tabs.find((tab) => tab.identity === activeIdentity)
+  const notifyLogIdentity =
+    activeTab !== undefined &&
+    ('workspaceView' in activeTab.content || 'welcomeView' in activeTab.content)
+      ? activeTab.identity
+      : null
+  const hasUnreadNotify = useNotifyLogUnread(notifyLogIdentity)
+
+  // 面板内容跟着激活的 tab 变，切换 tab 时若继续开着，用户会看到日志被无声换掉
+  useEffect(() => {
+    setNotifyLogVisible(false)
+  }, [activeIdentity])
 
   const showAboutDialog = () => {
     modal.show(NiceAboutDialog, {})
+  }
+
+  const showSettingsDialog = () => {
+    modal.show(NiceSettingsDialog, {})
   }
 
   const showUpdateDialog = () => {
@@ -124,6 +174,40 @@ function Home() {
       return
     }
     modal.show(NiceAppUpdateDialog, { update })
+  }
+
+  const showFeedbackDialog = () => {
+    // 当前激活的工作副本排在最前，便于对方定位问题发生在哪个工作副本
+    const active = tabs.find((tab) => tab.identity === activeIdentity)
+    const activePath =
+      active && 'workspaceView' in active.content ? active.content.workspaceView.path : undefined
+    const paths = tabs.flatMap((tab) =>
+      'workspaceView' in tab.content ? [tab.content.workspaceView.path] : [],
+    )
+    modal.show(NiceFeedbackDialog, {
+      workingCopies: activePath
+        ? [activePath, ...paths.filter((path) => path !== activePath)]
+        : paths,
+    })
+  }
+
+  // 弹系统保存对话框选导出路径，后端把日志目录整体压成 zip 写过去
+  const exportLogs = async () => {
+    try {
+      const path = await save({
+        title: t('dialogs.saveFile'),
+        defaultPath: 'svnexus-logs.zip',
+        filters: [{ name: 'Zip', extensions: ['zip'] }],
+      })
+      if (!path) {
+        return
+      }
+      await logsExport(path)
+      Toast.success({ content: t('app.exportLogs.success'), stack: true })
+    } catch (e) {
+      Logger.warn('Export logs failed: ', e)
+      Toast.error({ content: t('app.exportLogs.failed'), stack: true })
+    }
   }
 
   // 启动时检查更新；有新版本才显示升级图标
@@ -159,11 +243,11 @@ function Home() {
         setUpdate(available)
         modal.show(NiceAppUpdateDialog, { update: available })
       } else {
-        Toast.success({ content: '当前已是最新版本', stack: true })
+        Toast.success({ content: t('app.update.upToDate'), stack: true })
       }
     } catch (e) {
       Logger.warn('Manual update check failed: ', e)
-      Toast.error({ content: '检查更新失败，请稍后重试', stack: true })
+      Toast.error({ content: t('app.update.checkFailed'), stack: true })
     } finally {
       checkingRef.current = false
     }
@@ -174,15 +258,35 @@ function Home() {
     if (index < 0) {
       return
     }
+
+    // 如果关闭的是最后一个 tab，直接替换成新的 welcome tab
+    if (tabs.length === 1) {
+      const newIdentity = uuid.v4()
+      const content: TabContentModel = {
+        welcomeView: {},
+      }
+      const model: TabViewModel = {
+        identity: newIdentity,
+        title: <TabTitle messageKey="app.tab.welcome" />,
+        onClose: () => {
+          closeTab(newIdentity)
+        },
+        onClick: () => {
+          setActiveIdentity(newIdentity)
+        },
+        content,
+      }
+      setTabs([model])
+      setActiveIdentity(newIdentity)
+      return
+    }
+
+    // 关闭的不是最后一个 tab，正常处理
     if (activeIdentity === identity) {
-      if (tabs.length <= 1) {
-        setActiveIdentity('')
+      if (index === 0) {
+        setActiveIdentity(tabs[1].identity)
       } else {
-        if (index === 0) {
-          setActiveIdentity(tabs[1].identity)
-        } else {
-          setActiveIdentity(tabs[index - 1].identity)
-        }
+        setActiveIdentity(tabs[index - 1].identity)
       }
     }
     setTimeout(() => {
@@ -198,7 +302,7 @@ function Home() {
     }
     const model: TabViewModel = {
       identity,
-      title: 'Welcome',
+      title: <TabTitle messageKey="app.tab.welcome" />,
       onClose: () => {
         closeTab(identity)
       },
@@ -214,6 +318,37 @@ function Home() {
   useEffect(() => {
     addTab()
   }, [])
+
+  // 处理 CLI 传入的路径（类似 VSCode 的 `code /path`）
+  const openPathFromCli = useMemoizedFn((path: string) => {
+    // 使用一个虚拟的 identity 作为 "from"，因为 CLI 没有来源 tab
+    const fromIdentity = 'cli'
+    tabManager.openWorkingCopy(fromIdentity, path)
+  })
+
+  useEffect(() => {
+    // 获取首次启动时传入的路径
+    invoke<string | null>('cli_initial_path')
+      .then((path) => {
+        if (path) {
+          Logger.info('CLI initial path:', path)
+          openPathFromCli(path)
+        }
+      })
+      .catch((e) => {
+        Logger.warn('Failed to get CLI initial path:', e)
+      })
+
+    // 监听后续的单实例转发事件
+    const unlisten = listen<string>('cli-open-path', (event) => {
+      Logger.info('CLI open-path event:', event.payload)
+      openPathFromCli(event.payload)
+    })
+
+    return () => {
+      unlisten.then((fn) => fn())
+    }
+  }, [openPathFromCli])
 
   const goToLast = useMemoizedFn(() => {
     if (tabs.length === 0) {
@@ -236,10 +371,10 @@ function Home() {
       Logger.warn('No such tab:', identity)
       for (let tab of tabs.reverse()) {
         if (tab.identity === exclude) {
-          continue;
+          continue
         }
         setActiveIdentity(tab.identity)
-        break;
+        break
       }
       return
     }
@@ -291,7 +426,7 @@ function Home() {
         }
         const model: TabViewModel = {
           identity,
-          title: 'Workspace',
+          title: <TabTitle messageKey="app.tab.workspace" />,
           content,
         }
         setupModel(model)
@@ -300,7 +435,26 @@ function Home() {
       },
       closeOnly: (identity: Identity) => {
         setTimeout(() => {
-          setTabs((items) => items.filter((e) => e.identity !== identity))
+          setTabs((items) => {
+            const remaining = items.filter((e) => e.identity !== identity)
+            if (remaining.length === 0) {
+              const newIdentity = uuid.v4()
+              const model: TabViewModel = {
+                identity: newIdentity,
+                title: <TabTitle messageKey="app.tab.welcome" />,
+                onClose: () => {
+                  closeTab(newIdentity)
+                },
+                onClick: () => {
+                  setActiveIdentity(newIdentity)
+                },
+                content: { welcomeView: {} },
+              }
+              setActiveIdentity(newIdentity)
+              return [model]
+            }
+            return remaining
+          })
         }, 0)
       },
       reload: (identity: Identity) => {
@@ -320,7 +474,7 @@ function Home() {
   )
 
   return (
-    <ConfigProvider>
+    <ConfigProvider locale={locale === 'en-US' ? semiEnUS : semiZhCN}>
       <TabManager.Provider value={tabManager}>
         <main
           style={{ backgroundColor: 'var(--svnexus-base-color)' }}
@@ -357,8 +511,17 @@ function Home() {
                 trigger="click"
                 render={
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={checkUpdateManually}>检查更新</Dropdown.Item>
-                    <Dropdown.Item onClick={showAboutDialog}>About</Dropdown.Item>
+                    <Dropdown.Item onClick={showSettingsDialog}>
+                      {t('app.menu.settings')}
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={checkUpdateManually}>
+                      {t('app.menu.checkUpdate')}
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={exportLogs}>{t('app.menu.exportLogs')}</Dropdown.Item>
+                    <Dropdown.Item onClick={showFeedbackDialog}>
+                      {t('app.menu.feedback')}
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={showAboutDialog}>{t('app.menu.about')}</Dropdown.Item>
                   </Dropdown.Menu>
                 }
               >
@@ -366,9 +529,37 @@ function Home() {
                   <MoreMenuIcon></MoreMenuIcon>
                 </IconButton>
               </Dropdown>
-              <IconButton>
-                <RecordsIcon></RecordsIcon>
-              </IconButton>
+              {notifyLogIdentity === null ? (
+                <IconButton className="inactive">
+                  <RecordsIcon></RecordsIcon>
+                </IconButton>
+              ) : (
+                // 自己管开关，不用 Semi 的 clickToHide / clickTriggerToHide：
+                // clickToHide 的语义是"点弹层内部任何地方都收起"，会把点行、点展开、点清除都算进去；
+                // clickTriggerToHide 只在已打开时能收起，关掉之后再点触发器无法重新打开。
+                // trigger="custom" 配合下面两个回调，四种行为才都对。
+                <Popover
+                  trigger="custom"
+                  position="bottomRight"
+                  showArrow={false}
+                  visible={notifyLogVisible}
+                  onClickOutSide={() => setNotifyLogVisible(false)}
+                  content={
+                    <WorkingCopyNotifyPanel
+                      identity={notifyLogIdentity}
+                      visible={notifyLogVisible}
+                    />
+                  }
+                >
+                  <IconButton
+                    style={{ position: 'relative' }}
+                    onClick={() => setNotifyLogVisible((visible) => !visible)}
+                  >
+                    <RecordsIcon></RecordsIcon>
+                    {hasUnreadNotify ? <span className={unreadDot}></span> : null}
+                  </IconButton>
+                </Popover>
+              )}
               {update ? (
                 <IconButton onClick={showUpdateDialog}>
                   <UpgradeIcon></UpgradeIcon>
