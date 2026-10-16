@@ -11,6 +11,7 @@ Cross-platform Subversion desktop client built on Tauri 2.
 
 ## Features
 
+- **Zero Configuration** — the SVN engine (libsvn / APR) is compiled into the app and shipped inside the installer. Install SVNexus and you are ready to go; there is no need to install Subversion separately.
 - **Full SVN Operations** — checkout, commit, update, add, delete, revert, switch, merge, relocate, and more
 - **Diff Viewer** — built-in code editor for inspecting file changes side by side
 - **Commit History** — browse logs, view changed paths, and inspect revision snapshots
@@ -40,6 +41,18 @@ Download the installer for your platform from the [Releases](../../releases) pag
 - **Windows** — `.msi` / `.exe`
 - **Linux** — `.deb` / `.rpm` / `.AppImage`
 
+SVN is bundled with the app, so the installer is all you need — no Subversion package, no client to configure beforehand.
+
+### First Launch on macOS
+
+This app is not signed or notarized by Apple, so macOS will block it on first launch with a message like "the app is damaged and can't be opened" or "cannot verify the developer". The installer is fine — just strip the quarantine attribute manually:
+
+```bash
+sudo xattr -cr /Applications/SVNexus.app
+```
+
+If you installed it elsewhere, replace the path with the actual location. This is a one-time fix per installation; you will need to run it again after an update overwrites the app bundle.
+
 ## Usage
 
 ### Add a Workspace
@@ -62,11 +75,11 @@ Open multiple workspaces simultaneously and switch between them via top tabs —
 
 ## System Requirements
 
-| Platform | Minimum Version           |
-| -------- | ------------------------- |
-| macOS    | 11+ (Apple Silicon build) |
-| Windows  | 10+                       |
-| Linux    | GTK 3 mainstream distros  |
+| Platform | Minimum Version                                   |
+| -------- | ------------------------------------------------- |
+| macOS    | 11+ (Apple Silicon build)                         |
+| Windows  | 10+                                               |
+| Linux    | Ubuntu 22.04+ / Debian 12+ (GTK 3, WebKitGTK 4.1) |
 
 ## Feedback & Issues
 

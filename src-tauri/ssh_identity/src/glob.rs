@@ -194,7 +194,10 @@ mod tests {
     fn glob_without_magic_only_matches_existing_paths() {
         let dir = TempDir::new("glob");
         dir.file("a.conf", "");
-        assert_eq!(glob(&dir.path.join("a.conf").display().to_string()).len(), 1);
+        assert_eq!(
+            glob(&dir.path.join("a.conf").display().to_string()).len(),
+            1
+        );
         assert!(glob(&dir.path.join("missing.conf").display().to_string()).is_empty());
     }
 

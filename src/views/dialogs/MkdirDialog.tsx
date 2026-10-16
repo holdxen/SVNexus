@@ -1,8 +1,10 @@
-import { Checkbox, TextArea, Toast, Input } from '@douyinfe/semi-ui'
+import { Checkbox, Toast } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
 import { useState } from 'react'
 
 import { MkdirOptions } from '@/bindings/MkdirOptions'
+import PureInput from '@/components/PureInput'
+import PureTextArea from '@/components/PureTextArea'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
@@ -106,7 +108,7 @@ export default function MkdirDialog(props: MkdirDialogProps) {
           <span className={cx(break_all, break_word)}>{props.parent}</span>
         </DialogFormItem>
         <DialogFormItem title={t('shared.field.name')}>
-          <Input className={cx(flex_1)} value={name} onChange={setName}></Input>
+          <PureInput className={cx(flex_1)} value={name} onChange={setName}></PureInput>
         </DialogFormItem>
         <div className={cx(flex, flex_col, min_h_0, gap_y_1)}>
           <div className={cx(flex_1, min_h_0)}></div>
@@ -114,7 +116,10 @@ export default function MkdirDialog(props: MkdirDialogProps) {
             className={cx(!props.needCommitMessage && hidden)}
             title={t('shared.field.commitMessage')}
           >
-            <TextArea value={commitMessage} onChange={(e) => setCommitMessage(e)}></TextArea>
+            <PureTextArea
+              value={commitMessage}
+              onChange={(e) => setCommitMessage(e)}
+            ></PureTextArea>
           </DialogFormItem>
           <DialogFormItem title={t('shared.field.options')}>
             <div className={cx(flex_1, flex, flex_col)}>

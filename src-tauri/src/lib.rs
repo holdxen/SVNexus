@@ -33,7 +33,7 @@ pub struct Cli {
 /// The frontend can retrieve this value by invoking the `cli_initial_path`
 /// command once it is ready.
 #[derive(Clone, Default)]
-pub struct CliInitialPath(pub Option<String>);
+pub struct CliInitialPath(pub Option<PathBuf>);
 
 mod app;
 mod apr;
@@ -41,8 +41,8 @@ mod backend;
 mod db;
 // mod entities;
 mod error;
-mod logs;
 mod extensions;
+mod logs;
 pub mod messagepack_command;
 mod platform;
 mod settings;
@@ -276,25 +276,48 @@ impl tauri::App {
 /// Returns `None` if no path was provided at startup.
 #[tauri::command]
 fn cli_initial_path(state: tauri::State<CliInitialPath>) -> Option<String> {
-    state.0.clone()
+    state.0.clone().map(|v| v.to_string_lossy().into_owned())
+}
+
+/// Tauri command for the frontend to open the web inspector (devtools) of the
+/// window that invoked it. No-op if it is already open.
+#[tauri::command]
+fn open_devtools(window: tauri::WebviewWindow) {
+    if !window.is_devtools_open() {
+        window.open_devtools();
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run(initial_path: Option<PathBuf>) {
+pub fn run(mut initial_path: Option<PathBuf>) {
     std::env::set_var("GTK_OVERLAY_SCROLLING", "0"); // ← 加这行
     initialize();
 
-    let initial_path_str = initial_path.map(|p| p.to_string_lossy().into_owned());
+
+	initial_path = initial_path.map(|v| v.canonicalize().ok()).flatten();
+	
+
+    // let initial_path_str = initial_path.map(|p| p.to_string_lossy().into_owned());
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             // When a second instance is launched (e.g. `svnexus /path`),
             // parse its arguments and forward the path to the running instance.
+            tracing::info!("Open app: argv={:?}, cwd={}", argv, cwd);
             if let Ok(cli) = Cli::try_parse_from(&argv) {
                 if let Some(path) = cli.path {
-                    let path_str = path.to_string_lossy().into_owned();
-                    tracing::info!("Single-instance: received open-path from CLI: {}", path_str);
-                    let _ = app.emit("cli-open-path", &path_str);
+                    let target = match PathBuf::from(cwd).join(path).canonicalize() {
+                        Ok(target) => target,
+                        Err(err) => {
+                            tracing::warn!("Failed to canonicalize path: {}", err);
+                            return;
+                        }
+                    };
+                    // let path_str = path.to_string_lossy().into_owned();
+                    // tracing::info!("Single-instance: received open-path from CLI: {}", path_str);
+                    if let Err(err) = app.emit("cli-open-path", &target) {
+                        tracing::warn!("Failed to emit cli-open-path: {}", err);
+                    }
                 }
             }
             let _ = app
@@ -302,7 +325,7 @@ pub fn run(initial_path: Option<PathBuf>) {
                 .expect("no main window")
                 .set_focus();
         }))
-        .manage(CliInitialPath(initial_path_str))
+        .manage(CliInitialPath(initial_path))
         .setup(|app| {
             // Windows: JSON 的 /**/* 无法匹配盘符路径，需通过 Rust API 遍历盘符
             #[cfg(windows)]
@@ -425,7 +448,11 @@ pub fn run(initial_path: Option<PathBuf>) {
             settings::load_settings,
             settings::save_settings,
             // cli
-            cli_initial_path
+            cli_initial_path,
+            backend::install_cli,
+            backend::is_macos,
+            // devtools
+            open_devtools
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

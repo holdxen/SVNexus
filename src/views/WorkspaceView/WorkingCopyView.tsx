@@ -280,6 +280,7 @@ export function WorkingCopyView({ path }: WorkingCopyViewProps) {
             </LazyComponent>
             <LazyComponent visible={activeKey === remoteViewKey}>
               <RemoteView
+                visible={activeKey === remoteViewKey}
                 className={cx(flex_1, min_w_0, activeKey !== remoteViewKey && hidden)}
               ></RemoteView>
             </LazyComponent>

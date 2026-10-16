@@ -54,6 +54,7 @@ export const globalStyles = css`
       overflow: hidden;
       --svnexus-base-color: #ebebeb;
       --scrollbar-color: rgba(0, 0, 0, 0.2);
+      color-scheme: light;
     }
     body[theme-mode="dark"] {
       --svnexus-base-color: rgba(var(--semi-grey-1), 1);
@@ -61,10 +62,14 @@ export const globalStyles = css`
       /* Semi 明暗用的是同一个遮罩值 rgba(22, 22, 26, .6)，而它正好等于暗色的内容底色，
          压在面板上等于没压；换成纯黑加重，弹窗才和背景分得开 */
       --semi-color-overlay-bg: rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
     }
     * {
       scrollbar-color: var(--scrollbar-color) transparent;
       scrollbar-width: thin;
+    }
+    .semi-spin-hidden > .semi-spin-children {
+      user-select: none;
     }
   }
 `

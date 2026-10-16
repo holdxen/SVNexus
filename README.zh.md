@@ -11,6 +11,7 @@
 
 ## 功能特性
 
+- **开箱即用** — SVN 引擎（libsvn / APR）已编译进程序并随安装包一起分发，装好即可使用，无需另外安装 Subversion。
 - **完整 SVN 操作** — 支持 checkout、commit、update、add、delete、revert、switch、merge、relocate 等常用操作
 - **差异对比** — 内置代码编辑器，直观查看文件变更内容
 - **提交历史** — 浏览日志、查看变更路径与版本快照
@@ -40,6 +41,18 @@
 - **Windows** — `.msi` / `.exe`
 - **Linux** — `.deb` / `.rpm` / `.AppImage`
 
+SVN 已内置在安装包中，下载装好即可使用，无需事先安装 Subversion 或做任何客户端配置。
+
+### macOS 首次运行提示
+
+本应用未经过 Apple 开发者签名与公证，macOS 会因此拦截启动，提示「应用已损坏，无法打开」或「无法验证开发者」。这不是安装包损坏，手动移除系统附加的隔离属性即可正常运行：
+
+```bash
+sudo xattr -cr /Applications/SVNexus.app
+```
+
+若应用不在 `/Applications` 目录下，请把路径替换为实际安装位置。执行一次后即可正常打开，后续升级覆盖安装后需重新执行。
+
 ## 使用说明
 
 ### 添加工作区
@@ -62,11 +75,11 @@
 
 ## 系统要求
 
-| 平台    | 最低版本                  |
-| ------- | ------------------------- |
-| macOS   | 11+（Apple Silicon 版本） |
-| Windows | 10+                       |
-| Linux   | GTK 3 主流发行版          |
+| 平台    | 最低版本                                           |
+| ------- | -------------------------------------------------- |
+| macOS   | 11+（Apple Silicon 版本）                          |
+| Windows | 10+                                                |
+| Linux   | Ubuntu 22.04+ / Debian 12+（GTK 3、WebKitGTK 4.1） |
 
 ## 反馈与问题
 

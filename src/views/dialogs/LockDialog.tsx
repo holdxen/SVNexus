@@ -1,8 +1,9 @@
-import { Button, Card, Checkbox, TextArea } from '@douyinfe/semi-ui'
+import { Button, Card, Checkbox } from '@douyinfe/semi-ui'
 import { cx } from '@linaria/core'
 import { useState } from 'react'
 
 import { LockOptions } from '@/bindings/LockOptions'
+import PureTextArea from '@/components/PureTextArea'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
@@ -144,7 +145,7 @@ export default function LockDialog(props: LockDialogProps) {
               </Checkbox>
             }
           >
-            <TextArea onChange={(e) => setComment(e)} disabled={!hasComment}></TextArea>
+            <PureTextArea onChange={(e) => setComment(e)} disabled={!hasComment}></PureTextArea>
           </DialogFormItem>
           <DialogFormItem
             wrapperClassName={cx(flex_row_reverse, gap_x_2)}

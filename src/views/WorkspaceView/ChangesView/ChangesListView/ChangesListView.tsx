@@ -49,9 +49,12 @@ import errorHumanString from '@/utils/Error'
 import Logger from '@/utils/Logger'
 import { repoPath } from '@/utils/Path'
 import itemSelection, { ItemSelection } from '@/utils/selection/immutable'
+import { NiceCopyDialog } from '@/views/dialogs/CopyDialog'
+import { NiceMoveDialog } from '@/views/dialogs/MoveDialog'
+import { NiceMoveRenameDialog } from '@/views/dialogs/MoveRenameDialog'
 
 import { StatusEntry } from '../../../../bindings/StatusEntry'
-import { useCopyMoveItems } from '../../CopyMoveContext'
+import { canPatse, useCopyMoveItems } from '../../CopyMoveContext'
 import { defaultOperationState, OperationState } from '../../Operation'
 import { fromStatusEntry, WorkingCopyItem } from '../../WorkingCopyItem'
 import { useWorkingCopyContext } from '../../WorkingCopyView'
@@ -77,7 +80,7 @@ export function ChangesListView({
   const workingCopy = useWorkingCopyContext()
   const workspace = useWorkspaceContext()
   const subversion = useSubversion()
-  const copyItems = useCopyMoveItems()
+  const copyMove = useCopyMoveItems()
 
   // const [entries, setEntries] = useState<StatusEntry[]>([])
   const [selection, setSelection] = useState(itemSelection<StatusEntry>([]))
@@ -211,6 +214,20 @@ export function ChangesListView({
       merge:
         length === 1 &&
         selectedEntries[0].nodeStatus !== 'unversioned' &&
+        selectedEntries[0].nodeStatus !== 'added',
+      move:
+        length > 0 &&
+        selectedEntries.every((e) => e.nodeStatus !== 'added' && e.nodeStatus !== 'unversioned'),
+      paste:
+        length === 1 &&
+        selectedEntries[0].nodeKind === 'directory' &&
+        selectedEntries[0].nodeStatus !== 'unversioned' &&
+        selectedEntries[0].nodeStatus !== 'added',
+      rename:
+        length === 1 &&
+        selectedEntries[0].nodeStatus !== 'unversioned' &&
+        selectedEntries[0].nodeStatus !== 'missing' &&
+        selectedEntries[0].nodeStatus !== 'deleted' &&
         selectedEntries[0].nodeStatus !== 'added',
     }
   }
@@ -613,13 +630,85 @@ export function ChangesListView({
         content: t('shared.action.copy'),
         disabled: !state.copy,
         onSelect: () => {
-          copyItems.setSource({
+          copyMove.setSource({
             copy: selection.get().map((e) => ({
               path: e.path,
               pegRevision: 'working',
               revision: 'working',
+              nodeKind: e.nodeKind,
             })),
           })
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.cut'),
+        disabled: !state.move,
+        onSelect: () => {
+          // const selection = tree.getSelectedItems()
+          copyMove.setSource({
+            isLocal: true,
+            move: selection.get().map((e) => ({
+              path: e.path,
+              nodeKind: e.nodeKind,
+            })),
+          })
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.rename'),
+        disabled: !state.rename,
+        onSelect: async () => {
+          const item = selection.get()[0]
+          const result = await modal
+            .show(NiceMoveRenameDialog, {
+              path: item.path,
+            })
+            .as<boolean>()
+          if (result) {
+            await refresh()
+          }
+        },
+      },
+    },
+    {
+      item: {
+        content: t('shared.action.paste'),
+        disabled:
+          !state.paste ||
+          !canPatse(copyMove.source) ||
+          (copyMove.source !== undefined &&
+            'move' in copyMove.source &&
+            copyMove.source.isLocal === false),
+        onSelect: async () => {
+          if (copyMove.source !== undefined) {
+            if ('copy' in copyMove.source) {
+              const result = await modal
+                .show(NiceCopyDialog, {
+                  needCommitMessage: false,
+                  sources: copyMove.source.copy,
+                  defaultDestination: selection.get()[0].path,
+                })
+                .as<boolean>()
+              if (result) {
+                await refresh()
+              }
+            } else if ('move' in copyMove.source) {
+              const result = await modal
+                .show(NiceMoveDialog, {
+                  sources: copyMove.source.move,
+                  needCommitMessage: false,
+                  defaultDestination: selection.get()[0].path,
+                })
+                .as<boolean>()
+              if (result) {
+                await refresh()
+              }
+            }
+          }
         },
       },
     },

@@ -3,14 +3,13 @@ pub mod models;
 mod tables;
 
 use crate::db::tables::*;
+use crate::extensions::{OptionExtension, ResultExtension};
 use crate::subversion::context::log::LogEntry;
 use crate::{
     app,
-    error::{self, builder},
-    extensions::*,
+    error::{self},
 };
 use serde::{Deserialize, Serialize};
-use snafu::ResultExt;
 use surrealdb::engine::local::{Db, SurrealKv};
 use surrealdb::types::SurrealValue;
 use surrealdb::Surreal;
@@ -58,15 +57,9 @@ impl DatabaseConnection {
 
         let path_str = path.to_str().any_context("Failed to get database path")?;
 
-        let connection = Surreal::new::<SurrealKv>(path_str)
-            .await
-            .context(builder::Database)?;
+        let connection = Surreal::new::<SurrealKv>(path_str).await?;
 
-        connection
-            .use_ns("svnexus")
-            .use_db("main")
-            .await
-            .context(builder::Database)?;
+        connection.use_ns("svnexus").use_db("main").await?;
 
         // 预定义表，避免读取空表时报错
         let define_sql = format!(
@@ -76,10 +69,7 @@ impl DatabaseConnection {
              DEFINE TABLE IF NOT EXISTS {LOG_REFERENCE};
              DEFINE TABLE IF NOT EXISTS {REVISION_LOCATION};"
         );
-        connection
-            .query(&define_sql)
-            .await
-            .context(builder::Database)?;
+        connection.query(&define_sql).await?;
 
         // migrations::execute(&connection).await?;
 
@@ -97,25 +87,19 @@ impl DatabaseConnection {
         self.connection
             .upsert::<Option<models::WorkspaceItem>>((WORKSPACE_ITEM, item.identity()))
             .content(item)
-            .await
-            .context(builder::Database)?;
+            .await?;
         Ok(())
     }
 
     pub async fn delete_workspace_item(&self, uuid: String) -> error::Result<()> {
         self.connection
             .delete::<Option<models::WorkspaceItem>>((WORKSPACE_ITEM, uuid.as_str()))
-            .await
-            .context(builder::Database)?;
+            .await?;
         Ok(())
     }
 
     pub async fn workspace_items(&self) -> error::Result<Vec<models::WorkspaceItem>> {
-        let items: Vec<models::WorkspaceItem> = self
-            .connection
-            .select(WORKSPACE_ITEM)
-            .await
-            .context(builder::Database)?;
+        let items: Vec<models::WorkspaceItem> = self.connection.select(WORKSPACE_ITEM).await?;
         Ok(items)
     }
 
@@ -126,25 +110,19 @@ impl DatabaseConnection {
         self.connection
             .upsert::<Option<models::WorkspaceGroup>>((WORKSPACE_GROUP, group.identity.as_str()))
             .content(group)
-            .await
-            .context(builder::Database)?;
+            .await?;
         Ok(())
     }
 
     pub async fn delete_workspace_group(&self, uuid: String) -> error::Result<()> {
         self.connection
             .delete::<Option<models::WorkspaceGroup>>((WORKSPACE_GROUP, uuid.as_str()))
-            .await
-            .context(builder::Database)?;
+            .await?;
         Ok(())
     }
 
     pub async fn workspace_groups(&self) -> error::Result<Vec<models::WorkspaceGroup>> {
-        let groups: Vec<models::WorkspaceGroup> = self
-            .connection
-            .select(WORKSPACE_GROUP)
-            .await
-            .context(builder::Database)?;
+        let groups: Vec<models::WorkspaceGroup> = self.connection.select(WORKSPACE_GROUP).await?;
         Ok(groups)
     }
 
@@ -157,7 +135,7 @@ impl DatabaseConnection {
     //         .connection
     //         .select((WORKSPACE_GROUP, identity.as_str()))
     //         .await
-    //         .context(builder::Database)?;
+    //         ?;
     //     Ok(group)
     // }
 
@@ -166,8 +144,7 @@ impl DatabaseConnection {
         self.connection
             .upsert::<Option<models::WorkspaceGroup>>((WORKSPACE_GROUP, identity.as_str()))
             .content(item)
-            .await
-            .context(builder::Database)?;
+            .await?;
         Ok(())
     }
 
@@ -183,8 +160,7 @@ impl DatabaseConnection {
         let reference: Option<LogReferenceStore> = self
             .connection
             .select((LOG_REFERENCE, format!("{}:{}", repository, path).as_str()))
-            .await
-            .context(builder::Database)?;
+            .await?;
 
         let Some(reference) = reference else {
             tracing::info!("No such reference: {}:{}", repository, path);
@@ -221,8 +197,7 @@ impl DatabaseConnection {
         let reference: Option<LogReferenceStore> = self
             .connection
             .select((LOG_REFERENCE, format!("{}:{}", repository, path).as_str()))
-            .await
-            .context(builder::Database)?;
+            .await?;
 
         let Some(reference) = reference else {
             tracing::info!("No such reference: {}:{}", repository, path);
@@ -276,9 +251,9 @@ impl DatabaseConnection {
             .bind(("repo", repository))
             .bind(("revisions", revisions.to_vec()))
             .await
-            .context(builder::Database)?
+            ?
             .take(0)
-            .context(builder::Database)?;
+            ?;
 
         Ok(records.into_iter().map(|r| r.entry).collect())
     }
@@ -304,16 +279,14 @@ impl DatabaseConnection {
                     "UPSERT {LOG_ENTRY}:⟨{repository}:{revision}⟩ CONTENT $data"
                 ))
                 .bind(("data", record))
-                .await
-                .context(builder::Database)?;
+                .await?;
         }
 
         // 更新 reference 的 revision 索引
         let reference: Option<LogReferenceStore> = self
             .connection
             .select((LOG_REFERENCE, format!("{}:{}", repository, path).as_str()))
-            .await
-            .context(builder::Database)?;
+            .await?;
 
         let mut revisions: Vec<u32> = reference.map(|r| r.revisions).unwrap_or_default();
 
@@ -346,8 +319,7 @@ impl DatabaseConnection {
                 format!("{}:{}", repository, path).as_str(),
             ))
             .content(reference)
-            .await
-            .context(builder::Database)?;
+            .await?;
 
         Ok(())
     }
@@ -373,8 +345,7 @@ impl DatabaseConnection {
         self.connection
             .upsert::<Vec<RevisionLocationRecord>>(REVISION_LOCATION)
             .content(record)
-            .await
-            .context(builder::Database)?;
+            .await?;
         Ok(())
     }
 
@@ -394,9 +365,9 @@ impl DatabaseConnection {
             .bind(("peg", peg_revision))
             .bind(("rev", revision))
             .await
-            .context(builder::Database)?
+            ?
             .take(0)
-            .context(builder::Database)?;
+            ?;
 
         Ok(record.map(|r| r.location))
     }

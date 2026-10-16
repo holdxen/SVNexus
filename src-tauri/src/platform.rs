@@ -460,3 +460,100 @@ pub fn current() -> impl Platform {
         }
     }
 }
+
+/// `/usr/local/bin` 在 macOS 默认 PATH 里（`/etc/paths`），Zed、VS Code 的 shell command 也装在这。
+#[cfg(target_os = "macos")]
+const CLI_LINK_DIR: &str = "/usr/local/bin";
+
+/// 提权时要执行的 shell 命令。路径一律过 `shell_double_quote`：这串命令会以管理员身份运行，
+/// 路径里的引号若不转义就会把命令截断。
+#[cfg(target_os = "macos")]
+fn cli_install_shell_command(target: &Path, link_path: &Path) -> String {
+    format!(
+        "mkdir -p {} && ln -sfn {} {}",
+        shell_double_quote(CLI_LINK_DIR),
+        shell_double_quote(&target.to_string_lossy()),
+        shell_double_quote(&link_path.to_string_lossy()),
+    )
+}
+
+/// 把应用自身的可执行文件软链到 `/usr/local/bin/<exe 名>`，终端里就能直接 `svnexus /path`。
+///
+/// 不需要像 Zed 那样另带一个 cli 二进制：主程序本身就是 CLI —— main.rs 用 clap 解析路径，
+/// 已有实例运行时由 single-instance 插件把 argv 转发过去（lib.rs 的 `cli-open-path`），
+/// 冷启动则走 `CliInitialPath`。
+///
+/// 三步降级（对照 Zed `crates/install_cli/src/install_cli_binary.rs` 的 `install_script`）：
+/// 1. 链接已指向当前 exe 就直接返回；app 升级或挪位置后 readlink 不一致，会落到下面重建；
+/// 2. 先试免提权的 remove + symlink（用户对 `/usr/local/bin` 有写权限时不必弹授权）；
+/// 3. 失败再用 osascript 申请管理员权限。
+///
+/// 返回 `None` 表示用户在授权弹窗里点了取消 —— 那是用户的主动选择，不算失败。
+#[cfg(target_os = "macos")]
+pub fn install_cli() -> error::Result<Option<PathBuf>> {
+    let target = std::env::current_exe()?;
+    let name = target
+        .file_name()
+        .any_context("Failed to get executable file name")?
+        .to_str()
+        .any_context("Executable file name is not valid UTF-8")?;
+    let link_path = Path::new(CLI_LINK_DIR).join(name);
+
+    if std::fs::read_link(&link_path).ok().as_deref() == Some(target.as_path()) {
+        return Ok(Some(link_path));
+    }
+
+    let _ = std::fs::remove_file(&link_path);
+    if std::os::unix::fs::symlink(&target, &link_path).is_ok() {
+        return Ok(Some(link_path));
+    }
+
+    // 路径要经过两层引号：先是 shell 的双引号，再整体作为 AppleScript 字符串字面量。
+    // 两层都由本模块已有的转义函数处理，避免路径里的引号把提权命令截断。
+    let shell_command = cli_install_shell_command(&target, &link_path);
+    let script = format!(
+        "do shell script {} with administrator privileges",
+        apple_script_quote(&shell_command)
+    );
+
+    let output = Command::new("/usr/bin/osascript")
+        .arg("-e")
+        .arg(&script)
+        .output()?;
+
+    if output.status.success() {
+        return Ok(Some(link_path));
+    }
+
+    // osascript 在用户取消授权时报 "User canceled."（error -128）
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    if stderr.contains("User canceled") || stderr.contains("-128") {
+        return Ok(None);
+    }
+
+    // 提权后仍失败，最常见的就是当前用户不是管理员
+    Err(builder::General {
+        detail: format!("osascript failed: {}", stderr.trim()),
+    }
+    .build())
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod tests {
+    use super::*;
+
+    /// 提权命令里的路径必须被完整转义：路径中带 `"`、`$`、反引号时，
+    /// 它们要变成 shell 双引号内的转义形式，单引号在双引号里本就是字面量，保持原样。
+    #[test]
+    fn escapes_hostile_paths_in_the_privileged_command() {
+        let command = cli_install_shell_command(
+            Path::new("/tmp/a'b\"c$d`e/svnexus"),
+            Path::new("/usr/local/bin/svnexus"),
+        );
+
+        assert_eq!(
+            command,
+            r#"mkdir -p "/usr/local/bin" && ln -sfn "/tmp/a'b\"c\$d\`e/svnexus" "/usr/local/bin/svnexus""#
+        );
+    }
+}

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::ffi::CStr;
 
 use derive_new::new;
 use serde::{Deserialize, Serialize};
@@ -86,7 +85,7 @@ impl CommitItem {
         unsafe {
             let item = item.as_ref().expect("Failed to get reference");
 
-            tracing::info!("item path={:?}", CStr::from_ptr(item.path));
+            // item.path 在 URL→URL 复制时是 NULL（没有本地路径），只能用空安全的读法
             let path = item.path.to_nullable_string();
 
             let kind = NodeKind::try_from(item.kind).expect("Unexpected failure");

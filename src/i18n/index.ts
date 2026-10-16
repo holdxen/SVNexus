@@ -16,17 +16,27 @@ import { welcome } from './messages/welcome'
 import { welcomeUi } from './messages/welcomeUi'
 import { workspace } from './messages/workspace'
 
-export type Locale = 'zh-CN' | 'en-US'
+export type Locale = 'zh-CN' | 'en-US' | 'es-419' | 'pt-BR' | 'ja-JP' | 'de-DE'
 export type LocalePreference = Locale | 'system'
 
 /** 语言名称用它自己的语言书写，切换列表里不随当前语言变化 */
 export const LOCALES: { value: Locale; label: string }[] = [
   { value: 'zh-CN', label: '简体中文' },
   { value: 'en-US', label: 'English' },
+  { value: 'es-419', label: 'Español' },
+  { value: 'pt-BR', label: 'Português' },
+  { value: 'ja-JP', label: '日本語' },
+  { value: 'de-DE', label: 'Deutsch' },
 ]
 
 function systemLocale(): Locale {
-  return navigator.language.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en-US'
+  const language = navigator.language.toLowerCase()
+  if (language.startsWith('zh')) return 'zh-CN'
+  if (language.startsWith('es')) return 'es-419'
+  if (language.startsWith('pt')) return 'pt-BR'
+  if (language.startsWith('ja')) return 'ja-JP'
+  if (language.startsWith('de')) return 'de-DE'
+  return 'en-US'
 }
 
 function resolveLocale(preference: LocalePreference): Locale {
@@ -69,11 +79,87 @@ const en: Record<keyof typeof zh, string> = {
   ...components.en,
 }
 
+const es: Record<keyof typeof zh, string> = {
+  ...shared.es,
+  ...common.es,
+  ...app.es,
+  ...settings.es,
+  ...dialogs.es,
+  ...welcome.es,
+  ...workspace.es,
+  ...conflict.es,
+  ...feedback.es,
+  ...merge.es,
+  ...changes.es,
+  ...svnDialogs.es,
+  ...advancedDialogs.es,
+  ...welcomeUi.es,
+  ...components.es,
+}
+
+const pt: Record<keyof typeof zh, string> = {
+  ...shared.pt,
+  ...common.pt,
+  ...app.pt,
+  ...settings.pt,
+  ...dialogs.pt,
+  ...welcome.pt,
+  ...workspace.pt,
+  ...conflict.pt,
+  ...feedback.pt,
+  ...merge.pt,
+  ...changes.pt,
+  ...svnDialogs.pt,
+  ...advancedDialogs.pt,
+  ...welcomeUi.pt,
+  ...components.pt,
+}
+
+const ja: Record<keyof typeof zh, string> = {
+  ...shared.ja,
+  ...common.ja,
+  ...app.ja,
+  ...settings.ja,
+  ...dialogs.ja,
+  ...welcome.ja,
+  ...workspace.ja,
+  ...conflict.ja,
+  ...feedback.ja,
+  ...merge.ja,
+  ...changes.ja,
+  ...svnDialogs.ja,
+  ...advancedDialogs.ja,
+  ...welcomeUi.ja,
+  ...components.ja,
+}
+
+const de: Record<keyof typeof zh, string> = {
+  ...shared.de,
+  ...common.de,
+  ...app.de,
+  ...settings.de,
+  ...dialogs.de,
+  ...welcome.de,
+  ...workspace.de,
+  ...conflict.de,
+  ...feedback.de,
+  ...merge.de,
+  ...changes.de,
+  ...svnDialogs.de,
+  ...advancedDialogs.de,
+  ...welcomeUi.de,
+  ...components.de,
+}
+
 export type MessageKey = keyof typeof zh
 
 const dictionaries: Record<Locale, Record<MessageKey, string>> = {
   'zh-CN': zh,
   'en-US': en,
+  'es-419': es,
+  'pt-BR': pt,
+  'ja-JP': ja,
+  'de-DE': de,
 }
 
 export type MessageParams = Record<string, string | number>

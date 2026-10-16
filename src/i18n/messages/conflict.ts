@@ -246,4 +246,531 @@ export const conflict = defineMessages({
       'Accept the current working copy state and just clear the conflict marker.',
     'conflict.choice.resultCurrentState': 'Current state',
   },
+  es: {
+    'conflict.title': 'Resolver conflicto',
+    'conflict.summary.pair': 'De ellos {action} × local {reason}',
+
+    'conflict.action.edit': 'editar',
+    'conflict.action.add': 'agregar',
+    'conflict.action.delete': 'eliminar',
+    'conflict.action.replace': 'reemplazar',
+
+    'conflict.reason.edited': 'editado',
+    'conflict.reason.obstructed': 'obstruido',
+    'conflict.reason.deleted': 'eliminado',
+    'conflict.reason.missing': 'faltante',
+    'conflict.reason.unversioned': 'sin versionar',
+    'conflict.reason.added': 'agregado',
+    'conflict.reason.replaced': 'reemplazado',
+    'conflict.reason.movedAway': 'movido a otro lugar',
+    'conflict.reason.movedHere': 'movido aquí',
+
+    'conflict.operation.update': 'al actualizar',
+    'conflict.operation.switch': 'al cambiar',
+    'conflict.operation.merge': 'al fusionar',
+
+    'conflict.nodeKind.file': 'archivo',
+    'conflict.nodeKind.directory': 'directorio',
+    'conflict.nodeKind.symlink': 'enlace simbólico',
+    'conflict.nodeKind.none': 'no existe',
+
+    'conflict.value.unavailable': '(no disponible)',
+    'conflict.value.legacyUnavailable': '(no disponible — registro de conflicto heredado)',
+    'conflict.value.unset': '(sin establecer)',
+    'conflict.value.empty': '(vacío)',
+
+    'conflict.role.base': 'BASE · Base local',
+    'conflict.role.mine': 'MINE · Mis cambios',
+    'conflict.role.theirs': 'THEIR · Versión de ellos',
+    'conflict.role.merged': 'MERGED · Resultado de la fusión',
+    'conflict.role.working': 'WORKING · Mis cambios',
+    'conflict.role.incomingOld': 'INCOMING OLD · Punto de partida de ellos',
+    'conflict.role.incomingNew': 'INCOMING NEW · Valor nuevo de ellos',
+
+    'conflict.text.filesTitle': 'Archivos en conflicto',
+    'conflict.text.binaryPrefix': 'Este es un archivo binario (MIME: ',
+    'conflict.text.binarySuffix': '); las diferencias de texto no están disponibles.',
+    'conflict.text.mimeUnknown': 'desconocido',
+
+    'conflict.property.title': 'Propiedad',
+    'conflict.property.incomingLabel': 'De ellos: ',
+    'conflict.property.localLabel': 'Local: ',
+    'conflict.property.summaryEdit': 'Editar propiedad "{name}": {old} → {new}',
+    'conflict.property.summaryAdd': 'Agregar propiedad "{name}" = {value}',
+    'conflict.property.summaryDelete': 'Eliminar propiedad "{name}" (antes {value})',
+    'conflict.property.summaryOther': '{action} propiedad "{name}"',
+    'conflict.property.localEdited': 'cambiado a {value}',
+    'conflict.property.localAdded': 'agregado (valor actual {value})',
+    'conflict.property.valuesTitle': 'Los cuatro valores en conflicto',
+    'conflict.property.noteBaseMerge':
+      'El valor BASE de la copia de trabajo (WC pristine). El punto de partida de mi linaje.',
+    'conflict.property.noteBaseUpdate':
+      'Durante update/switch, este valor puede no ser el ancestro común; al elegir base en realidad se aplica incoming old.',
+    'conflict.property.noteWorking': 'El valor que cambié localmente (sin confirmar).',
+    'conflict.property.noteIncomingOld':
+      'El valor merge-left. El inicio del linaje de ellos / el ancla del parche.',
+    'conflict.property.noteIncomingNew':
+      'El valor merge-right. El punto final del cambio de ellos.',
+    'conflict.property.trapTitle': '⚠ Trampa semántica:',
+    'conflict.property.trapIntro': ' En una fusión, ',
+    'conflict.property.trapBaseShown': ' muestra el valor pristine local, pero al elegir ',
+    'conflict.property.trapBaseApplies': ' en realidad se aplica',
+    'conflict.property.trapEnd': ' (el valor de partida de ellos). Los dos no coinciden.',
+    'conflict.property.customValueLabel': 'Valor de propiedad personalizado:',
+    'conflict.property.customValuePlaceholder': 'Ingresa un valor personalizado…',
+
+    'conflict.tree.summaryTitle': 'Resumen del conflicto',
+    'conflict.tree.localLabel': 'Local:',
+    'conflict.tree.incomingLabel': 'Entrante:',
+    'conflict.tree.operationLabel': 'Operación:',
+    'conflict.tree.localSummary': '{kind} local: {reason}',
+    'conflict.tree.incomingSummary': '{kind} entrante: {action}',
+    'conflict.tree.noOperation': 'Ninguna operación específica',
+    'conflict.tree.versionTitle': 'Información de versión',
+
+    'conflict.choice.title': 'Elige una resolución',
+    'conflict.choice.resultLabel': 'Resultado →',
+    'conflict.choice.postpone': 'Posponer',
+    'conflict.choice.postponeDesc':
+      'Déjalo pendiente por ahora y resuélvelo manualmente más tarde.',
+    'conflict.choice.resultConflict': 'El conflicto permanece',
+    'conflict.choice.mineFull': 'Conservar lo mío',
+    'conflict.choice.mineFullDesc': 'Conserva mis cambios locales y rechaza el cambio entrante.',
+    'conflict.choice.mineFullDescText':
+      'Conserva el archivo de mi copia de trabajo y rechaza el cambio entrante.',
+    'conflict.choice.resultMineWorking': 'Mi copia de trabajo',
+    'conflict.choice.theirsFull': 'Tomar lo de ellos',
+    'conflict.choice.theirsFullDesc':
+      'Toma por completo el valor nuevo de ellos y descarta mis cambios.',
+    'conflict.choice.theirsFullDescText': 'Toma por completo la versión del archivo de ellos.',
+    'conflict.choice.resultTheirs': 'Versión de ellos',
+    'conflict.choice.base': 'Volver al estado anterior al cambio',
+    'conflict.choice.baseDescMerge':
+      'Regresa al estado anterior al cambio (en realidad aplica el valor de propiedad BASE).',
+    'conflict.choice.baseDescUpdate':
+      'Regresa al estado anterior al cambio (en realidad aplica el valor incoming old).',
+    'conflict.choice.merged': 'Valor personalizado…',
+    'conflict.choice.mergedDesc':
+      'Ingresa un valor arbitrario (se devuelve mediante merged_value).',
+    'conflict.choice.resultCustom': 'Personalizado',
+    'conflict.choice.baseText': 'Volver a BASE',
+    'conflict.choice.baseTextDesc': 'Usa el archivo BASE (ancestro común).',
+    'conflict.choice.resultBaseFile': 'Archivo BASE',
+    'conflict.choice.mineConflict': 'Aplicar solo mis cambios',
+    'conflict.choice.mineConflictDesc':
+      'Vuelve a ejecutar la fusión de tres vías, conservando solo mis cambios y descartando los de ellos.',
+    'conflict.choice.resultMineConflict': 'Resultado de la fusión (solo mis cambios)',
+    'conflict.choice.theirsConflict': 'Aplicar solo los cambios de ellos',
+    'conflict.choice.theirsConflictDesc':
+      'Vuelve a ejecutar la fusión de tres vías, conservando solo los cambios de ellos y descartando los míos.',
+    'conflict.choice.resultTheirsConflict': 'Resultado de la fusión (solo los cambios de ellos)',
+    'conflict.choice.keepLocalState': 'Conservar el estado local',
+    'conflict.choice.keepLocalStateMovedDesc':
+      'Actualiza el nodo movido a otro lugar para aplicar el cambio entrante.',
+    'conflict.choice.keepLocalStateDesc':
+      'Conserva el estado del directorio local; los nodos secundarios movidos fuera de él generarán nuevos conflictos moved-away.',
+    'conflict.choice.resultMovedUpdated': 'Nodo movido a otro lugar actualizado',
+    'conflict.choice.resultLocalState': 'Estado local',
+    'conflict.choice.acceptCurrent': 'Aceptar el estado actual',
+    'conflict.choice.acceptCurrentMovedDesc':
+      'Acepta el estado actual de la copia de trabajo (rompiendo el registro de movimiento si es necesario).',
+    'conflict.choice.acceptCurrentDesc':
+      'Acepta el estado actual de la copia de trabajo y solo limpia el marcador de conflicto.',
+    'conflict.choice.resultCurrentState': 'Estado actual',
+  },
+  pt: {
+    'conflict.title': 'Resolver conflito',
+    'conflict.summary.pair': 'Deles {action} × local {reason}',
+
+    'conflict.action.edit': 'editar',
+    'conflict.action.add': 'adicionar',
+    'conflict.action.delete': 'excluir',
+    'conflict.action.replace': 'substituir',
+
+    'conflict.reason.edited': 'editado',
+    'conflict.reason.obstructed': 'obstruído',
+    'conflict.reason.deleted': 'excluído',
+    'conflict.reason.missing': 'ausente',
+    'conflict.reason.unversioned': 'não versionado',
+    'conflict.reason.added': 'adicionado',
+    'conflict.reason.replaced': 'substituído',
+    'conflict.reason.movedAway': 'movido para outro local',
+    'conflict.reason.movedHere': 'movido para cá',
+
+    'conflict.operation.update': 'ao atualizar',
+    'conflict.operation.switch': 'ao alternar',
+    'conflict.operation.merge': 'ao mesclar',
+
+    'conflict.nodeKind.file': 'arquivo',
+    'conflict.nodeKind.directory': 'diretório',
+    'conflict.nodeKind.symlink': 'link simbólico',
+    'conflict.nodeKind.none': 'não existe',
+
+    'conflict.value.unavailable': '(não disponível)',
+    'conflict.value.legacyUnavailable': '(não disponível — registro de conflito legado)',
+    'conflict.value.unset': '(não definido)',
+    'conflict.value.empty': '(vazio)',
+
+    'conflict.role.base': 'BASE · Base local',
+    'conflict.role.mine': 'MINE · Minhas alterações',
+    'conflict.role.theirs': 'THEIR · Versão deles',
+    'conflict.role.merged': 'MERGED · Resultado da mesclagem',
+    'conflict.role.working': 'WORKING · Minhas alterações',
+    'conflict.role.incomingOld': 'INCOMING OLD · Ponto de partida deles',
+    'conflict.role.incomingNew': 'INCOMING NEW · Novo valor deles',
+
+    'conflict.text.filesTitle': 'Arquivos em conflito',
+    'conflict.text.binaryPrefix': 'Este é um arquivo binário (MIME: ',
+    'conflict.text.binarySuffix': '); as diferenças de texto não estão disponíveis.',
+    'conflict.text.mimeUnknown': 'desconhecido',
+
+    'conflict.property.title': 'Propriedade',
+    'conflict.property.incomingLabel': 'Deles: ',
+    'conflict.property.localLabel': 'Local: ',
+    'conflict.property.summaryEdit': 'Editar propriedade "{name}": {old} → {new}',
+    'conflict.property.summaryAdd': 'Adicionar propriedade "{name}" = {value}',
+    'conflict.property.summaryDelete': 'Excluir propriedade "{name}" (antes {value})',
+    'conflict.property.summaryOther': '{action} propriedade "{name}"',
+    'conflict.property.localEdited': 'alterado para {value}',
+    'conflict.property.localAdded': 'adicionado (valor atual {value})',
+    'conflict.property.valuesTitle': 'Os quatro valores em conflito',
+    'conflict.property.noteBaseMerge':
+      'O valor BASE da cópia de trabalho (WC pristine). O ponto de partida da minha linhagem.',
+    'conflict.property.noteBaseUpdate':
+      'Durante update/switch este valor pode não ser o ancestral comum; ao escolher base, na verdade é aplicado o incoming old.',
+    'conflict.property.noteWorking': 'O valor que alterei localmente (não consolidado).',
+    'conflict.property.noteIncomingOld':
+      'O valor merge-left. O início da linhagem deles / a âncora do patch.',
+    'conflict.property.noteIncomingNew': 'O valor merge-right. O ponto final da alteração deles.',
+    'conflict.property.trapTitle': '⚠ Armadilha semântica:',
+    'conflict.property.trapIntro': ' Em uma mesclagem, ',
+    'conflict.property.trapBaseShown': ' mostra o valor pristine local, mas ao escolher ',
+    'conflict.property.trapBaseApplies': ' na verdade é aplicado',
+    'conflict.property.trapEnd': ' (o valor de partida deles). Os dois não coincidem.',
+    'conflict.property.customValueLabel': 'Valor de propriedade personalizado:',
+    'conflict.property.customValuePlaceholder': 'Digite um valor personalizado…',
+
+    'conflict.tree.summaryTitle': 'Resumo do conflito',
+    'conflict.tree.localLabel': 'Local:',
+    'conflict.tree.incomingLabel': 'Entrante:',
+    'conflict.tree.operationLabel': 'Operação:',
+    'conflict.tree.localSummary': '{kind} local: {reason}',
+    'conflict.tree.incomingSummary': '{kind} entrante: {action}',
+    'conflict.tree.noOperation': 'Nenhuma operação específica',
+    'conflict.tree.versionTitle': 'Informações de versão',
+
+    'conflict.choice.title': 'Escolha uma resolução',
+    'conflict.choice.resultLabel': 'Resultado →',
+    'conflict.choice.postpone': 'Adiar',
+    'conflict.choice.postponeDesc': 'Deixe pendente por enquanto e resolva manualmente depois.',
+    'conflict.choice.resultConflict': 'O conflito permanece',
+    'conflict.choice.mineFull': 'Manter o meu',
+    'conflict.choice.mineFullDesc':
+      'Mantém minhas alterações locais e rejeita a alteração recebida.',
+    'conflict.choice.mineFullDescText':
+      'Mantém o arquivo da minha cópia de trabalho e rejeita a alteração recebida.',
+    'conflict.choice.resultMineWorking': 'Minha cópia de trabalho',
+    'conflict.choice.theirsFull': 'Usar o deles',
+    'conflict.choice.theirsFullDesc':
+      'Usa o novo valor deles por completo e descarta minhas alterações.',
+    'conflict.choice.theirsFullDescText': 'Usa a versão do arquivo deles por completo.',
+    'conflict.choice.resultTheirs': 'Versão deles',
+    'conflict.choice.base': 'Voltar ao estado anterior à alteração',
+    'conflict.choice.baseDescMerge':
+      'Retorna ao estado anterior à alteração (na verdade aplica o valor da propriedade BASE).',
+    'conflict.choice.baseDescUpdate':
+      'Retorna ao estado anterior à alteração (na verdade aplica o valor incoming old).',
+    'conflict.choice.merged': 'Valor personalizado…',
+    'conflict.choice.mergedDesc': 'Digite um valor arbitrário (retornado via merged_value).',
+    'conflict.choice.resultCustom': 'Personalizado',
+    'conflict.choice.baseText': 'Voltar para BASE',
+    'conflict.choice.baseTextDesc': 'Usa o arquivo BASE (ancestral comum).',
+    'conflict.choice.resultBaseFile': 'Arquivo BASE',
+    'conflict.choice.mineConflict': 'Aplicar somente minhas alterações',
+    'conflict.choice.mineConflictDesc':
+      'Executa novamente a mesclagem de três vias, mantendo somente minhas alterações e descartando as deles.',
+    'conflict.choice.resultMineConflict': 'Resultado da mesclagem (somente minhas alterações)',
+    'conflict.choice.theirsConflict': 'Aplicar somente as alterações deles',
+    'conflict.choice.theirsConflictDesc':
+      'Executa novamente a mesclagem de três vias, mantendo somente as alterações deles e descartando as minhas.',
+    'conflict.choice.resultTheirsConflict': 'Resultado da mesclagem (somente as alterações deles)',
+    'conflict.choice.keepLocalState': 'Manter o estado local',
+    'conflict.choice.keepLocalStateMovedDesc':
+      'Atualiza o nó movido para outro local para aplicar a alteração recebida.',
+    'conflict.choice.keepLocalStateDesc':
+      'Mantém o estado do diretório local; os nós filhos movidos para fora dele gerarão novos conflitos moved-away.',
+    'conflict.choice.resultMovedUpdated': 'Nó movido para outro local atualizado',
+    'conflict.choice.resultLocalState': 'Estado local',
+    'conflict.choice.acceptCurrent': 'Aceitar o estado atual',
+    'conflict.choice.acceptCurrentMovedDesc':
+      'Aceita o estado atual da cópia de trabalho (quebrando o registro de movimentação se necessário).',
+    'conflict.choice.acceptCurrentDesc':
+      'Aceita o estado atual da cópia de trabalho e apenas limpa o marcador de conflito.',
+    'conflict.choice.resultCurrentState': 'Estado atual',
+  },
+  ja: {
+    'conflict.title': '競合の解決',
+    'conflict.summary.pair': '相手側の{action} × ローカルの{reason}',
+
+    'conflict.action.edit': '編集',
+    'conflict.action.add': '追加',
+    'conflict.action.delete': '削除',
+    'conflict.action.replace': '置換',
+
+    'conflict.reason.edited': '編集済み',
+    'conflict.reason.obstructed': '妨害',
+    'conflict.reason.deleted': '削除済み',
+    'conflict.reason.missing': '欠落',
+    'conflict.reason.unversioned': 'バージョン管理外',
+    'conflict.reason.added': '追加済み',
+    'conflict.reason.replaced': '置換済み',
+    'conflict.reason.movedAway': '他所へ移動済み',
+    'conflict.reason.movedHere': 'ここへ移動済み',
+
+    'conflict.operation.update': 'update 時',
+    'conflict.operation.switch': 'switch 時',
+    'conflict.operation.merge': 'merge 時',
+
+    'conflict.nodeKind.file': 'ファイル',
+    'conflict.nodeKind.directory': 'ディレクトリ',
+    'conflict.nodeKind.symlink': 'シンボリックリンク',
+    'conflict.nodeKind.none': '存在しない',
+
+    'conflict.value.unavailable': '（利用不可）',
+    'conflict.value.legacyUnavailable': '（利用不可 — 従来形式の競合記録）',
+    'conflict.value.unset': '（未設定）',
+    'conflict.value.empty': '（空）',
+
+    'conflict.role.base': 'BASE · ローカルのベース',
+    'conflict.role.mine': 'MINE · 自分の変更',
+    'conflict.role.theirs': 'THEIR · 相手側のバージョン',
+    'conflict.role.merged': 'MERGED · マージ結果',
+    'conflict.role.working': 'WORKING · 自分の変更',
+    'conflict.role.incomingOld': 'INCOMING OLD · 相手側の起点',
+    'conflict.role.incomingNew': 'INCOMING NEW · 相手側の新しい値',
+
+    'conflict.text.filesTitle': '競合ファイル',
+    'conflict.text.binaryPrefix': 'バイナリファイル（MIME: ',
+    'conflict.text.binarySuffix': '）のため、テキスト差分は表示できません。',
+    'conflict.text.mimeUnknown': '不明',
+
+    'conflict.property.title': 'プロパティ',
+    'conflict.property.incomingLabel': '相手側: ',
+    'conflict.property.localLabel': '自分側: ',
+    'conflict.property.summaryEdit': 'プロパティ「{name}」を変更：{old} → {new}',
+    'conflict.property.summaryAdd': 'プロパティ「{name}」を追加：{value}',
+    'conflict.property.summaryDelete': 'プロパティ「{name}」を削除（元の値 {value}）',
+    'conflict.property.summaryOther': 'プロパティ「{name}」を{action}',
+    'conflict.property.localEdited': '{value} に変更',
+    'conflict.property.localAdded': '追加済み（現在の値 {value}）',
+    'conflict.property.valuesTitle': '競合している 4 つの値',
+    'conflict.property.noteBaseMerge':
+      '作業コピーの BASE 値（WC pristine）です。自分の系統の起点です。',
+    'conflict.property.noteBaseUpdate':
+      'update/switch の際、この値は共通の祖先であるとは限りません。base を選ぶと、実際には incoming old が適用されます。',
+    'conflict.property.noteWorking': '自分がローカルで変更した値です（未コミット）。',
+    'conflict.property.noteIncomingOld':
+      'マージ元 merge-left の値です。相手側の系統の起点、パッチのアンカーです。',
+    'conflict.property.noteIncomingNew': 'マージ元 merge-right の値です。相手側の変更の終点です。',
+    'conflict.property.trapTitle': '⚠ 意味上の罠：',
+    'conflict.property.trapIntro': 'マージの場合、 ',
+    'conflict.property.trapBaseShown': ' にはローカルの pristine 値が表示されますが、',
+    'conflict.property.trapBaseApplies': ' を選ぶと、実際に適用されるのは',
+    'conflict.property.trapEnd': ' （相手側の起点の値）です。両者は一致しません。',
+    'conflict.property.customValueLabel': 'カスタムプロパティ値:',
+    'conflict.property.customValuePlaceholder': 'カスタム値を入力…',
+
+    'conflict.tree.summaryTitle': '競合の概要',
+    'conflict.tree.localLabel': 'ローカル:',
+    'conflict.tree.incomingLabel': '受信:',
+    'conflict.tree.operationLabel': '操作:',
+    'conflict.tree.localSummary': 'ローカル {kind} {reason}',
+    'conflict.tree.incomingSummary': '受信 {kind} {action}',
+    'conflict.tree.noOperation': '特定の操作なし',
+    'conflict.tree.versionTitle': 'バージョン情報',
+
+    'conflict.choice.title': '解決方法を選択',
+    'conflict.choice.resultLabel': '結果 →',
+    'conflict.choice.postpone': '解決を延期',
+    'conflict.choice.postponeDesc': '今は処理せず、後で手動で解決します。',
+    'conflict.choice.resultConflict': '競合状態を維持',
+    'conflict.choice.mineFull': '自分側を保持',
+    'conflict.choice.mineFullDesc': '自分のローカル変更を保持し、受信した変更を拒否します。',
+    'conflict.choice.mineFullDescText':
+      '自分の作業コピーのファイルを保持し、受信した変更を拒否します。',
+    'conflict.choice.resultMineWorking': '自分の作業コピー',
+    'conflict.choice.theirsFull': '相手側を採用',
+    'conflict.choice.theirsFullDesc': '相手側の新しい値をそのまま採用し、自分の変更を破棄します。',
+    'conflict.choice.theirsFullDescText': '相手側のファイルバージョンをそのまま採用します。',
+    'conflict.choice.resultTheirs': '相手側のバージョン',
+    'conflict.choice.base': '変更前の状態に戻す',
+    'conflict.choice.baseDescMerge':
+      '変更が行われる前の状態に戻します（実際に適用されるのは BASE のプロパティ値です）。',
+    'conflict.choice.baseDescUpdate':
+      '変更が行われる前の状態に戻します（実際に適用されるのは incoming old の値です）。',
+    'conflict.choice.merged': 'カスタム値…',
+    'conflict.choice.mergedDesc': '任意の値を入力します（merged_value 経由で返されます）。',
+    'conflict.choice.resultCustom': 'カスタム',
+    'conflict.choice.baseText': 'BASE に戻す',
+    'conflict.choice.baseTextDesc': 'BASE バージョン（共通の祖先）のファイルを使用します。',
+    'conflict.choice.resultBaseFile': 'BASE ファイル',
+    'conflict.choice.mineConflict': '自分の変更だけを適用',
+    'conflict.choice.mineConflictDesc':
+      '三者間マージをやり直し、自分の変更だけを残して相手側の変更を破棄します。',
+    'conflict.choice.resultMineConflict': 'マージ結果（自分の変更のみ）',
+    'conflict.choice.theirsConflict': '相手側の変更だけを適用',
+    'conflict.choice.theirsConflictDesc':
+      '三者間マージをやり直し、相手側の変更だけを残して自分の変更を破棄します。',
+    'conflict.choice.resultTheirsConflict': 'マージ結果（相手側の変更のみ）',
+    'conflict.choice.keepLocalState': 'ローカル状態を保持',
+    'conflict.choice.keepLocalStateMovedDesc':
+      '他所へ移動したノードを更新して、受信した変更を適用します。',
+    'conflict.choice.keepLocalStateDesc':
+      'ローカルディレクトリの状態を保持します。そこから他所へ移動した子ノードには、新たに moved-away 競合が発生します。',
+    'conflict.choice.resultMovedUpdated': '更新された移動済みノード',
+    'conflict.choice.resultLocalState': 'ローカル状態',
+    'conflict.choice.acceptCurrent': '現在の状態を受け入れる',
+    'conflict.choice.acceptCurrentMovedDesc':
+      '現在の作業コピーの状態を受け入れます（必要に応じて移動の記録を解除します）。',
+    'conflict.choice.acceptCurrentDesc':
+      '現在の作業コピーの状態を受け入れ、競合マーカーだけを消去します。',
+    'conflict.choice.resultCurrentState': '現在の状態',
+  },
+  de: {
+    'conflict.title': 'Konflikt auflösen',
+    'conflict.summary.pair': 'Eingehend: {action} × lokal: {reason}',
+
+    'conflict.action.edit': 'Bearbeiten',
+    'conflict.action.add': 'Hinzufügen',
+    'conflict.action.delete': 'Löschen',
+    'conflict.action.replace': 'Ersetzen',
+
+    'conflict.reason.edited': 'bearbeitet',
+    'conflict.reason.obstructed': 'blockiert',
+    'conflict.reason.deleted': 'gelöscht',
+    'conflict.reason.missing': 'fehlend',
+    'conflict.reason.unversioned': 'nicht versioniert',
+    'conflict.reason.added': 'hinzugefügt',
+    'conflict.reason.replaced': 'ersetzt',
+    'conflict.reason.movedAway': 'wegverschoben',
+    'conflict.reason.movedHere': 'hierher verschoben',
+
+    'conflict.operation.update': 'Beim Aktualisieren',
+    'conflict.operation.switch': 'Beim Wechseln',
+    'conflict.operation.merge': 'Beim Zusammenführen',
+
+    'conflict.nodeKind.file': 'Datei',
+    'conflict.nodeKind.directory': 'Verzeichnis',
+    'conflict.nodeKind.symlink': 'Symbolischer Link',
+    'conflict.nodeKind.none': 'nicht vorhanden',
+
+    'conflict.value.unavailable': '(nicht verfügbar)',
+    'conflict.value.legacyUnavailable': '(nicht verfügbar — veralteter Konflikteintrag)',
+    'conflict.value.unset': '(nicht festgelegt)',
+    'conflict.value.empty': '(leer)',
+
+    'conflict.role.base': 'BASE · Lokale Basis',
+    'conflict.role.mine': 'MINE · Meine Änderungen',
+    'conflict.role.theirs': 'THEIR · Deren Version',
+    'conflict.role.merged': 'MERGED · Zusammenführungsergebnis',
+    'conflict.role.working': 'WORKING · Meine Änderungen',
+    'conflict.role.incomingOld': 'INCOMING OLD · Ausgangspunkt der Gegenseite',
+    'conflict.role.incomingNew': 'INCOMING NEW · Neuer Wert der Gegenseite',
+
+    'conflict.text.filesTitle': 'Konfliktdateien',
+    'conflict.text.binaryPrefix': 'Dies ist eine Binärdatei (MIME: ',
+    'conflict.text.binarySuffix': '); ein Textvergleich ist nicht möglich.',
+    'conflict.text.mimeUnknown': 'unbekannt',
+
+    'conflict.property.title': 'Eigenschaft',
+    'conflict.property.incomingLabel': 'Eingehend: ',
+    'conflict.property.localLabel': 'Lokal: ',
+    'conflict.property.summaryEdit': 'Eigenschaft „{name}“ bearbeiten: {old} → {new}',
+    'conflict.property.summaryAdd': 'Eigenschaft „{name}“ hinzufügen = {value}',
+    'conflict.property.summaryDelete': 'Eigenschaft „{name}“ löschen (war {value})',
+    'conflict.property.summaryOther': '{action} Eigenschaft „{name}“',
+    'conflict.property.localEdited': 'geändert zu {value}',
+    'conflict.property.localAdded': 'hinzugefügt (aktueller Wert {value})',
+    'conflict.property.valuesTitle': 'Die vier Werte im Konflikt',
+    'conflict.property.noteBaseMerge':
+      'Der BASE-Wert der Arbeitskopie (WC pristine). Der Ausgangspunkt meiner Abstammungslinie.',
+    'conflict.property.noteBaseUpdate':
+      'Bei update/switch ist dieser Wert möglicherweise nicht der gemeinsame Vorfahre; bei Auswahl von base wird tatsächlich incoming old übernommen.',
+    'conflict.property.noteWorking':
+      'Der Wert, den ich lokal geändert habe (noch nicht übernommen).',
+    'conflict.property.noteIncomingOld':
+      'Der merge-left-Wert. Der Ausgangspunkt der Abstammungslinie der Gegenseite / der Anker des Patches.',
+    'conflict.property.noteIncomingNew':
+      'Der merge-right-Wert. Der Endpunkt der Änderung der Gegenseite.',
+    'conflict.property.trapTitle': '⚠ Semantische Falle:',
+    'conflict.property.trapIntro': ' Beim Zusammenführen zeigt ',
+    'conflict.property.trapBaseShown': ' den lokalen pristine-Wert an. Wer ',
+    'conflict.property.trapBaseApplies': ' wählt, übernimmt tatsächlich',
+    'conflict.property.trapEnd':
+      ' (den Ausgangswert der Gegenseite). Beide Werte stimmen nicht überein.',
+    'conflict.property.customValueLabel': 'Benutzerdefinierter Eigenschaftswert:',
+    'conflict.property.customValuePlaceholder': 'Benutzerdefinierten Wert eingeben…',
+
+    'conflict.tree.summaryTitle': 'Konfliktübersicht',
+    'conflict.tree.localLabel': 'Lokal:',
+    'conflict.tree.incomingLabel': 'Eingehend:',
+    'conflict.tree.operationLabel': 'Vorgang:',
+    'conflict.tree.localSummary': '{kind} lokal: {reason}',
+    'conflict.tree.incomingSummary': '{kind} eingehend: {action}',
+    'conflict.tree.noOperation': 'Kein bestimmter Vorgang',
+    'conflict.tree.versionTitle': 'Versionsinformationen',
+
+    'conflict.choice.title': 'Auflösung auswählen',
+    'conflict.choice.resultLabel': 'Ergebnis →',
+    'conflict.choice.postpone': 'Zurückstellen',
+    'conflict.choice.postponeDesc':
+      'Lassen Sie es vorerst offen und lösen Sie es später manuell auf.',
+    'conflict.choice.resultConflict': 'Konflikt bleibt bestehen',
+    'conflict.choice.mineFull': 'Meine Version beibehalten',
+    'conflict.choice.mineFullDesc':
+      'Behalten Sie meine lokalen Änderungen bei und lehnen Sie die eingehende Änderung ab.',
+    'conflict.choice.mineFullDescText':
+      'Behalten Sie die Datei meiner Arbeitskopie bei und lehnen Sie die eingehende Änderung ab.',
+    'conflict.choice.resultMineWorking': 'Meine Arbeitskopie',
+    'conflict.choice.theirsFull': 'Deren Version übernehmen',
+    'conflict.choice.theirsFullDesc':
+      'Übernehmen Sie den neuen Wert der Gegenseite vollständig und verwerfen Sie meine Änderungen.',
+    'conflict.choice.theirsFullDescText':
+      'Übernehmen Sie die Dateiversion der Gegenseite vollständig.',
+    'conflict.choice.resultTheirs': 'Deren Version',
+    'conflict.choice.base': 'Zurück zum Zustand vor der Änderung',
+    'conflict.choice.baseDescMerge':
+      'Kehren Sie zum Zustand vor der Änderung zurück (tatsächlich wird der BASE-Eigenschaftswert übernommen).',
+    'conflict.choice.baseDescUpdate':
+      'Kehren Sie zum Zustand vor der Änderung zurück (tatsächlich wird der Wert incoming old übernommen).',
+    'conflict.choice.merged': 'Benutzerdefinierter Wert…',
+    'conflict.choice.mergedDesc':
+      'Geben Sie einen beliebigen Wert ein (wird über merged_value zurückgegeben).',
+    'conflict.choice.resultCustom': 'Benutzerdefiniert',
+    'conflict.choice.baseText': 'Zurück zu BASE',
+    'conflict.choice.baseTextDesc': 'Verwenden Sie die Datei der BASE (gemeinsamer Vorfahre).',
+    'conflict.choice.resultBaseFile': 'BASE-Datei',
+    'conflict.choice.mineConflict': 'Nur meine Änderungen anwenden',
+    'conflict.choice.mineConflictDesc':
+      'Führen Sie die Dreiwegezusammenführung erneut aus und behalten Sie dabei nur meine Änderungen bei; die Änderungen der Gegenseite werden verworfen.',
+    'conflict.choice.resultMineConflict': 'Zusammenführungsergebnis (nur meine Änderungen)',
+    'conflict.choice.theirsConflict': 'Nur die Änderungen der Gegenseite anwenden',
+    'conflict.choice.theirsConflictDesc':
+      'Führen Sie die Dreiwegezusammenführung erneut aus und behalten Sie dabei nur die Änderungen der Gegenseite bei; meine Änderungen werden verworfen.',
+    'conflict.choice.resultTheirsConflict':
+      'Zusammenführungsergebnis (nur Änderungen der Gegenseite)',
+    'conflict.choice.keepLocalState': 'Lokalen Zustand beibehalten',
+    'conflict.choice.keepLocalStateMovedDesc':
+      'Aktualisieren Sie den wegverschobenen Knoten, um die eingehende Änderung anzuwenden.',
+    'conflict.choice.keepLocalStateDesc':
+      'Behalten Sie den Zustand des lokalen Verzeichnisses bei; daraus wegverschobene untergeordnete Knoten lösen neue moved-away-Konflikte aus.',
+    'conflict.choice.resultMovedUpdated': 'Aktualisierter wegverschobener Knoten',
+    'conflict.choice.resultLocalState': 'Lokaler Zustand',
+    'conflict.choice.acceptCurrent': 'Aktuellen Zustand annehmen',
+    'conflict.choice.acceptCurrentMovedDesc':
+      'Nehmen Sie den aktuellen Zustand der Arbeitskopie an; bei Bedarf wird der Verschiebungsdatensatz dabei verworfen.',
+    'conflict.choice.acceptCurrentDesc':
+      'Nehmen Sie den aktuellen Zustand der Arbeitskopie an und entfernen Sie nur die Konfliktmarkierung.',
+    'conflict.choice.resultCurrentState': 'Aktueller Zustand',
+  },
 })

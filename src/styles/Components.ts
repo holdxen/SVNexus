@@ -117,7 +117,6 @@ export const context_menu_separator = css`
   width: 100%;
   min-width: 100%;
   height: 1px;
-  margin: 4px 0;
   clear: both;
   background-color: var(--semi-color-border);
 `

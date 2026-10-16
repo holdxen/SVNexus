@@ -39,13 +39,19 @@ export interface MoveDialogProps {
   /** 预填的源路径（可为空，由用户手动输入） */
   sources?: MoveSourceItem[]
   needCommitMessage?: boolean
+  defaultDestination?: string
 }
 
-export function NiceMoveDialog(props: { sources?: MoveSourceItem[]; needCommitMessage?: boolean }) {
+export function NiceMoveDialog(props: {
+  sources?: MoveSourceItem[]
+  defaultDestination?: string
+  needCommitMessage?: boolean
+}) {
   const modal = useCurrentModal()
 
   return (
     <MoveDialog
+      defaultDestination={props.defaultDestination}
       afterClose={modal.remove}
       visible={modal.visible}
       onCancel={() => {
@@ -64,7 +70,7 @@ export function NiceMoveDialog(props: { sources?: MoveSourceItem[]; needCommitMe
 
 export default function MoveDialog(props: MoveDialogProps) {
   const t = useT()
-  const [destination, setDestination] = useState('')
+  const [destination, setDestination] = useState(props.defaultDestination ?? '')
   const [commitMessage, setCommitMessage] = useState('')
 
   const [moveAsChild, setMoveAsChild] = useState(true)

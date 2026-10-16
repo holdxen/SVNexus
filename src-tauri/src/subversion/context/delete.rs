@@ -43,7 +43,7 @@ impl Context {
                 .transpose()?
                 .unwrap_or_default();
 
-            self.inner.commit_message = opts.commit_message.clone();
+            self.inner.commit_message = opts.commit_message;
 
             let error = ffi::svn_client_delete4(
                 path,

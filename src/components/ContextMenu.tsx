@@ -58,7 +58,11 @@ export const ContextMenu = forwardRef<HTMLSpanElement, ContextMenuProps>(
             key={index}
             disabled={e.item.disabled}
             className={cx(context_menu_item, e.item.className)}
-            onSelect={e.item.onSelect}
+            onSelect={(event) => {
+              setTimeout(() => {
+                e.item.onSelect?.(event)
+              }, 0)
+            }}
           >
             {e.item.content}
           </Menu.Item>

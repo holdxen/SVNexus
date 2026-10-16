@@ -1,6 +1,11 @@
 import '@douyinfe/semi-ui/react19-adapter'
 import { ConfigProvider, Divider, Dropdown, Popover, Toast } from '@douyinfe/semi-ui'
+import type { Locale as SemiLocale } from '@douyinfe/semi-ui/lib/es/locale/interface'
+import semiDe from '@douyinfe/semi-ui/lib/es/locale/source/de'
 import semiEnUS from '@douyinfe/semi-ui/lib/es/locale/source/en_US'
+import semiEs419 from '@douyinfe/semi-ui/lib/es/locale/source/es_419'
+import semiJaJP from '@douyinfe/semi-ui/lib/es/locale/source/ja_JP'
+import semiPtBR from '@douyinfe/semi-ui/lib/es/locale/source/pt_BR'
 import semiZhCN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN'
 import MoreMenuIcon from '@icons/MoreMenu.svg?react'
 import RecordsIcon from '@icons/Records.svg?react'
@@ -19,7 +24,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router'
 import * as uuid from 'uuid'
 
-import { useLocale, useT, type MessageKey } from '@/i18n'
+import { useLocale, useT, type Locale, type MessageKey } from '@/i18n'
+import errorHumanString from '@/utils/Error'
 
 import { AboutPanel } from './components/AboutPanel'
 import WorkingCopyNotifyPanel from './components/subversion/WorkingCopyNotifyPanel'
@@ -50,9 +56,20 @@ import { NiceAboutDialog } from './views/dialogs/AboutDialog'
 import { NiceAppUpdateDialog } from './views/dialogs/AppUpdateDialog'
 import { NiceFeedbackDialog } from './views/dialogs/FeedbackDialog'
 import { NiceSettingsDialog } from './views/dialogs/SettingsDialog'
+import { WelcomeDropOverlay } from './views/WelcomeView/WelcomeDropOverlay'
 import { WelcomeView } from './views/WelcomeView/WelcomeView'
 import { RouteFileHistoryView } from './views/WorkspaceView/FileHitoryView'
 import { WorkspaceView } from './views/WorkspaceView/WorkspaceView'
+
+/** Semi UI 组件内置文案的语言包。用 Record<Locale, …> 约束，新增语言时不会漏配 */
+const SEMI_LOCALES: Record<Locale, SemiLocale> = {
+  'zh-CN': semiZhCN,
+  'en-US': semiEnUS,
+  'es-419': semiEs419,
+  'pt-BR': semiPtBR,
+  'ja-JP': semiJaJP,
+  'de-DE': semiDe,
+}
 
 // // 将 navigator.clipboard 代理到 Tauri 后端，绕过 WKWebView 的剪贴板权限限制
 // // 解决 Monaco Editor 在 WKWebView 中的 NotAllowedError 和 Canceled 错误
@@ -144,6 +161,8 @@ function Home() {
   const [tabs, setTabs] = useState<TabViewModel[]>([])
   const [update, setUpdate] = useState<Update | null>(null)
   const [notifyLogVisible, setNotifyLogVisible] = useState(false)
+  // 「安装命令行工具」只有 macOS 提供，其它平台连菜单项都不显示
+  const [isMacos, setIsMacos] = useState(false)
   const modal = useModal()
 
   // 通知日志跟着 tab 走。欢迎页和工作副本页都挂了 SubversionProvider，
@@ -208,6 +227,38 @@ function Home() {
       Logger.warn('Export logs failed: ', e)
       Toast.error({ content: t('app.exportLogs.failed'), stack: true })
     }
+  }
+
+  // 照 Zed 的 Install CLI：把 svnexus 软链到 /usr/local/bin，写不进去时弹管理员授权
+  const installCli = async () => {
+    try {
+      const path = await invoke<string | null>('install_cli')
+      // null 表示用户在授权弹窗里点了取消，那是他的选择，不提示
+      if (path !== null) {
+        Toast.success({ content: t('app.installCli.success', { path }), stack: true })
+      }
+    } catch (e) {
+      Logger.warn('Install cli failed: ', e)
+      Toast.error({
+        content: t('app.installCli.failed', { error: errorHumanString(e) }),
+        stack: true,
+      })
+    }
+  }
+
+  useEffect(() => {
+    invoke<boolean>('is_macos')
+      .then(setIsMacos)
+      .catch((e) => {
+        Logger.warn('Detect platform failed: ', e)
+      })
+  }, [])
+
+  // 打开当前窗口的 Web Inspector，方便直接排查前端问题
+  const openDevtools = () => {
+    invoke('open_devtools').catch((e) => {
+      Logger.warn('Open devtools failed: ', e)
+    })
   }
 
   // 启动时检查更新；有新版本才显示升级图标
@@ -474,7 +525,7 @@ function Home() {
   )
 
   return (
-    <ConfigProvider locale={locale === 'en-US' ? semiEnUS : semiZhCN}>
+    <ConfigProvider locale={SEMI_LOCALES[locale]}>
       <TabManager.Provider value={tabManager}>
         <main
           style={{ backgroundColor: 'var(--svnexus-base-color)' }}
@@ -518,6 +569,12 @@ function Home() {
                       {t('app.menu.checkUpdate')}
                     </Dropdown.Item>
                     <Dropdown.Item onClick={exportLogs}>{t('app.menu.exportLogs')}</Dropdown.Item>
+                    {isMacos ? (
+                      <Dropdown.Item onClick={installCli}>{t('app.menu.installCli')}</Dropdown.Item>
+                    ) : null}
+                    <Dropdown.Item onClick={openDevtools}>
+                      {t('app.menu.openDevtools')}
+                    </Dropdown.Item>
                     <Dropdown.Item onClick={showFeedbackDialog}>
                       {t('app.menu.feedback')}
                     </Dropdown.Item>
@@ -569,6 +626,10 @@ function Home() {
           </div>
           <Divider></Divider>
           <div className={cx(flex_1, min_h_0, relative)}>
+            <WelcomeDropOverlay
+              enabled={activeTab !== undefined && 'welcomeView' in activeTab.content}
+              onDrop={(path) => tabManager.openWorkingCopy(activeIdentity, path)}
+            />
             {tabs.map((tab) => (
               <TabContentContextProvider.Provider
                 key={tab.identity}

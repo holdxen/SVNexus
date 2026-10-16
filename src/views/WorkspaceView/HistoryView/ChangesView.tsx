@@ -1,12 +1,17 @@
-import { Typography } from '@douyinfe/semi-ui'
+import { Toast, Typography } from '@douyinfe/semi-ui'
 import { css, cx } from '@linaria/core'
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { save } from '@tauri-apps/plugin-dialog'
+import { writeFile } from '@tauri-apps/plugin-fs'
 import { useEffect, useRef, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
+import * as uuid from 'uuid'
 
 import { CatOptions } from '@/bindings/CatOptions'
 import { LogChangedPathEntry } from '@/bindings/LogChangedPathEntry'
 import { PropertyListEntry } from '@/bindings/PropertyListEntry'
 import { PropertyListOptions } from '@/bindings/PropertyListOptions'
+import { ContextMenu, ContextMenuItemModel } from '@/components/ContextMenu'
 import { BinaryFile } from '@/components/DifferenceEditor'
 import StrongDifferenceEditor, {
   IDifferenceTarget,
@@ -15,7 +20,9 @@ import StrongDifferenceEditor, {
 import ChangeActionIcon from '@/components/subversion/ChangeActionIcon'
 import FileKindIcon from '@/components/subversion/FileKindIcon'
 import VirtualList from '@/components/VirtualList'
+import { base64Encode } from '@/context/Functions'
 import { Subversion, useSubversion } from '@/context/Subversion'
+import { useT } from '@/i18n'
 import {
   border_box,
   flex,
@@ -31,8 +38,10 @@ import {
   whitespace_nowrap,
 } from '@/styles/Classes'
 import { list_item, list_item_selected } from '@/styles/Components'
-import { getSubversionError } from '@/utils/Error'
+import errorHumanString, { getSubversionError } from '@/utils/Error'
+import Logger from '@/utils/Logger'
 import simplifyPath, { repoPath } from '@/utils/Path'
+import { combineUrl } from '@/utils/Url'
 
 export interface ChangesViewProps {
   className?: string
@@ -51,24 +60,13 @@ const icon = css`
   }
 `
 
-function DisplayContent({ content, isDelete }: { content: string; isDelete: boolean }) {
-  const fileName = repoPath.getFileName(content) ?? ''
-  const relativeDirectory = repoPath.getParent(content) ?? ''
-
-  return (
-    <div className={cx(flex_1, flex, gap_x_1)}>
-      <Typography.Text delete={isDelete}>{fileName}</Typography.Text>
-      <Typography.Text type="quaternary">{relativeDirectory}</Typography.Text>
-    </div>
-  )
-}
-
 export function ChangesView(props: ChangesViewProps) {
   const entries = Object.entries(props.entries)
 
   const [selected, setSelected] = useState<number | null>(null)
   const editor = useRef<StrongDifferenceEditorRef | null>(null)
   const subversion = useSubversion()
+  const t = useT()
 
   useEffect(() => {
     if (selected === null) {
@@ -298,37 +296,136 @@ export function ChangesView(props: ChangesViewProps) {
             itemRender={(row) => {
               const [path, entry] = entries[row.index]
               let displayPath = simplifyPath(props.relativePath, path)
+
+              let fileName
+              let relativeDirectory
+
               if (displayPath === '') {
-                displayPath = '/'
+                fileName = repoPath.getFileName(path) ?? '/'
+                relativeDirectory = ''
+              } else {
+                fileName = repoPath.getFileName(displayPath) ?? displayPath
+                relativeDirectory = '/' + repoPath.getParent(displayPath)
+                // if (relativeDirectory === '') {
+                //   relativeDirectory = '/'
+                // }
+              }
+
+              Logger.info('display path:', {
+                path,
+                relativePath: props.relativePath,
+                displayPath,
+                entry,
+              })
+
+              // 只有文件行才有菜单：目录没有可保存的内容，也没有文件历史
+              const menu: ContextMenuItemModel[] = []
+
+              if (entry.nodeKind === 'file') {
+                // 被删除的文件在 currentRevision 已经不存在，内容得回到上一版取
+                const revision =
+                  entry.action === 'delete' ? props.compareRevision : props.currentRevision
+                const url = combineUrl(props.repositoryRoot, path)
+
+                menu.push({
+                  item: {
+                    content: t('shared.action.save'),
+                    onSelect: async () => {
+                      const target = await save({
+                        title: t('dialogs.saveFile'),
+                        defaultPath: fileName,
+                        canCreateDirectories: true,
+                      })
+                      if (target === null) {
+                        return
+                      }
+
+                      await Subversion.callOnce({
+                        factory: subversion,
+                        call: async (context) => {
+                          const options: CatOptions = {
+                            path: props.repositoryRoot + path,
+                            pegRevision: { number: revision },
+                            revision: { number: revision },
+                            expandKeywords: false,
+                            getProperties: false,
+                          }
+
+                          const content = await context.cat(options)
+                          await writeFile(target, content.content)
+                          Toast.success({
+                            content: t('changes.history.saveSuccess', { path: target }),
+                            stack: true,
+                          })
+                        },
+                        onError: (error) => {
+                          Toast.error({
+                            content: t('changes.history.saveFailed', {
+                              path: target,
+                              error: errorHumanString(error),
+                            }),
+                            stack: true,
+                          })
+                        },
+                      })
+                    },
+                  },
+                })
+
+                menu.push({
+                  item: {
+                    content: t('shared.action.fileHistory'),
+                    onSelect: async () => {
+                      try {
+                        const id = uuid.v4()
+                        const encoded = await base64Encode(new TextEncoder().encode(url), false)
+                        const webview = new WebviewWindow(id, {
+                          url: `/FileHistoryView/${encoded}/${revision}`,
+                          title: url,
+                          width: 800,
+                          height: 600,
+                        })
+                        await webview.show()
+                      } catch (e) {
+                        Logger.error('Failed to create file history window: ', e)
+                      }
+                    },
+                  },
+                })
               }
 
               return (
-                <div
-                  style={{ height: 30 }}
-                  onClick={() => setSelected(row.index)}
-                  className={cx(
-                    flex_1,
-                    flex,
-                    icon,
-                    py_1,
-                    px_1,
-                    overflow_hidden,
-                    gap_x_1,
-                    items_center,
-                    list_item,
-                    whitespace_nowrap,
-                    border_box,
-                    row.index == selected && list_item_selected,
-                  )}
-                >
-                  <ChangeActionIcon action={entry.action} />
-                  <FileKindIcon kind={entry.nodeKind}></FileKindIcon>
+                <ContextMenu menu={menu} asChild>
+                  <div
+                    style={{ height: 30 }}
+                    onClick={() => setSelected(row.index)}
+                    onContextMenu={() => setSelected(row.index)}
+                    className={cx(
+                      flex_1,
+                      flex,
+                      icon,
+                      py_1,
+                      px_1,
+                      overflow_hidden,
+                      gap_x_1,
+                      items_center,
+                      list_item,
+                      whitespace_nowrap,
+                      border_box,
+                      row.index == selected && list_item_selected,
+                    )}
+                  >
+                    <ChangeActionIcon action={entry.action} />
+                    <FileKindIcon kind={entry.nodeKind}></FileKindIcon>
 
-                  <DisplayContent
-                    content={displayPath}
-                    isDelete={entry.action === 'delete'}
-                  ></DisplayContent>
-                </div>
+                    <div className={cx(flex_1, flex, gap_x_1)}>
+                      <Typography.Text delete={entry.action === 'delete'}>
+                        {fileName}
+                      </Typography.Text>
+                      <Typography.Text type="quaternary">{relativeDirectory}</Typography.Text>
+                    </div>
+                  </div>
+                </ContextMenu>
               )
             }}
             count={entries.length}

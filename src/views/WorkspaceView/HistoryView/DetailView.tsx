@@ -22,9 +22,12 @@ import {
   overflow_hidden,
   px_1,
   py_2,
+  select_text,
   whitespace_nowrap,
+  whitespace_pre,
 } from '@/styles/Classes'
 import { list_item, list_item_selected } from '@/styles/Components'
+import Logger from '@/utils/Logger'
 import simplifyPath from '@/utils/Path'
 
 export interface DetailViewProps {
@@ -59,27 +62,39 @@ export default function DetailView(props: DetailViewProps) {
   const data = [
     {
       key: 'Author:',
-      value: props.entry.revisionProperties?.[authorKey] ?? '',
+      value: (
+        <span className={cx(select_text)}>{props.entry.revisionProperties?.[authorKey] ?? ''}</span>
+      ),
     },
     {
       key: 'Revision:',
-      value: props.entry.revision === null ? '' : String(props.entry.revision),
+      value: (
+        <span className={cx(select_text)}>
+          {props.entry.revision === null ? '' : String(props.entry.revision)}
+        </span>
+      ),
     },
     {
       key: 'Date:',
-      value: props.entry.revisionProperties?.[dateKey] ?? '',
+      value: (
+        <span className={cx(select_text)}> {props.entry.revisionProperties?.[dateKey] ?? ''}</span>
+      ),
     },
     {
       key: 'Message:',
-      value: props.entry.revisionProperties?.[messageKey] ?? '',
+      value: (
+        <span className={cx(whitespace_pre, select_text)}>
+          {props.entry.revisionProperties?.[messageKey] ?? ''}
+        </span>
+      ),
     },
     {
       key: 'Root:',
-      value: props.root,
+      value: <span className={cx(select_text)}> {props.root}</span>,
     },
     {
       key: 'Location:',
-      value: props.location,
+      value: <span className={cx(select_text)}>{props.location}</span>,
     },
   ]
 
@@ -111,6 +126,17 @@ export default function DetailView(props: DetailViewProps) {
 
           let [path, entry] = changes[index]
           path = simplifyPath(props.relateTo, path)
+          if (path === '') {
+            path = '/'
+          } else if (!path.startsWith('/')) {
+            path = '/' + path
+          }
+          Logger.info('display path:', {
+            path: changes[index][0],
+            relateTo: props.relateTo,
+            displayPath: path,
+            entry,
+          })
           return (
             <div
               style={{ height: 35 }}

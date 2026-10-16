@@ -390,6 +390,8 @@ export function Dialog(props: DialogProps) {
 
   return (
     <Modal
+      closeOnOverlayClick={props.maskClosable}
+      closeOnEsc={props.closeOnEsc}
       initialFocusRef={props.initialFocusRef}
       onAnimationEnd={() => {
         if (!props.visible) {
@@ -399,7 +401,8 @@ export function Dialog(props: DialogProps) {
       ref={modalRef}
       animationDuration={200}
       classNames={{
-        modalContainer: cx(flex, justify_center, items_center),
+        modalContainer: cx(flex, justify_center, items_center, props.contentClassName),
+        root: props.className,
       }}
       showCloseIcon={false}
       onClose={() => {

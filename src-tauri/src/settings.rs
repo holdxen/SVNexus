@@ -28,6 +28,14 @@ pub enum LocalePreference {
     ZhCn,
     #[serde(rename = "en-US")]
     EnUs,
+    #[serde(rename = "es-419")]
+    Es419,
+    #[serde(rename = "pt-BR")]
+    PtBr,
+    #[serde(rename = "ja-JP")]
+    JaJp,
+    #[serde(rename = "de-DE")]
+    DeDe,
     #[serde(rename = "system")]
     System,
 }
@@ -67,7 +75,7 @@ fn settings_path() -> error::Result<PathBuf> {
 pub async fn load_settings() -> error::Result<Settings> {
     let path = settings_path()?;
 
-    let text = match std::fs::read_to_string(&path) {
+    let text = match tokio::fs::read_to_string(&path).await {
         Ok(text) => text,
         // 首次启动还没有配置文件
         Err(source) if source.kind() == std::io::ErrorKind::NotFound => {
@@ -93,7 +101,7 @@ pub async fn save_settings(settings: Settings) -> error::Result<()> {
     let text = toml::to_string_pretty(&settings)
         .map_err(|source| std::io::Error::new(std::io::ErrorKind::InvalidData, source))?;
 
-    std::fs::write(&path, text)?;
+    tokio::fs::write(&path, text).await?;
 
     Ok(())
 }
@@ -133,6 +141,30 @@ mod tests {
         assert!(text.contains("locale = \"zh-CN\""), "{text}");
         assert!(text.contains("proxyType = \"http\""), "{text}");
         assert!(text.contains("defaultUsername = \"\""), "{text}");
+    }
+
+    #[test]
+    fn locale_variants_round_trip() {
+        for (locale, name) in [
+            (LocalePreference::ZhCn, "zh-CN"),
+            (LocalePreference::EnUs, "en-US"),
+            (LocalePreference::Es419, "es-419"),
+            (LocalePreference::PtBr, "pt-BR"),
+            (LocalePreference::JaJp, "ja-JP"),
+            (LocalePreference::DeDe, "de-DE"),
+            (LocalePreference::System, "system"),
+        ] {
+            let settings = Settings {
+                locale,
+                ..Default::default()
+            };
+
+            let text = toml::to_string_pretty(&settings).unwrap();
+            assert!(text.contains(&format!("locale = \"{name}\"")), "{text}");
+
+            let parsed: Settings = toml::from_str(&text).unwrap();
+            assert_eq!(parsed.locale, locale);
+        }
     }
 
     #[test]

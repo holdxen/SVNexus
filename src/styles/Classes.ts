@@ -70,6 +70,10 @@ export const overflow_y_auto = css`
   overflow-y: auto;
 `
 
+export const overflow_x_auto = css`
+  overflow-x: auto;
+`
+
 // ==================== Cursor ====================
 export const cursor_pointer = css`
   cursor: pointer;
@@ -428,4 +432,8 @@ export const box = css`
   & > :only-child {
     flex: 1;
   }
+`
+
+export const whitespace_pre = css`
+  white-space: pre;
 `

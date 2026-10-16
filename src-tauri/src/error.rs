@@ -184,7 +184,7 @@ pub enum Error {
     DatabaseError {
         #[serde(serialize_with = "serialize_with_display")]
         #[ts(type = "string")]
-        source: surrealdb::Error,
+        source: Box<surrealdb::Error>,
         #[serde(skip)]
         backtrace: Backtrace,
 
@@ -360,7 +360,7 @@ impl From<rmp_serde::encode::Error> for Error {
 impl From<surrealdb::Error> for Error {
     #[track_caller]
     fn from(value: surrealdb::Error) -> Self {
-        builder::Database {}.into_error(value)
+        builder::Database {}.into_error(Box::new(value))
     }
 }
 

@@ -1,7 +1,9 @@
 import { cx } from '@linaria/core'
+import { useMemoizedFn } from 'ahooks'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useNotifyLogStore } from '@/context/NotifyLog'
+import { useSettings } from '@/context/Settings'
 import {
   createSingletonSubversion,
   createTransientSubversion,
@@ -23,8 +25,6 @@ import { NiceSSHPassphraseDialog } from './dialogs/SSHPassphraseDialog'
 import { NiceSSHVerifyNewHostKeyDialog } from './dialogs/SSHVerifyNewHostKeyDialog'
 import { NiceSslClientCertificateDialog } from './dialogs/SslClientCertificateDialog'
 import SslServerTrustPromptDialog from './dialogs/SslServerTrustPromptDialog'
-import { useSettings } from '@/context/Settings'
-import { useMemoizedFn } from 'ahooks'
 
 export function SubversionProvider({
   children,
@@ -105,8 +105,9 @@ export function SubversionProvider({
       })
     }
 
-
-    return singleton ? createSingletonSubversion(onCreated, onCreating) : createTransientSubversion(onCreated, onCreating)
+    return singleton
+      ? createSingletonSubversion(onCreated, onCreating)
+      : createTransientSubversion(onCreated, onCreating)
   }, [])
 
   useEffect(() => {

@@ -37,6 +37,7 @@ pub struct CopyResult {
 }
 
 impl Context {
+    #[tracing::instrument]
     pub fn copy(&mut self, opts: CopyOptions) -> error::Result<CopyResult> {
         unsafe {
             let mut pool = apr::Pool::create();

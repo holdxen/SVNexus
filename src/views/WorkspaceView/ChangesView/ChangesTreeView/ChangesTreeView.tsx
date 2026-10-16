@@ -1052,19 +1052,32 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
           (copyMove.source !== undefined &&
             'move' in copyMove.source &&
             copyMove.source.isLocal === false),
-        onSelect: () => {
+        onSelect: async () => {
           if (copyMove.source !== undefined) {
             if ('copy' in copyMove.source) {
-              modal.show(NiceCopyDialog, {
-                needCommitMessage: false,
-                sources: copyMove.source.copy,
-                defaultDestination: tree.getSelectedItems()[0].getItemData().path,
-              })
+              const result = await modal
+                .show(NiceCopyDialog, {
+                  needCommitMessage: false,
+                  sources: copyMove.source.copy,
+                  defaultDestination: tree.getSelectedItems()[0].getItemData().path,
+                })
+                .as<boolean>()
+              if (result) {
+                await refresh()
+                copyMove.setSource(undefined)
+              }
             } else if ('move' in copyMove.source) {
-              modal.show(NiceMoveDialog, {
-                sources: copyMove.source.move,
-                needCommitMessage: false,
-              })
+              const result = await modal
+                .show(NiceMoveDialog, {
+                  sources: copyMove.source.move,
+                  needCommitMessage: false,
+                  defaultDestination: tree.getSelectedItems()[0].getItemData().path,
+                })
+                .as<boolean>()
+              if (result) {
+                await refresh()
+                copyMove.setSource(undefined)
+              }
             }
           }
         },
@@ -1177,7 +1190,7 @@ export function ChangesTreeView(props: ChangesTreeViewProps) {
             const isFolder = item.isFolder()
             const isExpanded = item.isExpanded()
             const isSelected = item.isSelected()
-            const model = fromStatusEntry(item.getItemData(), false)
+            const model = fromStatusEntry(item.getItemData(), false, workingCopy.path)
 
             return (
               <ContextMenu menu={menu}>

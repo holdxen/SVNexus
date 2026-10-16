@@ -8,12 +8,14 @@
 //!
 //! 1. try candidates in OpenSSH's order, skipping missing/unusable ones with
 //!    a log line instead of failing the connection —
-//!    `sshconnect2.c:1529 do_log2("no such identity: %s")`;
+//!    `sshconnect2.c:1537 do_log2("no such identity: %s")` in
+//!    `sshconnect2.c:1527 load_identity_file()`;
 //! 2. ask the frontend for a passphrase **only** when a candidate really is
-//!    encrypted (`sshconnect2.c:1541`, first try with an empty passphrase,
+//!    encrypted (`sshconnect2.c:1542`, first try with an empty passphrase,
 //!    then prompt);
 //! 3. treat an empty/cancelled passphrase as "skip this key", not as a
-//!    connection error — `debug2("no passphrase given, try next key")`.
+//!    connection error — `sshconnect2.c:1548 debug2("no passphrase given,
+//!    try next key")`.
 //!
 //! Deliberately out of scope for now (same as the agreed v1):
 //! ssh-agent, PKCS#11, `sk-*` hardware keys, certificates and the
@@ -70,7 +72,7 @@ pub enum Identity {
 /// config line must never stop the connection.
 pub fn discover(host: &str, port: u16, remote_user: Option<&str>) -> Vec<Candidate> {
     match std::env::home_dir() {
-        Some(home) => discover_in(&home, host, port, remote_user),
+        Some(home) => discover_in(&home, host, port, remote_user, None),
         None => {
             tracing::warn!("No home directory, SSH identity discovery skipped");
             Vec::new()
@@ -78,16 +80,21 @@ pub fn discover(host: &str, port: u16, remote_user: Option<&str>) -> Vec<Candida
     }
 }
 
-/// [`discover`] with an explicit home directory (used by tests).
+/// [`discover`] with an explicit home directory. `system_config` overrides the
+/// platform's `/etc/ssh/ssh_config`; tests point it at a file of their own so
+/// the real system configuration cannot leak into their expectations.
 pub fn discover_in(
     home: &Path,
     host: &str,
     port: u16,
     remote_user: Option<&str>,
+    system_config: Option<&Path>,
 ) -> Vec<Candidate> {
-    let found = ssh_identity::discover(
-        &ssh_identity::DiscoverOptions::new(home, host, port).remote_user(remote_user),
-    );
+    let mut options = ssh_identity::DiscoverOptions::new(home, host, port).remote_user(remote_user);
+    if let Some(path) = system_config {
+        options = options.system_config(Some(Some(path)));
+    }
+    let found = ssh_identity::discover(&options);
 
     for warning in &found.warnings {
         tracing::warn!("ssh config: {warning}");
@@ -123,9 +130,11 @@ pub fn load(candidate: &Candidate, passphrase: Option<&[u8]>) -> Identity {
             }
             return Identity::Missing;
         }
-        Err(e) => return Identity::Unusable {
-            detail: format!("can't read: {e}"),
-        },
+        Err(e) => {
+            return Identity::Unusable {
+                detail: format!("can't read: {e}"),
+            }
+        }
     };
 
     if let Some(warning) = permission_warning(path) {
@@ -289,8 +298,12 @@ fn sidecar_public(path: &Path) -> Option<(String, Option<String>)> {
 
 fn parse_public(bytes: &[u8]) -> Option<(String, Option<String>)> {
     match Parser::default().parse_public_key_file(bytes) {
-        Ok(Public::Normal { r#type, comment, .. })
-        | Ok(Public::Certificate { r#type, comment, .. }) => {
+        Ok(Public::Normal {
+            r#type, comment, ..
+        })
+        | Ok(Public::Certificate {
+            r#type, comment, ..
+        }) => {
             // `.pub` files end with a newline, flatline keeps it in the
             // trailing comment.
             Some((r#type, comment.map(|c| c.trim().to_string())))
@@ -412,10 +425,7 @@ IiLXyyl8ljlPZ3T0/bZWjp7gOLO4Xd1Wl506+kpGOtQWyFoasqQrh0DaMELnoMCs
         }
 
         assert!(
-            matches!(
-                load(&key, Some(b"wrong")),
-                Identity::WrongPassphrase { .. }
-            ),
+            matches!(load(&key, Some(b"wrong")), Identity::WrongPassphrase { .. }),
             "a wrong passphrase must be reported as such so we can re-prompt"
         );
 
@@ -497,7 +507,10 @@ IiLXyyl8ljlPZ3T0/bZWjp7gOLO4Xd1Wl506+kpGOtQWyFoasqQrh0DaMELnoMCs
         // A passphrase handed to a key that does not need one is ignored,
         // exactly like sshkey_load_private_type() does.
         let plain = write(&dir, "id_ed25519", PLAIN_ED25519);
-        assert!(matches!(load(&plain, Some(b"stray")), Identity::Plain { .. }));
+        assert!(matches!(
+            load(&plain, Some(b"stray")),
+            Identity::Plain { .. }
+        ));
     }
 
     #[test]
@@ -528,7 +541,15 @@ IiLXyyl8ljlPZ3T0/bZWjp7gOLO4Xd1Wl506+kpGOtQWyFoasqQrh0DaMELnoMCs
         )
         .unwrap();
 
-        let work = discover_in(dir.path(), "example.com", 22, None);
+        // A system config path that does not exist keeps the real
+        // /etc/ssh/ssh_config out of these expectations.
+        let work = discover_in(
+            dir.path(),
+            "example.com",
+            22,
+            None,
+            Some(&dir.path().join("absent-ssh_config")),
+        );
         assert_eq!(
             work,
             [
@@ -543,7 +564,13 @@ IiLXyyl8ljlPZ3T0/bZWjp7gOLO4Xd1Wl506+kpGOtQWyFoasqQrh0DaMELnoMCs
             ]
         );
 
-        let other = discover_in(dir.path(), "other.test", 22, Some("bob"));
+        let other = discover_in(
+            dir.path(),
+            "other.test",
+            22,
+            Some("bob"),
+            Some(&dir.path().join("absent-ssh_config")),
+        );
         assert_eq!(
             other,
             [Candidate {
@@ -556,7 +583,13 @@ IiLXyyl8ljlPZ3T0/bZWjp7gOLO4Xd1Wl506+kpGOtQWyFoasqQrh0DaMELnoMCs
     #[test]
     fn defaults_are_discovered_when_no_config_exists() {
         let dir = TempDir::new().unwrap();
-        let found = discover_in(dir.path(), "example.com", 22, None);
+        let found = discover_in(
+            dir.path(),
+            "example.com",
+            22,
+            None,
+            Some(&dir.path().join("absent-ssh_config")),
+        );
         let paths: Vec<&Path> = found.iter().map(|c| c.path.as_path()).collect();
         assert_eq!(
             paths,

@@ -43,7 +43,6 @@ import {
   p_2,
   self_center,
 } from '@/styles/Classes'
-import { box_shadow } from '@/styles/Components'
 
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'
@@ -357,7 +356,18 @@ export default function MergeDialog(props: MergeDialogProps) {
                   placeholder={t('merge.source.placeholder')}
                 />
               </DialogFormItem>
-              <div className={cx(flex, flex_col, box_shadow, p_2, border_box, border_radius_5)}>
+              <div
+                className={cx(
+                  flex,
+                  flex_col,
+                  css`
+                    border: 1px solid var(--semi-color-border);
+                  `,
+                  p_2,
+                  border_box,
+                  border_radius_5,
+                )}
+              >
                 <DialogFormItem title={t('merge.source.pegTitle')} wrapperClassName={cx(flex)}>
                   <RevisionSelect
                     className={cx(flex_1)}

@@ -750,7 +750,7 @@ export default function FileHistoryView(props: FileHistoryViewProps) {
 
   const selectedPath = getSelectedPath()
 
-  const title = selectedPath !== undefined ? `^${selectedPath}:r${selectedRevision}` : ' '
+  const title = selectedPath !== undefined ? `^${selectedPath}@r${selectedRevision}` : ' '
 
   return (
     <div className={cx(flex, flex_col, gap_y_1, flex_1, minimizable, props.className)}>

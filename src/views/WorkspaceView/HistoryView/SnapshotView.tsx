@@ -44,6 +44,7 @@ import {
   overflow_y_auto,
 } from '@/styles/Classes'
 import Logger from '@/utils/Logger'
+import { repoPath } from '@/utils/Path'
 import { combineUrl } from '@/utils/Url'
 
 export interface SnapshotViewProps {
@@ -194,8 +195,8 @@ export function SnapshotView(props: SnapshotViewProps) {
     },
     getItemName: (item) => {
       let path = item.getItemData().path
-      if (path === '') {
-        return '/'
+      if (path === root) {
+        return repoPath.getFileName(url) ?? '/'
       }
       return path
     },

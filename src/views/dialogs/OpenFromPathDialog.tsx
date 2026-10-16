@@ -1,35 +1,16 @@
-import { IconFolderStroked } from '@douyinfe/semi-icons'
 import { Toast } from '@douyinfe/semi-ui'
-import { css, cx } from '@linaria/core'
-import { open } from '@tauri-apps/plugin-dialog'
-import { stat } from '@tauri-apps/plugin-fs'
+import { cx } from '@linaria/core'
 import { useRef, useState } from 'react'
 
-import PureInput from '@/components/PureInput'
+import PathInput from '@/components/PathInput'
 import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
 import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
-import { cursor_pointer, flex, flex_col, gap_y_3 } from '@/styles/Classes'
+import { flex, flex_col, gap_y_3 } from '@/styles/Classes'
 
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'
-
-const button = css`
-  color: var(--semi-color-primary);
-  &:hover {
-    color: var(--semi-color-primary-hover);
-  }
-  &:active {
-    color: var(--semi-color-primary-active);
-  }
-`
-
-const inputIcon = css`
-  .semi-input-append {
-    cursor: default;
-  }
-`
 
 export function OpenFromPathDialog() {
   const t = useT()
@@ -38,31 +19,6 @@ export function OpenFromPathDialog() {
   const [path, setPath] = useState('')
 
   const tabContent = useTabContent()
-
-  const selectPath = async () => {
-    let defaultPath: string | undefined
-    if (path !== '') {
-      try {
-        const info = await stat(path)
-        if (info.isDirectory) {
-          defaultPath = path
-        }
-      } catch {
-        // path invalid, ignore
-      }
-    }
-    let selected = await open({
-      title: t('shared.action.selectWorkingCopy'),
-      multiple: false,
-      directory: true,
-      defaultPath,
-    })
-    if (selected === null) {
-      return
-    }
-    selected = selected.replace(/\\/g, '/')
-    setPath(selected)
-  }
 
   const onOk = () => {
     if (path === '') {
@@ -96,16 +52,13 @@ export function OpenFromPathDialog() {
     >
       <div className={cx(flex, flex_col, gap_y_3)}>
         <DialogFormItem title={t('shared.field.path')}>
-          <PureInput
+          <PathInput
             ref={focusElement}
-            className={inputIcon}
             autoFocus
             value={path}
-            onChange={(value) => setPath(value)}
-            addonAfter={
-              <IconFolderStroked onClick={selectPath} className={cx(cursor_pointer, button)} />
-            }
-          ></PureInput>
+            onChange={setPath}
+            onSelected={setPath}
+          ></PathInput>
         </DialogFormItem>
       </div>
     </Dialog>

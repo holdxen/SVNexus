@@ -1,14 +1,13 @@
-import { IconFolderStroked } from '@douyinfe/semi-icons'
 import { Button, Card, Checkbox, Descriptions, Toast } from '@douyinfe/semi-ui'
 import { Progress } from '@douyinfe/semi-ui'
-import { css, cx } from '@linaria/core'
-import { open } from '@tauri-apps/plugin-dialog'
+import { cx } from '@linaria/core'
 import { useMemoizedFn } from 'ahooks'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { CheckoutOptions } from '@/bindings/CheckoutOptions'
 import { Depth } from '@/bindings/Depth'
 import { Revision } from '@/bindings/Revision'
+import PathInput from '@/components/PathInput'
 import PureInput from '@/components/PureInput'
 import { ScrollArea } from '@/components/ScrollArea'
 import RevisionSelect, { RevisionKind } from '@/components/subversion/RevisionSelect'
@@ -17,7 +16,7 @@ import { useTabContent } from '@/context/TabContent'
 import { useTabManager } from '@/context/TabManager'
 import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
-import { cursor_pointer, flex, flex_1, flex_col, gap_y_3, min_h_0 } from '@/styles/Classes'
+import { flex, flex_1, flex_col, gap_y_3, min_h_0 } from '@/styles/Classes'
 import { disable_move } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 import { localPath } from '@/utils/Path'
@@ -25,43 +24,6 @@ import { localPath } from '@/utils/Path'
 import DepthSelect from '../../components/subversion/DepthSelect'
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'
-
-// export interface CheckoutDialogProps {
-//   ref?: Ref<DialogBase>
-// }
-
-const button = css`
-  color: var(--semi-color-primary);
-  &:hover {
-    color: var(--semi-color-primary-hover);
-  }
-  &:active {
-    color: var(--semi-color-primary-active);
-  }
-`
-
-// const indeterminate = css`
-//   .semi-progress-track-inner {
-//     width: 30% !important;
-//     animation: indeterminate 1.5s infinite ease-in-out;
-//   }
-//   @keyframes indeterminate {
-//     0% {
-//       transform: translateX(-100%);
-//     }
-//     100% {
-//       transform: translateX(400%);
-//     }
-//   }
-//   .semi-progress-track {
-//     overflow: hidden;
-//   }
-// `
-// const descriptionsItem = css`
-//   .semi-descriptions-item {
-//     padding-bottom: 0px;
-//   }
-// `
 
 function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
   const t = useT()
@@ -277,16 +239,11 @@ function CheckoutingDialog({ options }: { options: CheckoutOptions }) {
   )
 }
 
-const inputIcon = css`
-  .semi-input-append {
-    cursor: default;
-  }
-`
-
-export function NiceCheckoutDialog() {
+export function NiceCheckoutDialog(props: { defaultUrl?: string }) {
   const modal = useCurrentModal()
   return (
     <CheckoutDialog
+      defaultUrl={props.defaultUrl}
       visible={modal.visible}
       onOk={() => {
         modal.resolve(true)
@@ -306,6 +263,7 @@ export interface CheckoutDialogProps {
   onOk?: () => void
   onCancel?: () => void
   afterClose?: () => void
+  defaultUrl?: string
 }
 
 export default function CheckoutDialog(props: CheckoutDialogProps) {
@@ -317,23 +275,9 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
 
   const [ignoreExternals, setIgnoreExternals] = useState(false)
   const [depth, setDepth] = useState<Depth>('infinity')
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState(props.defaultUrl ?? '')
   const [path, setPath] = useState('')
   const focusElement = useRef(null)
-  // const [checkoutOptions, setCheckoutOptions] = useState<CheckoutOptions | null>(null)
-  // const [checkoutingDialogVersion, setCheckoutingDialogVersion] = useState(0)
-
-  const selectPath = async () => {
-    const selected = await open({
-      title: t('shared.action.selectFolder'),
-      multiple: false,
-      directory: true,
-    })
-    if (selected === null) {
-      return
-    }
-    setPath(selected)
-  }
 
   const onCancel = () => {
     props.onCancel?.()
@@ -414,14 +358,7 @@ export default function CheckoutDialog(props: CheckoutDialogProps) {
             ></PureInput>
           </DialogFormItem>
           <DialogFormItem title={t('shared.field.path')}>
-            <PureInput
-              className={inputIcon}
-              value={path}
-              onChange={(value) => setPath(value)}
-              addonAfter={
-                <IconFolderStroked onClick={selectPath} className={cx(cursor_pointer, button)} />
-              }
-            ></PureInput>
+            <PathInput value={path} onChange={setPath} onSelected={setPath}></PathInput>
           </DialogFormItem>
           <DialogFormItem title={t('shared.field.pegRevision')}>
             <RevisionSelect

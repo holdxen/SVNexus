@@ -104,7 +104,7 @@ pub impl<T> Box<T> {
     }
 
     fn inner_void_pointer_mut(&mut self) -> *mut c_void {
-        let inner: &mut T = &mut **self;
+        let inner: &mut T = self;
         inner as *mut T as *mut c_void
     }
 }

@@ -162,7 +162,10 @@ export default function CopyDialog(props: CopyDialogProps) {
             className={cx(flex, flex_1)}
             bodyStyle={{ display: 'flex', flex: 1, padding: '0.5rem' }}
           >
-            <ScrollArea className={cx(flex_1, flex, gap_y_2, block_minimizable)}>
+            <ScrollArea
+              contentClassName={cx(flex_1)}
+              className={cx(flex_1, flex, gap_y_2, block_minimizable)}
+            >
               {props.sources?.map((source, index) => (
                 <span
                   onClick={() => setSelected(source.path)}

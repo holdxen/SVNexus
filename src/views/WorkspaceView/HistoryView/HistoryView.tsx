@@ -38,12 +38,17 @@ import {
   min_w_0,
   overflow_hidden,
 } from '@/styles/Classes'
+import Logger from '@/utils/Logger'
 import { MessagePackChannel } from '@/utils/MessagePack'
 import { SingleTaskQueue } from '@/utils/Queue'
 import { trimStartSubstring } from '@/utils/String'
+import { combineUrl } from '@/utils/Url'
+import { NiceCreateBranchTagDialog } from '@/views/dialogs/CreateBranchTagDialog'
+import { NiceDifferenceDialog } from '@/views/dialogs/DifferenceDialog'
 import { NiceMergeDialog } from '@/views/dialogs/MergeDialog'
 
 import { useWorkingCopyContext } from '../WorkingCopyView'
+import { useWorkspaceContext } from '../WorkspaceView'
 import { ChangesView } from './ChangesView'
 import DetailView from './DetailView'
 import { SnapshotView } from './SnapshotView'
@@ -59,6 +64,8 @@ interface RevisionLogViewProps {
   className?: string
   onSelectionChanged?: (entry: LogEntry | null) => void
   onReady?: (entry: InfoEntry) => void
+  isLoading: boolean
+  location: string | null
 }
 
 function RevisionLogView(props: RevisionLogViewProps) {
@@ -350,7 +357,9 @@ function RevisionLogView(props: RevisionLogViewProps) {
   //   }
   // }
 
+  const tableSelection = useRef<TableSelection>(null)
   const onSelectionChanged = (selection: TableSelection | null) => {
+    tableSelection.current = selection
     if (selection === null) {
       props.onSelectionChanged?.(null)
       return
@@ -414,6 +423,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
 
   const [searchText, setSearchText] = useState('')
   const modal = useModal()
+  const workspace = useWorkspaceContext()
 
   return (
     <div className={cx(flex, flex_col, gap_y_1, props.className)}>
@@ -440,6 +450,7 @@ function RevisionLogView(props: RevisionLogViewProps) {
           onGetRowId={(e) => (e.revision === undefined ? (e.uuid ?? '') : String(e.revision))}
           globalFilter={searchText}
           rowContextMenu={(row) => {
+            const invalid = info.current === null || row.original.revision === undefined
             return [
               {
                 item: {
@@ -478,6 +489,111 @@ function RevisionLogView(props: RevisionLogViewProps) {
                     if (row.original.date) {
                       writeText(row.original.date)
                     }
+                  },
+                },
+              },
+              {
+                item: {
+                  content: t('changes.history.copyUrl'),
+                  disabled: props.isLoading || props.location === null,
+                  onSelect: () => {
+                    if (props.location === null) {
+                      return
+                    }
+                    if (typeof info.current?.repositoryRootUrl !== 'string') {
+                      return
+                    }
+                    const url = combineUrl(info.current?.repositoryRootUrl, props.location)
+                    writeText(url)
+                  },
+                },
+              },
+              {
+                item: {
+                  content: t('changes.history.copyLocation'),
+                  disabled: props.location === null,
+                  onSelect: () => {
+                    if (props.location === null) {
+                      return
+                    }
+                    writeText(props.location)
+                  },
+                },
+              },
+              {
+                item: {
+                  content: t('shared.action.diff'),
+                  onSelect: () => {
+                    if (typeof info.current?.url !== 'string') {
+                      return
+                    }
+                    if (typeof info.current.revision !== 'number') {
+                      return
+                    }
+                    if (tableSelection.current?.type !== 'row') {
+                      return
+                    }
+                    if (tableSelection.current.rowIds.length !== 1) {
+                      return
+                    }
+                    const revision = Number(tableSelection.current.rowIds[0])
+                    const entry = entries.find((e) => e.revision == revision)
+                    if (typeof entry?.revision !== 'number') {
+                      return
+                    }
+                    if (entry.revision === 0) {
+                      return
+                    }
+
+                    modal.show(NiceDifferenceDialog, {
+                      workingCopy: workingCopy.path,
+                      workspace: workspace.path,
+                      source: {
+                        peg: {
+                          path: info.current?.url,
+                          pegRevision: {
+                            number: info.current?.revision,
+                          },
+                          startRevision: {
+                            number: entry.revision,
+                          },
+                          endRevision: {
+                            number: entry.revision - 1,
+                          },
+                        },
+                      },
+                    })
+                  },
+                },
+              },
+              {
+                item: {
+                  content: t('shared.action.createBranchTag'),
+                  disabled: invalid || info.current?.repositoryRootUrl === info.current?.url,
+                  onSelect: async () => {
+                    if (info.current === null) {
+                      Logger.error('Unreachable')
+                      return
+                    }
+
+                    if (row.original.revision === undefined) {
+                      Logger.warn('Unexpected revision record: ', row.original)
+                      return
+                    }
+
+                    Logger.info('info.current=', info.current)
+
+                    await modal
+                      .show(NiceCreateBranchTagDialog, {
+                        source: {
+                          path: info.current?.url ?? '',
+                          pegRevision: { number: info.current.revision ?? 0 },
+                          revision: { number: row.original.revision ?? 0 },
+                        },
+                        baseUrl: undefined, // 可选预填
+                        name: undefined,
+                      })
+                      .as<boolean>()
                   },
                 },
               },
@@ -606,6 +722,8 @@ export function HistoryView(props: HistoryViewProps) {
       <Group className={cx(flex_1)} orientation="vertical">
         <Panel className={cx(flex)} defaultSize={'60%'}>
           <RevisionLogView
+            location={location}
+            isLoading={isLoading}
             onReady={setInfoEntry}
             onSelectionChanged={setSelectedLogEntry}
             className={cx(flex_1, min_h_0, min_w_0)}

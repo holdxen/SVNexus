@@ -1,8 +1,6 @@
-import { IconFolderStroked } from '@douyinfe/semi-icons'
 import { Card, Checkbox, Descriptions, Select, Toast } from '@douyinfe/semi-ui'
 import { Progress } from '@douyinfe/semi-ui'
-import { css, cx } from '@linaria/core'
-import { open } from '@tauri-apps/plugin-dialog'
+import { cx } from '@linaria/core'
 import { useMemoizedFn } from 'ahooks'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -10,13 +8,13 @@ import { Depth } from '@/bindings/Depth'
 import { ExportOptions } from '@/bindings/ExportOptions'
 import { NativeEOL } from '@/bindings/NativeEOL'
 import { Revision } from '@/bindings/Revision'
-import PureInput from '@/components/PureInput'
+import PathInput from '@/components/PathInput'
 import { ScrollArea } from '@/components/ScrollArea'
 import RevisionSelect, { RevisionKind } from '@/components/subversion/RevisionSelect'
 import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subversion'
 import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
-import { cursor_pointer, flex, flex_1, flex_col, gap_y_2, gap_y_3, min_h_0 } from '@/styles/Classes'
+import { flex, flex_1, flex_col, gap_y_2, gap_y_3, min_h_0 } from '@/styles/Classes'
 import { disable_move } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
 import { localPath } from '@/utils/Path'
@@ -24,16 +22,6 @@ import { localPath } from '@/utils/Path'
 import DepthSelect from '../../components/subversion/DepthSelect'
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'
-
-const button = css`
-  color: var(--semi-color-primary);
-  &:hover {
-    color: var(--semi-color-primary-hover);
-  }
-  &:active {
-    color: var(--semi-color-primary-active);
-  }
-`
 
 // const indeterminate = css`
 //   .semi-progress-track-inner {
@@ -214,12 +202,6 @@ function ExportingDialog({ options }: { options: ExportOptions }) {
   )
 }
 
-const inputIcon = css`
-  .semi-input-append {
-    cursor: default;
-  }
-`
-
 export function NiceExportDialog(props: { defaultPath?: string; defaultRevision?: Revision }) {
   const modal = useCurrentModal()
   return (
@@ -264,30 +246,6 @@ export default function ExportDialog(props: ExportDialogProps) {
   const [nativeEol, setNativeEol] = useState<NativeEOL>('none')
   const [fromPathOrUrl, setFromPathOrUrl] = useState(props.defaultPath ?? '')
   const [toPath, setToPath] = useState('')
-
-  const selectFrom = async () => {
-    const selected = await open({
-      title: t('shared.action.selectWorkingCopy'),
-      multiple: false,
-      directory: true,
-    })
-    if (selected === null) {
-      return
-    }
-    setFromPathOrUrl(selected)
-  }
-
-  const selectToPath = async () => {
-    const selected = await open({
-      title: t('shared.action.selectFolder'),
-      multiple: false,
-      directory: true,
-    })
-    if (selected === null) {
-      return
-    }
-    setToPath(selected)
-  }
 
   const onCancel = () => {
     props.onCancel?.()
@@ -345,26 +303,16 @@ export default function ExportDialog(props: ExportDialogProps) {
       <ScrollArea className={cx(flex_1, min_h_0)} contentClassName={cx(flex)}>
         <div className={cx(flex_1, flex, gap_y_3, flex_col)} style={{ paddingRight: 2 }}>
           <DialogFormItem title={t('shared.field.fromPathOrUrl')}>
-            <PureInput
+            <PathInput
               ref={focusElement}
-              className={inputIcon}
               autoFocus
               value={fromPathOrUrl}
-              onChange={(value) => setFromPathOrUrl(value)}
-              addonAfter={
-                <IconFolderStroked onClick={selectFrom} className={cx(cursor_pointer, button)} />
-              }
-            ></PureInput>
+              onChange={setFromPathOrUrl}
+              onSelected={setFromPathOrUrl}
+            ></PathInput>
           </DialogFormItem>
           <DialogFormItem title={t('shared.field.to')}>
-            <PureInput
-              className={inputIcon}
-              value={toPath}
-              onChange={(value) => setToPath(value)}
-              addonAfter={
-                <IconFolderStroked onClick={selectToPath} className={cx(cursor_pointer, button)} />
-              }
-            ></PureInput>
+            <PathInput value={toPath} onChange={setToPath} onSelected={setToPath}></PathInput>
           </DialogFormItem>
           <DialogFormItem title={t('shared.field.pegRevision')}>
             <RevisionSelect

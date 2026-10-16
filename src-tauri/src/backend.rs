@@ -1488,3 +1488,31 @@ pub async fn open_in_external_application(
     .await
     .context(builder::Runtime)?
 }
+
+/// 只有 macOS 提供；其它平台前端连菜单项都不显示，这里的分支只是为了在 Windows/Linux 上能编译。
+///
+/// 返回 `Some(path)` 表示装好了，`None` 表示用户在管理员授权弹窗里取消了。
+/// osascript 的授权弹窗可能挂很久，所以整个放到 blocking 线程，别占着 async runtime。
+#[tauri::command]
+pub async fn install_cli() -> error::Result<Option<String>> {
+    tokio::task::spawn_blocking(|| -> error::Result<Option<String>> {
+        #[cfg(target_os = "macos")]
+        {
+            Ok(platform::install_cli()?.map(|path| path.to_string_lossy().into_owned()))
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            Err(builder::General {
+                detail: "Install CLI is only available on macOS".to_string(),
+            }
+            .build())
+        }
+    })
+    .await
+    .context(builder::Runtime)?
+}
+
+#[tauri::command]
+pub fn is_macos() -> bool {
+    cfg!(target_os = "macos")
+}

@@ -139,9 +139,24 @@ impl Context {
 
             let path = pool.canonicalize_target(&opts.path)?;
 
-            let peg_revision = opts.peg_revision.to_opt_revision();
+            // svn_client_info4 只看 peg/revision 是不是 unspecified 就决定去挖工作副本，
+            // 它自己不会先按 URL 判断。所以（URL + 两个 unspecified）会让 svn 把这个 URL
+            // 当成本地路径送进 wc_db，撞上 svn_wc__db_read_info 里的
+            // svn_dirent_is_absolute 断言并 abort 掉整个进程（SVN 1.16 的 E235000）。
+            // URL 场景下 unspecified 的语义就是 HEAD——命令行的 svn info 也是先用
+            // svn_opt_resolve_revisions 解析掉再调用的，这里照做。
+            let is_url = ffi::svn_path_is_url(path) != 0;
+            let resolve = |revision: Revision| {
+                if is_url && matches!(revision, Revision::Unspecified) {
+                    Revision::Head
+                } else {
+                    revision
+                }
+            };
 
-            let revision = opts.revision.to_opt_revision();
+            let peg_revision = resolve(opts.peg_revision).to_opt_revision();
+
+            let revision = resolve(opts.revision).to_opt_revision();
 
             let depth = opts.depth.into();
 

@@ -1,8 +1,6 @@
-import { IconFolderStroked } from '@douyinfe/semi-icons'
 import { Card, Checkbox, Descriptions, Progress, Select, Toast } from '@douyinfe/semi-ui'
 import { Data } from '@douyinfe/semi-ui/lib/es/descriptions'
 import { css, cx } from '@linaria/core'
-import { open } from '@tauri-apps/plugin-dialog'
 import { useMemoizedFn } from 'ahooks'
 import dayjs from 'dayjs'
 import { filesize } from 'filesize'
@@ -11,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Depth } from '@/bindings/Depth'
 import { ImportFilterEvent } from '@/bindings/ImportFilterEvent'
 import { ImportOptions } from '@/bindings/ImportOptions'
+import PathInput from '@/components/PathInput'
 import PureInput from '@/components/PureInput'
 import PureTextArea from '@/components/PureTextArea'
 import { ScrollArea } from '@/components/ScrollArea'
@@ -19,7 +18,7 @@ import { Subversion, SubversionEventMap, useSubversion } from '@/context/Subvers
 import { useT } from '@/i18n'
 import { useCurrentModal, useModal } from '@/lib/multi-modal'
 import {
-  cursor_pointer,
+  border_box,
   flex,
   flex_1,
   flex_col,
@@ -28,6 +27,7 @@ import {
   gap_y_3,
   hidden,
   min_h_0,
+  py_1,
 } from '@/styles/Classes'
 import { disable_move } from '@/styles/Components'
 import errorHumanString from '@/utils/Error'
@@ -38,16 +38,6 @@ import DepthSelect from '../../components/subversion/DepthSelect'
 import ConfirmDialog from './ConfirmDialog'
 import { Dialog } from './Dialog'
 import DialogFormItem from './DialogFormItem'
-
-const button = css`
-  color: var(--semi-color-primary);
-  &:hover {
-    color: var(--semi-color-primary-hover);
-  }
-  &:active {
-    color: var(--semi-color-primary-active);
-  }
-`
 
 // Import 进度对话框：执行期间显示进度，支持取消
 function ImportingDialog({
@@ -278,18 +268,6 @@ export default function ImportDialog(props: ImportDialogProps) {
   const [filterType, setFilterType] = useState<FilterType>('none')
   const [filters, setFilters] = useState('')
 
-  const selectPath = async () => {
-    const selected = await open({
-      title: t('shared.action.selectFolderToImport'),
-      multiple: false,
-      directory: true,
-    })
-    if (selected === null) {
-      return
-    }
-    setPath(selected.replace(/\\/g, '/'))
-  }
-
   const onCancel = () => {
     props.onCancel?.()
   }
@@ -356,18 +334,15 @@ export default function ImportDialog(props: ImportDialogProps) {
       initialFocusRef={focusElement}
     >
       <ScrollArea className={cx(flex_1, min_h_0)} contentClassName={cx(flex)}>
-        <div className={cx(flex_1, flex, gap_y_3, flex_col)}>
+        <div className={cx(flex_1, flex, gap_y_3, flex_col, border_box, py_1)}>
           <DialogFormItem title={t('shared.field.pathLocalFolder')}>
-            <PureInput
+            <PathInput
               ref={focusElement}
-              className={inputIcon}
               autoFocus
               value={path}
-              onChange={(value) => setPath(value)}
-              addonAfter={
-                <IconFolderStroked onClick={selectPath} className={cx(cursor_pointer, button)} />
-              }
-            ></PureInput>
+              onChange={setPath}
+              onSelected={setPath}
+            ></PathInput>
           </DialogFormItem>
           <DialogFormItem title={t('shared.field.url')}>
             <PureInput

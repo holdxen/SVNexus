@@ -115,7 +115,10 @@ export function fromStatusEntry(
   if (absolute) {
     fileName = entry.path
   } else {
-    fileName = entry.path === relateTo ? '/' : (localPath.getFileName(entry.path) ?? '')
+    fileName =
+      entry.path === relateTo
+        ? (localPath.getFileName(entry.path) ?? '/')
+        : (localPath.getFileName(entry.path) ?? '')
   }
 
   let relativeDirectory = ''

@@ -9,4 +9,20 @@ export const common = defineMessages({
     'common.ok': 'OK',
     'common.cancel': 'Cancel',
   },
+  es: {
+    'common.ok': 'Aceptar',
+    'common.cancel': 'Cancelar',
+  },
+  pt: {
+    'common.ok': 'OK',
+    'common.cancel': 'Cancelar',
+  },
+  ja: {
+    'common.ok': 'OK',
+    'common.cancel': 'キャンセル',
+  },
+  de: {
+    'common.ok': 'OK',
+    'common.cancel': 'Abbrechen',
+  },
 })

@@ -170,11 +170,23 @@ pub impl apr::Pool {
         unsafe {
             let t = self.string(target)?;
 
-            if ffi::svn_path_is_url(t) == 0 {
-                self.canonicalize_dirent(target)
+            let result = if ffi::svn_path_is_url(t) == 0 {
+                self.canonicalize_dirent(target)?
             } else {
-                self.canonicalize_uri(target)
+                self.canonicalize_uri(target)?
+            };
+
+            // 规范化之后既不是 URL 也不是绝对路径，就不能再交给 libsvn：它会把这种路径
+            // 当成本地路径送进 wc_db，撞上 svn_dirent_is_absolute 断言并 abort 掉整个进程
+            // （svn: E235000）。在这里先拦下来，换成一条读得懂的错误。
+            if ffi::svn_path_is_url(result) == 0 && ffi::svn_dirent_is_absolute(result) == 0 {
+                return builder::General {
+                    detail: format!("Path is neither a url nor an absolute path: {}", target),
+                }
+                .fail();
             }
+
+            Ok(result)
         }
     }
 
@@ -266,14 +278,17 @@ pub impl apr::Pool {
             let url = ffi::svn_path_uri_from_iri(url, self.as_mut_ptr());
             let mut url = ffi::svn_path_uri_autoescape(url, self.as_mut_ptr());
             if contain {
-                let mut target = apr::ffi::apr_pstrdup(self.as_mut_ptr(), url) as *mut u8;
+                // 注意要留住起始指针：循环把 target 推到了字符串末尾，直接返回它就等于返回空串，
+                // 而空串进 svn 会被当成本地路径，最终触发 wc_db 的断言。
+                let start = apr::ffi::apr_pstrdup(self.as_mut_ptr(), url) as *mut u8;
+                let mut target = start;
                 while *target != b'\0' {
                     if *target == b'\\' {
                         *target = b'/';
                     }
                     target = target.byte_offset(1);
                 }
-                url = target as _;
+                url = start as _;
             }
             if ffi::svn_path_is_backpath_present(url) != 0 {
                 // ffi::svn_error_create(

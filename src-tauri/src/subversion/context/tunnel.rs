@@ -388,7 +388,10 @@ async fn try_identities(
             }
             prompts += 1;
 
-            match notifier.ssh_passphrase(&path, Some(username), reported_wrong).await? {
+            match notifier
+                .ssh_passphrase(&path, Some(username), reported_wrong)
+                .await?
+            {
                 Some(passphrase_text) => {
                     passphrase = Some(passphrase_text.into_bytes());
                     // 下一轮若还是没解开，就告诉前端"口令不对"

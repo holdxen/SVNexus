@@ -7,12 +7,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { ClientDifferenceOptions } from '@/bindings/ClientDifferenceOptions'
 import { ClientDifferenceSource } from '@/bindings/ClientDifferenceSource'
 import { Depth } from '@/bindings/Depth'
+import LoadingLayer, { LoadingState } from '@/components/LoadingLayer'
 import { LazyEditor } from '@/components/monaco/LazyEditors'
 import DepthSelect from '@/components/subversion/DepthSelect'
 import { Subversion, useSubversion } from '@/context/Subversion'
 import { useT } from '@/i18n'
 import { useCurrentModal } from '@/lib/multi-modal'
 import {
+  block_minimizable,
   border_box,
   flex,
   flex_1,
@@ -22,8 +24,10 @@ import {
   hidden,
   min_h_0,
   min_w_0,
+  minimizable,
   py_2,
 } from '@/styles/Classes'
+import Logger from '@/utils/Logger'
 import { SingleTaskQueue } from '@/utils/Queue'
 
 import { Dialog } from './Dialog'
@@ -91,6 +95,8 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
   const [noDeleted, setNoDeleted] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [relateTo, setRelateTo] = useState<RelativePath>('None')
+  const [loadingState, setLoadingState] = useState<LoadingState>('none')
+  const [errorMessage, setErrorMessage] = useState<string>()
 
   const path = props.workingCopy
   const root = props.workspace
@@ -148,6 +154,7 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
       changelists: null,
     }
 
+    setLoadingState('loading')
     await Subversion.callOnce({
       factory: subversion,
       call: async (context) => {
@@ -161,8 +168,14 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
         const textDecoder = new TextDecoder('utf-8', {
           fatal: true,
         })
+        Logger.info('Try to decode: ', result.out.length)
         const decoded = textDecoder.decode(result.out)
         setContent(decoded)
+        setLoadingState('none')
+      },
+      onError: (error) => {
+        setLoadingState('error')
+        setErrorMessage(String(error))
       },
     })
 
@@ -250,13 +263,17 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
             <Typography.Text className={cx(path2 === null && hidden)}>{path2}</Typography.Text>
           </div>
         </DialogFormItem>
-        <DialogFormItem
-          className={cx(flex_1, min_h_0)}
-          wrapperClassName={min_h_0}
-          title={t('shared.field.result')}
-        >
-          <div className={cx(flex, flex_1, min_h_0, gap_x_2)}>
-            <div className={cx(flex_1, min_h_0, min_w_0)}>
+        <DialogFormItem className={cx(flex_1, minimizable)} title={t('shared.field.result')}>
+          <div className={cx(flex, flex_1, gap_x_2)}>
+            <LoadingLayer
+              retry={() => {
+                queue.run(execute)
+              }}
+              errorMessage={errorMessage}
+              className={cx(flex_1)}
+              contentClassName={cx(block_minimizable)}
+              state={loadingState}
+            >
               <LazyEditor
                 value={content}
                 options={{
@@ -264,7 +281,7 @@ export default function DifferenceDialog(props: DifferenceDialogProps) {
                   fixedOverflowWidgets: true,
                 }}
               ></LazyEditor>
-            </div>
+            </LoadingLayer>
             <div className={cx(flex, flex_col, min_h_0)}>
               <div className={cx(flex_1, min_h_0)}></div>
               <DialogFormItem title={t('shared.field.depth')}>
